@@ -1,0 +1,25 @@
+KET NOI WEBSITE VOI GOOGLE SHEETS
+
+Apps Script đang được website sử dụng: 1Ko_qT88QUg0wMvDmyoC87c51WAgL5NSWt2geOndvj4_OvDjVSuBxbs0F
+URL Web App: https://script.google.com/macros/s/AKfycbzEh2RQN9zoGDfAAFY61Yu8vWZKWti2waWr926L5e6_4ehJouj-tqzfI5FXI2Q-yPJJfg/exec
+Bản triển khai hiện tại: phiên bản 4.
+
+Hai nguồn dữ liệu:
+- Ba thủ tục chuyển sinh hoạt/nhận xét: 1zWKZy2rMCsahX-f96bk9tMJuLcDp13OfKNcQq3T5oXA
+- Thu nộp đảng phí: 1TtO9dO5muFTBzSclFDpbAALMdmbiiGb1R5FH0DkARK4
+
+Đồng bộ
+- Khi mở trang, trang đọc dữ liệu hiện tại từ bốn tab Sheets qua JSONP; có nút “Đồng bộ Sheets” và tự làm mới mỗi phút/khi quay lại tab.
+- Apps Script đọc dữ liệu theo STT và chỉ trả về các trường đang theo dõi trên trang.
+- Nút “Sửa” trên website tiếp tục gửi dữ liệu lên bảng qua POST.
+- Nhập Excel chỉ thay dữ liệu cục bộ trên trình duyệt hiện tại; lần đồng bộ tiếp theo sẽ lấy Sheets làm nguồn chính.
+- Endpoint đọc là công khai để trang tải được dữ liệu. Người truy cập được trang có thể xem các dữ liệu được hiển thị từ Sheets.
+
+Xác thực ghi
+- Website yêu cầu mã truy cập dùng chung.
+- Apps Script chỉ lưu mã băm; hàm initializeSharedAccessCode đã đặt mã chung và xóa các mã STT cũ.
+- Người biết mã chung có thể gửi cập nhật cho bất kỳ STT nào. Không đăng mã công khai.
+
+Các lần ghi và đọc lỗi được ghi trong Apps Script > Thực thi với sự kiện write_failed/read_failed. Giao diện trình duyệt không đọc được phản hồi POST vì dùng no-cors, nên cần đối chiếu bảng sau khi lưu.
+
+Dự án 1voL0j5JyZLC3lKTuj7LwKxlr31zfmtLlS7AQy7FUJ8qmSnBfji_37VvI hiện chỉ có hàm myFunction và không được website sử dụng.
