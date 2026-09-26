@@ -10,7 +10,8 @@ const CONFIG = {
     'tam-thoi': 'CHUYỂN SINH HOẠT TẠM THỜI',
     'nhan-xet': 'LẤY PHIẾU NHẬN XÉT NƠI CƯ TRÚ'
   },
-  feeTab: 'TIẾN ĐỘ 103 ĐƠN VỊ'
+  feeTab: 'TIẾN ĐỘ 103 ĐƠN VỊ',
+  adminDefaults: { accounts: 274, activated: 256 }
 };
 
 function initializeSharedAccessCode() {
@@ -35,7 +36,17 @@ function doGet(e) {
     });
     const feeBook = SpreadsheetApp.openById(CONFIG.feeSpreadsheetId);
     const feeSheet = feeBook.getSheetByName(CONFIG.feeTab);
-    const result = { ok: true, updatedAt: new Date().toISOString(), procedures, fee: readFeeRows_(feeSheet) };
+    const props = PropertiesService.getScriptProperties();
+    const result = {
+      ok: true,
+      updatedAt: new Date().toISOString(),
+      procedures,
+      fee: readFeeRows_(feeSheet),
+      admin: {
+        accounts: Number(props.getProperty('ADMIN_ACCOUNT_COUNT') || CONFIG.adminDefaults.accounts),
+        activated: Number(props.getProperty('ADMIN_ACTIVATED_COUNT') || CONFIG.adminDefaults.activated)
+      }
+    };
     return jsonp_(callback, result);
   } catch (err) {
     console.error(JSON.stringify({event:'read_failed', error:String(err && err.message || err)}));
@@ -77,12 +88,37 @@ function doPost(e) {
     const raw = e && e.parameter && e.parameter.payload;
     if (!raw) throw new Error('Thiếu payload.');
     const request = JSON.parse(raw);
-    unitId = String(Number(request.unitId));
-    procedureId = String(request.procedureId || '');
     const storedHash = PropertiesService.getScriptProperties().getProperty('SHARED_ACCESS_CODE_HASH');
     if (!storedHash || !request.accessCode || digest_(String(request.accessCode).trim()) !== storedHash) {
       throw new Error('Mã truy cập không hợp lệ.');
     }
+    const isBatch = Array.isArray(request.updates) || request.admin != null;
+    if (isBatch) {
+      const updates = Array.isArray(request.updates) ? request.updates : [];
+      if (updates.length > 500 || (!updates.length && request.admin == null)) throw new Error('Số dòng cập nhật không hợp lệ.');
+      updates.forEach(item => {
+        unitId = String(Number(item.unitId));
+        procedureId = String(item.procedureId || '');
+        if (!Number.isInteger(Number(unitId)) || Number(unitId) < 1) throw new Error('STT đơn vị không hợp lệ.');
+        if (procedureId === 'dang-phi') updateFee_(unitId, item.values || {});
+        else updateProcedure_(procedureId, unitId, item.values || {});
+      });
+      if (request.admin != null) {
+        const accounts = Number(request.admin.accounts);
+        const activated = Number(request.admin.activated);
+        if (!Number.isInteger(accounts) || accounts < 0 || !Number.isInteger(activated) || activated < 0 || activated > accounts) {
+          throw new Error('Số liệu tổng hợp tài khoản quản trị không hợp lệ.');
+        }
+        PropertiesService.getScriptProperties().setProperties({
+          ADMIN_ACCOUNT_COUNT: String(accounts),
+          ADMIN_ACTIVATED_COUNT: String(activated)
+        });
+      }
+      console.log(JSON.stringify({event:'batch_write_succeeded', count:updates.length, adminUpdated:request.admin != null}));
+      return json_({ ok: true, count: updates.length, adminUpdated: request.admin != null });
+    }
+    unitId = String(Number(request.unitId));
+    procedureId = String(request.procedureId || '');
     const row = request.values || {};
     if (procedureId === 'dang-phi') updateFee_(unitId, row);
     else updateProcedure_(procedureId, unitId, row);
@@ -93,7 +129,6 @@ function doPost(e) {
     return json_({ ok: false, error: String(err && err.message || err) });
   }
 }
-
 function updateProcedure_(procedureId, unitId, v) {
   const tabName = CONFIG.procedureTabs[procedureId];
   if (!tabName) throw new Error('Mã thủ tục không hợp lệ.');
