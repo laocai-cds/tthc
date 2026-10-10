@@ -1,0 +1,308 @@
+/* =========================
+   PROFESSIONAL THEME
+   Tone chuyên nghiệp, doanh nghiệp
+   ========================= */
+
+:root {
+  --bg: #f4f7fb;
+  --panel: #ffffff;
+  --panel-soft: #f8fafc;
+  --line: #e6edf5;
+  --navy: #1d2f4a;
+  --navy-2: #233c5f;
+  --muted: #5f6f85;
+  --text: #1e2d3d;
+  --primary: #2d4a6d;
+  --primary-soft: #edf3fb;
+  --success: #1f7a5a;
+  --warning: #9a6a12;
+  --danger: #9e3b3b;
+  --shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+}
+
+body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: "Segoe UI", Arial, sans-serif !important;
+}
+
+.app,
+.main,
+.content,
+.topbar,
+.panel,
+.card,
+.mini,
+.table-panel,
+table,
+input,
+select,
+button {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.sidebar {
+  background: linear-gradient(180deg, #1d2f4a 0%, #1b2c42 100%) !important;
+  border-right: 1px solid #dfe7f2 !important;
+  box-shadow: none !important;
+}
+
+.sidebar .brand b,
+.sidebar .brand small,
+.sidebar .nav button,
+.sidebar .nav .count,
+.sidebar .sidebar-foot,
+.sidebar .sidebar-foot .chat-launch,
+.sidebar .sidebar-foot .docs-link,
+.sidebar .sidebar-foot .usage-guide summary {
+  color: #edf3ff !important;
+}
+
+.sidebar .nav button {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.sidebar .nav button:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  transform: none !important;
+}
+
+.sidebar .nav button.active {
+  background: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+.sidebar .nav button .ico {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #dfe9f7 !important;
+}
+
+.topbar {
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--line) !important;
+  box-shadow: none !important;
+}
+
+.crumb,
+.crumb b,
+#crumbName {
+  color: var(--muted) !important;
+}
+
+.eyebrow {
+  background: #edf3fb !important;
+  color: var(--primary) !important;
+  border: 1px solid #dfeaf7 !important;
+  border-radius: 8px !important;
+  letter-spacing: 0.08em !important;
+}
+
+#pageTitle,
+.heading h1,
+.panel-head h2,
+.table-head h2,
+.card-top,
+.card-value,
+.card-foot,
+.table-head,
+.table-panel th,
+.table-panel td {
+  color: var(--text) !important;
+}
+
+.card {
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbfe 100%) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  border-left: 1px solid var(--line) !important;
+  box-shadow: var(--shadow) !important;
+  min-height: 110px !important;
+}
+
+.card:after,
+.card:nth-child(1):after,
+.card:nth-child(2):after,
+.card:nth-child(3):after,
+.card:nth-child(4):after {
+  display: none !important;
+}
+
+.card-symbol {
+  background: var(--primary-soft) !important;
+  color: var(--primary) !important;
+  border: 1px solid #dfeaf7 !important;
+  box-shadow: none !important;
+}
+
+.card:nth-child(1) .card-value,
+.card:nth-child(2) .card-value,
+.card:nth-child(3) .card-value,
+.card:nth-child(4) .card-value {
+  color: var(--primary) !important;
+}
+
+.panel,
+.table-panel,
+.mini {
+  background: #ffffff !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.middle .panel:first-child,
+.middle .panel:nth-child(2) {
+  background: #ffffff !important;
+}
+
+.table-panel {
+  border-top: 1px solid var(--line) !important;
+}
+
+thead th {
+  background: #f6f9fc !important;
+  color: var(--muted) !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+
+tbody tr {
+  background: #ffffff !important;
+}
+
+tbody tr:nth-child(even) {
+  background: #fafcfe !important;
+}
+
+tbody tr:hover {
+  background: #f5f9ff !important;
+}
+
+.bar-track {
+  background: #edf2f8 !important;
+  border-radius: 999px !important;
+}
+
+.bar-fill {
+  background: linear-gradient(90deg, #3d5f8d 0%, #74a5d8 100%) !important;
+  border-radius: 999px !important;
+}
+
+.pill.good {
+  background: #e9f7f1 !important;
+  color: #1d7b5b !important;
+}
+
+.pill.warn {
+  background: #fff6e7 !important;
+  color: #8a6510 !important;
+}
+
+.pill.gray {
+  background: #eef2f7 !important;
+  color: #5b6b7d !important;
+}
+
+.rank-chip,
+.rank-chip.first {
+  background: #eef3f9 !important;
+  color: var(--text) !important;
+  border: 1px solid #dfeaf7 !important;
+  box-shadow: none !important;
+}
+
+.btn,
+.btn.primary,
+#exportJson,
+#importJson,
+#syncSheetsBtn,
+#syncAdminSheetsBtn {
+  border-radius: 10px !important;
+  border: 1px solid var(--line) !important;
+  background: #f4f7fb !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+  transition: opacity 0.15s ease;
+}
+
+.btn.primary,
+#exportJson {
+  background: linear-gradient(180deg, #2e4e73 0%, #243e5d 100%) !important;
+  border-color: #203a58 !important;
+  color: #ffffff !important;
+}
+
+.btn:hover,
+.btn.primary:hover,
+#exportJson:hover {
+  filter: brightness(0.98) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+input, select, textarea {
+  border: 1px solid var(--line) !important;
+  background: #ffffff !important;
+  color: var(--text) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #bfd0e7 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(63, 94, 141, 0.08) !important;
+}
+
+/* Bỏ hiệu ứng màu rực */
+.rainbow-top03,
+.rainbow-top03 * ,
+#pageTitle,
+.rainbow-cup,
+.rainbow-top03 .rainbow-cup,
+.title-line .visitor-stats,
+.visitor-stat,
+.page-footer span {
+  background: none !important;
+  background-image: none !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  animation: none !important;
+  box-shadow: none !important;
+}
+
+.source-line,
+.page-footer {
+  color: var(--muted) !important;
+}
+
+.announcement-overlay,
+.import-overlay {
+  background: rgba(17, 25, 38, 0.35) !important;
+}
+
+.announcement-dialog,
+.import-dialog {
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+/* Dọn lại ranking */
+.ranking-table .ranking-unit,
+.ranking-table th,
+.ranking-table td {
+  background: #ffffff !important;
+  border-color: var(--line) !important;
+  color: var(--text) !important;
+}
+
+/* Mềm hơn, không chói */
+* {
+  text-shadow: none !important;
+}
