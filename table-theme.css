@@ -286,3 +286,18 @@
 }
 .table-panel .filters .input{height:28px; font-size:9.5px; width:150px; padding-left:28px; background-position:9px center; background-size:12px}
 @media(max-width:900px){.table-panel .filters .input{width:100%; flex:1 1 100%}}
+
+/* ===== Hiệu ứng sáng khi trỏ chuột vào tiêu đề cột ===== */
+.table-panel thead th{overflow:hidden; cursor:default; transition:background .25s,box-shadow .25s,text-shadow .25s}
+.table-panel thead th::before{
+  content:""; position:absolute; top:0; bottom:0; left:-60%; width:45%; pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);
+  transform:skewX(-20deg);
+}
+.table-panel thead th:hover{
+  background:radial-gradient(120% 180% at 50% 0%,#4a7bc4aa 0,transparent 70%),linear-gradient(170deg,#25518f 0%,#1b3d6e 60%,#223566 100%)!important;
+  box-shadow:inset 0 -3px 0 #f2ca63, inset 0 0 22px rgba(120,170,255,.28);
+  text-shadow:0 0 8px rgba(255,255,255,.75);
+}
+.table-panel thead th:hover::before{left:120%; transition:left .7s ease}
+@media(prefers-reduced-motion:reduce){.table-panel thead th,.table-panel thead th:hover::before{transition:none}}
