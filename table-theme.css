@@ -1,0 +1,185 @@
+/* ===== Bảng "Theo dõi theo đơn vị" — giao diện theo mẫu =====
+   Đi kèm table-theme.js (thêm avatar cán bộ, chip số liệu, nhãn thủ tục). */
+
+.table-panel{
+  --navy:#172c4a; --navy2:#223f6c; --red:#c51620; --ink:#22364f; --muted:#8693a6; --line:#edf0f5;
+  position:relative; overflow:hidden; border:1px solid #e9ecf2; border-top:0; border-radius:16px;
+  background:linear-gradient(135deg,#fff6f0 0%,#ffffff 38%,#f3f7ff 100%);
+  box-shadow:0 14px 38px rgba(23,44,74,.09);
+}
+.table-panel::before{
+  content:""; position:absolute; left:0; right:0; top:0; height:3px; z-index:3;
+  background:linear-gradient(90deg,#c51620,#f08a24,#e8c32e,#2fae6b,#2f7de1,#8a46b8);
+}
+
+/* ---- Tiêu đề + bộ lọc ---- */
+.table-panel .table-head{padding:24px 28px 16px; align-items:center; background:transparent; border:0}
+.table-panel .table-head h2{
+  position:relative; font-size:17px; font-weight:800; color:var(--navy); letter-spacing:-.1px;
+  margin:0; padding-left:48px; line-height:1.25;
+}
+.table-panel .table-head h2::before{
+  content:""; position:absolute; left:0; top:-3px; width:36px; height:36px; border-radius:11px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='4' width='14' height='17' rx='2.5'/%3E%3Cpath d='M9 4h6v3H9z'/%3E%3Cpath d='m9 14 2.2 2.2L15.5 12'/%3E%3C/svg%3E") center/19px no-repeat,
+    linear-gradient(145deg,#f2653f,#c51620);
+  box-shadow:0 6px 14px rgba(197,22,32,.32);
+}
+.table-panel .table-head p{margin:5px 0 0 48px; font-size:11px; color:var(--muted)}
+
+.table-panel .filters{gap:10px; flex-wrap:wrap}
+.table-panel .filters .input,
+.table-panel .filters .select{
+  height:38px; padding:0 14px; font-size:12px; color:#4a5b73; background-color:#fff;
+  border:1px solid #e1e6ee; border-radius:10px; box-shadow:0 2px 6px rgba(23,44,74,.04);
+  transition:border-color .15s,box-shadow .15s;
+}
+.table-panel .filters .input{
+  width:270px; padding-left:36px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238f9bad' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:13px center;
+}
+.table-panel .filters .select{
+  cursor:pointer; appearance:none; -webkit-appearance:none; padding-right:34px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238f9bad' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 13px center;
+}
+.table-panel .filters .input:focus,
+.table-panel .filters .select:focus{border-color:#e0707a; box-shadow:0 0 0 3px rgba(197,22,32,.12); outline:0}
+
+/* ---- Bảng ---- */
+.table-panel .table-wrap{border-top:0; max-height:calc(100vh - 340px); min-height:260px; background:#fff}
+.table-panel table{border-collapse:separate; border-spacing:0; width:100%; font-size:12px}
+
+.table-panel thead th{
+  position:sticky; top:0; z-index:2; padding:15px 14px; text-align:left; white-space:nowrap;
+  background:radial-gradient(110% 160% at 0% 0%,#2f548a60 0,transparent 62%),linear-gradient(170deg,#173a6a 0%,#14294a 56%,#1b2548 100%)!important; color:#fff!important;
+  font-size:10px; font-weight:800; letter-spacing:.7px; text-transform:uppercase;
+  border:0!important; border-right:1px solid rgba(255,255,255,.1)!important;
+}
+.table-panel thead th:last-child{border-right:0!important}
+/* Cột cuối (nút Sửa) có tiêu đề "CẬP NHẬT" */
+.table-panel thead th:last-child:empty::after{content:"CẬP NHẬT"}
+
+/* Căn giữa chữ trong tất cả các cột */
+.table-panel thead th,
+.table-panel tbody td{text-align:center!important; vertical-align:middle}
+.table-panel .officer,
+.table-panel .chips,
+.table-panel .progress-cell{justify-content:center}
+.table-panel .unit-cell{max-width:none}
+.table-panel thead th.done10-col{white-space:normal; text-align:center!important; line-height:1.25}
+
+.table-panel tbody td{
+  padding:11px 14px; color:#3d4f68; font-size:12px; vertical-align:middle; background:#fff;
+  border:0!important; border-bottom:1px solid var(--line)!important; transition:background .15s;
+}
+.table-panel tbody tr:hover td{background:#fff9f3}
+.table-panel tbody tr:last-child td{border-bottom:0!important}
+
+/* Thanh màu bên trái theo trạng thái */
+.table-panel tbody tr td:first-child{box-shadow:inset 3px 0 0 #d9dee7}
+.table-panel tbody tr.st-warn td:first-child{box-shadow:inset 3px 0 0 #f0a030}
+.table-panel tbody tr.st-good td:first-child{box-shadow:inset 3px 0 0 #1fae78}
+
+/* Đơn vị */
+.table-panel .unit-cell{font-weight:800; color:var(--navy); font-size:12px; line-height:1.4; max-width:310px; white-space:normal}
+.table-panel .unit-cell::before{
+  content:""; display:inline-block; width:7px; height:7px; margin-right:9px; border-radius:50%;
+  background:#c9d0db; vertical-align:1px;
+}
+.table-panel tr.st-warn .unit-cell::before{background:#f0a030; box-shadow:0 0 0 3px rgba(240,160,48,.2)}
+.table-panel tr.st-good .unit-cell::before{background:#1fae78; box-shadow:0 0 0 3px rgba(31,174,120,.2)}
+
+/* Chip thủ tục */
+.proc-chip{
+  display:inline-block; max-width:110px; padding:6px 11px; border-radius:14px; white-space:normal;
+  background:#e9f0ff; color:#27479a; font-size:10.5px; font-weight:800; line-height:1.3;
+}
+
+/* Cán bộ phụ trách */
+.officer{display:flex; align-items:center; gap:10px}
+.officer-avatar{
+  flex:none; width:28px; height:28px; border-radius:50%; display:grid; place-items:center;
+  font-size:9.5px; font-weight:800; letter-spacing:.2px; border:1px solid rgba(23,44,74,.08);
+}
+.officer-name{font-weight:500; color:#41536b}
+.officer-empty{font-style:italic; color:#a3adbc; font-size:11px}
+
+/* Chip số liệu hồ sơ / tài khoản */
+.chips{display:flex; align-items:center; gap:7px; flex-wrap:nowrap}
+.chip{display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:10.5px; white-space:nowrap}
+.chip b{font-weight:800}
+.chip-gray{background:#f1f3f7; color:#7d8a9d}
+.chip-gray b{color:#2e3f58}
+.chip-green{background:#dff5e9; color:#15805a}
+.chip-green b{color:#0d6f4c}
+.chip-blue{background:#e6eeff; color:#3558b8}
+.chip-amber{background:#fff1d6; color:#9a650a}
+
+/* Trạng thái */
+.table-panel .pill{
+  gap:6px; padding:5px 12px 5px 10px; border-radius:20px; font-size:10.5px; font-weight:800; border:0;
+}
+.table-panel .pill::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor; flex:none}
+.table-panel .pill.good{background:#dff5e9; color:#0d7a58}
+.table-panel .pill.warn{background:#ffefc9; color:#8f5d08}
+.table-panel .pill.gray{background:#eff1f5; color:#7a889b}
+
+/* Tiến độ */
+.table-panel .progress-cell{gap:12px; min-width:170px}
+.table-panel .progress-cell .bar-track{width:125px; height:7px; border-radius:99px; background:#e9edf3; box-shadow:none}
+.table-panel .progress-cell .bar-fill{border-radius:99px; background:linear-gradient(90deg,#e0262b,#f0623a)}
+.table-panel tr.st-good .progress-cell .bar-fill{background:linear-gradient(90deg,#3fcf98,#12a373)}
+.table-panel .progress-cell strong{
+  min-width:44px; padding:3px 0; text-align:center; border-radius:8px; font-size:11px; font-weight:800;
+  background:#fde9e8; color:#c51620; font-variant-numeric:tabular-nums;
+}
+.table-panel tr.st-good .progress-cell strong{background:#dff5e9; color:#0d7a58}
+.table-panel tr.st-gray .progress-cell strong{background:#eff1f5; color:#97a3b4}
+
+/* Ô tích hình tròn */
+.table-panel .done10-col{text-align:center!important}
+.table-panel input[type="checkbox"]{
+  appearance:none; -webkit-appearance:none; width:20px; height:20px; margin:0; border-radius:50%;
+  border:2px solid #d3d9e3; background:#fff; vertical-align:middle; opacity:1;
+}
+.table-panel input[type="checkbox"]:checked{
+  border-color:#12a373; background:#12a373 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12.5 4 4L18 8'/%3E%3C/svg%3E") center/12px no-repeat;
+}
+
+/* Nút Sửa */
+.table-panel .row-action{
+  display:inline-flex; align-items:center; gap:6px; padding:7px 15px; border:0; border-radius:20px;
+  background:linear-gradient(105deg,#e0262b,#c51620); color:#fff; font-size:11px; font-weight:800; cursor:pointer;
+  box-shadow:0 5px 12px rgba(197,22,32,.3); transition:transform .15s,box-shadow .15s,filter .15s;
+}
+.table-panel .row-action::before{
+  content:""; width:11px; height:11px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h4L19 9l-4-4L4 16z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.table-panel .row-action:hover{color:#fff; transform:translateY(-1px); filter:brightness(1.06); box-shadow:0 7px 16px rgba(197,22,32,.38)}
+
+/* Chân bảng */
+.table-panel .table-foot{padding:14px 28px; background:transparent; border-top:1px solid var(--line); font-size:11px; color:var(--muted)}
+.table-panel .pages{gap:10px}
+.table-panel .pages button{
+  width:30px; height:30px; padding:0; border-radius:50%; font-size:15px; color:#6b7a90;
+  background:#fff; border:1px solid #e1e6ee; box-shadow:0 2px 6px rgba(23,44,74,.05); transition:all .15s;
+}
+.table-panel .pages button:hover:not(:disabled){background:var(--navy); border-color:var(--navy); color:#fff}
+.table-panel .pages span{font-size:11px; font-weight:700; color:var(--navy)}
+.table-panel .empty{padding:48px; color:var(--muted)}
+
+/* Thanh cuộn */
+.table-panel .table-wrap::-webkit-scrollbar{width:9px; height:9px}
+.table-panel .table-wrap::-webkit-scrollbar-thumb{background:#c9d0dc; border-radius:9px}
+.table-panel .table-wrap::-webkit-scrollbar-thumb:hover{background:#a9b4c5}
+
+@media(max-width:760px){
+  .table-panel .table-head{padding:18px 16px 12px}
+  .table-panel .filters .input{width:100%; flex:1 1 100%}
+  .table-panel .filters .select{flex:1 1 45%}
+  .table-panel .table-wrap{max-height:none}
+  .table-panel .table-foot{padding:12px 16px}
+}
