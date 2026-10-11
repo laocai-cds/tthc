@@ -41,7 +41,20 @@
     return -1;
   }
 
+  // Tiêu đề cột: đổi từ IN HOA sang chữ thường (viết hoa chữ cái đầu)
+  function sentenceCase() {
+    thead.querySelectorAll('th').forEach(function (th) {
+      var t = th.textContent.trim();
+      if (!t || t !== t.toLocaleUpperCase('vi')) return; // đã là chữ thường
+      var low = t.toLocaleLowerCase('vi');
+      low = low.charAt(0).toLocaleUpperCase('vi') + low.slice(1);
+      low = low.replace(/(^|\s)(tk|dvc)(?=\s|$)/gi, function (m, a, b) { return a + b.toUpperCase(); });
+      th.textContent = low;
+    });
+  }
+
   function enhance() {
+    sentenceCase();
     var iProc = colIndex('THỦ TỤC');
     var iOwner = colIndex('CÁN BỘ');
     var iLoad = colIndex('HỒ SƠ / TÀI KHOẢN');
@@ -115,4 +128,52 @@
   // renderTable() thay toàn bộ nội dung tbody -> quan sát để áp dụng lại
   // (thead được đặt lại ngay trước tbody trong mỗi lần render nên không cần quan sát riêng)
   new MutationObserver(enhance).observe(tbody, { childList: true });
+})();
+
+/* ===== Thu / mở khối "Tiến độ theo thủ tục" và "Tình hình tổng hợp" ===== */
+(function () {
+  var KEY = 'dvc-middle-collapsed';
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {}
+
+  function persist(idx, collapsed) {
+    saved[idx] = collapsed;
+    try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+  }
+
+  document.querySelectorAll('.middle > .panel').forEach(function (panel, idx) {
+    var head = panel.querySelector(':scope > .panel-head');
+    if (!head || panel.querySelector(':scope > .panel-body')) return;
+
+    // Gói phần thân (giữ nguyên các phần tử và id để trang tiếp tục cập nhật số liệu)
+    var body = document.createElement('div');
+    body.className = 'panel-body';
+    var inner = document.createElement('div');
+    inner.className = 'panel-body-inner';
+    body.appendChild(inner);
+    Array.prototype.slice.call(panel.children).forEach(function (n) {
+      if (n !== head) inner.appendChild(n);
+    });
+    panel.appendChild(body);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'panel-toggle';
+    head.appendChild(btn);
+
+    function set(collapsed) {
+      panel.classList.toggle('collapsed', collapsed);
+      btn.setAttribute('aria-expanded', String(!collapsed));
+      var label = collapsed ? 'Mở rộng' : 'Thu gọn';
+      btn.setAttribute('aria-label', label);
+      btn.title = label;
+    }
+    set(!!saved[idx]);
+
+    head.addEventListener('click', function () {
+      var c = !panel.classList.contains('collapsed');
+      set(c);
+      persist(idx, c);
+    });
+  });
 })();
