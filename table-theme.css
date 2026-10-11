@@ -82,7 +82,7 @@
 .table-panel tbody tr.st-good td:first-child{box-shadow:inset 3px 0 0 #1fae78}
 
 /* Đơn vị */
-.table-panel .unit-cell{font-weight:800; color:var(--navy); font-size:12px; line-height:1.4; max-width:310px; white-space:normal}
+.table-panel .unit-cell{font-weight:800; color:var(--navy); font-size:12px; line-height:1.4; max-width:280px; white-space:normal}
 .table-panel .unit-cell::before{
   content:""; display:inline-block; width:7px; height:7px; margin-right:9px; border-radius:50%;
   background:#c9d0db; vertical-align:1px;
