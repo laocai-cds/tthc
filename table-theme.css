@@ -301,3 +301,8 @@
 }
 .table-panel thead th:hover::before{left:120%; transition:left .7s ease}
 @media(prefers-reduced-motion:reduce){.table-panel thead th,.table-panel thead th:hover::before{transition:none}}
+
+/* Tiêu đề cột: chữ thường, chỉ viết hoa chữ cái đầu (không cần JS) */
+.table-panel thead th{text-transform:lowercase!important}
+.table-panel thead th::first-letter{text-transform:uppercase!important}
+.table-panel thead th:last-child:empty::after{text-transform:none}
