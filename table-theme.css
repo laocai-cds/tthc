@@ -59,7 +59,7 @@
 }
 .table-panel thead th:last-child{border-right:0!important}
 /* Cột cuối (nút Sửa) có tiêu đề "CẬP NHẬT" */
-.table-panel thead th:last-child:empty::after{content:"CẬP NHẬT"}
+.table-panel thead th:last-child:empty::after{content:"Cập nhật"}
 
 /* Căn giữa chữ trong tất cả các cột */
 .table-panel thead th,
@@ -240,3 +240,27 @@
 .table-panel .row-action{padding:3px 10px; font-size:9.5px}
 .table-panel .table-wrap{max-height:calc(100vh - 270px)}
 .table-panel .table-foot{padding:7px 18px}
+
+/* ===== Chữ thường + giảm cỡ chữ ===== */
+.table-panel .table-head h2{font-size:14px; font-weight:700; text-transform:none}
+.table-panel .table-head p{font-size:9.5px}
+.table-panel .filters .input,.table-panel .filters .select{font-size:10px}
+
+/* Tiêu đề cột: chữ thường, không in hoa */
+.table-panel thead th{text-transform:none!important; letter-spacing:0!important; font-size:10px; font-weight:700}
+
+/* Nội dung */
+.table-panel tbody td{font-size:10px; font-weight:400}
+.table-panel .unit-cell{font-size:10px; font-weight:600; min-width:190px}
+.officer-name{font-size:10px; font-weight:400}
+.officer-empty{font-size:9.5px}
+.proc-chip{font-size:8.5px; font-weight:700; text-transform:none}
+.chip{font-size:8.5px}
+.table-panel .pill{font-size:8.5px; font-weight:700; letter-spacing:0}
+.table-panel .progress-cell strong{font-size:9px; font-weight:700}
+.table-panel .row-action{font-size:9px; font-weight:700}
+.table-panel .table-foot{font-size:9.5px}
+.table-panel .pages span{font-size:9.5px}
+
+/* Giữ bảng không bị bóp cột; hẹp quá thì cuộn ngang */
+.table-panel table{min-width:960px}
