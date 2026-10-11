@@ -275,3 +275,14 @@
   .table-panel .filters .input{flex:1 1 150px; width:auto; min-width:120px; max-width:230px}
   .table-panel .filters .select{flex:0 1 auto; width:auto; min-width:0; max-width:150px; padding-left:9px; padding-right:24px; text-overflow:ellipsis; background-position:right 8px center}
 }
+
+/* Cột Đơn vị: căn giữa cả tiêu đề và nội dung */
+.table-panel thead th:first-child,
+.table-panel tbody td.unit-cell{text-align:center!important; padding-left:8px; padding-right:8px}
+
+/* Ô tìm kiếm nhỏ gọn */
+@media(min-width:901px){
+  .table-panel .filters .input{flex:0 1 150px; width:150px; min-width:110px; max-width:150px; height:28px; font-size:9.5px; padding-left:28px; padding-right:8px; background-position:9px center; background-size:12px}
+}
+.table-panel .filters .input{height:28px; font-size:9.5px; width:150px; padding-left:28px; background-position:9px center; background-size:12px}
+@media(max-width:900px){.table-panel .filters .input{width:100%; flex:1 1 100%}}
