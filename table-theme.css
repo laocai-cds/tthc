@@ -48,9 +48,8 @@
 .table-panel .filters .select:focus{border-color:#e0707a; box-shadow:0 0 0 3px rgba(197,22,32,.12); outline:0}
 
 /* ---- Bảng ---- */
-.table-panel .table-wrap{border-top:0; max-height:calc(100vh - 340px); min-height:260px; background:#fff}
+.table-panel .table-wrap{border-top:0; max-height:calc(100vh - 340px); min-height:230px; background:#fff}
 .table-panel table{border-collapse:separate; border-spacing:0; width:100%; font-size:12px}
-
 .table-panel thead th{
   position:sticky; top:0; z-index:2; padding:15px 14px; text-align:left; white-space:nowrap;
   background:radial-gradient(110% 160% at 0% 0%,#2f548a60 0,transparent 62%),linear-gradient(170deg,#173a6a 0%,#14294a 56%,#1b2548 100%)!important; color:#fff!important;
