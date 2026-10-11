@@ -221,3 +221,22 @@
 .table-panel .pages{gap:8px}
 .table-panel .pages button{width:26px; height:26px; font-size:13px}
 .table-panel .pages span{font-size:10px}
+
+/* ===== Gọn hơn nữa + căn trái cột Đơn vị cho thẳng hàng chấm trạng thái ===== */
+.table-panel .table-head{padding:12px 18px 8px}
+.table-panel .filters .input,.table-panel .filters .select{height:30px}
+.table-panel thead th{padding:7px 6px; font-size:8.5px}
+.table-panel tbody td{padding:4px 7px; font-size:10.5px}
+.table-panel thead th:first-child,
+.table-panel tbody td.unit-cell{text-align:left!important; padding-left:14px}
+.table-panel .unit-cell{font-size:10.5px; line-height:1.3}
+.proc-chip{padding:3px 7px; font-size:9px; max-width:90px; line-height:1.2}
+.officer-avatar{width:20px; height:20px; font-size:7.5px}
+.chip{padding:1px 6px; font-size:9px}
+.table-panel .pill{padding:2px 8px 2px 7px; font-size:9px}
+.table-panel .progress-cell .bar-track{width:80px; height:5px}
+.table-panel .progress-cell strong{min-width:34px; font-size:9.5px; padding:1px 0}
+.table-panel input[type="checkbox"]{width:14px; height:14px}
+.table-panel .row-action{padding:3px 10px; font-size:9.5px}
+.table-panel .table-wrap{max-height:calc(100vh - 270px)}
+.table-panel .table-foot{padding:7px 18px}
