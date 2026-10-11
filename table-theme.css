@@ -264,3 +264,14 @@
 
 /* Giữ bảng không bị bóp cột; hẹp quá thì cuộn ngang */
 .table-panel table{min-width:960px}
+
+/* ===== Tiêu đề + bộ lọc nằm gọn trên một hàng ===== */
+@media(min-width:901px){
+  .table-panel .table-head{flex-wrap:nowrap; gap:14px; padding:12px 18px 8px}
+  .table-panel .table-head>div:first-child{flex:0 1 auto; min-width:0}
+  .table-panel .table-head h2{white-space:nowrap}
+  .table-panel .table-head p{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .table-panel .filters{flex:1 1 auto; flex-wrap:nowrap; justify-content:flex-end; gap:6px; min-width:0}
+  .table-panel .filters .input{flex:1 1 150px; width:auto; min-width:120px; max-width:230px}
+  .table-panel .filters .select{flex:0 1 auto; width:auto; min-width:0; max-width:150px; padding-left:9px; padding-right:24px; text-overflow:ellipsis; background-position:right 8px center}
+}
