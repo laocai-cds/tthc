@@ -277,7 +277,7 @@
 
 /* Cột Đơn vị: căn giữa cả tiêu đề và nội dung */
 .table-panel thead th:first-child,
-.table-panel tbody td.unit-cell{text-align:left!important; padding-left:8px; padding-right:8px}
+.table-panel tbody td.unit-cell{text-align:center!important; padding-left:8px; padding-right:8px}
 
 /* Ô tìm kiếm nhỏ gọn */
 @media(min-width:901px){
