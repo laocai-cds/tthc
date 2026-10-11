@@ -183,3 +183,41 @@
   .table-panel .table-wrap{max-height:none}
   .table-panel .table-foot{padding:12px 16px}
 }
+
+/* ===== Thu nhỏ bảng (gọn hơn) ===== */
+.table-panel .table-head{padding:16px 20px 10px}
+.table-panel .table-head h2{font-size:15px; padding-left:40px}
+.table-panel .table-head h2::before{width:30px; height:30px; border-radius:9px; background-size:16px, auto}
+.table-panel .table-head p{margin-left:40px; font-size:10px}
+.table-panel .filters{gap:7px}
+.table-panel .filters .input,.table-panel .filters .select{height:32px; font-size:11px; border-radius:8px; padding:0 11px}
+.table-panel .filters .input{width:220px; padding-left:32px; background-position:11px center}
+.table-panel .filters .select{padding-right:28px}
+
+.table-panel table{font-size:11px}
+.table-panel thead th{padding:9px 8px; font-size:9px; letter-spacing:.5px}
+.table-panel tbody td{padding:6px 8px; font-size:11px}
+.table-panel .unit-cell{font-size:11px}
+.table-panel .unit-cell::before{width:6px; height:6px; margin-right:7px}
+
+.proc-chip{padding:4px 8px; font-size:9.5px; border-radius:11px; max-width:96px}
+.officer{gap:7px}
+.officer-avatar{width:22px; height:22px; font-size:8px}
+.chips{gap:5px}
+.chip{padding:2px 7px; font-size:9.5px}
+.table-panel .pill{padding:3px 9px 3px 8px; font-size:9.5px; gap:5px}
+.table-panel .pill::before{width:5px; height:5px}
+
+.table-panel .progress-cell{gap:8px; min-width:135px}
+.table-panel .progress-cell .bar-track{width:90px; height:6px}
+.table-panel .progress-cell strong{min-width:38px; font-size:10px; padding:2px 0; border-radius:7px}
+.table-panel input[type="checkbox"]{width:16px; height:16px; border-width:1.5px}
+.table-panel input[type="checkbox"]:checked{background-size:10px}
+.table-panel .row-action{padding:4px 11px; font-size:10px; gap:5px; box-shadow:0 3px 8px rgba(197,22,32,.26)}
+.table-panel .row-action::before{width:9px; height:9px}
+
+.table-panel .table-wrap{max-height:calc(100vh - 300px); min-height:220px}
+.table-panel .table-foot{padding:9px 20px; font-size:10px}
+.table-panel .pages{gap:8px}
+.table-panel .pages button{width:26px; height:26px; font-size:13px}
+.table-panel .pages span{font-size:10px}
