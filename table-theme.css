@@ -418,3 +418,46 @@
   .panel-body,.panel-toggle,.middle .bar-row,.middle .mini{transition:none}
   .middle .bar-row .bar-fill::after{animation:none}
 }
+
+/* =====================================================================
+   Hiệu ứng sáng khi trỏ chuột — khối "Tiến độ theo thủ tục" & "Tình hình tổng hợp"
+   ===================================================================== */
+.middle .panel{transition:box-shadow .25s,filter .25s,border-color .25s,transform .25s}
+.middle .panel:hover{
+  filter:brightness(1.04) saturate(1.1);
+  border-color:color-mix(in srgb,var(--acc1) 40%,#fff);
+  box-shadow:0 16px 38px rgba(23,44,74,.12),0 0 0 1px color-mix(in srgb,var(--acc1) 22%,transparent),0 0 26px color-mix(in srgb,var(--acc1) 26%,transparent);
+}
+/* Đầu khối: nền sáng nhẹ + biểu tượng, tiêu đề, nhãn đều sáng lên */
+.middle .panel-head{transition:background .25s}
+.middle .panel-head:hover{background:linear-gradient(100deg,color-mix(in srgb,var(--acc1) 9%,#fff),transparent 78%)}
+.middle .panel-head h2,.middle .panel-head .pill{transition:color .22s,box-shadow .22s,border-color .22s,filter .22s}
+.middle .panel-head h2::before{transition:box-shadow .25s,transform .25s,filter .25s}
+.middle .panel-head:hover h2{color:var(--acc1)}
+.middle .panel-head:hover h2::before{
+  transform:scale(1.07) rotate(-3deg); filter:brightness(1.18) saturate(1.2);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--acc1) 18%,transparent),0 8px 22px color-mix(in srgb,var(--acc1) 55%,transparent);
+}
+.middle .panel-head:hover .pill{
+  border-color:#9fb8f4; filter:brightness(1.05);
+  box-shadow:0 0 0 3px rgba(47,109,240,.14),0 4px 14px rgba(47,109,240,.3);
+}
+/* Nút ⌄ thu / mở: sáng viền, phát sáng, nhích nhẹ */
+.panel-toggle{transition:transform .3s,background-color .2s,box-shadow .2s,border-color .2s,filter .2s}
+.middle .panel-head:hover .panel-toggle,.panel-toggle:hover{
+  border-color:var(--acc1,#2f6df0); background-color:#fff; filter:brightness(1.08);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--acc1,#2f6df0) 18%,transparent),0 0 16px color-mix(in srgb,var(--acc1,#2f6df0) 45%,transparent);
+}
+.panel-toggle:active{filter:brightness(.97)}
+/* Các dòng / ô con sáng thêm */
+.middle .bar-row:hover .bar-fill{filter:brightness(1.12) saturate(1.15); box-shadow:0 0 14px color-mix(in srgb,var(--c1) 70%,transparent)}
+.middle .bar-row:hover .bar-val{background:var(--c1); color:#fff; box-shadow:0 4px 12px color-mix(in srgb,var(--c1) 45%,transparent)}
+.middle .mini:hover .mini-val{filter:brightness(1.12) saturate(1.2)}
+.middle .mini:hover::after{opacity:.18}
+.middle .note-box{transition:box-shadow .22s,filter .22s}
+.middle .note-box:hover{filter:brightness(1.05); box-shadow:0 0 16px rgba(224,172,50,.35)}
+@media(prefers-reduced-motion:reduce){
+  .middle .panel,.middle .panel-head,.middle .panel-head h2::before,.panel-toggle{transition:none}
+  .middle .panel-head:hover h2::before{transform:none}
+}
+@media(hover:none){.middle .panel-head:hover h2::before{transform:none}}
