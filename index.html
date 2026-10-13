@@ -320,7 +320,7 @@ function toast(s){let t=$('#toast');t.textContent=s;t.classList.add('show');setT
 $('#search').oninput=e=>{query=e.target.value;page=1;renderTable()};$('#statusFilter').onchange=e=>{status=e.target.value;page=1;renderTable()};$('#procedureFilter').onchange=()=>{page=1;renderTable()};$('#sortFilter').onchange=e=>{sortBy=e.target.value;page=1;renderTable()};$('#prev').onclick=()=>{page--;renderTable()};$('#next').onclick=()=>{page++;renderTable()};
 $('#exportRanking').onclick=exportOverallRanking;function exportProcedure(pid){let p=procedure(pid),lines,units=[...p.units].sort((a,b)=>progress(p,b)-progress(p,a)||a.id-b.id);if(p.kind==='fee'){lines=[['Thủ tục','STT','Tên đơn vị','Cán bộ phụ trách','Đã hướng dẫn','TK DVC đã tạo','Tổng TK DVC','TK ngân hàng đã tạo','Tổng TK ngân hàng','Đã nộp','Tiến độ','Trạng thái','Lưu ý']];for(let u of units){let st=state(p,u)[0];lines.push([p.short,u.id,u.unit,u.owner,u.guided,u.dvccreated,u.dvctotal,u.bankcreated,u.banktotal,u.paid,pct(progress(p,u)),st,u.note])}}else{lines=[['Thủ tục','STT','Tên đơn vị','Hoàn thành 10 hồ sơ','Cán bộ phụ trách','Đã hướng dẫn','Hồ sơ tiếp nhận','Tổng hồ sơ','Hồ sơ đã xử lý','Tổng phải xử lý','Đã hoàn thành','Tiến độ','Trạng thái']];for(let u of units){let st=state(p,u)[0];lines.push([p.short,u.id,u.unit,u.done10?'Có':'Chưa',u.owner,u.guided,u.received,u.total,u.processed,u.need,u.done,pct(progress(p,u)),st])}}let csv='\ufeff'+lines.map(row=>row.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`bao-cao-tien-do-${pid}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);$('#exportMenu').classList.remove('open');$('#exportBtn').setAttribute('aria-expanded','false');toast('Đã xuất CSV: '+p.short)}
 $('#exportMenu').innerHTML=data.procedures.map(p=>`<button type="button" role="menuitem" data-export="${p.id}">${esc(p.short)}</button>`).join('')+'<button type="button" role="menuitem" id="openImport">↑ Nhập Excel</button><button type="button" role="menuitem" id="exportJson">↓ Xuất JSON</button><button type="button" role="menuitem" id="importJson">↑ Nhập JSON</button>';
-$('#exportMenu').insertAdjacentHTML('beforeend','<button type="button" role="menuitem" id="announcementMenuAction">✎ Thông báo</button>');$('#announcementMenuAction').onclick=()=>{$('#editAnnouncement').click();$('#exportMenu').classList.remove('open');$('#exportBtn').setAttribute('aria-expanded','false')};$('#exportBtn').onclick=()=>{let m=$('#exportMenu'),open=m.classList.toggle('open');$('#exportBtn').setAttribute('aria-expanded',String(open))};$('#exportMenu').onclick=e=>{let b=e.target.closest('[data-export]');if(b)exportProcedure(b.dataset.export)};document.addEventListener('click',e=>{if(!e.target.closest('.export-wrap')){$('#exportMenu').classList.remove('open');$('#exportBtn').setAttribute('aria-expanded','false')}});
+$('#exportMenu').insertAdjacentHTML('beforeend','<button type="button" role="menuitem" id="rptMenuDocx">⬇ Báo cáo Word (.docx)</button><button type="button" role="menuitem" id="rptMenuXlsx">⬇ Báo cáo Excel (.xlsx)</button><button type="button" role="menuitem" id="announcementMenuAction">✎ Thông báo</button>');$('#exportMenu').addEventListener('click',e=>{const b=e.target.closest('#rptMenuDocx,#rptMenuXlsx');if(!b)return;$('#exportMenu').classList.remove('open');$('#exportBtn').setAttribute('aria-expanded','false');try{const m=buildReportModel();b.id==='rptMenuDocx'?exportReportDocx(m,window):exportReportXlsx(m,window)}catch(err){console.error(err);alert('Không xuất được báo cáo: '+(err&&err.message||err))}});$('#announcementMenuAction').onclick=()=>{$('#editAnnouncement').click();$('#exportMenu').classList.remove('open');$('#exportBtn').setAttribute('aria-expanded','false')};$('#exportBtn').onclick=()=>{let m=$('#exportMenu'),open=m.classList.toggle('open');$('#exportBtn').setAttribute('aria-expanded',String(open))};$('#exportMenu').onclick=e=>{let b=e.target.closest('[data-export]');if(b)exportProcedure(b.dataset.export)};document.addEventListener('click',e=>{if(!e.target.closest('.export-wrap')){$('#exportMenu').classList.remove('open');$('#exportBtn').setAttribute('aria-expanded','false')}});
 
 
 // Read .xlsx files locally using browser ZIP/XML APIs; no upload or network request.
@@ -376,6 +376,10 @@ function rptNarrative(m){return[
  `Thủ tục có tiến độ cao nhất là “${m.best.p.short}” (${rptPct(m.best.t.average)}); thấp nhất là “${m.worst.p.short}” (${rptPct(m.worst.t.average)}). Trên tổng số ${fmt(m.all.records)} lượt đơn vị – thủ tục: ${fmt(m.all.done)} lượt hoàn thành, ${fmt(m.all.active)} lượt đang triển khai, ${fmt(m.all.none)} lượt chưa triển khai.`,
  `Tài khoản quản trị dịch vụ công: ${fmt(m.admin.activated)}/${fmt(m.admin.accounts)} tài khoản đã kích hoạt (${rptPct(rptRatio(m.admin.activated,m.admin.accounts))}).`]}
 function rptZeroList(zero,i){const n=zero.map(r=>String(r.u.unit).replace(/^Đảng bộ (xã |phường )?/,''));return n.length>15?n.slice(0,15).join(', ')+' … và '+(n.length-15)+' đơn vị khác (xem Phụ lục 0'+(i+1)+').':n.join(', ')+'.'}
+function rptDownload(blob,name,w){w=w&&!w.closed?w:window;const d=w.document,U=w.URL||URL;
+ try{if(w.navigator&&w.navigator.msSaveOrOpenBlob){w.navigator.msSaveOrOpenBlob(blob,name);return}}catch(e){}
+ const url=U.createObjectURL(blob),a=d.createElement('a');a.href=url;a.download=name;a.rel='noopener';a.style.display='none';d.body.appendChild(a);a.click();
+ setTimeout(()=>{a.remove();try{U.revokeObjectURL(url)}catch(e){}},60000)}
 /* ---------- Xem trước HTML ---------- */
 function rptBar(v,c){return `<span class="rb"><i style="width:${Math.min(100,v*100).toFixed(1)}%;background:${c||(v>=.999?'#0f8a5f':v>=.5?'#2f6df0':v>0?'#d98a0b':'#b8c0cc')}"></i></span>`}
 function rptStatus(s){return `<span class="st ${s==='Hoàn thành'?'ok':s==='Đang triển khai'?'run':'no'}">${s}</span>`}
@@ -487,7 +491,7 @@ function rptXlsxBlob(sheets){
  sheets.forEach((s,i)=>files[`xl/worksheets/sheet${i+1}.xml`]=sheetXml(s));
  return rptZip(files,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 }
-function exportReportXlsx(m){
+function exportReportXlsx(m,w){
  const T=v=>({v,s:4}),N=v=>({v:Number(v)||0,s:5}),P=v=>({v:Number(v)||0,s:6}),H=v=>({v,s:3}),B=v=>({v,s:7});
  const colL=n=>{let s='';n++;while(n){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26)}return s};
  const sheet=(name,sub,head,rows,cols,extra)=>{const w=head.length,L=colL(w-1);
@@ -505,17 +509,17 @@ function exportReportXlsx(m){
     x.rows.map(({u,v,st},k)=>[N(k+1),N(u.id),T(u.unit),T(own(u)),T(u.guided),N(u.received),N(u.total),N(u.processed),N(u.need),N(u.done),T(isChecked(u.done10)?'Có':'Chưa'),P(v),T(st)]),[6,8,38,26,11,12,10,11,11,13,13,10,15]))});
  sheets.push(sheet('PL05 Xếp hạng',`Phụ lục 05. Bảng xếp hạng tiến độ tổng hợp (${m.ranking.length} đơn vị)`,['Hạng','Đơn vị','Tiến độ tổng',...m.procs.map(x=>x.p.short)],
   m.ranking.map((r,i)=>[N(i+1),T(r.unit),{v:r.average,s:9},...r.values.map(v=>v===null?T('—'):P(v))]),[7,40,13,...m.procs.map(()=>20)]));
- const blob=rptXlsxBlob(sheets),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bao-cao-tien-do-tthc_'+m.fileStamp+'.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('Đã xuất báo cáo Excel');
+ rptDownload(rptXlsxBlob(sheets),'bao-cao-tien-do-tthc_'+m.fileStamp+'.xlsx',w);toast('Đã xuất báo cáo Excel');
 }
 /* ---------- Word (.docx, dựng trực tiếp OOXML) ---------- */
 function rptZip(files,mime){const enc=new TextEncoder(),crcT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})(),crc=b=>{let c=-1;for(let i=0;i<b.length;i++)c=crcT[(c^b[i])&255]^(c>>>8);return(c^-1)>>>0};
- const parts=[],cent=[];let off=0;for(const [name,txt] of Object.entries(files)){const nb=enc.encode(name),d=enc.encode(txt),c=crc(d),l=new Uint8Array(30+nb.length+d.length),v=new DataView(l.buffer);
-  v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x0800,true);v.setUint32(14,c,true);v.setUint32(18,d.length,true);v.setUint32(22,d.length,true);v.setUint16(26,nb.length,true);l.set(nb,30);l.set(d,30+nb.length);parts.push(l);
-  const h=new Uint8Array(46+nb.length),w=new DataView(h.buffer);w.setUint32(0,0x02014b50,true);w.setUint16(4,20,true);w.setUint16(6,20,true);w.setUint16(8,0x0800,true);w.setUint32(16,c,true);w.setUint32(20,d.length,true);w.setUint32(24,d.length,true);w.setUint16(28,nb.length,true);w.setUint32(42,off,true);h.set(nb,46);cent.push(h);off+=l.length}
+ const nd=new Date(),dosT=(nd.getHours()<<11)|(nd.getMinutes()<<5)|(nd.getSeconds()>>1),dosD=((nd.getFullYear()-1980)<<9)|((nd.getMonth()+1)<<5)|nd.getDate();const parts=[],cent=[];let off=0;for(const [name,txt] of Object.entries(files)){const nb=enc.encode(name),d=enc.encode(txt),c=crc(d),l=new Uint8Array(30+nb.length+d.length),v=new DataView(l.buffer);
+  v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x0800,true);v.setUint16(10,dosT,true);v.setUint16(12,dosD,true);v.setUint32(14,c,true);v.setUint32(18,d.length,true);v.setUint32(22,d.length,true);v.setUint16(26,nb.length,true);l.set(nb,30);l.set(d,30+nb.length);parts.push(l);
+  const h=new Uint8Array(46+nb.length),w=new DataView(h.buffer);w.setUint32(0,0x02014b50,true);w.setUint16(4,20,true);w.setUint16(6,20,true);w.setUint16(8,0x0800,true);w.setUint16(12,dosT,true);w.setUint16(14,dosD,true);w.setUint32(16,c,true);w.setUint32(20,d.length,true);w.setUint32(24,d.length,true);w.setUint16(28,nb.length,true);w.setUint32(42,off,true);h.set(nb,46);cent.push(h);off+=l.length}
  const cs=cent.reduce((s,x)=>s+x.length,0),e=new Uint8Array(22),ev=new DataView(e.buffer);ev.setUint32(0,0x06054b50,true);ev.setUint16(8,cent.length,true);ev.setUint16(10,cent.length,true);ev.setUint32(12,cs,true);ev.setUint32(16,off,true);
  return new Blob([...parts,...cent,e],{type:mime||'application/vnd.openxmlformats-officedocument.wordprocessingml.document'})}
-function exportReportDocx(m){
- const X=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function exportReportDocx(m,w){
+ const X=s=>String(s??'').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,' ').replace(/[\r\n\t]+/g,' ').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
  const run=(t,o={})=>`<w:r><w:rPr>${o.b?'<w:b/>':''}${o.i?'<w:i/>':''}${o.color?`<w:color w:val="${o.color}"/>`:''}<w:sz w:val="${o.sz||26}"/></w:rPr><w:t xml:space="preserve">${X(t)}</w:t></w:r>`;
  const para=(runs,o={})=>`<w:p><w:pPr>${o.keep?'<w:keepNext/>':''}<w:spacing w:before="${o.before||0}" w:after="${o.after??60}" w:line="${o.line||288}" w:lineRule="auto"/>${o.ind?'<w:ind w:firstLine="567"/>':''}<w:jc w:val="${o.jc||'both'}"/>${o.sect||''}</w:pPr>${Array.isArray(runs)?runs.join(''):run(runs,o)}</w:p>`;
  const h=t=>para([run(t,{b:true,color:'8F0B12',sz:27})],{before:160,after:80,keep:true,jc:'left'});
@@ -560,14 +564,14 @@ function exportReportDocx(m){
   '_rels/.rels':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
   'word/_rels/document.xml.rels':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
   'word/document.xml':doc,'word/styles.xml':styles});
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bao-cao-tien-do-tthc_'+m.fileStamp+'.docx';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('Đã xuất báo cáo Word');
+ rptDownload(blob,'bao-cao-tien-do-tthc_'+m.fileStamp+'.docx',w);toast('Đã xuất báo cáo Word');
 }
 function buildReport(){
  const win=window.open('','_blank');if(!win){alert('Trình duyệt đang chặn cửa sổ báo cáo. Hãy cho phép cửa sổ bật lên rồi thử lại.');return}
  const m=buildReportModel();win.document.open();win.document.write(rptHTML(m));win.document.close();
  const d=win.document;d.getElementById('rptPrint').onclick=()=>win.print();
- d.getElementById('rptXlsx').onclick=()=>{try{exportReportXlsx(m)}catch(e){win.alert('Không xuất được Excel: '+e.message)}};
- d.getElementById('rptDocx').onclick=()=>{try{exportReportDocx(m)}catch(e){win.alert('Không xuất được Word: '+e.message)}};
+ d.getElementById('rptXlsx').onclick=()=>{try{exportReportXlsx(m,win)}catch(e){console.error(e);win.alert('Không xuất được Excel: '+(e&&e.message||e))}};
+ d.getElementById('rptDocx').onclick=()=>{try{exportReportDocx(m,win)}catch(e){console.error(e);win.alert('Không xuất được Word: '+(e&&e.message||e))}};
  win.focus();
 }
 window.buildReportModel=buildReportModel;window.exportReportXlsx=exportReportXlsx;window.exportReportDocx=exportReportDocx;
