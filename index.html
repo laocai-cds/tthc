@@ -369,7 +369,7 @@ function buildReportModel(){
  const all={done:procs.reduce((s,x)=>s+x.t.doneUnits,0),active:procs.reduce((s,x)=>s+x.t.active,0),none:procs.reduce((s,x)=>s+x.notStarted,0),records:procs.reduce((s,x)=>s+x.t.count,0)};
  return{now,dateLine:'Lào Cai, ngày '+dtf({day:'2-digit'})+' tháng '+dtf({month:'2-digit'})+' năm '+now.getFullYear(),stamp:dtf({hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'}),
   source:synced?'Google Sheets, đồng bộ lúc '+synced:'dữ liệu hiện có trên hệ thống (chưa ghi nhận thời điểm đồng bộ)',
-  procs,ranking,avg,all,best:sorted[0],worst:sorted[sorted.length-1],units:Math.max(...procs.map(x=>x.t.count)),admin:data.admin||{accounts:0,activated:0},
+  procs,ranking,avg,all,dues:rptDuesModel(now),best:sorted[0],worst:sorted[sorted.length-1],units:Math.max(...procs.map(x=>x.t.count)),admin:data.admin||{accounts:0,activated:0},
   zeroUnits:ranking.filter(r=>r.average<=0).map(r=>r.unit),fileStamp:[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-')+'_'+String(now.getHours()).padStart(2,'0')+String(now.getMinutes()).padStart(2,'0')};
 }
 function rptProcText(x){const t=x.t;return x.p.kind==='fee'
@@ -394,6 +394,30 @@ function rptAppendixTable(x){const fee=x.p.kind==='fee';
   ?`<tr><td class="c">${i+1}</td><td>${esc(u.unit)}</td><td>${esc(String(u.owner||'').replace(/\n+/g,', ')||'—')}</td><td class="c">${esc(u.guided)}</td><td class="c">${fmt(u.dvccreated)}/${fmt(u.dvctotal)}</td><td class="c">${fmt(u.bankcreated)}/${fmt(u.banktotal)}</td><td class="c">${u.paid==='☑'?'✓':'—'}</td><td class="c">${collectedLabel(u.collected)}</td><td class="pc">${rptBar(v)}<b>${rptPct(v)}</b></td><td class="c">${rptStatus(st)}</td></tr>`
   :`<tr><td class="c">${i+1}</td><td>${esc(u.unit)}</td><td>${esc(String(u.owner||'').replace(/\n+/g,', ')||'—')}</td><td class="c">${esc(u.guided)}</td><td class="c">${fmt(u.received)}/${fmt(u.total)}</td><td class="c">${fmt(u.processed)}/${fmt(u.need)}</td><td class="c">${fmt(u.done)}</td><td class="c">${isChecked(u.done10)?'✓':'—'}</td><td class="pc">${rptBar(v)}<b>${rptPct(v)}</b></td><td class="c">${rptStatus(st)}</td></tr>`).join('');
  return `<table class="tb"><thead>${head}</thead><tbody>${body}</tbody></table>`}
+
+/* ===== Thu nộp đảng phí trong kỳ (theo tỷ lệ đảng viên đã nộp) – dùng cho báo cáo ===== */
+const RPT_HONOR=0.95;
+function rptPctD(v){return (Math.round(Number(v||0)*10000)/100).toLocaleString('vi-VN',{maximumFractionDigits:2})+'%'}
+function rptDuesModel(now){
+ const D=(window.__duesDetailData||[]).filter(d=>d.t>0);if(!D.length)return null;
+ const den=d=>Math.max(0,d.ct+d.tt-d.chuyen-d.mien);
+ const rows=D.map(d=>({name:d.name,t:d.t,need:den(d),dn:d.dn,chua:d.chua,kb:d.kb,nop:d.nop,r:den(d)>0?Math.min(1,d.dn/den(d)):0})).sort((a,b)=>b.r-a.r||b.nop-a.nop||a.name.localeCompare(b.name,'vi'));
+ const S=k=>rows.reduce((s,x)=>s+x[k],0),need=S('need'),dn=S('dn');
+ const band=(lo,hi)=>rows.filter(x=>x.r>=lo&&x.r<hi);
+ let honor=rows.filter(x=>x.r>=RPT_HONOR),honorNote='từ 95% trở lên';
+ if(!honor.length){honor=rows.filter(x=>x.r>0).slice(0,5);honorNote='cao nhất'}
+ return{month:'tháng '+(now.getMonth()+1)+'/'+now.getFullYear(),rows,units:rows.length,t:S('t'),need,dn,rate:need>0?dn/need:0,kb:S('kb'),nop:S('nop'),chua:S('chua'),
+  honor,honorNote,good:band(.8,RPT_HONOR),mid:band(.5,.8),low:band(.2,.5),weak:band(1e-9,.2),zero:rows.filter(x=>x.r<=0)}}
+function rptShortName(n){return String(n).replace(/^Đảng bộ (xã |phường )?/,'')}
+function rptNameList(list,max){const n=list.map(x=>rptShortName(x.name));return n.length>max?n.slice(0,max).join(', ')+' … và '+(n.length-max)+' đơn vị khác':n.join(', ')}
+function rptDuesText(d){return[
+ `Theo số liệu đồng bộ từ hệ thống quản lý đảng phí, ${fmt(d.units)} đảng bộ, chi bộ trực thuộc có tổng số ${fmt(d.t)} đảng viên; số đảng viên thuộc diện phải nộp đảng phí [(2)+(3)−(4)−(5)] là ${fmt(d.need)} đồng chí. Đến nay có ${fmt(d.dn)} đảng viên đã được duyệt hồ sơ và đã nộp đảng phí trên môi trường điện tử, đạt ${rptPctD(d.rate)}; tổng số tiền đã nộp ${fmt(d.nop)} đồng/${fmt(d.kb)} đồng theo hồ sơ đã khai báo; còn ${fmt(d.chua)} đảng viên chưa có hồ sơ.`,
+ `Phân theo tỷ lệ đảng viên đã nộp: ${fmt(rptCountHonor(d))} đơn vị đạt từ 95% trở lên; ${fmt(d.good.length)} đơn vị từ 80% đến dưới 95%; ${fmt(d.mid.length)} đơn vị từ 50% đến dưới 80%; ${fmt(d.low.length)} đơn vị từ 20% đến dưới 50%; ${fmt(d.weak.length)} đơn vị dưới 20% và ${fmt(d.zero.length)} đơn vị chưa có đảng viên nộp đảng phí.`]}
+function rptCountHonor(d){return d.rows.filter(x=>x.r>=RPT_HONOR).length}
+function rptDuesPraise(d){const top=d.honor.map(x=>x.name+' ('+rptPctD(x.r)+')').join('; ');
+ return `Biểu dương ${fmt(d.honor.length)} đơn vị có tỷ lệ đảng viên đã nộp đảng phí trên môi trường điện tử ${d.honorNote}: ${top}. Đây là những đơn vị đã chủ động chỉ đạo, hướng dẫn đảng viên kê khai, duyệt hồ sơ và nộp đảng phí kịp thời, cần được nhân rộng.`}
+function rptDuesGood(d){return d.good.length?`Ghi nhận ${fmt(d.good.length)} đơn vị đạt từ 80% đến dưới 95%: ${d.good.map(x=>rptShortName(x.name)+' ('+rptPctD(x.r)+')').join('; ')}.`:''}
+function rptDuesAsk(d){const w=[...d.weak,...d.zero];return w.length?`Đối với thu nộp đảng phí, đề nghị ${fmt(w.length)} đơn vị có tỷ lệ đảng viên đã nộp dưới 20% (trong đó ${fmt(d.zero.length)} đơn vị chưa có đảng viên nộp: ${rptNameList(d.zero,12)}) khẩn trương rà soát, hướng dẫn đảng viên kê khai hồ sơ, duyệt hồ sơ và đôn đốc nộp đảng phí trên môi trường điện tử ngay trong ${d.month}.`:''}
 function rptHTML(m){
  const colors=['#c51620','#d98a0b','#0f8a5f','#7b4fd6'];
  const sumRows=m.procs.map((x,i)=>`<tr><td class="c">${i+1}</td><td><b>${esc(x.p.short)}</b></td><td class="c">${fmt(x.t.count)}</td><td class="pc">${rptBar(x.t.average,colors[i])}<b>${rptPct(x.t.average)}</b></td><td class="c">${fmt(x.t.doneUnits)}</td><td class="c">${fmt(x.t.active)}</td><td class="c">${fmt(x.notStarted)}</td><td>${rptProcText(x)}</td></tr>`).join('');
@@ -435,6 +459,12 @@ p{margin:4px 0;text-align:justify;text-indent:1.1cm}.ps p{text-indent:0}.warn{co
 .tb td{padding:4px 5px;border:1px solid #d3d9e2;vertical-align:middle}
 .tb tbody tr:nth-child(even) td{background:#f7f8fb}
 .tb .c{text-align:center;white-space:nowrap}
+.cap{break-after:avoid;page-break-after:avoid}
+.tb.hon{break-inside:avoid;page-break-inside:avoid}
+.praise{margin:8px 0;padding:9px 12px;text-indent:0!important;border:1px solid #e9c46a;border-left:5px solid #d49a10;border-radius:8px;background:#fff8e1;color:#5a3d00;font-weight:600}
+.tb.hon th{background:#0b6b4c;border-color:#095a40}
+.tb tr.hl td{background:#e8f6ef!important}
+.tb tr.tot td{background:#fdf3e1!important}
 .pc{white-space:nowrap}.pc b{display:inline-block;min-width:40px;text-align:right;font-size:11px}
 .rb{display:inline-block;width:46px;height:6px;margin-right:5px;border-radius:4px;background:#e4e8ef;overflow:hidden;vertical-align:middle}.rb i{display:block;height:100%;border-radius:4px}
 .st{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700}.st.ok{background:#dcf3e8;color:#0b6b4a}.st.run{background:#fff1d6;color:#8a5a00}.st.no{background:#eef0f4;color:#6a7484}
@@ -458,18 +488,28 @@ ${rptNarrative(m).map(t=>`<p>${esc(t)}</p>`).join('')}
 <p style="text-indent:0;margin-top:8px"><b>Bảng 1. Tổng hợp tiến độ theo thủ tục</b></p>
 <table class="tb sum"><thead><tr><th>TT</th><th>Thủ tục</th><th>Số đơn vị</th><th>Tiến độ bình quân</th><th>Hoàn thành</th><th>Đang triển khai</th><th>Chưa triển khai</th><th>Số liệu chính</th></tr></thead><tbody>${sumRows}</tbody></table>
 <h2>II. Kết quả triển khai từng thủ tục</h2>${procSec}
-<h2>III. Xếp hạng tiến độ tổng hợp</h2>
-<p>Tiến độ tổng của mỗi đơn vị là bình quân tiến độ các thủ tục có dữ liệu tại đơn vị đó. Bảng 2 nêu 10 đơn vị dẫn đầu; Bảng 3 nêu 10 đơn vị có tiến độ thấp nhất cần tập trung đôn đốc. Danh sách đầy đủ tại Phụ lục 05.</p>
-<p style="text-indent:0"><b>Bảng 2. 10 đơn vị dẫn đầu</b></p><table class="tb"><thead>${rkHead}</thead><tbody>${rk(top10,0)}</tbody></table>
-<p style="text-indent:0;margin-top:8px"><b>Bảng 3. 10 đơn vị có tiến độ thấp nhất</b></p><table class="tb"><thead>${rkHead}</thead><tbody>${rk(bottom,m.ranking.length-bottom.length)}</tbody></table>
-<h2>IV. Đề xuất, kiến nghị</h2>
+${m.dues?(()=>{const d=m.dues;return `<h2>III. Kết quả thu nộp đảng phí trong kỳ ${d.month}</h2>
+<div class="kp">${[['ĐV phải nộp',fmt(d.need),'(2)+(3)−(4)−(5)'],['ĐV đã nộp',fmt(d.dn),'đã duyệt, đã nộp (8)'],['Tỷ lệ ĐV đã nộp',rptPctD(d.rate),'toàn tỉnh'],['Tiền đã nộp (đồng)',fmt(d.nop),'/ '+fmt(d.kb)+' khai báo'],['Đơn vị đạt ≥ 95%',fmt(rptCountHonor(d)),'/ '+fmt(d.units)+' đơn vị']].map((k,i)=>`<div class="k" style="--a:${['#7d0c13','#0b7a55','#1d4380','#b4560b','#5b3fb0'][i]};--b:${['#d0412b','#22b07d','#3f7be0','#e9a31f','#9a72f0'][i]}"><span>${k[0]}</span><b>${k[1]}</b><small>${k[2]}</small></div>`).join('')}</div>
+${rptDuesText(d).map(t=>`<p>${esc(t)}</p>`).join('')}
+<p class="praise">🏆 ${esc(rptDuesPraise(d))}</p>
+<p class="cap" style="text-indent:0;margin-top:6px"><b>Bảng 2. Đơn vị được tuyên dương về thu nộp đảng phí (tỷ lệ đảng viên đã nộp ${esc(d.honorNote)})</b></p>
+<table class="tb hon"><thead><tr><th>Hạng</th><th>Đơn vị</th><th>ĐV phải nộp</th><th>ĐV đã nộp</th><th>Tỷ lệ ĐV đã nộp</th><th>Tiền đã nộp (đ)</th></tr></thead><tbody>${d.honor.map((x,i)=>`<tr><td class="c">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td><b>${esc(x.name)}</b></td><td class="c">${fmt(x.need)}</td><td class="c">${fmt(x.dn)}</td><td class="pc">${rptBar(x.r,'#0f8a5f')}<b>${rptPctD(x.r)}</b></td><td class="c">${fmt(x.nop)}</td></tr>`).join('')}</tbody></table>
+${rptDuesGood(d)?`<p>${esc(rptDuesGood(d))}</p>`:''}
+<p class="warn"><b>Cần đôn đốc (${fmt(d.weak.length+d.zero.length)} đơn vị dưới 20%):</b> ${esc(rptNameList([...d.weak,...d.zero].sort((a,b)=>a.r-b.r),20))}. Danh sách đầy đủ tại Phụ lục 06.</p>`})():''}
+<h2>${m.dues?'IV':'III'}. Xếp hạng tiến độ tổng hợp</h2>
+<p>Tiến độ tổng của mỗi đơn vị là bình quân tiến độ các thủ tục có dữ liệu tại đơn vị đó. Bảng ${m.dues?3:2} nêu 10 đơn vị dẫn đầu; Bảng ${m.dues?4:3} nêu 10 đơn vị có tiến độ thấp nhất cần tập trung đôn đốc. Danh sách đầy đủ tại Phụ lục 05.</p>
+<p style="text-indent:0"><b>Bảng ${m.dues?3:2}. 10 đơn vị dẫn đầu</b></p><table class="tb"><thead>${rkHead}</thead><tbody>${rk(top10,0)}</tbody></table>
+<p style="text-indent:0;margin-top:8px"><b>Bảng ${m.dues?4:3}. 10 đơn vị có tiến độ thấp nhất</b></p><table class="tb"><thead>${rkHead}</thead><tbody>${rk(bottom,m.ranking.length-bottom.length)}</tbody></table>
+<h2>${m.dues?'V':'IV'}. Đề xuất, kiến nghị</h2>
 <p>Đề nghị các đảng bộ, chi bộ trực thuộc ${m.zeroUnits.length?`(trong đó có ${fmt(m.zeroUnits.length)} đơn vị chưa phát sinh tiến độ ở tất cả các thủ tục) `:''}khẩn trương phân công cán bộ phụ trách, hướng dẫn quy trình tới đơn vị trực thuộc và cập nhật đầy đủ số liệu trên hệ thống theo dõi.</p>
 <p>Đối với thủ tục “${esc(m.worst.p.short)}” có tiến độ thấp nhất (${rptPct(m.worst.t.average)}), đề nghị tăng cường tiếp nhận, xử lý hồ sơ trên môi trường điện tử, phấn đấu mỗi đơn vị hoàn thành tối thiểu 10 hồ sơ theo yêu cầu.</p>
+${m.dues&&rptDuesAsk(m.dues)?`<p>${esc(rptDuesAsk(m.dues))}</p>`:''}
 <p class="note">Căn cứ: ${RPT_DOCS.map(esc).join('; ')}.</p>
 <div class="sign"><div class="l"><b><i>Nơi nhận:</i></b><br>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- Các đảng bộ, chi bộ trực thuộc;<br>- Lưu.</div><div class="r"><b>NGƯỜI LẬP BÁO CÁO</b></div></div>
 </section>
 ${m.procs.map((x,i)=>`<section class="page land ap"><h2>Phụ lục 0${i+1}. ${esc(x.p.short)} — tiến độ bình quân ${rptPct(x.t.average)}</h2><p class="note" style="margin:0 0 4px">${rptProcText(x)} Sắp xếp theo tiến độ giảm dần.</p>${rptAppendixTable(x)}</section>`).join('')}
 <section class="page land ap"><h2>Phụ lục 05. Bảng xếp hạng tiến độ tổng hợp (${fmt(m.ranking.length)} đơn vị)</h2><table class="tb"><thead>${rkHead}</thead><tbody>${rk(m.ranking,0)}</tbody></table></section>
+${m.dues?`<section class="page land ap"><h2>Phụ lục 06. Thu nộp đảng phí ${m.dues.month} — tỷ lệ đảng viên đã nộp ${rptPctD(m.dues.rate)}</h2><p class="note" style="margin:0 0 4px">Tỷ lệ đảng viên đã nộp = (8) ÷ ((2)+(3)−(4)−(5)). Sắp xếp theo tỷ lệ giảm dần; dòng tô xanh là đơn vị được tuyên dương.</p><table class="tb"><thead><tr><th>TT</th><th>Đơn vị</th><th>Tổng ĐV (1)</th><th>ĐV phải nộp</th><th>Đã duyệt, đã nộp (8)</th><th>Chưa có hồ sơ (9)</th><th>Tiền theo hồ sơ khai báo (đ)</th><th>Tiền đã nộp (đ)</th><th>Tỷ lệ ĐV đã nộp</th></tr></thead><tbody>${m.dues.rows.map((x,i)=>`<tr${x.r>=RPT_HONOR?' class="hl"':''}><td class="c">${i+1}</td><td>${esc(x.name)}</td><td class="c">${fmt(x.t)}</td><td class="c">${fmt(x.need)}</td><td class="c">${fmt(x.dn)}</td><td class="c">${fmt(x.chua)}</td><td class="c">${fmt(x.kb)}</td><td class="c">${fmt(x.nop)}</td><td class="pc">${rptBar(x.r)}<b>${rptPctD(x.r)}</b></td></tr>`).join('')}<tr class="tot"><td></td><td><b>Tổng cộng (${fmt(m.dues.units)} đơn vị)</b></td><td class="c"><b>${fmt(m.dues.t)}</b></td><td class="c"><b>${fmt(m.dues.need)}</b></td><td class="c"><b>${fmt(m.dues.dn)}</b></td><td class="c"><b>${fmt(m.dues.chua)}</b></td><td class="c"><b>${fmt(m.dues.kb)}</b></td><td class="c"><b>${fmt(m.dues.nop)}</b></td><td class="pc"><b>${rptPctD(m.dues.rate)}</b></td></tr></tbody></table></section>`:''}
 </body></html>`}
 /* ---------- Excel (.xlsx, dựng trực tiếp OOXML — không cần thư viện ngoài) ---------- */
 function rptXlsxBlob(sheets){
@@ -513,6 +553,10 @@ function exportReportXlsx(m,w){
     x.rows.map(({u,v,st},k)=>[N(k+1),N(u.id),T(u.unit),T(own(u)),T(u.guided),N(u.received),N(u.total),N(u.processed),N(u.need),N(u.done),T(isChecked(u.done10)?'Có':'Chưa'),P(v),T(st)]),[6,8,38,26,11,12,10,11,11,13,13,10,15]))});
  sheets.push(sheet('PL05 Xếp hạng',`Phụ lục 05. Bảng xếp hạng tiến độ tổng hợp (${m.ranking.length} đơn vị)`,['Hạng','Đơn vị','Tiến độ tổng',...m.procs.map(x=>x.p.short)],
   m.ranking.map((r,i)=>[N(i+1),T(r.unit),{v:r.average,s:9},...r.values.map(v=>v===null?T('—'):P(v))]),[7,40,13,...m.procs.map(()=>20)]));
+ if(m.dues){const D=m.dues;
+  sheets.push(sheet('PL06 Thu đảng phí',`Phụ lục 06. Thu nộp đảng phí ${D.month} — tỷ lệ đảng viên đã nộp ${rptPctD(D.rate)}`,['TT','Đơn vị','Tổng ĐV (1)','ĐV phải nộp','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền khai báo (đ)','Tiền đã nộp (đ)','Tỷ lệ ĐV đã nộp','Tuyên dương'],
+   D.rows.map((x,i)=>[N(i+1),T(x.name),N(x.t),N(x.need),N(x.dn),N(x.chua),N(x.kb),N(x.nop),P(x.r),T(x.r>=RPT_HONOR?'Tuyên dương':'')]),[6,40,11,12,13,13,16,16,13,13],
+   [[{v:'Tổng cộng',s:7},'',N(D.t),N(D.need),N(D.dn),N(D.chua),N(D.kb),N(D.nop),{v:D.rate,s:9}],[],...rptDuesText(D).map(t=>[{v:t,s:8}]),[{v:rptDuesPraise(D),s:8}]]))}
  rptDownload(rptXlsxBlob(sheets),'bao-cao-tien-do-tthc_'+m.fileStamp+'.xlsx',w);toast('Đã xuất báo cáo Excel');
 }
 /* ---------- Word (.docx, dựng trực tiếp OOXML) ---------- */
@@ -547,12 +591,20 @@ function exportReportDocx(m,w){
   body+=para(`${rptProcText(x)} Có ${fmt(x.owners)}/${fmt(x.t.count)} đơn vị đã phân công cán bộ phụ trách, ${fmt(x.guided)} đơn vị đã hướng dẫn quy trình; ${fmt(x.t.doneUnits)} đơn vị hoàn thành, ${fmt(x.t.active)} đơn vị đang triển khai, ${fmt(x.notStarted)} đơn vị chưa triển khai.`,{ind:true});
   if(top.length)body+=para([run('Đơn vị dẫn đầu: ',{b:true}),run(top.map(r=>r.u.unit+' ('+rptPct(r.v)+')').join('; ')+'.')],{ind:true});
   if(zero.length)body+=para([run(`Chưa triển khai (${zero.length}): `,{b:true,color:'8A3B12'}),run(rptZeroList(zero,i))],{ind:true})});
+ const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
+ if(D){body+=h(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>para(t,{ind:true})).join('');
+  body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run(rptDuesPraise(D).replace(/^Biểu dương /,''))],{ind:true});
+  body+=para([run(`Bảng 2. Đơn vị được tuyên dương về thu nộp đảng phí (tỷ lệ đảng viên đã nộp ${D.honorNote})`,{b:true,sz:24})],{keep:true,jc:'left'})
+   +table(['Hạng','Đơn vị','ĐV phải nộp','ĐV đã nộp','Tỷ lệ ĐV đã nộp','Tiền đã nộp (đ)'],D.honor.map((x,i)=>[i+1,x.name,fmt(x.need),fmt(x.dn),rptPctD(x.r),fmt(x.nop)]),[700,3571,1150,1150,1200,1300],[0,2,3,4,5]);
+  if(rptDuesGood(D))body+=para(rptDuesGood(D),{ind:true});
+  body+=para([run(`Cần đôn đốc (${fmt(D.weak.length+D.zero.length)} đơn vị dưới 20%): `,{b:true,color:'8A3B12'}),run(rptNameList([...D.weak,...D.zero].sort((a,b)=>a.r-b.r),20)+'. Danh sách đầy đủ tại Phụ lục 06.')],{ind:true})}
  const rkH=['Hạng','Đơn vị','Tiến độ tổng',...m.procs.map(x=>x.p.short)],rkW=[650,2621,1000,1200,1200,1200,1200],rkR=(rows,o)=>rows.map((r,i)=>[o+i+1,r.unit,rptPct(r.average),...r.values.map(v=>v===null?'—':rptPct(v))]);
- body+=h('III. XẾP HẠNG TIẾN ĐỘ TỔNG HỢP')+para('Tiến độ tổng của mỗi đơn vị là bình quân tiến độ các thủ tục có dữ liệu tại đơn vị đó. Danh sách đầy đủ tại Phụ lục 05.',{ind:true});
- body+=para([run('Bảng 2. 10 đơn vị dẫn đầu',{b:true,sz:24})],{keep:true,jc:'left'})+table(rkH,rkR(m.ranking.slice(0,10),0),rkW,[0,2,3,4,5,6]);
- const bot=m.ranking.slice(-10);body+=para([run('Bảng 3. 10 đơn vị có tiến độ thấp nhất',{b:true,sz:24})],{keep:true,jc:'left'})+table(rkH,rkR(bot,m.ranking.length-bot.length),rkW,[0,2,3,4,5,6]);
- body+=h('IV. ĐỀ XUẤT, KIẾN NGHỊ')+para(`Đề nghị các đảng bộ, chi bộ trực thuộc ${m.zeroUnits.length?`(trong đó có ${fmt(m.zeroUnits.length)} đơn vị chưa phát sinh tiến độ ở tất cả các thủ tục) `:''}khẩn trương phân công cán bộ phụ trách, hướng dẫn quy trình tới đơn vị trực thuộc và cập nhật đầy đủ số liệu trên hệ thống theo dõi.`,{ind:true})
+ body+=h(R[0]+'. XẾP HẠNG TIẾN ĐỘ TỔNG HỢP')+para('Tiến độ tổng của mỗi đơn vị là bình quân tiến độ các thủ tục có dữ liệu tại đơn vị đó. Danh sách đầy đủ tại Phụ lục 05.',{ind:true});
+ body+=para([run(`Bảng ${BN[0]}. 10 đơn vị dẫn đầu`,{b:true,sz:24})],{keep:true,jc:'left'})+table(rkH,rkR(m.ranking.slice(0,10),0),rkW,[0,2,3,4,5,6]);
+ const bot=m.ranking.slice(-10);body+=para([run(`Bảng ${BN[1]}. 10 đơn vị có tiến độ thấp nhất`,{b:true,sz:24})],{keep:true,jc:'left'})+table(rkH,rkR(bot,m.ranking.length-bot.length),rkW,[0,2,3,4,5,6]);
+ body+=h(R[1]+'. ĐỀ XUẤT, KIẾN NGHỊ')+para(`Đề nghị các đảng bộ, chi bộ trực thuộc ${m.zeroUnits.length?`(trong đó có ${fmt(m.zeroUnits.length)} đơn vị chưa phát sinh tiến độ ở tất cả các thủ tục) `:''}khẩn trương phân công cán bộ phụ trách, hướng dẫn quy trình tới đơn vị trực thuộc và cập nhật đầy đủ số liệu trên hệ thống theo dõi.`,{ind:true})
   +para(`Đối với thủ tục “${m.worst.p.short}” có tiến độ thấp nhất (${rptPct(m.worst.t.average)}), đề nghị tăng cường tiếp nhận, xử lý hồ sơ trên môi trường điện tử, phấn đấu mỗi đơn vị hoàn thành tối thiểu 10 hồ sơ theo yêu cầu.`,{ind:true})
+  +(D&&rptDuesAsk(D)?para(rptDuesAsk(D),{ind:true}):'')
   +para([run('Căn cứ: '+RPT_DOCS.join('; ')+'.',{i:true,sz:21,color:'5A6575'})],{before:60});
  body+=`<w:tbl><w:tblPr><w:tblW w:w="9071" w:type="dxa"/>${nb}<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="4535"/><w:gridCol w:w="4536"/></w:tblGrid><w:tr>${hc([para([run('Nơi nhận:',{b:true,i:true,sz:24})],{jc:'left',after:0}),...['- Thường trực Tỉnh ủy (b/c);','- Văn phòng Tỉnh ủy;','- Các đảng bộ, chi bộ trực thuộc;','- Lưu.'].map(t=>para([run(t,{sz:22})],{jc:'left',after:0}))],4535)}${hc([cp('NGƯỜI LẬP BÁO CÁO',{b:true})],4536)}</w:tr></w:tbl>`;
  body+=para('',{sect:portrait});
@@ -562,6 +614,10 @@ function exportReportDocx(m,w){
    :table(['TT','Đơn vị','Cán bộ phụ trách','Hướng dẫn','Tiếp nhận/tổng HS','Đã xử lý/phải xử lý','Hoàn thành','Đủ 10 HS','Tiến độ','Trạng thái'],x.rows.map(({u,v,st},k)=>[k+1,u.unit,String(u.owner||'').replace(/\n+/g,', ')||'—',u.guided,fmt(u.received)+'/'+fmt(u.total),fmt(u.processed)+'/'+fmt(u.need),fmt(u.done),isChecked(u.done10)?'Có':'—',rptPct(v),st]),[600,3700,2700,1000,1400,1500,1100,1000,1000,1136],[0,3,4,5,6,7,8,9]);
   body+=para('',{sect:landscape})});
  body+=h(`Phụ lục 05. Bảng xếp hạng tiến độ tổng hợp (${fmt(m.ranking.length)} đơn vị)`)+table(rkH,rkR(m.ranking,0),[900,4636,1700,1900,1900,1900,2200],[0,2,3,4,5,6]);
+ if(D){body+=para('',{sect:landscape});
+  body+=h(`Phụ lục 06. Thu nộp đảng phí ${D.month} — tỷ lệ đảng viên đã nộp ${rptPctD(D.rate)}`)+table(['TT','Đơn vị','Tổng ĐV (1)','ĐV phải nộp','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền khai báo (đ)','Tiền đã nộp (đ)','Tỷ lệ ĐV đã nộp'],
+   [...D.rows.map((x,i)=>[i+1,x.name,fmt(x.t),fmt(x.need),fmt(x.dn),fmt(x.chua),fmt(x.kb),fmt(x.nop),rptPctD(x.r)]),['',`Tổng cộng (${fmt(D.units)} đơn vị)`,fmt(D.t),fmt(D.need),fmt(D.dn),fmt(D.chua),fmt(D.kb),fmt(D.nop),rptPctD(D.rate)]],
+   [600,4436,1300,1300,1500,1400,1700,1700,1200],[0,2,3,4,5,6,7,8])}
  const doc=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${body}${landscape}</w:body></w:document>`;
  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:eastAsia="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="26"/><w:lang w:val="vi-VN"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="60"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>`;
  const blob=rptZip({'[Content_Types].xml':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>',
