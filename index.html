@@ -1491,7 +1491,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const byName=new Map(DATA.map(d=>[NORM(d.name),d]));let changed=false;const miss=[];
   for(const proc of data.procedures){if(proc.kind!=='fee')continue;
    for(const u of proc.units){const d=byName.get(NORM(u.unit));if(!d){miss.push(u.unit);continue}
-    const v=(Math.round(d.rate*100)/100)+'%';
+    const v=(Math.round(d.mrate*100)/100)+'%'; /* Tỷ lệ đảng viên đã nộp = (8)÷((2)+(3)−(4)−(5)) */
     if(u.collected!==v){u.collected=v;if(typeof progress==='function')u.progress=progress(proc,u);changed=true}}}
   if(miss.length)console.warn('Chưa ghép được Tỉ lệ cho đơn vị:',miss);
   if(changed){try{saveData()}catch(e){}if(!silent&&!(typeof editing!=='undefined'&&editing))try{window.render()}catch(e){console.warn(e)}}
