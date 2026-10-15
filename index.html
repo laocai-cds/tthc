@@ -1281,12 +1281,12 @@ tbody tr:hover{filter:brightness(1.04);background:linear-gradient(90deg,#fff1ee,
   if(structured){
    body+=`<div class="tdd-hero"><div class="tdd-ring" style="--p:${rate.toFixed(2)}" role="img" aria-label="Tỉ lệ hoàn thành ${rate.toLocaleString('vi-VN',{maximumFractionDigits:2})}%"><div class="tdd-ring-in"><strong>${rate.toLocaleString('vi-VN',{maximumFractionDigits:2})}<small>%</small></strong><span>ĐV đã nộp</span></div></div><div class="tdd-kpis"><div class="tdd-kpi k1"><span>Tổng tiền đã nộp</span><b>${money(paid)}</b></div><div class="tdd-kpi k2"><span>Tổng tiền theo hồ sơ khai báo</span><b>${money(declared)}</b></div><div class="tdd-kpi k3"><span>Còn phải thu</span><b>${money(remain)}</b></div><div class="tdd-level" style="--lv:${level[1]}"><i></i>Mức độ: <b>${level[0]}</b></div></div></div>`;
    body+=`<section class="tdd-sec"><h3><i></i>Tình hình hồ sơ đảng phí</h3><div class="tdd-stack" role="img" aria-label="Cơ cấu hồ sơ đảng phí">${seg.map(x=>`<span style="width:${segTotal?(x[1]/segTotal*100).toFixed(2):0}%;background:${x[2]}" title="${x[0]}: ${fmtN(x[1])}"></span>`).join('')}</div><div class="tdd-legend">${seg.map(x=>`<div><i style="background:${x[2]}"></i><span>${x[0]}</span><b>${fmtN(x[1])}</b></div>`).join('')}</div></section>`;
-   body+=`<section class="tdd-sec"><h3><i></i>Cơ cấu đảng viên</h3><div class="tdd-people">${people.map(x=>`<div class="tdd-person" style="--c:${x[2]}"><b>${fmtN(x[1])}</b><span>${x[0]}</span></div>`).join('')}</div></section>`;
+
   }
   const rest=m.filter((x,i)=>i>=2&&String(x.value||'').trim()!=='');
-  if(rest.length)body+=`<details class="tdd-all"${structured?'':' open'}><summary>Toàn bộ chỉ tiêu theo bảng tính</summary><div class="tdd-grid">${rest.map(x=>`<div><span>${esc(x.label)}</span><b>${esc(x.value)}</b></div>`).join('')}</div></details>`;
+
   const overlay=document.createElement('div');overlay.id='top3DuesDetailOverlay';overlay.className='top3-dues-detail-overlay';
-  overlay.innerHTML=`<section class="tdd-dialog" role="dialog" aria-modal="true" aria-labelledby="top3DuesDetailTitle"><header class="tdd-head"><span class="tdd-medal ${rankCls}">${String(rank).padStart(2,'0')}</span><div class="tdd-title"><small>THU ĐẢNG PHÍ TRONG KỲ</small><h2 id="top3DuesDetailTitle">${esc(row.unit)}</h2><span class="tdd-chip">🏆 Hạng ${rank} / Top 03 đơn vị hoàn thành</span></div><button type="button" class="tdd-close" aria-label="Đóng">×</button></header><div class="tdd-body">${body}</div><footer class="tdd-foot"><a href="${SOURCE_URL}" target="_blank" rel="noopener noreferrer">Mở bảng tính nguồn ↗</a><button type="button" class="tdd-btn">Đóng</button></footer></section>`;
+  overlay.innerHTML=`<section class="tdd-dialog" role="dialog" aria-modal="true" aria-labelledby="top3DuesDetailTitle"><header class="tdd-head"><span class="tdd-medal ${rankCls}">${String(rank).padStart(2,'0')}</span><div class="tdd-title"><small>THU ĐẢNG PHÍ TRONG KỲ</small><h2 id="top3DuesDetailTitle">${esc(row.unit)}</h2><span class="tdd-chip">🏆 Hạng ${rank} / Top 03 đơn vị hoàn thành</span></div><button type="button" class="tdd-close" aria-label="Đóng">×</button></header><div class="tdd-body">${body}</div><footer class="tdd-foot"><span></span><button type="button" class="tdd-btn">Đóng</button></footer></section>`;
   overlay.addEventListener('click',e=>{if(e.target===overlay||e.target.closest('.tdd-close')||e.target.closest('.tdd-btn'))closeDetails()});
   document.body.append(overlay);document.addEventListener('keydown',onEscape);overlay.querySelector('.tdd-close').focus();
  }
@@ -1317,7 +1317,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
 .dd-ib{border:1px solid #e6dccb;background:#fff;color:#1f2a44;border-radius:8px;padding:6px 10px;font-family:inherit;font-weight:600;font-size:12.5px;line-height:1.2;cursor:pointer}
 .dd-ib:hover{background:#fff7ea}
 .dd-ib:disabled{opacity:.55;cursor:wait}
-.dd-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:12px 20px}
+.dd-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:12px 20px}
 .dd-kpi{background:#fffaf0;border:1px solid #f0e3c8;border-radius:10px;padding:8px 12px;min-width:0}
 .dd-kpi b{display:block;font-size:17px;font-weight:800;color:#193657;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dd-kpi span{font-size:11.5px;color:#728198}
@@ -1479,15 +1479,14 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
  const ov=document.createElement('div');ov.className='dd-ov';ov.id='duesDetailOverlay';ov.setAttribute('aria-hidden','true');
  ov.innerHTML=`<section class="dd-panel" role="dialog" aria-modal="true" aria-labelledby="ddTitle">
   <header class="dd-head"><div><h2 id="ddTitle">🏆 Bảng tổng hợp thu đảng phí – <span id="ddCount">103</span> đơn vị</h2><div class="dd-sub" id="ddSub">Đang tải dữ liệu từ Google Sheets…</div></div>
-  <div class="dd-acts"><button type="button" class="dd-ib" id="ddSync">⟳ Đồng bộ</button><button type="button" class="dd-ib" id="ddCsv">⬇ Xuất CSV</button><a class="dd-ib" href="${SOURCE_URL}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">Mở bảng tính ↗</a><button type="button" class="dd-ib" id="ddClose" aria-label="Đóng">✕</button></div></header>
+  <div class="dd-acts"><button type="button" class="dd-ib" id="ddSync">⟳ Đồng bộ</button><button type="button" class="dd-ib" id="ddClose" aria-label="Đóng">✕</button></div></header>
   <div class="dd-kpis" id="ddKpis"></div>
   <div class="dd-warn" id="ddWarn"></div>
   <div class="dd-tools"><input type="search" id="ddQ" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị">
    <button type="button" class="dd-chip on" data-f="all">Tất cả</button><button type="button" class="dd-chip" data-f="g">≥ 80%</button><button type="button" class="dd-chip" data-f="y">50 – 80%</button><button type="button" class="dd-chip" data-f="o">20 – 50%</button><button type="button" class="dd-chip" data-f="r">&lt; 20%</button><button type="button" class="dd-chip" data-f="z">0%</button></div>
   <div class="dd-tw"><table><thead>
-   <tr><th rowspan="2" data-k="stt">STT</th><th rowspan="2" class="nm" data-k="name">Tên đơn vị</th><th colspan="5">Đảng viên</th><th colspan="4" class="g-hs">Hồ sơ đảng phí</th><th colspan="2" class="g-tien">Số tiền (đồng)</th><th rowspan="2" data-k="mrate">Tỷ lệ ĐV<br>đã nộp<br><small>(8)÷((2)+(3)−(4)−(5))</small></th></tr>
-   <tr><th data-k="t">Tổng ĐV (1)</th><th data-k="ct">SH chính thức (2)</th><th data-k="tt">SH tạm thời (3)</th><th data-k="chuyen">Đã chuyển SH tạm thời (4)</th><th data-k="mien">Miễn giảm ĐP (5)</th><th data-k="cd" class="g-hs">Chưa duyệt (6)</th><th data-k="dcn" class="g-hs">Đã duyệt, chưa nộp (7)</th><th data-k="dn" class="g-hs">Đã duyệt, đã nộp (8)</th><th data-k="chua" class="g-hs">Chưa có hồ sơ (9)</th><th data-k="kb" class="g-tien">Theo hồ sơ khai báo</th><th data-k="nop" class="g-tien dd-paid-h">💰 Đã nộp</th></tr>
-  </thead><tbody id="ddBody"><tr><td colspan="14" class="dd-empty">Đang tải dữ liệu…</td></tr></tbody><tfoot id="ddFoot"></tfoot></table></div>
+   <tr><th data-k="stt">STT</th><th class="nm" data-k="name">Tên đơn vị</th><th data-k="nop" class="g-tien dd-paid-h">💰 Đã nộp (đồng)</th><th data-k="mrate">Tỷ lệ ĐV đã nộp<br><small>(8)÷((2)+(3)−(4)−(5))</small></th></tr>
+  </thead><tbody id="ddBody"><tr><td colspan="4" class="dd-empty">Đang tải dữ liệu…</td></tr></tbody><tfoot id="ddFoot"></tfoot></table></div>
  </section>`;
  document.body.appendChild(ov);
  const $=id=>document.getElementById(id);
@@ -1498,14 +1497,14 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const qn=query.trim().toLowerCase();
   const rows=DATA.filter(d=>(filter==='all'||band(d.mrate)===filter)&&(!qn||d.name.toLowerCase().includes(qn)));
   rows.sort((a,b)=>{const x=a[sortKey],y=b[sortKey];return(typeof x==='string'?x.localeCompare(y,'vi'):x-y)*sortDir||(sortKey==='rate'||sortKey==='mrate'?b.nop-a.nop:0)||a.stt-b.stt});lastRows=rows;const RK=new Map([...DATA].sort((a,b)=>b.mrate-a.mrate||b.nop-a.nop||a.stt-b.stt).map((d,i)=>[d.stt,i+1]));
-  $('ddBody').innerHTML=rows.map(d=>{const rk=RK.get(d.stt);return`<tr data-i="${d.stt}" tabindex="0" title="Bấm để xem thông tin ${esc(d.name)}"><td class="stt">${d.stt}</td><td class="nm"><span class="dd-rank${rk<=3?' r'+rk:''}" title="Hạng ${rk}">${rk}</span><span class="dd-link">${esc(d.name)}</span></td>${COLS.map(k=>k==='nop'?`<td class="dd-paid"><span>${fmt(d[k])}</span></td>`:`<td>${fmt(d[k])}</td>`).join('')}<td><span class="dd-rt dd-${band(d.mrate)}">${pct(d.mrate)}%</span></td></tr>`}).join('')
-   ||`<tr><td colspan="14" class="dd-empty">${DATA.length?'Không có đơn vị phù hợp':(loading?'Đang tải dữ liệu…':'Chưa có dữ liệu')}</td></tr>`;
+  $('ddBody').innerHTML=rows.map(d=>{const rk=RK.get(d.stt);return`<tr data-i="${d.stt}" tabindex="0" title="Bấm để xem thông tin ${esc(d.name)}"><td class="stt">${d.stt}</td><td class="nm"><span class="dd-rank${rk<=3?' r'+rk:''}" title="Hạng ${rk}">${rk}</span><span class="dd-link">${esc(d.name)}</span></td><td class="dd-paid"><span>${fmt(d.nop)}</span></td><td><span class="dd-rt dd-${band(d.mrate)}">${pct(d.mrate)}%</span></td></tr>`}).join('')
+   ||`<tr><td colspan="4" class="dd-empty">${DATA.length?'Không có đơn vị phù hợp':(loading?'Đang tải dữ liệu…':'Chưa có dữ liệu')}</td></tr>`;
   const tot={};COLS.forEach(k=>tot[k]=rows.reduce((s,d)=>s+d[k],0));
   const r=tot.kb>0?tot.nop/tot.kb*100:0,mden=tot.ct+tot.tt-tot.chuyen-tot.mien,mr=mden>0?tot.dn/mden*100:0;
-  $('ddFoot').innerHTML=rows.length?`<tr><td></td><td class="nm">Tổng cộng (${rows.length} đơn vị)</td>${COLS.map(k=>k==='nop'?`<td class="dd-paid"><span>${fmt(tot[k])}</span></td>`:`<td>${fmt(tot[k])}</td>`).join('')}<td><span class="dd-rt dd-${band(mr)}">${pct(mr)}%</span></td></tr>`:'';
+  $('ddFoot').innerHTML=rows.length?`<tr><td></td><td class="nm">Tổng cộng (${rows.length} đơn vị)</td><td class="dd-paid"><span>${fmt(tot.nop)}</span></td><td><span class="dd-rt dd-${band(mr)}">${pct(mr)}%</span></td></tr>`:'';
   const A=k=>DATA.reduce((s,d)=>s+d[k],0);
   $('ddCount').textContent=DATA.length||103;
-  $('ddKpis').innerHTML=[[fmt(A('t')),'Tổng số đảng viên'],[fmt(A('dn')),'ĐV đã duyệt, đã nộp'],[fmt(A('kb'))+' ₫','Tiền theo hồ sơ khai báo'],[fmt(A('nop'))+' ₫','Tiền đã nộp'],[pct((x=>x>0?A('dn')/x*100:0)(A('ct')+A('tt')-A('chuyen')-A('mien')))+'%','Tỷ lệ ĐV đã nộp chung']]
+  $('ddKpis').innerHTML=[[fmt(A('dn')),'ĐV đã duyệt, đã nộp'],[fmt(A('kb'))+' ₫','Tiền theo hồ sơ khai báo'],[fmt(A('nop'))+' ₫','Tiền đã nộp'],[pct((x=>x>0?A('dn')/x*100:0)(A('ct')+A('tt')-A('chuyen')-A('mien')))+'%','Tỷ lệ ĐV đã nộp chung']]
    .map(([v,l])=>`<div class="dd-kpi${l==='Tiền đã nộp'?' dd-kpi-paid':''}"><b title="${v}">${v}</b><span>${l}</span></div>`).join('');
   ov.querySelectorAll('th[data-k]').forEach(th=>{th.classList.toggle('s-asc',th.dataset.k===sortKey&&sortDir===1);th.classList.toggle('s-desc',th.dataset.k===sortKey&&sortDir===-1)});
  }
@@ -1589,16 +1588,14 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
     <section class="du-sec"><h3>Tình hình hồ sơ đảng phí<small>${fmt(segT)} đảng viên</small></h3>
      <div class="du-stack" role="img" aria-label="Cơ cấu hồ sơ">${seg.map(x=>`<span style="width:${(x[1]/segT*100).toFixed(2)}%;background:${x[2]}" title="${x[0]}: ${fmt(x[1])}"></span>`).join('')}</div>
      <div class="du-legend">${seg.map(x=>`<div class="du-leg"><div><i style="background:${x[2]}"></i>${x[0]}</div><b>${fmt(x[1])}<small>${r2(x[1]/segT*100)}%</small></b></div>`).join('')}</div></section>
-    <section class="du-sec"><h3>Cơ cấu đảng viên</h3>
-     <div class="du-people">${[['Tổng số đảng viên (1)',d.t,'#2f6df0'],['Sinh hoạt chính thức (2)',d.ct,'#12a07a'],['Sinh hoạt tạm thời (3)',d.tt,'#d99412'],['Đã chuyển SH tạm thời (4)',d.chuyen,'#8a5cf0'],['Được miễn giảm ĐP (5)',d.mien,'#e0623f']].map(x=>`<div class="du-person" style="--c:${x[2]}"><b>${fmt(x[1])}</b><span>${x[0]}</span></div>`).join('')}</div>
-     <div class="du-formula">Số đảng viên phải nộp = (2) + (3) − (4) − (5) = <b>${fmt(den)}</b> · Đã duyệt, đã nộp (8) = <b>${fmt(d.dn)}</b><br>Tỷ lệ đảng viên đã nộp = (8) ÷ ((2)+(3)−(4)−(5)) = ${fmt(d.dn)} ÷ ${fmt(den)} = <b>${r2(d.mrate)}%</b></div></section>
+
     <section class="du-sec"><h3>So sánh tỷ lệ đảng viên đã nộp</h3><div class="du-cmp">
      ${[['Đơn vị này',d.mrate,lv[1]],['Bình quân toàn tỉnh',prov,'#2f6df0'],['Đơn vị dẫn đầu',best,'#d49a10']].map(x=>`<div class="du-row"><span>${x[0]}</span><div class="du-bar"><i style="width:${Math.min(100,x[1]).toFixed(2)}%;--c:${x[2]}"></i></div><b>${r2(x[1])}%</b></div>`).join('')}
      <div class="du-note" style="--c:${diff>=0?'#0d8a62':'#c51620'}">Đơn vị đứng <b>thứ ${rank}/${total}</b>, ${diff>=0?'cao hơn':'thấp hơn'} bình quân toàn tỉnh <b>${r2(Math.abs(diff))} điểm %</b>.</div></div></section>
     <section class="du-sec"><h3>Việc cần tập trung<small>${fmt(todo)} đảng viên chưa hoàn thành</small></h3>
      ${todo?`<div class="du-todo"><div><b>${fmt(d.chua)}</b><span>Đảng viên chưa có hồ sơ cần khai báo</span></div><div><b>${fmt(d.cd)}</b><span>Hồ sơ chờ duyệt</span></div><div><b>${fmt(d.dcn)}</b><span>Hồ sơ đã duyệt, cần đôn đốc nộp</span></div></div>`:'<div class="du-ok">✓ Đơn vị đã hoàn thành thu đảng phí đối với toàn bộ đảng viên phải nộp.</div>'}</section>
    </div>
-   <footer class="du-foot"><a href="${SOURCE_URL}" target="_blank" rel="noopener noreferrer">Mở bảng tính nguồn ↗</a>
+   <footer class="du-foot"><span></span>
     <button type="button" class="du-nav" data-du="prev" ${duIdx<=0?'disabled':''}>‹ Đơn vị trước</button><button type="button" class="du-nav" data-du="next" ${duIdx>=duList.length-1?'disabled':''}>Đơn vị sau ›</button><button type="button" class="du-close" data-du="close">Đóng</button></footer>
   </section>`;
   du.classList.add('open');du.setAttribute('aria-hidden','false');du.querySelector('.du-x').focus();
@@ -1616,7 +1613,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
  $('ddQ').addEventListener('input',e=>{query=e.target.value;render()});
  ov.querySelectorAll('.dd-chip').forEach(c=>c.addEventListener('click',()=>{ov.querySelectorAll('.dd-chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');filter=c.dataset.f;render()}));
  ov.querySelectorAll('th[data-k]').forEach(th=>th.addEventListener('click',()=>{const k=th.dataset.k;if(sortKey===k)sortDir=-sortDir;else{sortKey=k;sortDir=(k==='stt'||k==='name')?1:-1}render()}));
- $('ddCsv').addEventListener('click',()=>{if(!DATA.length)return;
+ $('ddCsv')&&$('ddCsv').addEventListener('click',()=>{if(!DATA.length)return;
   const head=['STT','Tên đơn vị','Tổng ĐV (1)','SH chính thức (2)','SH tạm thời (3)','Đã chuyển SH tạm thời (4)','Miễn giảm (5)','Chưa duyệt (6)','Đã duyệt chưa nộp (7)','Đã duyệt đã nộp (8)','Chưa có hồ sơ (9)','Tiền khai báo','Tiền đã nộp','Tỷ lệ ĐV đã nộp (%)'];
   const lines=[head,...DATA.map(d=>[d.stt,d.name,...COLS.map(k=>d[k]),d.mrate.toFixed(2)])].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'}));
@@ -1958,7 +1955,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const grid=document.createElement('div');grid.className='top3-dues-detail-grid';
   for(const m of row.metrics||[]){if(!m.value)continue;const cell=document.createElement('div'),l=document.createElement('span'),v=document.createElement('b');cell.className='top3-dues-detail-cell';l.textContent=m.label;v.textContent=m.value;cell.append(l,v);grid.append(cell)}
   const link=document.createElement('a');link.className='top3-dues-detail-source';link.href='https://docs.google.com/spreadsheets/d/'+SHEET+'/edit?gid='+GID+'#gid='+GID;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Mở bảng tính nguồn ↗';
-  dialog.append(head,total,grid,link);overlay.append(dialog);
+  dialog.append(head,total);overlay.append(dialog);
   overlay.addEventListener('click',e=>{if(e.target===overlay)closeDetails()});
   document.body.append(overlay);document.addEventListener('keydown',onEsc);close.focus();
  }
@@ -1970,8 +1967,8 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const zero=lastRows.filter(r=>r.amount===0).sort((a,b)=>a.unit.localeCompare(b.unit,'vi'));
   const overlay=document.createElement('div');overlay.id='top3MoneyZeroOverlay';overlay.className='zl-overlay';
-  const body=zero.map((r,i)=>`<tr data-n="${esc(norm(r.unit))}"><td>${i+1}</td><td class="zl-unit">${esc(r.unit)}</td><td>${esc(r.metrics?.[2]?.value||'—')}</td><td><span class="zl-zero">0 ₫</span></td></tr>`).join('');
-  overlay.innerHTML=`<section class="zl-dialog" role="dialog" aria-modal="true" aria-labelledby="zlTitle"><header class="zl-head"><span class="zl-ico" aria-hidden="true">!</span><div class="zl-title"><small>THU ĐẢNG PHÍ TRONG KỲ</small><h2 id="zlTitle">Danh sách đơn vị chưa thu được tiền</h2><span class="zl-chip"><b>${zero.length.toLocaleString('vi-VN')}</b> / ${lastRows.length.toLocaleString('vi-VN')} đơn vị có số tiền 0 ₫</span></div><button type="button" class="zl-close" aria-label="Đóng">×</button></header><div class="zl-tools"><input type="search" class="zl-search" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị"><span class="zl-count"></span></div><div class="zl-wrap"><table class="zl-table"><thead><tr><th>STT</th><th>Đơn vị</th><th>Tổng số đảng viên</th><th>Số tiền đã nộp</th></tr></thead><tbody>${body||'<tr><td colspan="4" class="zl-empty">Tất cả đơn vị đã thu được tiền</td></tr>'}</tbody></table></div><footer class="zl-foot"><span>Nguồn: Google Sheets · tự động cập nhật</span><button type="button" class="zl-btn">Đóng</button></footer></section>`;
+  const body=zero.map((r,i)=>`<tr data-n="${esc(norm(r.unit))}"><td>${i+1}</td><td class="zl-unit">${esc(r.unit)}</td><td><span class="zl-zero">0 ₫</span></td></tr>`).join('');
+  overlay.innerHTML=`<section class="zl-dialog" role="dialog" aria-modal="true" aria-labelledby="zlTitle"><header class="zl-head"><span class="zl-ico" aria-hidden="true">!</span><div class="zl-title"><small>THU ĐẢNG PHÍ TRONG KỲ</small><h2 id="zlTitle">Danh sách đơn vị chưa thu được tiền</h2><span class="zl-chip"><b>${zero.length.toLocaleString('vi-VN')}</b> / ${lastRows.length.toLocaleString('vi-VN')} đơn vị có số tiền 0 ₫</span></div><button type="button" class="zl-close" aria-label="Đóng">×</button></header><div class="zl-tools"><input type="search" class="zl-search" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị"><span class="zl-count"></span></div><div class="zl-wrap"><table class="zl-table"><thead><tr><th>STT</th><th>Đơn vị</th><th>Số tiền đã nộp</th></tr></thead><tbody>${body||'<tr><td colspan="3" class="zl-empty">Tất cả đơn vị đã thu được tiền</td></tr>'}</tbody></table></div><footer class="zl-foot"><span>Nguồn: Google Sheets · tự động cập nhật</span><button type="button" class="zl-btn">Đóng</button></footer></section>`;
   const input=overlay.querySelector('.zl-search'),count=overlay.querySelector('.zl-count');
   const apply=()=>{const q=norm(input.value);let n=0;overlay.querySelectorAll('tbody tr[data-n]').forEach(tr=>{const ok=!q||tr.dataset.n.includes(q);tr.style.display=ok?'':'none';if(ok)n++});count.textContent=q?n+' / '+zero.length+' đơn vị':''};
   input.addEventListener('input',apply);
@@ -3715,6 +3712,7 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 })();
 </script>
 
+<style id="dd-slim">.dd-tw table th[data-k="stt"],.dd-tw table td.stt{width:64px}.dd-tw table th[data-k="nop"],.dd-tw td.dd-paid{width:24%}.dd-tw table th[data-k="mrate"]{width:22%}.dd-tw table td,.dd-tw table th{font-size:13.5px}.dd-tw table td.nm,.dd-tw table th.nm{text-align:left}</style>
 </body></html>
 
 
