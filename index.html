@@ -3586,7 +3586,7 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 (()=>{
  const hero=document.querySelector('.content > .heading.hero');if(!hero||typeof data==='undefined')return;
  const box=document.createElement('section');box.className='mkb';box.setAttribute('aria-label','Bảng điện tử tiến độ thủ tục hành chính các đơn vị - trực tuyến');
- box.innerHTML=`<canvas></canvas><div class="mkb-top"><div class="mkb-ttl"><small><i></i>BẢNG ĐIỆN TỬ TIẾN ĐỘ - TRỰC TUYẾN</small><b>CHỈ SỐ TTHC LÀO CAI</b><div class="mkb-idx"><strong id="mkbIdx">—</strong><span id="mkbChg"></span></div></div><div class="mkb-tabs" id="mkbTabs"></div></div><div class="mkb-legend"><span><i style="background:#2ee6a0"></i>Đạt từ 50%</span><span><i style="background:#ff4d6d"></i>Dưới 50%</span><span><i style="background:#ff9a3c"></i>Tiến độ tổng</span></div><div class="mkb-tip" id="mkbTip"></div><div class="mkb-tape"><div id="mkbTape"></div></div>`;
+ box.innerHTML=`<canvas></canvas><div class="mkb-top"><div class="mkb-ttl"><small><i></i>BẢNG ĐIỆN TỬ TIẾN ĐỘ - TRỰC TUYẾN</small><b>CHỈ SỐ TTHC LÀO CAI</b><div class="mkb-idx"><strong id="mkbIdx">—</strong><span id="mkbChg"></span></div></div><div class="mkb-tabs" id="mkbTabs"></div></div><div class="mkb-legend"><span><i style="background:#7eebc0"></i>Từ 50%</span><span><i style="background:#ffd97a"></i>20 – 50%</span><span><i style="background:#ff8197"></i>Dưới 20%</span><span><i style="background:#ff9a3c"></i>Tiến độ tổng</span></div><div class="mkb-tip" id="mkbTip"></div><div class="mkb-tape"><div id="mkbTape"></div></div>`;
  hero.insertAdjacentElement('afterend',box);
  const cv=box.querySelector('canvas'),ctx=cv.getContext('2d'),tip=box.querySelector('#mkbTip');
  const SHORT={'chinh-thuc':'Chính thức','tam-thoi':'Tạm thời','nhan-xet':'Nhận xét','dang-phi':'Đảng phí'};
@@ -3657,19 +3657,19 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
   // cột khối lượng mờ
   pts.forEach(p=>{const h=Math.max(0,(B-T)*.35*p.u.v*grow-wob(p.x)*.6);ctx.fillStyle='rgba(46,230,160,.10)';ctx.fillRect(p.x-cw*.35,B-h,cw*.7,h)});
   // nến
-  pts.forEach(p=>{const u=p.u,up=u.v>=.5,c=up?'#2ee6a0':'#ff4d6d',w=wob(p.x);
+  pts.forEach(p=>{const u=p.u,up=u.v>=.5,mid=!up&&u.v>=.2,c=up?'#7eebc0':mid?'#ffd97a':'#ff8197',w=wob(p.x);
    const yh=Y(u.hi*grow)+w,yl=Y(u.lo*grow)+w,yo=Y(Math.min(u.lo,u.v)*grow)+w,yc=Y(Math.max(u.hi*.98,u.v)*grow)+w;
    ctx.strokeStyle=c;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x,yh-3);ctx.lineTo(p.x,yl+3);ctx.stroke();
    const bw=Math.max(2,Math.min(cw*.62,22)),top=Math.min(yo,yc),bh=Math.max(2,Math.abs(yc-yo)),hv=hoverName===u.name;
    // nhấp nháy: lóe sáng rồi tắt dần trong 0,7 giây + nhịp thở nhẹ cả dải
    const fa=flash[u.name]!=null?Math.max(0,1-(now-flash[u.name])/1000):0,breath=reduce?0:(Math.sin(t*2.4+p.j*.35)+1)*.5;
-   ctx.globalAlpha=.78+breath*.22;
+   ctx.globalAlpha=.62+breath*.2;
    ctx.shadowColor=c;ctx.shadowBlur=hv?16:6+breath*4+fa*22;ctx.fillStyle=hv?'#fff':c;ctx.fillRect(p.x-bw/2,top,bw,bh);
    if(fa>0){ctx.globalAlpha=fa*.85;ctx.fillStyle='#fff';ctx.fillRect(p.x-bw/2,top,bw,bh);ctx.globalAlpha=fa*.35;ctx.fillStyle=c;ctx.fillRect(p.x-bw/2-2,top-2,bw+4,bh+4)}
    ctx.globalAlpha=1;ctx.shadowBlur=0;
    // chỉ số tổng trên đỉnh cột
    const lab=(u.v*100).toLocaleString('vi-VN',{maximumFractionDigits:u.v>=.995?0:1})+'%',ly=Math.max(T-14,Math.min(yh,top)-9);
-   ctx.fillStyle=hv||fa>.4?'#fff':(up?'#7dffc8':'#ffd0da');ctx.lineWidth=3;ctx.strokeStyle='rgba(10,8,30,.6)';
+   ctx.fillStyle=hv||fa>.4?'#fff':(up?'#7dffc8':mid?'#ffe7a3':'#ffc2cd');ctx.lineWidth=3;ctx.strokeStyle='rgba(10,8,30,.6)';
    const every=Math.max(1,Math.ceil(10/cw)),showLab=cw>=10||p.j%every===0||p.j===units.length-1||hv;
    if(!showLab){}else if(cw<26){const lb=(u.v*100).toFixed(u.v>=.995?0:1).replace('.',',');ctx.save();ctx.translate(p.x+3.5,Math.min(yh,top)-4);ctx.rotate(-Math.PI/2);ctx.font=`800 ${cw<9?8:9.5}px "Segoe UI",Arial`;ctx.textAlign='left';ctx.strokeText(lb,0,0);ctx.fillText(lb,0,0);ctx.restore()}
    else{ctx.font=`800 ${cw>46?12:10.5}px "Segoe UI",Arial`;ctx.textAlign='center';ctx.strokeText(lab,p.x,ly);ctx.fillText(lab,p.x,ly)}
