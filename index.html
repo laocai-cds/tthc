@@ -1430,6 +1430,57 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
 .dd-tw thead th.dd-paid-h{background:#c9efdc;color:#055c41;font-weight:800}
 .dd-kpi.dd-kpi-paid{background:linear-gradient(135deg,#0f9d6e,#067a56);border-color:#067a56;box-shadow:0 6px 16px rgba(6,122,86,.28)}
 .dd-kpi.dd-kpi-paid b{color:#fff}.dd-kpi.dd-kpi-paid span{color:#d6f5e8;font-weight:700}
+/* ===== Bảng tổng hợp thu đảng phí – giao diện chuyên nghiệp ===== */
+.dd-ov{padding:10px;background:rgba(10,22,42,.62);backdrop-filter:blur(3px)}
+.dd-panel{width:min(1560px,100%);height:calc(100vh - 20px);border-radius:16px;background:#f6f8fc;font-family:"Segoe UI",Arial,sans-serif;box-shadow:0 30px 90px rgba(5,15,35,.5)}
+.dd-head{position:relative;align-items:center;padding:11px 18px;border:0;color:#fff;background:radial-gradient(120% 180% at 0% 0%,rgba(15,157,110,.45),transparent 55%),linear-gradient(120deg,#14294a,#1d4380 60%,#22336a)}
+.dd-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#0f9d6e,#e8c32e,#f08a24,#c51620)}
+.dd-head h2{font-size:17px;color:#fff;background:none;-webkit-text-fill-color:#fff}
+.dd-sub{margin-top:2px;font-size:11.5px;color:#c9d5e8}
+.dd-ib{height:32px;padding:0 12px;border:1px solid rgba(255,255,255,.25);border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font-weight:700;font-size:12px}
+.dd-ib:hover{background:rgba(255,255,255,.22)}
+.dd-ib.dd-xl{background:linear-gradient(110deg,#0d8a62,#1fae78);border-color:transparent}
+#ddClose{width:32px;padding:0;font-size:15px}
+.dd-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px 18px 0}
+.dd-kpi{display:flex;flex-direction:column-reverse;padding:7px 12px;border-radius:10px;background:#fff;border:1px solid #e7ebf2;border-left:3px solid #1d4380}
+.dd-kpi span{font-size:9.5px;font-weight:700;color:#6b7a90;text-transform:uppercase;letter-spacing:.3px}
+.dd-kpi b{font-size:16px;color:#172c4a}
+.dd-kpi:nth-child(2){border-left-color:#d49a10}.dd-kpi:nth-child(4){border-left-color:#c51620}.dd-kpi:nth-child(4) b{color:#c51620}
+.dd-kpi.dd-kpi-paid{background:#fff;border-color:#e7ebf2;border-left-color:#0f9d6e;box-shadow:none}
+.dd-kpi.dd-kpi-paid b{color:#0b7a55}.dd-kpi.dd-kpi-paid span{color:#6b7a90}
+.dd-warn{margin:8px 18px 0}
+.dd-tools{padding:8px 18px}
+.dd-tools input{height:32px;padding:0 12px;border-color:#d9e0ea;border-radius:10px;font-size:13px;background:#fff}
+.dd-chip{height:30px;padding:0 12px;border-color:#d9e0ea;font-size:11.5px}
+.dd-chip.on{background:#14294a;border-color:#14294a}
+.dd-tw{margin:0 18px;border:1px solid #e7ebf2;border-radius:10px;background:#fff}
+.dd-tw table{table-layout:fixed;font-size:12.5px;font-variant-numeric:tabular-nums}
+.dd-tw th,.dd-tw td{padding:4px 8px;height:32px}
+.dd-tw thead th,.dd-tw thead tr:first-child th{position:sticky;top:0;background:#14294a;color:#fff;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;text-align:center;vertical-align:middle;line-height:1.25;border-bottom:0;height:auto;padding:7px 6px}
+.dd-tw thead th small{text-transform:none;font-weight:600;color:#c9d5e8;letter-spacing:0}
+.dd-tw thead th.nm{background:#14294a;text-align:left}
+.dd-tw thead th.dd-paid-h{background:#0b7a55;color:#fff}
+.dd-tw thead th[data-k="mrate"]{background:#8f0b12}
+.dd-tw th.c-stt{width:50px}.dd-tw th.nm{width:auto}.dd-tw th.c-rate{width:150px}
+.dd-tw thead th:nth-child(n+3):nth-child(-n+7){width:98px}.dd-tw thead th:nth-child(8){width:118px}
+.dd-tw td{border-bottom:1px solid #eef1f5;color:#2b3a52}
+.dd-tw tbody tr:nth-child(even) td{background:#fafbfd}
+.dd-tw tbody tr:hover td{background:#eef4ff}
+.dd-tw td.nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
+.dd-tw td.b{font-weight:700;color:#172c4a}.dd-tw td.mut{color:#7a879a}.dd-tw td.w{color:#b4232d;font-weight:700}
+.dd-tw td.dd-paid,.dd-tw tbody tr:nth-child(even) td.dd-paid{background:#f2fbf6}
+.dd-tw td.dd-paid span{padding:1px 7px;font-size:12px;box-shadow:none}
+.dd-rank{min-width:20px;height:20px;font-size:10px}
+.dd-rb{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+.dd-rb i{flex:0 0 46px;height:6px;border-radius:6px;background:#e9edf3;overflow:hidden}
+.dd-rb i b{display:block;height:100%;border-radius:6px;background:currentColor}
+.dd-rb i b.dd-g{color:#12a07a}.dd-rb i b.dd-y{color:#d99412}.dd-rb i b.dd-o{color:#ef7b19}.dd-rb i b.dd-r{color:#e0262b}.dd-rb i b.dd-z{color:#c4cad4}
+.dd-rt{min-width:58px;padding:2px 7px;font-size:11.5px}
+.dd-tw tfoot td{background:#fdf3e1;border-top:2px solid #ecdcbc;color:#3d2f12;height:34px}
+.dd-tw tfoot td.dd-paid{background:#e6f6ed}
+.dd-tw td.c-rate{text-align:right}
+@media(max-width:1100px){.dd-tw table{min-width:1040px}}
+
 .du-kpi.du-kpi-paid{background:linear-gradient(135deg,#0f9d6e 0%,#067a56 100%);border-color:#067a56;border-left-color:#f2c24b;box-shadow:0 8px 20px rgba(6,122,86,.3)}
 .du-kpi.du-kpi-paid span{color:#d6f5e8}.du-kpi.du-kpi-paid b{color:#fff;font-size:20px}.du-kpi.du-kpi-paid em{color:#ffe7a3;font-weight:700}
 .du-ov{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(9,18,36,.58);backdrop-filter:blur(3px)}
@@ -1546,14 +1597,14 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
  const ov=document.createElement('div');ov.className='dd-ov';ov.id='duesDetailOverlay';ov.setAttribute('aria-hidden','true');
  ov.innerHTML=`<section class="dd-panel" role="dialog" aria-modal="true" aria-labelledby="ddTitle">
   <header class="dd-head"><div><h2 id="ddTitle">🏆 Bảng tổng hợp thu đảng phí – <span id="ddCount">103</span> đơn vị</h2><div class="dd-sub" id="ddSub">Đang tải dữ liệu từ Google Sheets…</div></div>
-  <div class="dd-acts"><button type="button" class="dd-ib" id="ddSync">⟳ Đồng bộ</button><button type="button" class="dd-ib" id="ddClose" aria-label="Đóng">✕</button></div></header>
+  <div class="dd-acts"><button type="button" class="dd-ib dd-xl" id="ddXlsx">⬇ Xuất Excel</button><button type="button" class="dd-ib" id="ddSync">⟳ Đồng bộ</button><button type="button" class="dd-ib" id="ddClose" aria-label="Đóng">✕</button></div></header>
   <div class="dd-kpis" id="ddKpis"></div>
   <div class="dd-warn" id="ddWarn"></div>
   <div class="dd-tools"><input type="search" id="ddQ" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị">
    <button type="button" class="dd-chip on" data-f="all">Tất cả</button><button type="button" class="dd-chip" data-f="g">≥ 80%</button><button type="button" class="dd-chip" data-f="y">50 – 80%</button><button type="button" class="dd-chip" data-f="o">20 – 50%</button><button type="button" class="dd-chip" data-f="r">&lt; 20%</button><button type="button" class="dd-chip" data-f="z">0%</button></div>
-  <div class="dd-tw"><table><thead>
-   <tr><th data-k="stt">STT</th><th class="nm" data-k="name">Tên đơn vị</th><th data-k="nop" class="g-tien dd-paid-h">💰 Đã nộp (đồng)</th><th data-k="mrate">Tỷ lệ ĐV đã nộp<br><small>(8)÷((2)+(3)−(4)−(5))</small></th></tr>
-  </thead><tbody id="ddBody"><tr><td colspan="4" class="dd-empty">Đang tải dữ liệu…</td></tr></tbody><tfoot id="ddFoot"></tfoot></table></div>
+  <div class="dd-tw"><table><colgroup><col style="width:50px"><col><col style="width:96px"><col style="width:104px"><col style="width:104px"><col style="width:92px"><col style="width:118px"><col style="width:124px"><col style="width:150px"></colgroup><thead>
+   <tr><th data-k="stt" class="c-stt">STT</th><th class="nm" data-k="name">Tên đơn vị</th><th data-k="t">Tổng đảng viên<br><small>(1)</small></th><th data-k="need">ĐV phải nộp<br><small>(2)+(3)−(4)−(5)</small></th><th data-k="dn">Đã duyệt, đã nộp<br><small>(8)</small></th><th data-k="chua">Chưa có hồ sơ<br><small>(9)</small></th><th data-k="kb">Tiền theo hồ sơ<br>khai báo (đ)</th><th data-k="nop" class="g-tien dd-paid-h">💰 Tiền đã nộp (đ)</th><th data-k="mrate" class="c-rate">Tỷ lệ ĐV đã nộp<br><small>(8) ÷ ĐV phải nộp</small></th></tr>
+  </thead><tbody id="ddBody"><tr><td colspan="9" class="dd-empty">Đang tải dữ liệu…</td></tr></tbody><tfoot id="ddFoot"></tfoot></table></div>
  </section>`;
  document.body.appendChild(ov);
  const $=id=>document.getElementById(id);
@@ -1564,11 +1615,11 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const qn=query.trim().toLowerCase();
   const rows=DATA.filter(d=>(filter==='all'||band(d.mrate)===filter)&&(!qn||d.name.toLowerCase().includes(qn)));
   rows.sort((a,b)=>{const x=a[sortKey],y=b[sortKey];return(typeof x==='string'?x.localeCompare(y,'vi'):x-y)*sortDir||(sortKey==='rate'||sortKey==='mrate'?b.nop-a.nop:0)||a.stt-b.stt});lastRows=rows;const RK=new Map([...DATA].sort((a,b)=>b.mrate-a.mrate||b.nop-a.nop||a.stt-b.stt).map((d,i)=>[d.stt,i+1]));
-  $('ddBody').innerHTML=rows.map(d=>{const rk=RK.get(d.stt);return`<tr data-i="${d.stt}" tabindex="0" title="Bấm để xem thông tin ${esc(d.name)}"><td class="stt">${d.stt}</td><td class="nm"><span class="dd-rank${rk<=3?' r'+rk:''}" title="Hạng ${rk}">${rk}</span><span class="dd-link">${esc(d.name)}</span></td><td class="dd-paid"><span>${fmt(d.nop)}</span></td><td><span class="dd-rt dd-${band(d.mrate)}">${pct(d.mrate)}%</span></td></tr>`}).join('')
-   ||`<tr><td colspan="4" class="dd-empty">${DATA.length?'Không có đơn vị phù hợp':(loading?'Đang tải dữ liệu…':'Chưa có dữ liệu')}</td></tr>`;
+  $('ddBody').innerHTML=rows.map(d=>{const rk=RK.get(d.stt);return`<tr data-i="${d.stt}" tabindex="0" title="Bấm để xem thông tin ${esc(d.name)}"><td class="stt">${d.stt}</td><td class="nm"><span class="dd-rank${rk<=3?' r'+rk:''}" title="Hạng ${rk}">${rk}</span><span class="dd-link">${esc(d.name)}</span></td><td>${fmt(d.t)}</td><td>${fmt(d.need)}</td><td class="b">${fmt(d.dn)}</td><td class="${d.chua?'w':'mut'}">${fmt(d.chua)}</td><td class="mut">${fmt(d.kb)}</td><td class="dd-paid"><span>${fmt(d.nop)}</span></td><td class="c-rate"><div class="dd-rb"><span class="dd-rt dd-${band(d.mrate)}">${pct(d.mrate)}%</span><i><b class="dd-${band(d.mrate)}" style="width:${Math.min(100,d.mrate).toFixed(1)}%"></b></i></div></td></tr>`}).join('')
+   ||`<tr><td colspan="9" class="dd-empty">${DATA.length?'Không có đơn vị phù hợp':(loading?'Đang tải dữ liệu…':'Chưa có dữ liệu')}</td></tr>`;
   const tot={};COLS.forEach(k=>tot[k]=rows.reduce((s,d)=>s+d[k],0));
   const r=tot.kb>0?tot.nop/tot.kb*100:0,mden=tot.ct+tot.tt-tot.chuyen-tot.mien,mr=mden>0?tot.dn/mden*100:0;
-  $('ddFoot').innerHTML=rows.length?`<tr><td></td><td class="nm">Tổng cộng (${rows.length} đơn vị)</td><td class="dd-paid"><span>${fmt(tot.nop)}</span></td><td><span class="dd-rt dd-${band(mr)}">${pct(mr)}%</span></td></tr>`:'';
+  $('ddFoot').innerHTML=rows.length?`<tr><td></td><td class="nm">Tổng cộng (${rows.length} đơn vị)</td><td>${fmt(tot.t)}</td><td>${fmt(mden)}</td><td>${fmt(tot.dn)}</td><td>${fmt(tot.chua)}</td><td>${fmt(tot.kb)}</td><td class="dd-paid"><span>${fmt(tot.nop)}</span></td><td class="c-rate"><span class="dd-rt dd-${band(mr)}">${pct(mr)}%</span></td></tr>`:'';
   const A=k=>DATA.reduce((s,d)=>s+d[k],0);
   $('ddCount').textContent=DATA.length||103;
   $('ddKpis').innerHTML=[[fmt(A('dn')),'ĐV đã duyệt, đã nộp'],[fmt(A('kb'))+' ₫','Tiền theo hồ sơ khai báo'],[fmt(A('nop'))+' ₫','Tiền đã nộp'],[pct((x=>x>0?A('dn')/x*100:0)(A('ct')+A('tt')-A('chuyen')-A('mien')))+'%','Tỷ lệ ĐV đã nộp chung']]
@@ -1590,7 +1641,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
    try{
     const rows=(payload?.table?.rows||[]).map(r=>r.c||[]).filter(c=>/^\d+$/.test(String(c[0]?.f??c[0]?.v??'').trim())&&String(c[1]?.v??c[1]?.f??'').trim());
     const list=rows.map(c=>({stt:num(c[0]),name:String(c[1]?.v??c[1]?.f).trim(),t:num(c[2]),ct:num(c[3]),tt:num(c[4]),chuyen:num(c[5]),mien:num(c[6]),cd:num(c[7]),dcn:num(c[8]),dn:num(c[9]),chua:num(c[10]),kb:num(c[11]),nop:num(c[12])}))
-     .filter(d=>d.t>0).map(d=>({...d,rate:rateOf(d),mrate:mrateOf(d)}));
+     .filter(d=>d.t>0).map(d=>({...d,need:Math.max(0,d.ct+d.tt-d.chuyen-d.mien),rate:rateOf(d),mrate:mrateOf(d)}));
     if(!list.length)throw new Error('empty');
     DATA=list;window.__duesDetailData=DATA;lastSync=new Date();setStatus(true);render();applyFeeRates();
    }catch(e){setStatus(false,'Dữ liệu Google Sheets chưa đúng định dạng (cần các cột STT, Tên đơn vị … Tổng tiền đã nộp như Sheet1).');render()}
@@ -1604,6 +1655,65 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
  function close(){ov.classList.remove('open');ov.setAttribute('aria-hidden','true');document.documentElement.style.overflow='';btn.focus()}
  btn.addEventListener('click',open);
  $('ddClose').addEventListener('click',close);
+ /* ===== Xuất Excel bảng thu đảng phí (định dạng đầy đủ, ghi ngày giờ xuất) ===== */
+ function ddXlsx(){
+  if(!DATA.length){alert('Chưa có dữ liệu để xuất. Hãy bấm Đồng bộ trước.');return}
+  const rows=lastRows.length?lastRows:DATA,now=new Date(),p2=n=>String(n).padStart(2,'0');
+  const X=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
+  const C=n=>{let s='';n++;while(n){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26)}return s};
+  const NC=9,L=C(NC-1),stamp=`${p2(now.getHours())}:${p2(now.getMinutes())}:${p2(now.getSeconds())} ngày ${p2(now.getDate())}/${p2(now.getMonth()+1)}/${now.getFullYear()}`;
+  const syncT=lastSync?`${p2(lastSync.getHours())}:${p2(lastSync.getMinutes())} ${p2(lastSync.getDate())}/${p2(lastSync.getMonth()+1)}/${lastSync.getFullYear()}`:'—';
+  const RK=new Map([...DATA].sort((a,b)=>b.mrate-a.mrate||b.nop-a.nop||a.stt-b.stt).map((d,i)=>[d.stt,i+1]));
+  const bi={g:0,y:1,o:2,r:3,z:4};
+  const out=[],merges=[],H={};let r=0;const put=(cells,h)=>{r++;out.push({r,cells});if(h)H[r]=h;return r};const c=(i,v,st)=>({i,v,st});
+  const fill=(v,st)=>[c(0,v,st),...Array.from({length:NC-1},(_,i)=>c(i+1,'',st))];
+  put(fill('BẢNG TỔNG HỢP THU NỘP ĐẢNG PHÍ TRÊN MÔI TRƯỜNG ĐIỆN TỬ',1),36);merges.push(`A1:${L}1`);
+  put(fill(`Xuất lúc ${stamp}  •  Dữ liệu Google Sheets đồng bộ lúc ${syncT}  •  ${rows.length}/${DATA.length} đơn vị`,2),22);merges.push(`A2:${L}2`);
+  const T={};COLS.forEach(k=>T[k]=rows.reduce((s,d)=>s+d[k],0));const need=T.ct+T.tt-T.chuyen-T.mien,mr=need>0?T.dn/need:0;
+  const kp=[['ĐV phải nộp',need,4],['ĐV đã duyệt, đã nộp',T.dn,4],['Tiền theo hồ sơ khai báo (đ)',T.kb,4],['Tiền đã nộp (đ)',T.nop,4],['Tỷ lệ ĐV đã nộp chung',mr,5]],sp=[[0,1],[2,3],[4,5],[6,7],[8,8]];
+  const a3=[],a4=[];kp.forEach((k,i)=>{const[x,y]=sp[i];for(let j=x;j<=y;j++){a3.push(c(j,j===x?k[0]:'',3));a4.push(c(j,j===x?k[1]:'',k[2]))}if(y>x)merges.push(`${C(x)}3:${C(y)}3`,`${C(x)}4:${C(y)}4`)});
+  put(a3,20);put(a4,30);put([],8);
+  const head=['Hạng','Tên đơn vị','Tổng đảng viên (1)','ĐV phải nộp (2)+(3)−(4)−(5)','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền theo hồ sơ khai báo (đ)','Tiền đã nộp (đ)','Tỷ lệ ĐV đã nộp'];
+  const hr=put(head.map((h,i)=>c(i,h,6)),44);
+  rows.forEach(d=>{const k=RK.get(d.stt);put([c(0,k,k===1?8:k===2?9:k===3?10:7),c(1,d.name,11),c(2,d.t,12),c(3,d.need,12),c(4,d.dn,13),c(5,d.chua,d.chua?14:12),c(6,d.kb,12),c(7,d.nop,15),c(8,d.mrate/100,16+bi[band(d.mrate)])],21)});
+  const last=r;
+  put([c(0,'',21),c(1,`Tổng cộng (${rows.length} đơn vị)`,21),c(2,T.t,22),c(3,need,22),c(4,T.dn,22),c(5,T.chua,22),c(6,T.kb,22),c(7,T.nop,23),c(8,mr,24)],26);
+  put([],10);
+  const lg=['≥ 80%','50% – dưới 80%','20% – dưới 50%','Dưới 20%','0% (chưa có ĐV nộp)'];
+  const lr=put([c(0,'Mức tỷ lệ:',25),c(1,'',25),...lg.map((t,i)=>c(2+i,t,26+i))],28);merges.push(`A${lr}:B${lr}`);
+  const nr=put(fill('Ghi chú: Tỷ lệ ĐV đã nộp = (8) ÷ ((2)+(3)−(4)−(5)). Hạng xếp theo tỷ lệ ĐV đã nộp giảm dần, cùng tỷ lệ thì xét số tiền đã nộp. Bảng xuất theo bộ lọc, sắp xếp đang chọn trên hệ thống.',31),34);merges.push(`A${nr}:${L}${nr}`);
+  const cols=[7,40,13,15,14,13,18,18,15];
+  const sd=out.map(({r,cells})=>`<row r="${r}"${H[r]?` ht="${H[r]}" customHeight="1"`:''}>`+cells.map(x=>{const ref=C(x.i)+r;return typeof x.v==='number'&&isFinite(x.v)?`<c r="${ref}" s="${x.st}"><v>${x.v}</v></c>`:x.v===''?`<c r="${ref}" s="${x.st}"/>`:`<c r="${ref}" s="${x.st}" t="inlineStr"><is><t xml:space="preserve">${X(x.v)}</t></is></c>`}).join('')+'</row>').join('');
+  const SN='Thu đảng phí';
+  const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetPr><tabColor rgb="FF0F9D6E"/><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="${hr}" topLeftCell="A${hr+1}" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="18"/><cols>${cols.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>${sd}</sheetData><autoFilter ref="A${hr}:${L}${last}"/><mergeCells count="${merges.length}">${merges.map(m=>`<mergeCell ref="${m}"/>`).join('')}</mergeCells><printOptions horizontalCentered="1"/><pageMargins left="0.4" right="0.4" top="0.5" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/><headerFooter><oddFooter>&amp;L&amp;8Xuất lúc ${X(stamp)}&amp;R&amp;8Trang &amp;P/&amp;N</oddFooter></headerFooter></worksheet>`;
+  const F=o=>`<font>${o.b?'<b/>':''}${o.i?'<i/>':''}<sz val="${o.sz||11}"/><color rgb="FF${o.c||'1B2533'}"/><name val="Times New Roman"/></font>`;
+  const fonts=[F({}),F({b:1,sz:16,c:'FFFFFF'}),F({i:1,sz:10,c:'5A6575'}),F({b:1,sz:9,c:'6A7484'}),F({b:1,sz:15,c:'0B5E44'}),F({b:1,sz:11,c:'FFFFFF'}),F({b:1}),F({b:1,c:'B4232D'}),F({c:'6A7484'}),F({b:1,sz:10}),F({sz:10}),F({i:1,sz:9,c:'5A6575'})];
+  const fl=x=>`<fill><patternFill patternType="solid"><fgColor rgb="FF${x}"/><bgColor indexed="64"/></patternFill></fill>`;
+  const fills=['<fill><patternFill patternType="none"/></fill>','<fill><patternFill patternType="gray125"/></fill>',fl('14294A'),fl('F2FAF6'),fl('F4F6FA'),fl('1D4380'),fl('F6D365'),fl('E3E7ED'),fl('F2C59A'),fl('E3F5EE'),fl('FFF3C4'),fl('FFEDD5'),fl('FEE2E2'),fl('F1F2F4'),fl('EFFAF4'),fl('FDF3E1'),fl('C9EFDC')];
+  const bd=(x,t)=>`<border><left style="thin"><color rgb="FF${x}"/></left><right style="thin"><color rgb="FF${x}"/></right><top style="${t?'medium':'thin'}"><color rgb="FF${t||x}"/></top><bottom style="thin"><color rgb="FF${x}"/></bottom><diagonal/></border>`;
+  const borders=['<border><left/><right/><top/><bottom/><diagonal/></border>',bd('D3D9E2'),bd('FFFFFF'),bd('D3D9E2','0F9D6E'),bd('E5D3AE','D49A10')];
+  const A=(h,w)=>`<alignment horizontal="${h}" vertical="center"${w?' wrapText="1"':''}/>`;
+  const xf=(n,f,fi,b,al)=>`<xf numFmtId="${n}" fontId="${f}" fillId="${fi}" borderId="${b}" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">${al}</xf>`;
+  const tints=[9,10,11,12,13];
+  const xfs=[xf(0,0,0,0,A('general')),/*1*/xf(0,1,2,0,A('center',1)),/*2*/xf(0,2,3,0,A('center')),/*3*/xf(0,3,4,3,A('center',1)),/*4*/xf(3,4,4,1,A('center')),/*5*/xf(10,4,4,1,A('center')),/*6*/xf(0,5,5,2,A('center',1)),
+   /*7*/xf(0,6,0,1,A('center')),/*8*/xf(0,6,6,1,A('center')),/*9*/xf(0,6,7,1,A('center')),/*10*/xf(0,6,8,1,A('center')),/*11*/xf(0,0,0,1,A('left',1)),
+   /*12*/xf(3,0,0,1,A('right')),/*13*/xf(3,6,0,1,A('right')),/*14*/xf(3,7,0,1,A('right')),/*15*/xf(3,6,14,1,A('right')),
+   /*16-20*/...tints.map(t=>xf(10,6,t,1,A('center'))),/*21*/xf(0,6,15,4,A('left')),/*22*/xf(3,6,15,4,A('right')),/*23*/xf(3,6,16,4,A('right')),/*24*/xf(10,6,15,4,A('center')),
+   /*25*/xf(0,9,0,0,A('right')),/*26-30*/...tints.map(t=>xf(0,10,t,1,A('center',1))),/*31*/xf(0,11,0,0,A('left',1))];
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="${fonts.length}">${fonts.join('')}</fonts><fills count="${fills.length}">${fills.join('')}</fills><borders count="${borders.length}">${borders.join('')}</borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${xfs.length}">${xfs.join('')}</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  const files={'[Content_Types].xml':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>',
+   '_rels/.rels':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
+   'xl/workbook.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${SN}" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">'${SN}'!$A$${hr}:$${L}$${last}</definedName><definedName name="_xlnm.Print_Titles" localSheetId="0">'${SN}'!$${hr}:$${hr}</definedName></definedNames></workbook>`,
+   'xl/_rels/workbook.xml.rels':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
+   'xl/styles.xml':styles,'xl/worksheets/sheet1.xml':sheet};
+  const blob=rptZip(files,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  const fn=`tong-hop-thu-dang-phi_${now.getFullYear()}-${p2(now.getMonth()+1)}-${p2(now.getDate())}_${p2(now.getHours())}${p2(now.getMinutes())}.xlsx`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+  if(typeof toast==='function')toast('Đã xuất '+rows.length+' đơn vị ra Excel');
+ }
+ window.__ddXlsx=ddXlsx;
+ $('ddXlsx').addEventListener('click',()=>{try{ddXlsx()}catch(e){console.error(e);alert('Không xuất được Excel: '+(e&&e.message||e))}});
+
  ov.addEventListener('click',e=>{if(e.target===ov)close()});
 
  /* ===== Đồng bộ cột "Hoàn thành thu trong kỳ (%)" của Thu nộp đảng phí từ cột Tỉ lệ ===== */
