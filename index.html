@@ -4248,11 +4248,9 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 @media (max-height:620px){
  .app .sidebar .brand small{display:none!important}
  .app .sidebar .nav button .nav-bar{display:none!important}
- .app .sidebar .sidebar-foot{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
- .app .sidebar .sidebar-foot>*{margin:0!important}
- .app .sidebar .sidebar-foot>:not(.chat-launch):not(.docs-link):not(.usage-guide){grid-column:1/-1}
- .app .sidebar .sidebar-foot .chat-launch.aic-launch,.app .sidebar .sidebar-foot .docs-link,.app .sidebar .sidebar-foot .usage-guide summary{justify-content:center!important;padding:6px 0!important;width:100%!important}
- .app .sidebar .sidebar-foot .aicl-txt,.app .sidebar .sidebar-foot .sbx-txt,.app .sidebar .sidebar-foot .aicl-badge,.app .sidebar .sidebar-foot .sbx-end{display:none!important}
+ .app .sidebar .sidebar-foot .chat-launch.aic-launch,.app .sidebar .sidebar-foot .docs-link,.app .sidebar .sidebar-foot .usage-guide summary{padding:3px 8px!important}
+ .app .sidebar .sidebar-foot .aicl-ico,.app .sidebar .sidebar-foot .sbx-ico{width:22px!important;height:22px!important}
+ .app .sidebar .sidebar-foot .docs-link,.app .sidebar .sidebar-foot .usage-guide{margin-top:4px!important}
 }
 </style>
 </body></html>
