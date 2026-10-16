@@ -1425,7 +1425,7 @@ tbody tr:hover{filter:brightness(1.04);background:linear-gradient(90deg,#fff1ee,
 
   const band=rate>=80?'g':rate>=50?'b':rate>=20?'y':rate>0?'r':'z',medal=['🥇','🥈','🥉'][rank-1]||'';
   const pctTxt=rate.toLocaleString('vi-VN',{maximumFractionDigits:2});
-  const inner=structured?`<div class="mc-stats"><div><span>Đã nộp</span><b>${money(paid)}</b></div><div><span>Theo khai báo</span><b>${money(declared)}</b></div><div class="rm"><span>Còn phải thu</span><b>${money(remain)}</b></div></div>
+  const inner=structured?`<div class="mc-stats"><div><span>Đã nộp</span><b>${money(paid)}</b></div><div><span>Theo khai báo</span><b>${money(declared)}</b></div></div>
     <div class="mc-stack" role="img" aria-label="Cơ cấu hồ sơ đảng phí">${seg.map(x=>`<span style="width:${segTotal?(x[1]/segTotal*100).toFixed(2):0}%;background:${x[2]}" title="${x[0]}: ${fmtN(x[1])}"></span>`).join('')}</div>
     <div class="mc-leg">${seg.map(x=>`<span><i style="background:${x[2]}"></i>${x[0]} <b>${fmtN(x[1])}</b></span>`).join('')}</div>`:'';
   const overlay=document.createElement('div');overlay.id='top3DuesDetailOverlay';overlay.className='mc-overlay';
@@ -4301,7 +4301,7 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 .mc-dialog.mc-lg{width:min(540px,94vw)}
 .mc-lg .mc-in{padding:0 11%;gap:3px}
 .mc-lg .mc-pct b{font-size:clamp(38px,11vw,56px)}
-.mc-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;max-width:340px;margin-top:8px}
+.mc-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;max-width:300px;margin-top:8px}
 .mc-stats>div{padding:6px 4px;border-radius:10px;background:#fff;border:1px solid #e1ebe5;box-shadow:0 3px 8px rgba(10,40,30,.06)}
 .mc-stats span{display:block;color:#6b7a8f;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
 .mc-stats b{display:block;color:#0d7a58;font-size:12px;font-weight:850;white-space:nowrap}
@@ -4311,7 +4311,7 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 .mc-leg{display:grid;grid-template-columns:repeat(2,auto);justify-content:center;gap:2px 12px;max-width:300px;margin-top:4px;color:#5d6d83;font-size:10.5px;text-align:left}
 .mc-leg i{display:inline-block;width:8px;height:8px;margin-right:4px;border-radius:2px}
 .mc-leg b{color:#14294a}
-@media(max-width:480px){.mc-lg .mc-in{padding:0 6%;gap:2px}.mc-lg .mc-pct b{font-size:40px}.mc-lg .mc-eye{margin-top:2px}.mc-lg .mc-in h2{font-size:15px}.mc-stats{max-width:262px;gap:4px;margin-top:5px}.mc-stats>div{padding:4px 2px}.mc-stats b{font-size:10px}.mc-stats span{font-size:8px}.mc-stack{max-width:210px;margin-top:6px}.mc-leg{max-width:220px;font-size:8.5px;gap:1px 8px}.mc-leg i{width:6px;height:6px}}
+@media(max-width:480px){.mc-lg .mc-in{padding:0 6%;gap:2px}.mc-lg .mc-pct b{font-size:40px}.mc-lg .mc-eye{margin-top:2px}.mc-lg .mc-in h2{font-size:15px}.mc-stats{max-width:240px;gap:4px;margin-top:5px}.mc-stats>div{padding:4px 2px}.mc-stats b{font-size:10px}.mc-stats span{font-size:8px}.mc-stack{max-width:210px;margin-top:6px}.mc-leg{max-width:220px;font-size:8.5px;gap:1px 8px}.mc-leg i{width:6px;height:6px}}
 </style>
 </body></html>
 
