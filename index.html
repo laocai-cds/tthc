@@ -2799,6 +2799,47 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
 @media print{body>*:not(.tp-ov){display:none!important}.tp-ov{position:static;display:block!important;padding:0;background:none;backdrop-filter:none}.tp-dlg{height:auto;box-shadow:none;border-radius:0;background:#fff}.tp-acts,.tp-tools,.tp-foot,.tp-leg{display:none!important}.tp-head{-webkit-print-color-adjust:exact;print-color-adjust:exact}.tp-wrap{overflow:visible;border:0;margin:0}.tp-t{min-width:0;font-size:10px}.tp-t th{position:static;-webkit-print-color-adjust:exact;print-color-adjust:exact}.tp-t tr{break-inside:avoid}.tp-t tfoot td{position:static}}
 @media(prefers-reduced-motion:reduce){.tp-dlg{animation:none}}
 </style>
+<style id="tp-compact">
+/* Bảng tiến độ tổng – bố cục gọn, hiển thị nhiều đơn vị */
+.tp-ov{padding:10px}
+.tp-dlg{width:min(1560px,100%);height:calc(100vh - 20px);max-height:none;border-radius:16px}
+.tp-head{padding:10px 18px;gap:12px}
+.tp-ico{width:36px;height:36px;border-radius:10px}.tp-ico svg{width:19px;height:19px}
+.tp-title h2{font-size:17px}.tp-title p{font-size:11.5px;margin-top:1px}
+.tp-b{height:32px;padding:0 12px}.tp-b.x{width:32px}
+.tp-kpis{gap:8px;padding:10px 18px 0}
+.tp-k{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:8px;padding:7px 12px;border-radius:10px;border-left-width:3px;box-shadow:none}
+.tp-k span{flex:1 0 100%;font-size:9.5px;letter-spacing:.3px}
+.tp-k b{margin-top:1px;font-size:16px;max-width:100%}
+.tp-k em{font-size:10.5px}
+.tp-dist{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 18px 0;padding:7px 12px;border-radius:10px}
+.tp-dist-h{flex:0 0 auto;margin:0;font-size:11px;gap:10px}
+.tp-stack{flex:1 1 260px;height:8px;order:2}
+.tp-leg{order:3;flex:1 1 100%;margin-top:0;gap:2px 10px}
+.tp-leg button{font-size:11px;padding:1px 4px}
+.tp-tools{padding:8px 18px;gap:8px}
+.tp-q,.tp-sel{height:32px}.tp-seg button{padding:5px 10px}
+.tp-wrap{margin:0 18px;border-radius:10px}
+.tp-t{min-width:0;table-layout:fixed;font-size:12.5px}
+.tp-t col.c-rk{width:56px}.tp-t col.c-u{width:auto}.tp-t col.c-tot{width:150px}.tp-t col.c-p{width:118px}.tp-t col.c-df{width:96px}.tp-t col.c-st{width:124px}
+.tp-t th{padding:7px 6px;font-size:10px;line-height:1.25;white-space:normal;vertical-align:middle}
+.tp-t td{padding:4px 6px;font-size:12.5px;height:34px}
+.tp-t td.u{min-width:0;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tp-t td.u small{display:inline;margin-left:8px;font-size:10.5px;font-weight:500}
+.tp-rk{width:24px;height:24px;font-size:10px}
+.tp-tot{gap:6px}.tp-tot b{min-width:42px;font-size:12.5px}.tp-tot .tr{max-width:70px;height:6px}
+.tp-ch{min-width:46px;padding:2px 6px;font-size:11px}
+.tp-st{padding:2px 8px;font-size:10.5px}
+.tp-t tfoot td{height:32px}
+.tp-foot{padding:6px 18px 8px;font-size:11px}
+.tp-tog{display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 11px;border:1px solid #d9e0ea;border-radius:10px;background:#fff;font:600 12px "Segoe UI",Arial,sans-serif;color:var(--ink);cursor:pointer}
+.tp-tog:hover{background:#f1f4f9}
+.tp-dlg.cmp .tp-kpis,.tp-dlg.cmp .tp-dist{display:none}
+@media(max-height:760px){.tp-dist{display:none}}
+@media(max-width:1100px){.tp-t{min-width:900px}}
+@media(max-width:900px){.tp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media print{.tp-dlg{height:auto}.tp-t{table-layout:auto}.tp-t td.u{white-space:normal}}
+</style>
 <div class="tp-ov" id="tpOverlay" role="dialog" aria-modal="true" aria-labelledby="tpTitle" aria-hidden="true">
  <section class="tp-dlg">
   <header class="tp-head">
@@ -2818,9 +2859,9 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
     <input type="search" class="tp-q" id="tpQ" placeholder="Tìm đơn vị…  (phím /)" aria-label="Tìm đơn vị">
     <select class="tp-sel" id="tpSort" aria-label="Xếp theo"></select>
     <div class="tp-seg" id="tpType" role="group" aria-label="Loại đơn vị"><button type="button" class="on" data-t="all">Tất cả</button><button type="button" data-t="xa">Xã</button><button type="button" data-t="phuong">Phường</button><button type="button" data-t="khoi">Khối tỉnh</button></div>
-    <span class="tp-count" id="tpCount"></span>
+    <button type="button" class="tp-tog" id="tpTog" title="Ẩn/hiện phần tổng quan để xem được nhiều đơn vị hơn">▴ Thu gọn tổng quan</button><span class="tp-count" id="tpCount"></span>
    </div>
-   <div class="tp-wrap"><table class="tp-t"><thead id="tpHead"></thead><tbody id="tpBody"></tbody><tfoot id="tpFoot"></tfoot></table></div>
+   <div class="tp-wrap"><table class="tp-t"><colgroup id="tpCols"></colgroup><thead id="tpHead"></thead><tbody id="tpBody"></tbody><tfoot id="tpFoot"></tfoot></table></div>
    <div class="tp-foot"><span id="tpSrc"></span><span>Bấm vào đơn vị để xem chi tiết · bấm tiêu đề cột để sắp xếp · <kbd>Esc</kbd> để đóng</span></div>
   </div>
  </section>
@@ -2856,6 +2897,7 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
  }
  function head(){
   const cols=[['rank','Hạng',''],['unit','Đơn vị','l'],['avg','Tiến độ tổng',''],...P().map((p,i)=>['p'+i,p.short,'']),['diff','So với BQ',''],['status','Trạng thái','']];
+  $('tpCols').innerHTML='<col class="c-rk"><col class="c-u"><col class="c-tot">'+P().map(()=>'<col class="c-p">').join('')+'<col class="c-df"><col class="c-st">';
   $('tpHead').innerHTML='<tr>'+cols.map(c=>`<th data-k="${c[0]}" class="${c[2]} ${st.sort===c[0]?(st.dir>0?'s-asc':'s-desc'):''}" scope="col">${esc(c[1])}</th>`).join('')+'</tr>';
   $('tpSort').innerHTML=cols.filter(c=>c[0]!=='status').map(c=>`<option value="${c[0]}">Xếp theo: ${esc(c[1])}</option>`).join('');
   $('tpSort').value=st.sort;
@@ -2891,6 +2933,7 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
  /* Sự kiện */
  document.addEventListener('click',e=>{if(e.target.closest('[data-open-ranking]')){e.preventDefault();open()}});
  $('tpClose').onclick=close;
+ {const dlg=ov.querySelector('.tp-dlg'),tg=$('tpTog');const setT=c=>{dlg.classList.toggle('cmp',c);tg.textContent=c?'▾ Hiện tổng quan':'▴ Thu gọn tổng quan';try{localStorage.setItem('tpCmp',c?'1':'0')}catch(e){}};let c0=false;try{c0=localStorage.getItem('tpCmp')==='1'}catch(e){}setT(c0);tg.onclick=()=>setT(!dlg.classList.contains('cmp'))}
  ov.addEventListener('mousedown',e=>{if(e.target===ov)close()});
  $('tpQ').addEventListener('input',e=>{st.q=e.target.value;render()});
  $('tpSort').addEventListener('change',e=>{st.sort=e.target.value;st.dir=(st.sort==='unit'||st.sort==='rank')?1:-1;render()});
