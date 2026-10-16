@@ -447,10 +447,10 @@ body{margin:0;background:#e9edf3;color:#1b2533;font:13.5px/1.55 "Times New Roman
 .page{width:210mm;min-height:297mm;margin:18px auto;padding:18mm 17mm 18mm 25mm;background:#fff;box-shadow:0 8px 30px rgba(20,30,50,.15)}
 .page.land{width:297mm;min-height:210mm;padding:14mm 14mm}
 .hd{display:grid;grid-template-columns:1fr 1.2fr;text-align:center;font-size:13px}
-.hd b{display:block;font-size:13.5px}.hd .u{display:inline-block;width:70px;border-top:1px solid #1b2533;margin-top:3px}
-.hd .r b{font-size:14px}.hd .r .u{width:150px}.hd i{display:block;margin-top:8px;font-size:13.5px}
+.hd b{display:block;font-size:14px}.hd .u{display:inline-block;width:70px;border-top:1px solid #1b2533;margin-top:3px}
+.hd .r b{font-size:15px}.hd .r .u{width:150px}.hd i{display:block;margin-top:8px;font-size:13.5px}
 h1{margin:22px 0 2px;text-align:center;font-size:17px;letter-spacing:.3px}
-.sub{margin:0 0 4px;text-align:center;font-weight:700;font-size:14.5px}
+.sub{margin:0 0 4px;text-align:center;font-weight:700;font-size:13.5px}
 .meta{margin:0 0 16px;text-align:center;font-style:italic;font-size:12.5px;color:#4a5566}
 h2{margin:18px 0 8px;font-size:14.5px;color:#8f0b12;text-transform:uppercase;border-bottom:2px solid #c51620;padding-bottom:3px}
 h3{display:flex;align-items:center;gap:8px;margin:12px 0 4px;font-size:14px}h3 em{margin-left:auto;font-style:normal;color:#8f0b12}
@@ -485,8 +485,8 @@ p{margin:4px 0;text-align:justify;text-indent:1.1cm}.ps p{text-indent:0}.warn{co
 <button class="b-pdf" id="rptPrint" type="button">🖨 In / Lưu PDF</button><button class="b-xls" id="rptXlsx" type="button">⬇ Xuất Excel</button><button class="b-doc" id="rptDocx" type="button">⬇ Xuất Word</button>
 <div class="tip">Khi in/lưu PDF: chọn khổ A4 và tắt mục “Đầu trang và chân trang” (Headers and footers) để không in ngày giờ, đường dẫn trình duyệt.</div></div>
 <section class="page">
-<div class="hd"><div><b>TỈNH ỦY LÀO CAI</b>HỆ THỐNG THEO DÕI TTHC<br><span class="u"></span></div><div class="r"><b>ĐẢNG CỘNG SẢN VIỆT NAM</b><span class="u"></span><i>${m.dateLine}</i></div></div>
-<h1>BÁO CÁO</h1><p class="sub">Tình hình thực hiện 04 thủ tục hành chính của Đảng<br>trên môi trường điện tử</p><p class="meta">Nguồn số liệu: ${esc(m.source)}</p>
+<div class="hd"><div><b>TỈNH ỦY LÀO CAI</b>HỆ THỐNG THEO DÕI TTHC<br>*</div><div class="r"><b>ĐẢNG CỘNG SẢN VIỆT NAM</b><span class="u"></span><i>${m.dateLine}</i></div></div>
+<h1>BÁO CÁO</h1><p class="sub">tình hình thực hiện 04 thủ tục hành chính của Đảng<br>trên môi trường điện tử</p><p class="sub">-----</p><p class="meta">Nguồn số liệu: ${esc(m.source)}</p>
 <h2>I. Tình hình chung</h2>
 <div class="kp">${kpi.map((k,i)=>`<div class="k" style="--a:${['#7d0c13','#1d4380','#0b7a55','#b4560b','#5b3fb0'][i]};--b:${['#d0412b','#3f7be0','#22b07d','#e9a31f','#9a72f0'][i]}"><span>${k[0]}</span><b>${k[1]}</b><small>${k[2]}</small></div>`).join('')}</div>
 ${rptNarrative(m).map(t=>`<p>${esc(t)}</p>`).join('')}
@@ -510,8 +510,7 @@ ${(()=>{const z=d.rows.filter(x=>(+x.nop||0)<=0).sort((a,b)=>a.name.localeCompar
 <p>Đề nghị các đảng bộ, chi bộ trực thuộc ${m.zeroUnits.length?`(trong đó có ${fmt(m.zeroUnits.length)} đơn vị chưa phát sinh tiến độ ở tất cả các thủ tục) `:''}khẩn trương phân công cán bộ phụ trách, hướng dẫn quy trình tới đơn vị trực thuộc và cập nhật đầy đủ số liệu trên hệ thống theo dõi.</p>
 <p>Đối với thủ tục “${esc(m.worst.p.short)}” có tiến độ thấp nhất (${rptPct(m.worst.t.average)}), đề nghị tăng cường tiếp nhận, xử lý hồ sơ trên môi trường điện tử, phấn đấu mỗi đơn vị hoàn thành tối thiểu 10 hồ sơ theo yêu cầu.</p>
 ${m.dues&&rptDuesAsk(m.dues)?`<p>${esc(rptDuesAsk(m.dues))}</p>`:''}
-<p class="note">Căn cứ: ${RPT_DOCS.map(esc).join('; ')}.</p>
-<div class="sign"><div class="l"><b><i>Nơi nhận:</i></b><br>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- Các đảng bộ, chi bộ trực thuộc;<br>- Lưu.</div><div class="r"><b>NGƯỜI LẬP BÁO CÁO</b></div></div>
+<div class="sign"><div class="l"><u style="font-size:14px">Nơi nhận:</u><br>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- Các đảng bộ, chi bộ trực thuộc;<br>- Lưu.</div><div class="r"><b>NGƯỜI LẬP BÁO CÁO</b></div></div>
 </section>
 ${m.procs.map((x,i)=>`<section class="page land ap"><h2>Phụ lục 0${i+1}. ${esc(x.p.short)} — tiến độ bình quân ${rptPct(x.t.average)}</h2><p class="note" style="margin:0 0 4px">${rptProcText(x)} Sắp xếp theo tiến độ giảm dần.</p>${rptAppendixTable(x)}</section>`).join('')}
 <section class="page land ap"><h2>Phụ lục 05. Bảng xếp hạng tiến độ tổng hợp (${fmt(m.ranking.length)} đơn vị)</h2><table class="tb"><thead>${rkHead}</thead><tbody>${rk(m.ranking,0)}</tbody></table></section>
@@ -589,8 +588,8 @@ function exportReportDocx(m,w){
  const landscape='<w:sectPr><w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/><w:pgMar w:top="851" w:right="851" w:bottom="851" w:left="851" w:header="425" w:footer="425" w:gutter="0"/></w:sectPr>';
  const nb='<w:tblBorders>'+['top','left','bottom','right','insideH','insideV'].map(k=>`<w:${k} w:val="nil"/>`).join('')+'</w:tblBorders>';
  const hc=(lines,w)=>`<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/></w:tcPr>${lines.join('')}</w:tc>`,cp=(t,o)=>para([run(t,o)],{jc:'center',after:0});
- let body=`<w:tbl><w:tblPr><w:tblW w:w="9071" w:type="dxa"/>${nb}<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="3800"/><w:gridCol w:w="5271"/></w:tblGrid><w:tr>${hc([cp('TỈNH ỦY LÀO CAI',{b:true}),cp('HỆ THỐNG THEO DÕI TTHC',{}),cp('*',{})],3800)}${hc([cp('ĐẢNG CỘNG SẢN VIỆT NAM',{b:true,sz:28}),cp('————————',{}),cp(m.dateLine,{i:true})],5271)}</w:tr></w:tbl>`;
- body+=para([run('BÁO CÁO',{b:true,sz:30})],{jc:'center',before:240,after:20})+para([run('Tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử',{b:true,sz:28})],{jc:'center',after:20})+para([run('Nguồn số liệu: '+m.source,{i:true,sz:22,color:'4A5566'})],{jc:'center',after:160});
+ let body=`<w:tbl><w:tblPr><w:tblW w:w="9071" w:type="dxa"/>${nb}<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="3800"/><w:gridCol w:w="5271"/></w:tblGrid><w:tr>${hc([cp('TỈNH ỦY LÀO CAI',{b:true,sz:28}),cp('HỆ THỐNG THEO DÕI TTHC',{}),cp('*',{})],3800)}${hc([cp('ĐẢNG CỘNG SẢN VIỆT NAM',{b:true,sz:30}),`<w:p><w:pPr><w:pBdr><w:top w:val="single" w:sz="6" w:space="1" w:color="000000"/></w:pBdr><w:spacing w:before="20" w:after="0" w:line="120" w:lineRule="exact"/><w:ind w:left="610" w:right="636"/><w:jc w:val="center"/></w:pPr></w:p>`,cp(m.dateLine,{i:true})],5271)}</w:tr></w:tbl>`+para('',{before:240,after:20});
+ body+=para([run('BÁO CÁO',{b:true,sz:30})],{jc:'center',before:240,after:20})+para([run('tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử',{b:true,sz:26})],{jc:'center',after:20})+para([run('-----',{b:true})],{jc:'center',after:20})+para([run('Nguồn số liệu: '+m.source,{i:true,sz:22,color:'4A5566'})],{jc:'center',after:160});
  body+=h('I. TÌNH HÌNH CHUNG')+rptNarrative(m).map(t=>para(t,{ind:true})).join('');
  body+=para([run('Bảng 1. Tổng hợp tiến độ theo thủ tục',{b:true,sz:24})],{keep:true,before:80,jc:'left'});
  body+=table(['TT','Thủ tục','Số đơn vị','Tiến độ BQ','Hoàn thành','Đang TK','Chưa TK'],m.procs.map((x,i)=>[i+1,x.p.short,fmt(x.t.count),rptPct(x.t.average),fmt(x.t.doneUnits),fmt(x.t.active),fmt(x.notStarted)]),[500,3171,1000,1100,1100,1100,1100],[0,2,3,4,5,6]);
@@ -618,8 +617,8 @@ function exportReportDocx(m,w){
  body+=h(R[1]+'. ĐỀ XUẤT, KIẾN NGHỊ')+para(`Đề nghị các đảng bộ, chi bộ trực thuộc ${m.zeroUnits.length?`(trong đó có ${fmt(m.zeroUnits.length)} đơn vị chưa phát sinh tiến độ ở tất cả các thủ tục) `:''}khẩn trương phân công cán bộ phụ trách, hướng dẫn quy trình tới đơn vị trực thuộc và cập nhật đầy đủ số liệu trên hệ thống theo dõi.`,{ind:true})
   +para(`Đối với thủ tục “${m.worst.p.short}” có tiến độ thấp nhất (${rptPct(m.worst.t.average)}), đề nghị tăng cường tiếp nhận, xử lý hồ sơ trên môi trường điện tử, phấn đấu mỗi đơn vị hoàn thành tối thiểu 10 hồ sơ theo yêu cầu.`,{ind:true})
   +(D&&rptDuesAsk(D)?para(rptDuesAsk(D),{ind:true}):'')
-  +para([run('Căn cứ: '+RPT_DOCS.join('; ')+'.',{i:true,sz:21,color:'5A6575'})],{before:60});
- body+=`<w:tbl><w:tblPr><w:tblW w:w="9071" w:type="dxa"/>${nb}<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="4535"/><w:gridCol w:w="4536"/></w:tblGrid><w:tr>${hc([para([run('Nơi nhận:',{b:true,i:true,sz:24})],{jc:'left',after:0}),...['- Thường trực Tỉnh ủy (b/c);','- Văn phòng Tỉnh ủy;','- Các đảng bộ, chi bộ trực thuộc;','- Lưu.'].map(t=>para([run(t,{sz:22})],{jc:'left',after:0}))],4535)}${hc([cp('NGƯỜI LẬP BÁO CÁO',{b:true})],4536)}</w:tr></w:tbl>`;
+  +para('',{before:60});
+ body+=`<w:tbl><w:tblPr><w:tblW w:w="9071" w:type="dxa"/>${nb}<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="4535"/><w:gridCol w:w="4536"/></w:tblGrid><w:tr>${hc([para([`<w:r><w:rPr><w:sz w:val="28"/><w:u w:val="single"/></w:rPr><w:t xml:space="preserve">Nơi nhận:</w:t></w:r>`],{jc:'left',after:0}),...['- Thường trực Tỉnh ủy (b/c);','- Văn phòng Tỉnh ủy;','- Các đảng bộ, chi bộ trực thuộc;','- Lưu.'].map(t=>para([run(t,{sz:22})],{jc:'left',after:0}))],4535)}${hc([cp('NGƯỜI LẬP BÁO CÁO',{b:true})],4536)}</w:tr></w:tbl>`;
  body+=para('',{sect:portrait});
  m.procs.forEach((x,i)=>{const fee=x.p.kind==='fee';
   body+=h(`Phụ lục 0${i+1}. ${x.p.short} — tiến độ bình quân ${rptPct(x.t.average)}`);
