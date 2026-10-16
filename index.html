@@ -1423,10 +1423,24 @@ tbody tr:hover{filter:brightness(1.04);background:linear-gradient(90deg,#fff1ee,
   }
   const rest=m.filter((x,i)=>i>=2&&String(x.value||'').trim()!=='');
 
-  const overlay=document.createElement('div');overlay.id='top3DuesDetailOverlay';overlay.className='top3-dues-detail-overlay';
-  overlay.innerHTML=`<section class="tdd-dialog" role="dialog" aria-modal="true" aria-labelledby="top3DuesDetailTitle"><header class="tdd-head"><span class="tdd-medal ${rankCls}">${String(rank).padStart(2,'0')}</span><div class="tdd-title"><small>THU ĐẢNG PHÍ TRONG KỲ</small><h2 id="top3DuesDetailTitle">${esc(row.unit)}</h2><span class="tdd-chip">🏆 Hạng ${rank} / Top 03 đơn vị hoàn thành</span></div><button type="button" class="tdd-close" aria-label="Đóng">×</button></header><div class="tdd-body">${body}</div><footer class="tdd-foot"><span></span><button type="button" class="tdd-btn">Đóng</button></footer></section>`;
-  overlay.addEventListener('click',e=>{if(e.target===overlay||e.target.closest('.tdd-close')||e.target.closest('.tdd-btn'))closeDetails()});
-  document.body.append(overlay);document.addEventListener('keydown',onEscape);overlay.querySelector('.tdd-close').focus();
+  const band=rate>=80?'g':rate>=50?'b':rate>=20?'y':rate>0?'r':'z',medal=['🥇','🥈','🥉'][rank-1]||'';
+  const pctTxt=rate.toLocaleString('vi-VN',{maximumFractionDigits:2});
+  const inner=structured?`<div class="mc-stats"><div><span>Đã nộp</span><b>${money(paid)}</b></div><div><span>Theo khai báo</span><b>${money(declared)}</b></div><div class="rm"><span>Còn phải thu</span><b>${money(remain)}</b></div></div>
+    <div class="mc-stack" role="img" aria-label="Cơ cấu hồ sơ đảng phí">${seg.map(x=>`<span style="width:${segTotal?(x[1]/segTotal*100).toFixed(2):0}%;background:${x[2]}" title="${x[0]}: ${fmtN(x[1])}"></span>`).join('')}</div>
+    <div class="mc-leg">${seg.map(x=>`<span><i style="background:${x[2]}"></i>${x[0]} <b>${fmtN(x[1])}</b></span>`).join('')}</div>`:'';
+  const overlay=document.createElement('div');overlay.id='top3DuesDetailOverlay';overlay.className='mc-overlay';
+  overlay.innerHTML=`<section class="mc-dialog mc-lg mc-${band}" role="dialog" aria-modal="true" aria-labelledby="top3DuesDetailTitle" style="--p:${rate.toFixed(2)}">
+   <button type="button" class="mc-close tdd-close" aria-label="Đóng">×</button>
+   <div class="mc-ring"><div class="mc-in">
+    <span class="mc-rank" title="Top 03 đơn vị hoàn thành thu đảng phí">${medal?`<i>${medal}</i>`:''}Hạng <b>${rank}</b><small>/ Top 03</small></span>
+    <small class="mc-eye">Thu đảng phí trong kỳ</small>
+    <h2 id="top3DuesDetailTitle">${esc(row.unit)}</h2>
+    <div class="mc-pct"><b>${pctTxt}</b><sup>%</sup></div>
+    <span class="mc-lbl">Đảng viên đã nộp · Mức độ <b style="color:${level[1]}">${level[0]}</b></span>
+    ${inner}
+   </div></div></section>`;
+  overlay.addEventListener('click',e=>{if(e.target===overlay||e.target.closest('.mc-close'))closeDetails()});
+  document.body.append(overlay);document.addEventListener('keydown',onEscape);overlay.querySelector('.mc-close').focus();
  }
  function render(rows){const unique=new Map();for(const row of rows){const unit=String(row.unit||'').trim(),rate=percent(row.percent);if(!unit||!Number.isFinite(rate)||/^(tổng|cộng|grand total)$/i.test(unit))continue;const key=normalize(unit),old=unique.get(key);if(!old||rate>old.percent)unique.set(key,{...row,unit,percent:rate})}const paidOf=r=>{const m=r.metrics||[];const x=m.find(c=>normalize(c.label).includes('tong tien da nop'))||m[12];const n=Number(String(x?.value??'').replace(/[^\d]/g,''));return Number.isFinite(n)?n:0};currentTop=[...unique.values()].sort((a,b)=>b.percent-a.percent||paidOf(b)-paidOf(a)||a.unit.localeCompare(b.unit,'vi')).slice(0,3);list.innerHTML=currentTop.map((row,i)=>`<button type="button" class="top3-dues-item" data-top3-dues-index="${i}" aria-label="Xem thông tin thu đảng phí của ${row.unit.replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}"><span class="top3-dues-medal">${i+1}</span><span class="top3-dues-copy"><span class="top3-dues-name" title="${row.unit.replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}">${row.unit.replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}</span><span class="top3-dues-track"><i style="width:${row.percent.toFixed(1)}%"></i></span></span><span class="top3-dues-score">${row.percent.toLocaleString('vi-VN',{maximumFractionDigits:1})}%</span><span class="top3-dues-arrow" aria-hidden="true">›</span></button>`).join('')||'<div class="top3-dues-item">Chưa có dữ liệu thu đảng phí</div>';loaded=true;if(status){status.textContent='Tự động đồng bộ · cập nhật lúc '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});status.classList.remove('error')}}
  list.addEventListener('click',e=>{const button=e.target.closest('[data-top3-dues-index]');if(button){const row=currentTop[Number(button.dataset.top3DuesIndex)];if(row)showDetails(row)}});
@@ -4284,6 +4298,20 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 .mc-money b{font-size:16px;font-weight:850;white-space:nowrap}
 .mc-close{position:absolute;top:7%;right:7%;z-index:2;width:36px;height:36px;border:0;border-radius:50%;background:#fff;color:#52627a;font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(10,24,46,.25)}
 .mc-close:hover{background:#d3402a;color:#fff}
+.mc-dialog.mc-lg{width:min(540px,94vw)}
+.mc-lg .mc-in{padding:0 11%;gap:3px}
+.mc-lg .mc-pct b{font-size:clamp(38px,11vw,56px)}
+.mc-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;max-width:340px;margin-top:8px}
+.mc-stats>div{padding:6px 4px;border-radius:10px;background:#fff;border:1px solid #e1ebe5;box-shadow:0 3px 8px rgba(10,40,30,.06)}
+.mc-stats span{display:block;color:#6b7a8f;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.mc-stats b{display:block;color:#0d7a58;font-size:12px;font-weight:850;white-space:nowrap}
+.mc-stats .rm b{color:#d3402a}
+.mc-stack{display:flex;width:100%;max-width:300px;height:7px;margin-top:9px;border-radius:99px;overflow:hidden;background:#eceff4}
+.mc-stack span{height:100%}
+.mc-leg{display:grid;grid-template-columns:repeat(2,auto);justify-content:center;gap:2px 12px;max-width:300px;margin-top:4px;color:#5d6d83;font-size:10.5px;text-align:left}
+.mc-leg i{display:inline-block;width:8px;height:8px;margin-right:4px;border-radius:2px}
+.mc-leg b{color:#14294a}
+@media(max-width:480px){.mc-lg .mc-in{padding:0 6%;gap:2px}.mc-lg .mc-pct b{font-size:40px}.mc-lg .mc-eye{margin-top:2px}.mc-lg .mc-in h2{font-size:15px}.mc-stats{max-width:262px;gap:4px;margin-top:5px}.mc-stats>div{padding:4px 2px}.mc-stats b{font-size:10px}.mc-stats span{font-size:8px}.mc-stack{max-width:210px;margin-top:6px}.mc-leg{max-width:220px;font-size:8.5px;gap:1px 8px}.mc-leg i{width:6px;height:6px}}
 </style>
 </body></html>
 
