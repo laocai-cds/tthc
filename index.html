@@ -554,6 +554,70 @@ function exportReportXlsx(m,w){
    Z.map((x,i)=>[N(i+1),T(x.name),N(x.t),N(x.need),N(0)]),[6,46,16,14,18]))}
  rptDownload(rptXlsxBlob(sheets),'bao-cao-tien-do-tthc_'+m.fileStamp+'.xlsx',w);toast('Đã xuất báo cáo Excel');
 }
+/* ---------- Excel bảng tiến độ tổng (định dạng đầy đủ, dựng trực tiếp OOXML) ---------- */
+function tpStyledXlsx(view,procs,avgAll){
+ const X=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
+ const C=n=>{let s='';n++;while(n){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26)}return s};
+ const NC=3+procs.length+2, L=C(NC-1);
+ const lvl=v=>v==null?-1:v>=.999?0:v>=.5?1:v>=.2?2:v>0?3:4;
+ const now=new Date(),fmtD=d=>new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'}).format(d);
+ const sync=(typeof sheetsLastSyncedAt!=='undefined'&&sheetsLastSyncedAt)?'đồng bộ lúc '+fmtD(sheetsLastSyncedAt):'số liệu tại thời điểm xuất';
+ const rows=[],merges=[],heights={};let r=0;
+ const put=(cells,h)=>{r++;rows.push({r,cells});if(h)heights[r]=h;return r};
+ const cell=(ci,v,s)=>({ci,v,s});
+ /* 1. Tiêu đề */
+ put([cell(0,'BẢNG TIẾN ĐỘ TỔNG HỢP TRIỂN KHAI 04 THỦ TỤC HÀNH CHÍNH CỦA ĐẢNG TRÊN MÔI TRƯỜNG ĐIỆN TỬ',1),...Array.from({length:NC-1},(_,i)=>cell(i+1,'',1))],36);merges.push(`A1:${L}1`);
+ put([cell(0,`Lập lúc ${fmtD(now)}  •  Nguồn: Google Sheets, ${sync}  •  ${view.length} đơn vị`,2),...Array.from({length:NC-1},(_,i)=>cell(i+1,'',2))],22);merges.push(`A2:${L}2`);
+ /* 2. Dải chỉ số */
+ const n=view.length,avg=n?view.reduce((a,x)=>a+x.average,0)/n:0;
+ const kp=[['Tiến độ bình quân',{v:avg,pct:1}],['Số đơn vị',{v:n}],['Đạt từ 50% trở lên',{v:view.filter(x=>x.average>=.5).length}],['Hoàn thành 100%',{v:view.filter(x=>x.average>=.999).length}],['Chưa triển khai',{v:view.filter(x=>x.average<=0).length}]];
+ const spans=[[0,1],[2,3],[4,5],[6,7],[8,NC-1]];
+ const r3=[],r4=[];
+ kp.forEach((k,i)=>{const [a,b]=spans[i];for(let c=a;c<=b;c++){r3.push(cell(c,c===a?k[0]:'',3));r4.push(cell(c,c===a?k[1].v:'',k[1].pct?5:4))}if(b>a){merges.push(`${C(a)}3:${C(b)}3`,`${C(a)}4:${C(b)}4`)}});
+ put(r3,20);put(r4,32);put([],8);
+ /* 3. Tiêu đề cột */
+ const head=['Hạng','Đơn vị','Tiến độ tổng',...procs.map(p=>p.short),'So với bình quân (điểm %)','Trạng thái'];
+ const hr=put(head.map((h,i)=>cell(i,h,6)),44);
+ /* 4. Dữ liệu */
+ view.forEach(x=>{const lv=lvl(x.average),d=Math.round((x.average-avgAll)*1000)/10,st=x.average>=.999?['Hoàn thành',27]:x.average>0?['Đang triển khai',28]:['Chưa triển khai',29];
+  put([cell(0,x.rank,x.rank===1?8:x.rank===2?9:x.rank===3?10:7),cell(1,x.unit,11),cell(2,x.average,12+lv),...x.values.map((v,i)=>v==null?cell(3+i,'—',22):cell(3+i,v,17+lvl(v))),cell(3+procs.length,d,d>0?24:d<0?25:26),cell(4+procs.length,st[0],st[1])],22)});
+ const last=r;
+ /* 5. Dòng bình quân */
+ const avgOf=f=>{const xs=view.map(f).filter(v=>v!=null);return xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:null};
+ put([cell(0,'',30),cell(1,`Bình quân ${n} đơn vị`,30),cell(2,avg,31),...procs.map((_,i)=>{const v=avgOf(x=>x.values[i]);return v==null?cell(3+i,'—',30):cell(3+i,v,31)}),cell(3+procs.length,'',30),cell(4+procs.length,'',30)],26);
+ put([],10);
+ /* 6. Chú giải */
+ const lg=['Hoàn thành (≥ 99,9%)','Từ 50% đến dưới 99,9%','Từ 20% đến dưới 50%','Dưới 20%','Chưa triển khai (0%)'];
+ const lr=put([cell(0,'Mức tiến độ:',32),cell(1,'',32),...lg.map((t,i)=>cell(2+i,t,33+i))],30);merges.push(`A${lr}:B${lr}`);
+ const nr=put([cell(0,'Ghi chú: Tiến độ tổng của mỗi đơn vị là bình quân tiến độ các thủ tục có dữ liệu tại đơn vị đó. Cột "So với bình quân" là chênh lệch (điểm %) so với tiến độ bình quân chung; ▲ cao hơn, ▼ thấp hơn.',38),...Array.from({length:NC-1},(_,i)=>cell(i+1,'',38))],34);merges.push(`A${nr}:${L}${nr}`);
+ /* XML */
+ const cols=[7,46,13,...procs.map(()=>15),14,17];
+ const sd=rows.map(({r,cells})=>`<row r="${r}"${heights[r]?` ht="${heights[r]}" customHeight="1"`:''}>`+cells.map(c=>{const ref=C(c.ci)+r;return typeof c.v==='number'&&isFinite(c.v)?`<c r="${ref}" s="${c.s}"><v>${c.v}</v></c>`:c.v===''?`<c r="${ref}" s="${c.s}"/>`:`<c r="${ref}" s="${c.s}" t="inlineStr"><is><t xml:space="preserve">${X(c.v)}</t></is></c>`}).join('')+'</row>').join('');
+ const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetPr><tabColor rgb="FF8F0B12"/><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" showGridLines="0" zoomScale="100"><pane ySplit="${hr}" topLeftCell="A${hr+1}" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="18"/><cols>${cols.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>${sd}</sheetData><autoFilter ref="A${hr}:${L}${last}"/><mergeCells count="${merges.length}">${merges.map(m=>`<mergeCell ref="${m}"/>`).join('')}</mergeCells><printOptions horizontalCentered="1"/><pageMargins left="0.4" right="0.4" top="0.5" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/><headerFooter><oddFooter>&amp;L&amp;8Bảng tiến độ tổng hợp&amp;R&amp;8Trang &amp;P/&amp;N</oddFooter></headerFooter></worksheet>`;
+ const F=(o)=>`<font>${o.b?'<b/>':''}${o.i?'<i/>':''}<sz val="${o.sz||11}"/><color rgb="FF${o.c||'1B2533'}"/><name val="Times New Roman"/></font>`;
+ const fonts=[F({}),F({b:1,sz:16,c:'FFFFFF'}),F({i:1,sz:10,c:'5A6575'}),F({b:1,sz:9,c:'6A7484'}),F({b:1,sz:16,c:'8F0B12'}),F({b:1,sz:11,c:'FFFFFF'}),F({b:1}),F({b:1,c:'0B6B4A'}),F({b:1,c:'8A5A00'}),F({c:'6A7484'}),F({i:1,sz:9,c:'5A6575'}),F({c:'9AA7B8'}),F({b:1,sz:10}),F({sz:10}),F({b:1,c:'C0261C'})];
+ const fl=c=>`<fill><patternFill patternType="solid"><fgColor rgb="FF${c}"/><bgColor indexed="64"/></patternFill></fill>`;
+ const fills=['<fill><patternFill patternType="none"/></fill>','<fill><patternFill patternType="gray125"/></fill>',fl('8F0B12'),fl('FFF8EC'),fl('F4F6FA'),fl('B3111B'),fl('F6D365'),fl('E3E7ED'),fl('F2C59A'),fl('CDEFE0'),fl('DCE8FD'),fl('FCEBC2'),fl('FBD9CF'),fl('F1F3F7'),fl('DCF3E8'),fl('FFF1D6'),fl('EEF0F4'),fl('E9EDF3')];
+ const bdr=(c,top)=>`<border><left style="thin"><color rgb="FF${c}"/></left><right style="thin"><color rgb="FF${c}"/></right><top style="${top||'thin'}"><color rgb="FF${top?'8F0B12':c}"/></top><bottom style="thin"><color rgb="FF${c}"/></bottom><diagonal/></border>`;
+ const borders=['<border><left/><right/><top/><bottom/><diagonal/></border>',bdr('D3D9E2'),bdr('FFFFFF'),bdr('D3D9E2','medium')];
+ const A=(h,v,w)=>`<alignment horizontal="${h}" vertical="${v||'center'}"${w?' wrapText="1"':''}/>`;
+ const xf=(num,font,fill,border,al)=>`<xf numFmtId="${num}" fontId="${font}" fillId="${fill}" borderId="${border}" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">${al}</xf>`;
+ const tint=[9,10,11,12,13];
+ const xfs=[xf(0,0,0,0,A('general')),/*1*/xf(0,1,2,0,A('center','center',1)),/*2*/xf(0,2,3,0,A('center')),/*3*/xf(0,3,4,3,A('center')),/*4*/xf(3,4,4,1,A('center')),/*5*/xf(164,4,4,1,A('center')),/*6*/xf(0,5,5,2,A('center','center',1)),
+  /*7*/xf(0,6,0,1,A('center')),/*8*/xf(0,6,6,1,A('center')),/*9*/xf(0,6,7,1,A('center')),/*10*/xf(0,6,8,1,A('center')),/*11*/xf(0,0,0,1,A('left','center',1)),
+  /*12-16*/...tint.map(f=>xf(164,6,f,1,A('center'))),/*17-21*/...tint.map(f=>xf(164,0,f,1,A('center'))),/*22*/xf(0,11,0,1,A('center')),
+  /*23*/xf(168,6,0,1,A('center')),/*24 tăng*/xf(166,7,0,1,A('center')),/*25 giảm*/xf(167,14,0,1,A('center')),/*26 bằng*/xf(168,9,0,1,A('center')),
+  /*27*/xf(0,7,14,1,A('center')),/*28*/xf(0,8,15,1,A('center')),/*29*/xf(0,9,16,1,A('center')),
+  /*30*/xf(0,6,17,3,A('left')),/*31*/xf(164,6,17,3,A('center')),/*32*/xf(0,12,0,0,A('right')),
+  /*33-37*/...tint.map(f=>xf(0,13,f,1,A('center','center',1))),/*38*/xf(0,10,0,0,A('left','center',1))];
+ const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="4"><numFmt numFmtId="164" formatCode="0.0%"/><numFmt numFmtId="166" formatCode="&quot;▲ +&quot;0.0"/><numFmt numFmtId="167" formatCode="&quot;▼ &quot;0.0;&quot;▼ -&quot;0.0"/><numFmt numFmtId="168" formatCode="0.0"/></numFmts><fonts count="${fonts.length}">${fonts.join('')}</fonts><fills count="${fills.length}">${fills.join('')}</fills><borders count="${borders.length}">${borders.join('')}</borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${xfs.length}">${xfs.join('')}</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+ const files={'[Content_Types].xml':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>',
+  '_rels/.rels':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
+  'xl/workbook.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Tiến độ tổng" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">'Tiến độ tổng'!$A$${hr}:$${L}$${last}</definedName><definedName name="_xlnm.Print_Titles" localSheetId="0">'Tiến độ tổng'!$${hr}:$${hr}</definedName></definedNames></workbook>`,
+  'xl/_rels/workbook.xml.rels':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
+  'xl/styles.xml':styles,'xl/worksheets/sheet1.xml':sheet};
+ return rptZip(files,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+}
 /* ---------- Word (.docx, dựng trực tiếp OOXML) ---------- */
 function rptZip(files,mime){const enc=new TextEncoder(),crcT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})(),crc=b=>{let c=-1;for(let i=0;i<b.length;i++)c=crcT[(c^b[i])&255]^(c>>>8);return(c^-1)>>>0};
  const nd=new Date(),dosT=(nd.getHours()<<11)|(nd.getMinutes()<<5)|(nd.getSeconds()>>1),dosD=((nd.getFullYear()-1980)<<9)|((nd.getMonth()+1)<<5)|nd.getDate();const parts=[],cent=[];let off=0;for(const [name,txt] of Object.entries(files)){const nb=enc.encode(name),d=enc.encode(txt),c=crc(d),l=new Uint8Array(30+nb.length+d.length),v=new DataView(l.buffer);
@@ -2820,7 +2884,7 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
   const r2=v=>v==null?'':Math.round(v*1000)/10;
   const body=view.map(r=>[r.rank,r.unit,r2(r.average),...r.values.map(r2),Math.round((r.average-avgAll)*1000)/10,r.average>=.999?'Hoàn thành':r.average>0?'Đang triển khai':'Chưa triển khai']);
   const stamp=new Date().toISOString().slice(0,10);
-  if(kind==='xlsx'&&window.XLSX){const ws=XLSX.utils.aoa_to_sheet([['BẢNG TIẾN ĐỘ TỔNG – '+new Date().toLocaleString('vi-VN')],[],headers,...body]);ws['!cols']=[{wch:7},{wch:44},{wch:14},...P().map(()=>({wch:22})),{wch:18},{wch:16}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Tien do tong');XLSX.writeFile(wb,'bang-tien-do-tong-'+stamp+'.xlsx');toast('Đã xuất '+view.length+' đơn vị ra Excel');return}
+  if(kind==='xlsx'){try{const blob=tpStyledXlsx(view,P(),avgAll);const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bang-tien-do-tong-'+stamp+'.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);toast('Đã xuất '+view.length+' đơn vị ra Excel')}catch(e){console.error(e);alert('Không xuất được Excel: '+(e&&e.message||e))}return}
   const csv='﻿'+[headers,...body].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='bang-tien-do-tong-'+stamp+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);toast('Đã xuất '+view.length+' đơn vị ra CSV');
  }
