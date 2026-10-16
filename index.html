@@ -373,7 +373,7 @@ function buildReportModel(){
  const sorted=[...procs].sort((a,b)=>b.t.average-a.t.average);
  const all={done:procs.reduce((s,x)=>s+x.t.doneUnits,0),active:procs.reduce((s,x)=>s+x.t.active,0),none:procs.reduce((s,x)=>s+x.notStarted,0),records:procs.reduce((s,x)=>s+x.t.count,0)};
  return{now,dateLine:'Lào Cai, ngày '+dtf({day:'2-digit'})+' tháng '+dtf({month:'2-digit'})+' năm '+now.getFullYear(),stamp:dtf({hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'}),
-  source:synced?'Google Sheets, đồng bộ lúc '+synced:'dữ liệu hiện có trên hệ thống (chưa ghi nhận thời điểm đồng bộ)',
+  source:synced?'Google Sheets, đồng bộ lúc '+synced:'Google Sheets, số liệu tại thời điểm lập báo cáo '+new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date()),
   procs,ranking,avg,all,dues:rptDuesModel(now),best:sorted[0],worst:sorted[sorted.length-1],units:Math.max(...procs.map(x=>x.t.count)),admin:data.admin||{accounts:0,activated:0},
   zeroUnits:ranking.filter(r=>r.average<=0).map(r=>r.unit),fileStamp:[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-')+'_'+String(now.getHours()).padStart(2,'0')+String(now.getMinutes()).padStart(2,'0')};
 }
@@ -625,8 +625,12 @@ function exportReportDocx(m,w){
   'word/document.xml':doc,'word/styles.xml':styles});
  rptDownload(blob,'bao-cao-tien-do-tthc_'+m.fileStamp+'.docx',w);toast('Đã xuất báo cáo Word');
 }
-function buildReport(){
+async function buildReport(){
  const win=window.open('','_blank');if(!win){alert('Trình duyệt đang chặn cửa sổ báo cáo. Hãy cho phép cửa sổ bật lên rồi thử lại.');return}
+ if(!sheetsLastSyncedAt){try{win.document.write('<p style="font:15px Segoe UI,Arial,sans-serif;padding:40px;text-align:center">Đang đồng bộ số liệu từ Google Sheets…</p>')}catch(e){}
+  const t0=Date.now();while(sheetsSyncBusy&&Date.now()-t0<25000)await new Promise(r=>setTimeout(r,300));
+  if(!sheetsLastSyncedAt){try{await syncSheetsFromCloud(false)}catch(e){console.error(e)}}}
+ if(win.closed)return;
  const m=buildReportModel();win.document.open();win.document.write(rptHTML(m));win.document.close();
  const d=win.document;d.getElementById('rptPrint').onclick=()=>win.print();
  d.getElementById('rptXlsx').onclick=()=>{try{exportReportXlsx(m,win)}catch(e){console.error(e);win.alert('Không xuất được Excel: '+(e&&e.message||e))}};
