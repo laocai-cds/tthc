@@ -384,7 +384,7 @@ function rptNarrative(m){return[
  `Tính đến ${m.stamp}, hệ thống theo dõi tiến độ triển khai 04 thủ tục hành chính của Đảng trên môi trường điện tử tại ${fmt(m.units)} đảng bộ, chi bộ trực thuộc. Tiến độ bình quân chung đạt ${rptPct(m.avg)}.`,
  `Thủ tục có tiến độ cao nhất là “${m.best.p.short}” (${rptPct(m.best.t.average)}); thấp nhất là “${m.worst.p.short}” (${rptPct(m.worst.t.average)}). Trên tổng số ${fmt(m.all.records)} lượt đơn vị – thủ tục: ${fmt(m.all.done)} lượt hoàn thành, ${fmt(m.all.active)} lượt đang triển khai, ${fmt(m.all.none)} lượt chưa triển khai.`,
  `Tài khoản quản trị dịch vụ công: ${fmt(m.admin.activated)}/${fmt(m.admin.accounts)} tài khoản đã kích hoạt (${rptPct(rptRatio(m.admin.activated,m.admin.accounts))}).`]}
-function rptZeroList(zero,i){const n=zero.map(r=>String(r.u.unit).replace(/^Đảng bộ (xã |phường )?/,''));return n.join(', ')+'.'}
+function rptZeroList(zero,i){const n=zero.map(r=>String(r.u.unit).replace(/^Đảng bộ (xã |phường )/,''));return n.join(', ')+'.'}
 function rptDownload(blob,name,w){w=w&&!w.closed?w:window;const d=w.document,U=w.URL||URL;
  try{if(w.navigator&&w.navigator.msSaveOrOpenBlob){w.navigator.msSaveOrOpenBlob(blob,name);return}}catch(e){}
  const url=U.createObjectURL(blob),a=d.createElement('a');a.href=url;a.download=name;a.rel='noopener';a.style.display='none';d.body.appendChild(a);a.click();
@@ -413,7 +413,7 @@ function rptDuesModel(now){
  if(!honor.length){honor=rows.filter(x=>x.r>0).slice(0,5);honorNote='cao nhất'}
  return{month:'tháng '+(now.getMonth()+1)+'/'+now.getFullYear(),rows,units:rows.length,t:S('t'),need,dn,rate:need>0?dn/need:0,kb:S('kb'),nop:S('nop'),chua:S('chua'),
   honor,honorNote,good:band(.8,RPT_HONOR),mid:band(.5,.8),low:band(.2,.5),weak:band(1e-9,.2),zero:rows.filter(x=>x.r<=0)}}
-function rptShortName(n){return String(n).replace(/^Đảng bộ (xã |phường )?/,'')}
+function rptShortName(n){return String(n).replace(/^Đảng bộ (xã |phường )/,'')}
 function rptNameList(list,max){const n=list.map(x=>rptShortName(x.name));return n.length>max?n.slice(0,max).join(', ')+' … và '+(n.length-max)+' đơn vị khác':n.join(', ')}
 function rptDuesText(d){return[
  `Theo số liệu đồng bộ từ hệ thống quản lý đảng phí, ${fmt(d.units)} đảng bộ, chi bộ trực thuộc có tổng số ${fmt(d.t)} đảng viên; số đảng viên thuộc diện phải nộp đảng phí [(2)+(3)−(4)−(5)] là ${fmt(d.need)} đồng chí. Đến nay có ${fmt(d.dn)} đảng viên đã được duyệt hồ sơ và đã nộp đảng phí trên môi trường điện tử, đạt ${rptPctD(d.rate)}; tổng số tiền đã nộp ${fmt(d.nop)} đồng/${fmt(d.kb)} đồng theo hồ sơ đã khai báo; còn ${fmt(d.chua)} đảng viên chưa có hồ sơ.`,
@@ -3275,7 +3275,7 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const month=()=>'tháng '+(new Date().getMonth()+1);
  const ord=i=>['nhất','nhì','ba'][i]||String(i+1);
- const short=n=>String(n).replace(/^Đảng bộ (xã |phường )?/,'');
+ const short=n=>String(n).replace(/^Đảng bộ (xã |phường )/,'');
  const medal=i=>['🥇','🥈','🥉'][i]||'🏅';
  const D=()=>window.__duesDetailData||[];
  const LBL={dues:'Hoàn thành thu đảng phí',money:'Thu tiền cao nhất',proc:'Dẫn đầu triển khai thủ tục'};
