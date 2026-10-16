@@ -440,7 +440,7 @@ function rptHTML(m){
   body+=P(`<b class="g">Biểu dương: </b>${esc(rptDuesPraise(D).replace(/^Biểu dương /,''))}`);
   body+=cap(`Bảng 2. Đơn vị được tuyên dương về thu nộp đảng phí (tỷ lệ đảng viên đã nộp ${D.honorNote})`)+T(['Hạng','Đơn vị','ĐV phải nộp','ĐV đã nộp','Tỷ lệ ĐV đã nộp','Tiền đã nộp (đ)'],D.honor.map((x,i)=>[i+1,x.name,fmt(x.need),fmt(x.dn),rptPctD(x.r),fmt(x.nop)]),[700,3571,1150,1150,1200,1300],[0,2,3,4,5]);
   if(rptDuesGood(D))body+=P(esc(rptDuesGood(D)));
-  body+=P(`<b class="w">Cần đôn đốc (${fmt(D.weak.length+D.zero.length)} đơn vị dưới 20%): </b>${esc(rptNameList([...D.weak,...D.zero].sort((a,b)=>a.r-b.r),20)+'. Danh sách đầy đủ tại Phụ lục 06.')}`);
+  body+=P(`<b class="w">Cần đôn đốc (${fmt(D.weak.length+D.zero.length)} đơn vị dưới 20%): </b>${esc(rptNameList([...D.weak,...D.zero].sort((a,b)=>a.r-b.r),1e9)+'.')}`);
   {const z=D.rows.filter(x=>(+x.nop||0)<=0).sort((a,b)=>a.name.localeCompare(b.name,'vi'));
    body+=z.length?cap(`Bảng 2a. Danh sách đơn vị chưa thu được tiền đảng phí ${D.month} (${fmt(z.length)}/${fmt(D.rows.length)} đơn vị)`)+T(['TT','Đơn vị','Tổng số đảng viên','ĐV phải nộp','Số tiền đã nộp (đ)'],z.map((x,i)=>[i+1,x.name,fmt(x.t),fmt(x.need),'0']),[700,4371,1400,1400,1400],[0,2,3,4]):P(esc(`Tất cả ${fmt(D.rows.length)} đơn vị đã thu được tiền đảng phí ${D.month}.`))}}
  const rkH=['Hạng','Đơn vị','Tiến độ tổng',...m.procs.map(x=>x.p.short)],rkW=[650,2621,1000,1200,1200,1200,1200],rkR=(rows,o)=>rows.map((r,i)=>[o+i+1,r.unit,rptPct(r.average),...r.values.map(v=>v===null?'—':rptPct(v))]);
@@ -592,7 +592,7 @@ function exportReportDocx(m,w){
   body+=para([run(`Bảng 2. Đơn vị được tuyên dương về thu nộp đảng phí (tỷ lệ đảng viên đã nộp ${D.honorNote})`,{b:true,sz:24})],{keep:true,jc:'left'})
    +table(['Hạng','Đơn vị','ĐV phải nộp','ĐV đã nộp','Tỷ lệ ĐV đã nộp','Tiền đã nộp (đ)'],D.honor.map((x,i)=>[i+1,x.name,fmt(x.need),fmt(x.dn),rptPctD(x.r),fmt(x.nop)]),[700,3571,1150,1150,1200,1300],[0,2,3,4,5]);
   if(rptDuesGood(D))body+=para(rptDuesGood(D),{ind:true});
-  body+=para([run(`Cần đôn đốc (${fmt(D.weak.length+D.zero.length)} đơn vị dưới 20%): `,{b:true,color:'8A3B12'}),run(rptNameList([...D.weak,...D.zero].sort((a,b)=>a.r-b.r),20)+'. Danh sách đầy đủ tại Phụ lục 06.')],{ind:true});
+  body+=para([run(`Cần đôn đốc (${fmt(D.weak.length+D.zero.length)} đơn vị dưới 20%): `,{b:true,color:'8A3B12'}),run(rptNameList([...D.weak,...D.zero].sort((a,b)=>a.r-b.r),1e9)+'.')],{ind:true});
   {const z=D.rows.filter(x=>(+x.nop||0)<=0).sort((a,b)=>a.name.localeCompare(b.name,'vi'));
    if(z.length)body+=para([run(`Bảng 2a. Danh sách đơn vị chưa thu được tiền đảng phí ${D.month} (${fmt(z.length)}/${fmt(D.rows.length)} đơn vị)`,{b:true,sz:24})],{keep:true,jc:'left'})
     +table(['TT','Đơn vị','Tổng số đảng viên','ĐV phải nộp','Số tiền đã nộp (đ)'],z.map((x,i)=>[i+1,x.name,fmt(x.t),fmt(x.need),'0']),[700,4371,1400,1400,1400],[0,2,3,4]);
