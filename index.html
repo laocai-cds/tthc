@@ -435,6 +435,7 @@ function rptHTML(m){
   body+=P(esc(`${rptProcText(x)} Có ${fmt(x.owners)}/${fmt(x.t.count)} đơn vị đã phân công cán bộ phụ trách, ${fmt(x.guided)} đơn vị đã hướng dẫn quy trình; ${fmt(x.t.doneUnits)} đơn vị hoàn thành, ${fmt(x.t.active)} đơn vị đang triển khai, ${fmt(x.notStarted)} đơn vị chưa triển khai.`));
   if(top.length)body+=P(`<b>Đơn vị dẫn đầu: </b>${esc(top.map(r=>r.u.unit+' ('+rptPct(r.v)+')').join('; ')+'.')}`);
   if(zero.length)body+=P(`<b class="w"><i>Chưa triển khai (${zero.length}): </i></b>${esc(rptZeroList(zero,i))}`)});
+ {const best=m.ranking.filter(r=>r.average>0).slice(0,5);if(best.length)body+=P(`<b class="g">Biểu dương ${best.length} đơn vị có tổng tiến độ triển khai tốt nhất: </b>${esc(best.map(r=>r.unit+' ('+rptPct(r.average)+')').join('; ')+'. Đây là những đơn vị đã chủ động phân công cán bộ, hướng dẫn quy trình và triển khai đồng bộ các thủ tục, cần được nhân rộng.')}`)}
  const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
  if(D){body+=H(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>P(esc(t))).join('');
   body+=P(`<b class="g">Biểu dương: </b>${esc(rptDuesPraise(D).replace(/^Biểu dương /,''))}`);
@@ -586,6 +587,7 @@ function exportReportDocx(m,w){
   body+=para(`${rptProcText(x)} Có ${fmt(x.owners)}/${fmt(x.t.count)} đơn vị đã phân công cán bộ phụ trách, ${fmt(x.guided)} đơn vị đã hướng dẫn quy trình; ${fmt(x.t.doneUnits)} đơn vị hoàn thành, ${fmt(x.t.active)} đơn vị đang triển khai, ${fmt(x.notStarted)} đơn vị chưa triển khai.`,{ind:true});
   if(top.length)body+=para([run('Đơn vị dẫn đầu: ',{b:true}),run(top.map(r=>r.u.unit+' ('+rptPct(r.v)+')').join('; ')+'.')],{ind:true});
   if(zero.length)body+=para([run(`Chưa triển khai (${zero.length}): `,{b:true,i:true,color:'8A3B12'}),run(rptZeroList(zero,i))],{ind:true})});
+ {const best=m.ranking.filter(r=>r.average>0).slice(0,5);if(best.length)body+=para([run(`Biểu dương ${best.length} đơn vị có tổng tiến độ triển khai tốt nhất: `,{b:true,color:'8A5A00'}),run(best.map(r=>r.unit+' ('+rptPct(r.average)+')').join('; ')+'. Đây là những đơn vị đã chủ động phân công cán bộ, hướng dẫn quy trình và triển khai đồng bộ các thủ tục, cần được nhân rộng.')],{ind:true,before:60})}
  const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
  if(D){body+=h(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>para(t,{ind:true})).join('');
   body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run(rptDuesPraise(D).replace(/^Biểu dương /,''))],{ind:true});
