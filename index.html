@@ -2140,7 +2140,6 @@ body.dp-lock{overflow:hidden}
    <div class="dp-crest" aria-hidden="true">₫</div>
    <div><h2 id="dpTitle">Đảng phí</h2><p>Nhập file Excel quản lý đảng phí · kiểm tra · đồng bộ lên Google Sheet</p></div>
    <div class="dp-sp"></div>
-   <a class="dp-ghost" id="dpSheetLink" target="_blank" rel="noopener">▦ Mở Google Sheet</a>
    <button class="dp-ghost" id="dpCfgBtn" type="button">⚙ Cấu hình</button>
    <button class="dp-ghost dp-x" id="dpClose" type="button" aria-label="Đóng">×</button>
   </div>
@@ -2259,7 +2258,7 @@ body.dp-lock{overflow:hidden}
   const getApi = () => store.get(LS.api) || DP_API_DEFAULT;
 
   let rows = [], fileMeta = null, filter = 'all', sortDir = 0, totals = null, canSync = false, statusLoaded = false;
-  q('dpSheetLink').href = DP_SHEET_URL;
+  if(q('dpSheetLink'))q('dpSheetLink').href = DP_SHEET_URL;
 
   /* ===== Mục "Đảng phí" trong menu Tác vụ ===== */
   function ensureMenuItem() {
@@ -2518,7 +2517,7 @@ body.dp-lock{overflow:hidden}
       if (!res) throw new Error('Không nhận được phản hồi từ Google.');
       if (res.ok === undefined || (res.version && !res.syncId && res.ok)) throw new Error('Apps Script đang chạy bản code cũ. Dán Code.gs mới → Triển khai → Quản lý các bản triển khai → Sửa → Phiên bản mới → Triển khai.');
       if (!res.ok) throw new Error(res.error || 'Máy chủ từ chối yêu cầu.');
-      showMsg('ok', '✓ Đã đồng bộ <b>' + res.rowCount + ' đơn vị</b> lúc ' + esc(res.updatedAtText) + ' (' + ((Date.now() - t0) / 1000).toFixed(1) + ' giây). <a href="' + DP_SHEET_URL + '" target="_blank" rel="noopener">Mở Google Sheet ↗</a>');
+      showMsg('ok', '✓ Đã đồng bộ <b>' + res.rowCount + ' đơn vị</b> lúc ' + esc(res.updatedAtText) + ' (' + ((Date.now() - t0) / 1000).toFixed(1) + ' giây).');
       [1,2,3].forEach(i => { q('dpSt' + i).classList.add('done'); q('dpSt' + i).classList.remove('active'); });
       loadStatus();
     } catch (e) {
