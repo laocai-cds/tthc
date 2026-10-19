@@ -322,14 +322,18 @@ body{background:radial-gradient(ellipse at 92% 2%,#e2eaff 0,transparent 34%),lin
   if(v){userPaused=false;if(!playing)setPlay(true);show(idx)}else au.pause()}
  tg.addEventListener('click',e=>{e.stopPropagation();setPlay(!playing);userPaused=!playing});
  sb.addEventListener('click',e=>{e.stopPropagation();muted=sound;setSound(!sound)});
- st.addEventListener('click',e=>{if(!sound&&!muted){e.stopPropagation();setSound(true);return}setPlay(!playing);userPaused=!playing});
+ st.addEventListener('click',e=>{if((!sound||(au.paused&&playing))&&!muted){e.stopPropagation();setSound(true);return}setPlay(!playing);userPaused=!playing});
  pg.addEventListener('click',e=>{const b=e.target.closest('button');if(b){e.stopPropagation();show(bars.indexOf(b));setPlay(true);userPaused=false}});
  /* Trình duyệt chỉ cho phát tiếng sau lần bấm/chạm đầu tiên trên trang */
  const unlock=e=>{document.removeEventListener('pointerdown',unlock,true);document.removeEventListener('keydown',unlock,true);
-  if(e&&e.target&&e.target.closest&&e.target.closest('#heroVideo'))return; if(!sound&&!muted)setSound(true)};
+  if(e&&e.target&&e.target.closest&&e.target.closest('#heroVideo'))return; if(!muted&&(!sound||au.paused))setSound(true)};
  document.addEventListener('pointerdown',unlock,true);document.addEventListener('keydown',unlock,true);
  document.addEventListener('visibilitychange',()=>{if(document.hidden)setPlay(false);else if(!userPaused)setPlay(true)});
+ /* Thử phát tiếng ngay khi tải trang; trình duyệt chặn thì chờ lần chạm đầu tiên */
+ sound=true;sb.classList.add('on');sb.textContent='🔊';sb.setAttribute('aria-label','Tắt tiếng');hint.hidden=true;
  show(0);requestAnimationFrame(tick);
+ au.addEventListener('playing',()=>{hint.hidden=true},{once:true});
+ setTimeout(()=>{if(au.paused&&!muted&&sound&&au.currentTime===0){sound=false;sb.classList.remove('on');sb.textContent='🔇';sb.setAttribute('aria-label','Bật tiếng');hint.hidden=false}},900);
 })();
 </script>
 <div class="leaderboard-pair"><aside class="leaderboard" id="leaderboard" aria-label="Top 03 đơn vị dẫn đầu về triển khai thủ tục"></aside><section class="panel top3-dues" id="top3Dues" aria-labelledby="top3DuesTitle"><div class="top3-dues-head"><div><h2 class="top3-dues-title" id="top3DuesTitle"><span aria-hidden="true">🏆</span>Top 03 đơn vị hoàn thành thu đảng phí trong kỳ <span class="dues-period" data-dues-period>Tháng 10</span></h2><p class="top3-dues-sub">Xếp theo tỷ lệ đảng viên đã nộp = (8) ÷ ((2)+(3)−(4)−(5)).</p></div></div><div class="top3-dues-list" id="top3DuesList" aria-live="polite"><div class="top3-dues-item"><span class="top3-dues-medal">…</span><div class="top3-dues-copy"><span class="top3-dues-name">Đang tải dữ liệu…</span></div></div></div><p class="top3-dues-status" id="top3DuesStatus" role="status">Đang kết nối Google Sheets…</p></section><section class="panel top3-dues" id="top3Money" aria-labelledby="top3MoneyTitle"><div class="top3-dues-head"><div><h2 class="top3-dues-title" id="top3MoneyTitle"><span aria-hidden="true">💰</span>Top 03 đơn vị thu tiền cao nhất trong kỳ <span class="dues-period" data-dues-period>Tháng 10</span></h2></div></div><div class="top3-dues-list" id="top3MoneyList" aria-live="polite"><div class="top3-dues-item"><span class="top3-dues-medal">…</span><div class="top3-dues-copy"><span class="top3-dues-name">Đang tải dữ liệu…</span></div></div></div><div class="top3-money-total" id="top3MoneyTotal" aria-live="polite"><span>Tổng tiền <b id="top3MoneyUnits">103</b> đơn vị:</span><strong id="top3MoneySum">…</strong></div><button type="button" class="top3-money-zero" id="top3MoneyZero" aria-haspopup="dialog"><span class="tmz-ico" aria-hidden="true">!</span><span class="tmz-text">Danh sách đơn vị chưa thu được tiền</span><b id="top3MoneyZeroCount">0</b><i aria-hidden="true">›</i></button><p class="top3-dues-status" id="top3MoneyStatus" role="status">Đang kết nối Google Sheets…</p></section></div>
