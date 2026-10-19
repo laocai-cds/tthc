@@ -39,6 +39,15 @@ button{font:inherit;color:inherit}
 .hero h1 em{font-style:normal;color:var(--gold)}
 .hero p{margin:0;max-width:640px;opacity:.82;font-size:15px}
 
+.live{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid #ffffff2e;background:#ffffff10;font-size:13px;white-space:nowrap}
+.live i{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 0 #4ade8099;animation:pulse 1.8s infinite}
+.live.off i{background:#9aa6b8;animation:none}
+.live b{font-weight:700;font-variant-numeric:tabular-nums}
+.live small{opacity:.72;font-size:12px}
+.tl-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #4ade8099}70%{box-shadow:0 0 0 8px #4ade8000}100%{box-shadow:0 0 0 0 #4ade8000}}
+@media (prefers-reduced-motion:reduce){.live i{animation:none}}
+@media (max-width:600px){.live small{display:none}}
 /* Search panel */
 .panel{background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
 .searchbox{margin-top:-40px;position:relative;z-index:2;padding:16px}
@@ -145,7 +154,7 @@ mark{background:#fbe39a;color:inherit;border-radius:3px;padding:0 1px}
   <div class="wrap">
     <div class="topline">
       <a class="brand" href="./"><img src="logo.png" alt=""><span><b>DVC LÀO CAI</b><small>Hệ thống theo dõi thủ tục hành chính của Đảng</small></span></a>
-      <a class="back" href="./"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Về trang theo dõi</a>
+      <div class="tl-right"><span class="live off" id="live" title="Số người đang mở trang theo dõi TTHC (dùng chung với trang chính)"><i aria-hidden="true"></i><b id="onlineCount">—</b> <span>đang online</span><small id="visitWrap" hidden>· <span id="totalVisits"></span> lượt truy cập</small></span><a class="back" href="./"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Về trang theo dõi</a></div>
     </div>
     <h1>Hỏi – đáp <em>Thủ tục hành chính</em> của Đảng</h1>
     <p>Cách xử lý các vướng mắc thường gặp trên dichvucong.dcs.vn và gqtthc.dcs.vn: kê khai, nộp đảng phí, phân bổ, phân quyền, đồng bộ dữ liệu, chữ ký số. Dành cho cấp ủy, cán bộ phụ trách và đảng viên tỉnh Lào Cai.</p>
@@ -200,6 +209,37 @@ mark{background:#fbe39a;color:inherit;border-radius:3px;padding:0 1px}
 
 <button class="totop" id="totop" type="button" aria-label="Lên đầu trang"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 15l-6-6-6 6"/></svg></button>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script>
+/* Người đang online: dùng chung nhánh "presence" với trang theo dõi (index.html). */
+(function(){
+  var el=document.getElementById('onlineCount'), box=document.getElementById('live');
+  if(!el||!window.firebase) return;
+  try{
+    if(!firebase.apps.length) firebase.initializeApp({
+      apiKey:"AIzaSyCZ9gzT18b1QovsS0y4-SgmUFqtyMvkR0A",authDomain:"laocai-tthc.firebaseapp.com",projectId:"laocai-tthc",
+      storageBucket:"laocai-tthc.firebasestorage.app",messagingSenderId:"836624022047",appId:"1:836624022047:web:7ee3c80e5e44b8ed3d732a",
+      databaseURL:"https://laocai-tthc-default-rtdb.firebaseio.com"});
+    var db=firebase.database(), presence=db.ref('presence'), sid=null;
+    try{ sid=sessionStorage.getItem('firebasePresenceId'); }catch(_){}
+    if(!sid){ sid=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'visitor-'+Date.now()+'-'+Math.random().toString(36).slice(2); try{sessionStorage.setItem('firebasePresenceId',sid);}catch(_){} }
+    var me=presence.child(sid), TS=firebase.database.ServerValue.TIMESTAMP;
+    db.ref('.info/connected').on('value',function(s){ if(s.val()!==true) return; me.onDisconnect().remove().catch(function(){}); me.set({online:true,lastSeen:TS}).catch(function(){}); });
+    var hb=setInterval(function(){ me.update({online:true,lastSeen:TS}).catch(function(){}); },20000);
+    presence.on('value',function(s){
+      var now=Date.now(), d=s.val()||{};
+      var n=Object.keys(d).filter(function(k){ var i=d[k]||{}, t=Number(i.lastSeen||0); return i.online===true&&t>0&&(now-t)<60000; }).length;
+      el.textContent=n.toLocaleString('vi-VN'); box.classList.remove('off');
+    },function(){ el.textContent='—'; box.classList.add('off'); });
+    db.ref('statistics/totalVisits').on('value',function(s){
+      var v=Number(s.val()||0); if(!v) return;
+      document.getElementById('totalVisits').textContent=v.toLocaleString('vi-VN'); document.getElementById('visitWrap').hidden=false;
+    },function(){});
+    window.addEventListener('pagehide',function(){ clearInterval(hb); me.remove().catch(function(){}); },{once:true});
+  }catch(e){ el.textContent='—'; }
+})();
+</script>
 <script src="hoi-dap-data.js"></script>
 <script>
 (function(){
