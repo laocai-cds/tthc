@@ -73,6 +73,8 @@ button{font:inherit;color:inherit}
 .item{background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden;transition:border-color .15s,box-shadow .15s}
 .item:hover{border-color:#e0d3cc}
 .item.open{border-color:#d9c6bd;box-shadow:var(--shadow)}
+.item.best{border-color:#e3b93f;box-shadow:0 0 0 3px #f2ca6340}
+.bestlbl{background:#fff6e0;color:#a86a00;font-size:12px;font-weight:700;padding:5px 16px;border-bottom:1px solid #f3dfae}
 .item.flash{animation:flash 1.6s ease}
 @keyframes flash{0%,40%{box-shadow:0 0 0 4px #f2ca6380}100%{box-shadow:var(--shadow)}}
 .q{width:100%;display:flex;gap:12px;align-items:flex-start;text-align:left;border:0;background:none;padding:14px 16px;cursor:pointer}
@@ -154,7 +156,7 @@ mark{background:#fbe39a;color:inherit;border-radius:3px;padding:0 1px}
   <section class="panel searchbox" aria-label="Tìm kiếm">
     <label class="field">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input id="q" type="search" autocomplete="off" placeholder="Gõ vấn đề cần tìm, ví dụ: hoàn tiền, tỷ lệ phân bổ, mất quyền…" aria-label="Tìm câu hỏi">
+      <input id="q" type="search" autocomplete="off" placeholder="Hỏi bằng lời thường, ví dụ: nộp thừa tiền đảng phí thì hoàn lại thế nào?" aria-label="Tìm câu hỏi">
       <button class="clear" id="clear" type="button" hidden>Xóa</button>
     </label>
     <div class="hints">Hay tìm:
@@ -217,16 +219,35 @@ mark{background:#fbe39a;color:inherit;border-radius:3px;padding:0 1px}
     d._qn = norm(d.q); d._altn = norm(d.alt||'');
   });
 
-  function terms(){ return norm(state.q).split(/[\s,;]+/).filter(t => t.length > 1); }
+  // ---- Tìm kiếm thông minh (không dùng AI): bỏ từ đệm, đồng nghĩa, xếp hạng theo độ hiếm của từ ----
+  const STOP = new Set('la va cua co khong the nao thi bi duoc cho khi nay do sao gi ve trong tren toi minh em anh chi muon can phai lam nhu o dau ai roi van da se hay hoac vi sau truoc mot cac nhung de tu voi ma neu thay ra vao bao nhieu xin hoi giup cach'.split(' '));
+  const SYN = [[/\bti le\b/g,'ty le'],[/\btk\b/g,'tai khoan'],[/\bcks\b/g,'chu ky so'],[/\bbtcb\b/g,'bi thu chi bo'],[/\bbhxh\b/g,'bhxh'],[/\bnop thieu\b/g,'nop thieu nop bu'],[/\bdong dang phi\b/g,'nop dang phi'],[/\bdong tien\b/g,'nop tien'],[/\bmat quyen\b/g,'mat quyen phan quyen'],[/\bdang ky\b/g,'dang ky'],[/\bsap nhap\b/g,'sap nhap dong bo']];
+  function expand(q){ let n = norm(q); SYN.forEach(r => { n = n.replace(r[0], r[1]); }); return n; }
+  const dfCache = {};
+  function idf(t){
+    if (!(t in dfCache)){ let c = 0; for (const d of DATA) if (d._ix.includes(t)) c++; dfCache[t] = Math.log((DATA.length+1)/(c+0.5)); }
+    return Math.max(0.15, dfCache[t]);
+  }
+  let _tq = null, _tr = null;
+  function terms(){
+    if (_tq === state.q) return _tr;
+    const toks = expand(state.q).split(/[^a-z0-9]+/).filter(t => t.length > 1 && !STOP.has(t));
+    _tq = state.q; _tr = [...new Set(toks)]; return _tr;
+  }
 
+  // Trả về điểm (>=0) hoặc -1 nếu không phù hợp; d._cov = tỷ lệ từ khóa trùng khớp
   function score(d, ts){
-    let s = 0;
+    if (!ts.length) return 0;
+    let tot = 0, hit = 0, bonus = 0;
     for (const t of ts){
-      if (!d._ix.includes(t)) return -1;
-      s += 1 + (d._qn.includes(t) ? 3 : 0) + (d._altn.includes(t) ? 2 : 0);
+      const w = idf(t); tot += w;
+      if (d._ix.includes(t)){ hit += w; if (d._qn.includes(t)) bonus += w*0.6; if (d._altn.includes(t)) bonus += w*0.35; }
     }
-    const phrase = norm(state.q).trim();
-    if (phrase.length > 3 && (d._qn.includes(phrase) || d._altn.includes(phrase))) s += 6;
+    const cov = tot ? hit/tot : 0;
+    d._cov = cov;
+    if (ts.length <= 2 ? cov < 0.999 : cov < 0.45) return -1;
+    let s = cov*10 + bonus;
+    for (let i=0;i<ts.length-1;i++){ const bg = ts[i]+' '+ts[i+1]; if (d._ix.includes(bg)) s += 1.5; if (d._qn.includes(bg)) s += 1.5; }
     return s;
   }
 
@@ -307,7 +328,13 @@ mark{background:#fbe39a;color:inherit;border-radius:3px;padding:0 1px}
     $('#clear').hidden = !state.q;
     renderChips();
     // Tìm kiếm có kết quả ít → mở sẵn câu đầu
-    if (ts.length && rows.length && rows.length <= 3) toggle(document.getElementById(rows[0].id), true);
+    if (ts.length && rows.length){
+      const top = rows[0], strong = ts.length >= 3 && top._cov >= 0.6 && (rows.length === 1 || score(rows[1], ts) < score(top, ts) * 0.85);
+      if (strong || rows.length <= 3){
+        const el = document.getElementById(top.id); toggle(el, true);
+        if (strong){ el.classList.add('best'); el.insertAdjacentHTML('afterbegin','<div class="bestlbl">Phù hợp nhất với câu hỏi của bạn</div>'); }
+      }
+    }
     $('#expandAll').textContent = 'Mở tất cả';
   }
 
