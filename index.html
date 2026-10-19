@@ -240,6 +240,102 @@ body{background:radial-gradient(ellipse at 92% 2%,#e2eaff 0,transparent 34%),lin
 <canvas id="liveSine" width="240" height="48" aria-label="Biểu đồ hình sin thời gian thực"></canvas>
 <div class="hero-bars" id="heroBars" role="img" aria-label="Biểu đồ cột tiến độ bình quân theo thủ tục"><div class="hero-bar" data-p="chinh-thuc" style="--c1:#c51620;--c2:#f2683c"><span class="hb-val">0%</span><span class="hb-col"><i></i></span><span class="hb-name">Chính thức</span></div><div class="hero-bar" data-p="tam-thoi" style="--c1:#d99412;--c2:#f2c24b"><span class="hb-val">0%</span><span class="hb-col"><i></i></span><span class="hb-name">Tạm thời</span></div><div class="hero-bar" data-p="nhan-xet" style="--c1:#10a981;--c2:#4fd1a5"><span class="hb-val">0%</span><span class="hb-col"><i></i></span><span class="hb-name">Nhận xét</span></div><div class="hero-bar" data-p="dang-phi" style="--c1:#8a5cf0;--c2:#c29af4"><span class="hb-val">0%</span><span class="hb-col"><i></i></span><span class="hb-name">Đảng phí</span></div></div>
 </div>
+<section class="hv" id="heroVideo" aria-label="Video giới thiệu 04 thủ tục hành chính trong Đảng trên môi trường điện tử">
+<div class="hv-head"><span>🎬 Giới thiệu 04 thủ tục</span><span class="hv-ctl"><button type="button" class="hv-btn hv-snd" id="hvSound" aria-label="Bật tiếng" title="Bật giọng đọc">🔇</button><button type="button" class="hv-btn" id="hvToggle" aria-label="Tạm dừng video">❚❚</button></span></div><div class="hv-hint" id="hvHint">🔊 Bấm vào video để nghe thuyết minh</div>
+<div class="hv-stage" id="hvStage" aria-live="off"></div>
+<div class="hv-prog" id="hvProg" role="tablist" aria-label="Chọn cảnh"></div>
+</section>
+<style id="hero-video-style">
+.hv{flex:0 1 340px;width:340px;max-width:100%;min-width:0;display:flex;flex-direction:column;gap:6px;padding:9px 12px;border:1px solid #f0dfd9;border-radius:14px;background:linear-gradient(135deg,#fff 55%,#fff6ef);box-shadow:0 4px 12px rgba(23,44,74,.06)}
+.hv-head{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;font-weight:800;color:#8f0b12;letter-spacing:.3px;text-transform:uppercase}
+.hv-btn{width:26px;height:22px;border:1px solid #f0d3cc;border-radius:7px;background:#fff;color:#8f0b12;font-size:10px;cursor:pointer;line-height:1}
+.hv-btn:hover{background:#fff2ee}
+.hv-stage{position:relative;flex:1;min-height:228px;border-radius:11px;overflow:hidden;background:linear-gradient(150deg,#8f0b12,#c51620 55%,#e0492f);color:#fff;cursor:pointer}
+.hv-stage::before{content:"";position:absolute;right:-60px;bottom:-70px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,214,102,.35),transparent 70%);animation:hvGlow 6s ease-in-out infinite}
+.hv-stage::after{content:"★";position:absolute;right:12px;top:6px;font-size:22px;color:#ffd666;opacity:.85}
+@keyframes hvGlow{50%{transform:translate(-20px,-14px) scale(1.15)}}
+.hv-sc{position:absolute;inset:0;padding:14px 16px 12px;display:flex;flex-direction:column;gap:7px}
+.hv-sc.in .hv-a{animation:hvIn .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--d,0)*1s)}
+@keyframes hvIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.hv-kick{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;padding:2px 9px;border-radius:20px;background:rgba(255,255,255,.16);font-size:9.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.hv-kick b{display:inline-grid;place-items:center;min-width:18px;height:18px;border-radius:50%;background:#ffd666;color:#8f0b12;font-size:9.5px}
+.hv-t{margin:0;font-size:17px;line-height:1.22;font-weight:850;letter-spacing:-.2px;text-shadow:0 2px 8px rgba(0,0,0,.18)}
+.hv-t.big{font-size:21px}
+.hv-sub{font-size:11px;line-height:1.4;color:#ffe9d6}
+.hv-steps{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-direction:column;gap:5px;counter-reset:s}
+.hv-steps li{counter-increment:s;display:flex;align-items:flex-start;gap:8px;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,.12);font-size:11.3px;line-height:1.3;font-weight:600}
+.hv-steps li::before{content:counter(s);flex:0 0 17px;height:17px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--hc,#c51620);font-size:10px;font-weight:900}
+.hv-flow{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:10px;font-weight:700}
+.hv-flow span{padding:3px 7px;border-radius:6px;background:#fff;color:var(--hc,#c51620)}
+.hv-flow i{font-style:normal;color:#ffd666}
+.hv-four{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px}
+.hv-four div{padding:6px 8px;border-radius:9px;background:rgba(255,255,255,.14);font-size:10.5px;font-weight:700;line-height:1.25;border-left:3px solid var(--c)}
+.hv-url{align-self:flex-start;margin-top:auto;padding:4px 10px;border-radius:7px;background:#ffd666;color:#7a0a10;font-size:11.5px;font-weight:850}
+.hv-sc.p1{background:linear-gradient(150deg,#8f0b12,#c51620 60%,#f2683c)}
+.hv-sc.p2{background:linear-gradient(150deg,#8a5a06,#d99412 60%,#f2c24b)}
+.hv-sc.p3{background:linear-gradient(150deg,#056b52,#10a981 60%,#4fd1a5)}
+.hv-sc.p4{background:linear-gradient(150deg,#4a2aa8,#8a5cf0 60%,#c29af4)}
+.hv-prog{display:flex;gap:4px}
+.hv-prog button{flex:1;height:5px;padding:0;border:0;border-radius:3px;background:#f1e2dc;overflow:hidden;cursor:pointer}
+.hv-prog button i{display:block;height:100%;width:0;background:#c51620}
+.hv-prog button.done i{width:100%}
+.hv-ctl{display:flex;gap:4px}.hv-snd.on{background:#c51620;color:#fff;border-color:#c51620}
+.hv-hint{font-size:10px;font-weight:700;color:#b3111b;text-align:center;animation:hvBlink 1.6s ease-in-out infinite}.hv-hint[hidden]{display:none}
+@keyframes hvBlink{50%{opacity:.45}}
+@media(max-width:760px){.hv{width:100%;flex-basis:100%}}
+@media(prefers-reduced-motion:reduce){.hv-sc.in .hv-a{animation-duration:.01s}.hv-stage::before{animation:none}}
+</style>
+<script id="hero-video-script">
+(function(){
+ const S=[
+  {say:'Bốn thủ tục hành chính trong Đảng trên môi trường điện tử gồm: chuyển sinh hoạt đảng chính thức; chuyển sinh hoạt đảng tạm thời; nhận xét đảng viên nơi cư trú; và thu, nộp đảng phí.',cls:'',dur:6,h:`<span class="hv-kick hv-a">Dịch vụ công của Đảng</span><h3 class="hv-t big hv-a" style="--d:.25">04 thủ tục hành chính trong Đảng trên môi trường điện tử</h3><div class="hv-four"><div class="hv-a" style="--c:#f2683c;--d:.7">Chuyển sinh hoạt đảng chính thức</div><div class="hv-a" style="--c:#f2c24b;--d:.9">Chuyển sinh hoạt đảng tạm thời</div><div class="hv-a" style="--c:#4fd1a5;--d:1.1">Nhận xét đảng viên nơi cư trú</div><div class="hv-a" style="--c:#c29af4;--d:1.3">Thu, nộp đảng phí</div></div>`},
+  {say:'Thủ tục thứ nhất: chuyển sinh hoạt đảng chính thức. Đảng viên chọn cơ quan tiếp nhận, khai thông tin và lý do chuyển, đính kèm bản tự kiểm điểm có nhận xét của chi bộ, sau đó xem lại, cam kết và nộp hồ sơ.',cls:'p1',hc:'#c51620',dur:8,h:`<span class="hv-kick hv-a"><b>01</b>Thủ tục</span><h3 class="hv-t hv-a" style="--d:.2">Chuyển sinh hoạt đảng chính thức</h3><ol class="hv-steps"><li class="hv-a" style="--d:.6">Chọn cơ quan tiếp nhận</li><li class="hv-a" style="--d:1.2">Khai thông tin và lý do chuyển</li><li class="hv-a" style="--d:1.8">Đính kèm bản tự kiểm điểm có nhận xét của chi bộ (dưới 20MB)</li><li class="hv-a" style="--d:2.4">Xem lại, cam kết và nộp hồ sơ</li></ol>`},
+  {say:'Thủ tục thứ hai: chuyển sinh hoạt đảng tạm thời. Các bước tương tự, nhưng bắt buộc khai thời gian chuyển, từ ngày nào đến ngày nào, và đính kèm bản tự kiểm điểm có nhận xét của chi bộ.',cls:'p2',hc:'#b47a08',dur:8,h:`<span class="hv-kick hv-a"><b>02</b>Thủ tục</span><h3 class="hv-t hv-a" style="--d:.2">Chuyển sinh hoạt đảng tạm thời</h3><ol class="hv-steps"><li class="hv-a" style="--d:.6">Chọn cơ quan tiếp nhận</li><li class="hv-a" style="--d:1.2">Khai lý do và thời gian “từ ngày … đến ngày …”</li><li class="hv-a" style="--d:1.8">Đính kèm bản tự kiểm điểm có nhận xét của chi bộ</li><li class="hv-a" style="--d:2.4">Xem lại, cam kết và nộp hồ sơ</li></ol>`},
+  {say:'Thủ tục thứ ba: nhận xét đảng viên nơi cư trú. Đảng viên chọn lập giấy giới thiệu sinh hoạt nơi cư trú, hoặc phiếu xin ý kiến nhận xét của chi ủy, chi bộ nơi cư trú. Hồ sơ được chi bộ duyệt, đảng ủy ký, văn thư đóng dấu và chuyển đi.',cls:'p3',hc:'#0b8a69',dur:8,h:`<span class="hv-kick hv-a"><b>03</b>Thủ tục</span><h3 class="hv-t hv-a" style="--d:.2">Nhận xét đảng viên nơi cư trú</h3><div class="hv-sub hv-a" style="--d:.6">Chọn một trong hai nội dung:</div><ol class="hv-steps"><li class="hv-a" style="--d:1">Giấy giới thiệu sinh hoạt nơi cư trú</li><li class="hv-a" style="--d:1.5">Phiếu xin ý kiến nhận xét của chi ủy/chi bộ nơi cư trú</li></ol><div class="hv-flow hv-a" style="--d:2.2"><span>Nộp hồ sơ</span><i>→</i><span>Chi bộ duyệt</span><i>→</i><span>Đảng ủy ký</span><i>→</i><span>Văn thư chuyển</span></div>`},
+  {say:'Thủ tục thứ tư: thu, nộp đảng phí. Đảng viên kê khai và nộp hồ sơ; bí thư hoặc ủy viên tài chính phê duyệt; sau đó đảng viên quét mã Q R để thanh toán. Hồ sơ chuyển sang trạng thái hoàn thành. Chi bộ có thể khai hộ, nộp hộ.',cls:'p4',hc:'#6b3fd6',dur:8,h:`<span class="hv-kick hv-a"><b>04</b>Thủ tục</span><h3 class="hv-t hv-a" style="--d:.2">Thu, nộp đảng phí</h3><ol class="hv-steps"><li class="hv-a" style="--d:.6">Kê khai, kiểm tra số tiền và nộp hồ sơ</li><li class="hv-a" style="--d:1.2">Bí thư/Ủy viên tài chính phê duyệt → “Chờ nộp”</li><li class="hv-a" style="--d:1.8">Đóng đảng phí: quét mã QR thanh toán</li><li class="hv-a" style="--d:2.4">Hồ sơ chuyển “Hoàn thành”; có thể khai hộ, nộp hộ</li></ol>`},
+  {say:'Hãy thực hiện các thủ tục trực tuyến tại cổng dịch vụ công của Đảng, địa chỉ: dịch vụ công, chấm, đê xê ét, chấm, vê en. Nếu có vướng mắc, xem mục Hỏi đáp trên trang này.',cls:'',dur:6,h:`<span class="hv-kick hv-a">Thực hiện ngay</span><h3 class="hv-t big hv-a" style="--d:.25">Nộp hồ sơ trực tuyến — nhanh, minh bạch, không giấy tờ</h3><div class="hv-sub hv-a" style="--d:.8">Vướng mắc khi thực hiện? Xem mục <b>Hỏi đáp</b> trên trang này hoặc liên hệ cán bộ phụ trách của đơn vị.</div><span class="hv-url hv-a" style="--d:1.3">🌐 dichvucong.dcs.vn</span>`}
+ ];
+ const st=document.getElementById('hvStage'),pg=document.getElementById('hvProg'),tg=document.getElementById('hvToggle'),sb=document.getElementById('hvSound'),hint=document.getElementById('hvHint');
+ if(!st)return;
+ pg.innerHTML=S.map((s,i)=>`<button type="button" role="tab" aria-label="Cảnh ${i+1}"><i></i></button>`).join('');
+ const bars=[...pg.children],SY=window.speechSynthesis;
+ let idx=0,t0=0,el=0,playing=true,userPaused=false,sound=false,muted=false,voice=null,spoken=false,dur=6,tok=0;
+ function pickVoice(){if(!SY)return;const vs=SY.getVoices().filter(v=>/^vi/i.test(v.lang));voice=vs.find(v=>/google|natural|online|hoaimy|namminh/i.test(v.name))||vs[0]||null}
+ if(SY){pickVoice();SY.onvoiceschanged=pickVoice}
+ const estimate=t=>t.length/13+1.2; /* giây, ~13 ký tự/giây */
+ function speak(){if(!SY||!sound)return;SY.cancel();const s=S[idx];if(!s.say)return;
+  const u=new SpeechSynthesisUtterance(s.say);u.lang='vi-VN';if(voice)u.voice=voice;u.rate=1;const my=++tok;
+  u.onend=()=>{if(my===tok&&playing){spoken=true}};u.onerror=()=>{if(my===tok)spoken=true};
+  spoken=false;SY.speak(u)}
+ function show(i){idx=(i+S.length)%S.length;el=0;t0=performance.now();
+  const s=S[idx];dur=sound&&s.say?Math.max(s.dur,estimate(s.say)):s.dur;
+  const d=document.createElement('div');d.className='hv-sc '+s.cls;if(s.hc)d.style.setProperty('--hc',s.hc);d.innerHTML=s.h;
+  st.replaceChildren(d);void d.offsetWidth;d.classList.add('in');
+  bars.forEach((b,k)=>{b.firstChild.style.width=k<idx?'100%':'0';b.setAttribute('aria-selected',k===idx)});speak()}
+ function tick(now){if(playing){const t=(el+now-t0)/1000,p=Math.min(1,t/dur);bars[idx].firstChild.style.width=(p*100)+'%';
+   const talking=sound&&SY&&S[idx].say&&!spoken&&SY.speaking;
+   if(p>=1&&!talking&&t>=S[idx].dur)show(idx+1)}requestAnimationFrame(tick)}
+ function setPlay(v){if(v===playing)return;const now=performance.now();if(!v)el+=now-t0;else t0=now;playing=v;
+  tg.textContent=v?'❚❚':'▶';tg.setAttribute('aria-label',v?'Tạm dừng video':'Phát video');
+  st.querySelectorAll('.hv-a').forEach(a=>a.style.animationPlayState=v?'':'paused');
+  if(SY&&sound){v?SY.resume():SY.pause()}}
+ function setSound(v){if(!SY){sb.title='Trình duyệt không hỗ trợ giọng đọc';return}
+  sound=v;sb.classList.toggle('on',v);sb.textContent=v?'🔊':'🔇';sb.setAttribute('aria-label',v?'Tắt tiếng':'Bật tiếng');hint.hidden=true;
+  if(v&&!voice){pickVoice();if(!voice)sb.title='Thiết bị chưa cài giọng đọc tiếng Việt — có thể đọc bằng giọng mặc định'}
+  if(v){setPlay(true);userPaused=false;show(idx)}else SY.cancel()}
+ if(!SY)hint.hidden=true;
+ tg.addEventListener('click',e=>{e.stopPropagation();setPlay(!playing);userPaused=!playing});
+ sb.addEventListener('click',e=>{e.stopPropagation();muted=sound;setSound(!sound)});
+ st.addEventListener('click',e=>{if(!sound&&!muted&&SY){e.stopPropagation();setSound(true);return}setPlay(!playing);userPaused=!playing});
+ pg.addEventListener('click',e=>{const b=e.target.closest('button');if(b){e.stopPropagation();show(bars.indexOf(b));setPlay(true);userPaused=false}});
+ /* Trình duyệt chỉ cho phát tiếng sau tương tác đầu tiên: bật tiếng ở lần bấm/chạm đầu tiên trên trang */
+ const unlock=()=>{document.removeEventListener('pointerdown',unlock,true);document.removeEventListener('keydown',unlock,true);if(!sound&&!muted&&SY)setSound(true)};
+ document.addEventListener('pointerdown',unlock,true);document.addEventListener('keydown',unlock,true);
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)setPlay(false);else if(!userPaused)setPlay(true)});
+ window.addEventListener('pagehide',()=>SY&&SY.cancel());
+ show(0);requestAnimationFrame(tick);
+})();
+</script>
 <div class="leaderboard-pair"><aside class="leaderboard" id="leaderboard" aria-label="Top 03 đơn vị dẫn đầu về triển khai thủ tục"></aside><section class="panel top3-dues" id="top3Dues" aria-labelledby="top3DuesTitle"><div class="top3-dues-head"><div><h2 class="top3-dues-title" id="top3DuesTitle"><span aria-hidden="true">🏆</span>Top 03 đơn vị hoàn thành thu đảng phí trong kỳ <span class="dues-period" data-dues-period>Tháng 10</span></h2><p class="top3-dues-sub">Xếp theo tỷ lệ đảng viên đã nộp = (8) ÷ ((2)+(3)−(4)−(5)).</p></div></div><div class="top3-dues-list" id="top3DuesList" aria-live="polite"><div class="top3-dues-item"><span class="top3-dues-medal">…</span><div class="top3-dues-copy"><span class="top3-dues-name">Đang tải dữ liệu…</span></div></div></div><p class="top3-dues-status" id="top3DuesStatus" role="status">Đang kết nối Google Sheets…</p></section><section class="panel top3-dues" id="top3Money" aria-labelledby="top3MoneyTitle"><div class="top3-dues-head"><div><h2 class="top3-dues-title" id="top3MoneyTitle"><span aria-hidden="true">💰</span>Top 03 đơn vị thu tiền cao nhất trong kỳ <span class="dues-period" data-dues-period>Tháng 10</span></h2></div></div><div class="top3-dues-list" id="top3MoneyList" aria-live="polite"><div class="top3-dues-item"><span class="top3-dues-medal">…</span><div class="top3-dues-copy"><span class="top3-dues-name">Đang tải dữ liệu…</span></div></div></div><div class="top3-money-total" id="top3MoneyTotal" aria-live="polite"><span>Tổng tiền <b id="top3MoneyUnits">103</b> đơn vị:</span><strong id="top3MoneySum">…</strong></div><button type="button" class="top3-money-zero" id="top3MoneyZero" aria-haspopup="dialog"><span class="tmz-ico" aria-hidden="true">!</span><span class="tmz-text">Danh sách đơn vị chưa thu được tiền</span><b id="top3MoneyZeroCount">0</b><i aria-hidden="true">›</i></button><p class="top3-dues-status" id="top3MoneyStatus" role="status">Đang kết nối Google Sheets…</p></section></div>
 </div><div class="sheet-bar" aria-label="Liên kết Google Sheets">
 <div class="sheet-bar-main">
