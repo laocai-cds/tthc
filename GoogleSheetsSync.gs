@@ -1,17 +1,30 @@
 /**
- * Writes one unit's edited values to the two converted Google Sheets.
- * Shared credential mode: anyone who knows the code may update any unit STT.
+ * API đồng bộ trang laocai-cds.github.io/tthc <-> Google Sheets (phiên bản 3).
+ * - Đọc: GET ?action=read&callback=fn (JSONP)
+ * - Ghi: POST payload=JSON (mã truy cập chung, kiểm tra bằng SHA-256)
+ * - Ảnh kiểm chứng: lưu vào thư mục Drive "ảnh lưu kiểm chứng",
+ *   đường dẫn ghi vào cột M, thời gian ghi vào cột N của tab thủ tục.
+ *
+ * Sau khi dán code: Triển khai > Quản lý bản triển khai > (bút chì) > Phiên bản mới > Triển khai,
+ * rồi cấp quyền Google Drive khi được hỏi.
  */
 const CONFIG = {
+  version: 3,
   procedureSpreadsheetId: '1zWKZy2rMCsahX-f96bk9tMJuLcDp13OfKNcQq3T5oXA',
   feeSpreadsheetId: '1TtO9dO5muFTBzSclFDpbAALMdmbiiGb1R5FH0DkARK4',
+  proofFolderId: '1Zv_bKy_tck-aktO-LIRR0H4szaPWBc-b',
   procedureTabs: {
     'chinh-thuc': 'CHUYỂN SINH HOẠT CHÍNH THỨC',
     'tam-thoi': 'CHUYỂN SINH HOẠT TẠM THỜI',
     'nhan-xet': 'LẤY PHIẾU NHẬN XÉT NƠI CƯ TRÚ'
   },
   feeTab: 'TIẾN ĐỘ 103 ĐƠN VỊ',
-  adminDefaults: { accounts: 274, activated: 256 }
+  adminDefaults: { accounts: 274, activated: 256 },
+  // Cột (1-based)
+  caseProofCol: 13,   // M: ẢNH KIỂM CHỨNG
+  caseProofTimeCol: 14, // N: NGÀY CẬP NHẬT ẢNH
+  feeNoteCol: 13,     // M: LƯU Ý
+  maxImageBytes: 8 * 1024 * 1024
 };
 
 function initializeSharedAccessCode() {
@@ -19,6 +32,12 @@ function initializeSharedAccessCode() {
   props.setProperty('SHARED_ACCESS_CODE_HASH', '29e642a2f2d2631dbbc95da448972535a2df68e92288e5a20ed88029e075e967');
   Object.keys(props.getProperties()).filter(key => key.startsWith('UNIT_')).forEach(key => props.deleteProperty(key));
   Logger.log('Đã bật mã chung và xóa mã riêng cũ.');
+}
+
+/** Chạy một lần trong trình soạn thảo để cấp quyền Drive và kiểm tra thư mục ảnh. */
+function testProofFolder() {
+  const folder = DriveApp.getFolderById(CONFIG.proofFolderId);
+  Logger.log('Thư mục ảnh: ' + folder.getName() + ' — ' + folder.getUrl());
 }
 
 function doGet(e) {
@@ -31,14 +50,13 @@ function doGet(e) {
     const procedures = {};
     const procedureBook = SpreadsheetApp.openById(CONFIG.procedureSpreadsheetId);
     Object.entries(CONFIG.procedureTabs).forEach(([id, tabName]) => {
-      const sheet = procedureBook.getSheetByName(tabName);
-      procedures[id] = readCaseRows_(sheet);
+      procedures[id] = readCaseRows_(procedureBook.getSheetByName(tabName));
     });
-    const feeBook = SpreadsheetApp.openById(CONFIG.feeSpreadsheetId);
-    const feeSheet = feeBook.getSheetByName(CONFIG.feeTab);
+    const feeSheet = SpreadsheetApp.openById(CONFIG.feeSpreadsheetId).getSheetByName(CONFIG.feeTab);
     const props = PropertiesService.getScriptProperties();
-    const result = {
+    return jsonp_(callback, {
       ok: true,
+      version: CONFIG.version,
       updatedAt: new Date().toISOString(),
       procedures,
       fee: readFeeRows_(feeSheet),
@@ -46,8 +64,7 @@ function doGet(e) {
         accounts: Number(props.getProperty('ADMIN_ACCOUNT_COUNT') || CONFIG.adminDefaults.accounts),
         activated: Number(props.getProperty('ADMIN_ACTIVATED_COUNT') || CONFIG.adminDefaults.activated)
       }
-    };
-    return jsonp_(callback, result);
+    });
   } catch (err) {
     console.error(JSON.stringify({event:'read_failed', error:String(err && err.message || err)}));
     return jsonp_(callback, {ok:false, error:String(err && err.message || err)});
@@ -55,18 +72,23 @@ function doGet(e) {
 }
 
 function readCaseRows_(sheet) {
-  return readRows_(sheet, 9).filter(r => Number.isInteger(Number(r[0])) && Number(r[0]) > 0).map(r => ({
+  return readRows_(sheet, CONFIG.caseProofTimeCol).filter(validId_).map(r => ({
     id:Number(r[0]), unit:String(r[1] || ''), owner:String(r[2] || ''), guided:String(r[3] || 'Chưa'),
     received:Number(r[4]) || 0, total:Number(r[5]) || 0, processed:Number(r[6]) || 0,
-    need:Number(r[7]) || 0, done:Number(r[8]) || 0
+    need:Number(r[7]) || 0, done:Number(r[8]) || 0,
+    done10: r[9] === true || String(r[9]).toUpperCase() === 'TRUE',
+    proofImage:String(r[CONFIG.caseProofCol - 1] || ''),
+    proofUpdated:dateText_(r[CONFIG.caseProofTimeCol - 1])
   }));
 }
 
 function readFeeRows_(sheet) {
-  return readRows_(sheet, 12).filter(r => Number.isInteger(Number(r[0])) && Number(r[0]) > 0).map(r => ({
+  return readRows_(sheet, CONFIG.feeNoteCol).filter(validId_).map(r => ({
     id:Number(r[0]), unit:String(r[1] || ''), owner:String(r[2] || ''), guided:String(r[3] || 'Chưa'),
     dvccreated:Number(r[4]) || 0, dvctotal:Number(r[5]) || 0, bankcreated:Number(r[6]) || 0,
-    banktotal:Number(r[7]) || 0, paid:String(r[8] || ''), note:String(r[11] || '')
+    banktotal:Number(r[7]) || 0, paid:String(r[8] || ''),
+    collected:(r[9] === '' || r[9] == null) ? '' : r[9],
+    note:String(r[CONFIG.feeNoteCol - 1] || '')
   }));
 }
 
@@ -76,14 +98,12 @@ function readRows_(sheet, width) {
   if (last < 4) return [];
   return sheet.getRange(4, 1, last - 3, width).getValues();
 }
+function validId_(r) { return Number.isInteger(Number(r[0])) && Number(r[0]) > 0 && String(r[0]) !== ''; }
 
-function jsonp_(callback, value) {
-  return ContentService.createTextOutput(callback + '(' + JSON.stringify(value) + ');')
-    .setMimeType(ContentService.MimeType.JAVASCRIPT);
-}
 function doPost(e) {
   let unitId = '';
   let procedureId = '';
+  const lock = LockService.getScriptLock();
   try {
     const raw = e && e.parameter && e.parameter.payload;
     if (!raw) throw new Error('Thiếu payload.');
@@ -92,6 +112,7 @@ function doPost(e) {
     if (!storedHash || !request.accessCode || digest_(String(request.accessCode).trim()) !== storedHash) {
       throw new Error('Mã truy cập không hợp lệ.');
     }
+    lock.waitLock(20000);
     const isBatch = Array.isArray(request.updates) || request.admin != null;
     if (isBatch) {
       const updates = Array.isArray(request.updates) ? request.updates : [];
@@ -99,9 +120,7 @@ function doPost(e) {
       updates.forEach(item => {
         unitId = String(Number(item.unitId));
         procedureId = String(item.procedureId || '');
-        if (!Number.isInteger(Number(unitId)) || Number(unitId) < 1) throw new Error('STT đơn vị không hợp lệ.');
-        if (procedureId === 'dang-phi') updateFee_(unitId, item.values || {});
-        else updateProcedure_(procedureId, unitId, item.values || {});
+        applyUpdate_(procedureId, unitId, item.values || {});
       });
       if (request.admin != null) {
         const accounts = Number(request.admin.accounts);
@@ -119,25 +138,59 @@ function doPost(e) {
     }
     unitId = String(Number(request.unitId));
     procedureId = String(request.procedureId || '');
-    const row = request.values || {};
-    if (procedureId === 'dang-phi') updateFee_(unitId, row);
-    else updateProcedure_(procedureId, unitId, row);
-    console.log(JSON.stringify({event:'write_succeeded', unitId, procedureId}));
-    return json_({ ok: true, unitId: Number(unitId), procedureId });
+    const result = applyUpdate_(procedureId, unitId, request.values || {});
+    console.log(JSON.stringify({event:'write_succeeded', unitId, procedureId, proof:!!(result && result.proofImage)}));
+    return json_(Object.assign({ ok: true, unitId: Number(unitId), procedureId }, result || {}));
   } catch (err) {
     console.error(JSON.stringify({event:'write_failed', unitId, procedureId, error:String(err && err.message || err)}));
     return json_({ ok: false, error: String(err && err.message || err) });
+  } finally {
+    try { lock.releaseLock(); } catch (_) {}
   }
 }
+
+function applyUpdate_(procedureId, unitId, values) {
+  if (!Number.isInteger(Number(unitId)) || Number(unitId) < 1) throw new Error('STT đơn vị không hợp lệ.');
+  if (procedureId === 'dang-phi') return updateFee_(unitId, values);
+  return updateProcedure_(procedureId, unitId, values);
+}
+
 function updateProcedure_(procedureId, unitId, v) {
   const tabName = CONFIG.procedureTabs[procedureId];
   if (!tabName) throw new Error('Mã thủ tục không hợp lệ.');
   const sheet = SpreadsheetApp.openById(CONFIG.procedureSpreadsheetId).getSheetByName(tabName);
   const row = findUnitRow_(sheet, unitId);
-  sheet.getRange(row, 3, 1, 7).setValues([[
+  const values = [
     text_(v.owner), yesNo_(v.guided), number_(v.received), number_(v.total),
     number_(v.processed), number_(v.need), number_(v.done)
-  ]]);
+  ];
+  // Lưu ảnh trước khi ghi số liệu: nếu ảnh lỗi thì không ghi gì cả.
+  let proofUrl = '';
+  if (v.proofImage && typeof v.proofImage === 'object' && v.proofImage.data) {
+    const unitName = String(sheet.getRange(row, 2).getDisplayValue() || '');
+    proofUrl = saveProofImage_(procedureId, unitId, unitName, v.proofImage);
+  }
+  sheet.getRange(row, 3, 1, 7).setValues([values]);
+  if (proofUrl) {
+    sheet.getRange(row, CONFIG.caseProofCol, 1, 2).setValues([[proofUrl, new Date()]]);
+    sheet.getRange(row, CONFIG.caseProofTimeCol).setNumberFormat('dd/MM/yyyy HH:mm');
+  }
+  return proofUrl ? { proofImage: proofUrl } : null;
+}
+
+function saveProofImage_(procedureId, unitId, unitName, img) {
+  const mime = String(img.mime || 'image/jpeg');
+  if (!/^image\/(jpeg|png|webp|gif)$/.test(mime)) throw new Error('Định dạng ảnh kiểm chứng không hợp lệ.');
+  const bytes = Utilities.base64Decode(String(img.data).replace(/^data:[^,]*,/, ''));
+  if (!bytes.length || bytes.length > CONFIG.maxImageBytes) throw new Error('Ảnh kiểm chứng rỗng hoặc quá lớn.');
+  const ext = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : mime === 'image/gif' ? 'gif' : 'jpg';
+  const stamp = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyyMMdd-HHmmss');
+  const safeUnit = unitName.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+  const name = [procedureId, 'STT' + unitId, safeUnit, stamp].filter(Boolean).join('_') + '.' + ext;
+  const file = DriveApp.getFolderById(CONFIG.proofFolderId).createFile(Utilities.newBlob(bytes, mime, name));
+  file.setDescription('Ảnh kiểm chứng ' + (CONFIG.procedureTabs[procedureId] || procedureId) + ' — ' + unitName + ' (STT ' + unitId + ')');
+  try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (_) { /* tên miền có thể chặn chia sẻ công khai */ }
+  return file.getUrl();
 }
 
 function updateFee_(unitId, v) {
@@ -147,7 +200,9 @@ function updateFee_(unitId, v) {
     text_(v.owner), yesNo_(v.guided), number_(v.dvccreated), number_(v.dvctotal),
     number_(v.bankcreated), number_(v.banktotal), String(v.paid || '') === '☑' ? '☑' : '☐'
   ]]);
-  sheet.getRange(row, 12).setValue(text_(v.note));
+  // Cột J (hoàn thành thu) là công thức tự đồng bộ — không ghi đè.
+  if (v.note !== undefined) sheet.getRange(row, CONFIG.feeNoteCol).setValue(text_(v.note));
+  return null;
 }
 
 function findUnitRow_(sheet, unitId) {
@@ -155,7 +210,7 @@ function findUnitRow_(sheet, unitId) {
   const last = sheet.getLastRow();
   if (last < 4) throw new Error('Bảng không có dòng dữ liệu đơn vị.');
   const ids = sheet.getRange(4, 1, last - 3, 1).getDisplayValues();
-  const index = ids.findIndex(r => String(Number(r[0])) === unitId);
+  const index = ids.findIndex(r => String(r[0]).trim() !== '' && String(Number(r[0])) === unitId);
   if (index < 0) throw new Error('Không tìm thấy STT đơn vị ' + unitId + '.');
   return index + 4;
 }
@@ -167,10 +222,18 @@ function number_(value) {
 }
 function yesNo_(value) { return String(value) === 'Có' ? 'Có' : 'Chưa'; }
 function text_(value) { return String(value == null ? '' : value).slice(0, 1000); }
+function dateText_(value) {
+  if (value instanceof Date) return Utilities.formatDate(value, 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm');
+  return String(value || '');
+}
 function digest_(value) {
   return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, value, Utilities.Charset.UTF_8)
     .map(b => ('0' + ((b + 256) % 256).toString(16)).slice(-2)).join('');
 }
 function json_(value) {
   return ContentService.createTextOutput(JSON.stringify(value)).setMimeType(ContentService.MimeType.JSON);
+}
+function jsonp_(callback, value) {
+  return ContentService.createTextOutput(callback + '(' + JSON.stringify(value) + ');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
