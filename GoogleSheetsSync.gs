@@ -133,12 +133,14 @@ function doPost(e) {
           ADMIN_ACTIVATED_COUNT: String(activated)
         });
       }
+      sortTouchedTabs_();
       console.log(JSON.stringify({event:'batch_write_succeeded', count:updates.length, adminUpdated:request.admin != null}));
       return json_({ ok: true, count: updates.length, adminUpdated: request.admin != null });
     }
     unitId = String(Number(request.unitId));
     procedureId = String(request.procedureId || '');
     const result = applyUpdate_(procedureId, unitId, request.values || {});
+    sortTouchedTabs_();
     console.log(JSON.stringify({event:'write_succeeded', unitId, procedureId, proof:!!(result && result.proofImage)}));
     return json_(Object.assign({ ok: true, unitId: Number(unitId), procedureId }, result || {}));
   } catch (err) {
@@ -175,8 +177,32 @@ function updateProcedure_(procedureId, unitId, v) {
     sheet.getRange(row, CONFIG.caseProofCol, 1, 2).setValues([[proofUrl, new Date()]]);
     sheet.getRange(row, CONFIG.caseProofTimeCol).setNumberFormat('dd/MM/yyyy HH:mm');
   }
+  TOUCHED_TABS_[tabName] = true;
   return proofUrl ? { proofImage: proofUrl } : null;
 }
+
+/** Sắp xếp lại các tab vừa cập nhật theo cột L (KHÓA XẾP HẠNG) tăng dần. */
+const TOUCHED_TABS_ = {};
+function sortTouchedTabs_() {
+  const names = Object.keys(TOUCHED_TABS_);
+  if (!names.length) return;
+  SpreadsheetApp.flush();
+  const book = SpreadsheetApp.openById(CONFIG.procedureSpreadsheetId);
+  names.forEach(name => { try { sortUnitRows_(book.getSheetByName(name)); } catch (err) {
+    console.error(JSON.stringify({event:'sort_failed', tab:name, error:String(err && err.message || err)}));
+  } delete TOUCHED_TABS_[name]; });
+}
+function sortUnitRows_(sheet) {
+  if (!sheet) return;
+  const last = sheet.getLastRow();
+  if (last < 5) return;
+  const ids = sheet.getRange(4, 1, last - 3, 1).getValues();
+  let first = -1, end = -1;
+  ids.forEach((r, i) => { if (validId_(r)) { if (first < 0) first = i; end = i; } });
+  if (first < 0 || end <= first) return;
+  sheet.getRange(4 + first, 1, end - first + 1, CONFIG.caseProofTimeCol).sort([{column: 12, ascending: true}, {column: 1, ascending: true}]);
+}
+
 
 function saveProofImage_(procedureId, unitId, unitName, img) {
   const mime = String(img.mime || 'image/jpeg');
