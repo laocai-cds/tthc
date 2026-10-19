@@ -21,6 +21,7 @@ window.HD_CONTACT = {
 
 window.HD_CATS = {
   dp: 'Kê khai & nộp đảng phí',
+  tt: 'Chuyển sinh hoạt & nhận xét nơi cư trú',
   pb: 'Phân bổ & tài khoản ngân hàng',
   dt: 'Trường hợp đặc biệt',
   pq: 'Phân quyền & vai trò',
@@ -85,7 +86,7 @@ window.HD_DATA = [
     'Vị trí chức năng có thể thay đổi theo phiên bản; kiểm tra trên giao diện hiện hành.'],
  alt:'BHXH đồng bộ sai tiền; không thấy nút sửa; mức đóng thấp hơn thực tế; sửa số tiền trước khi duyệt'},
 
-{id:'QA057',c:'dp',st:'note',
+{id:'QA057',c:'dp',ref:'QA085',st:'note',
  q:'Hệ thống tự lấy mức BHXH/1% không đúng đối tượng thì có chọn lại và nhập số tiền khác được không?',
  a:['Được. Bỏ lựa chọn theo BHXH khi không phù hợp, chọn nhóm/đối tượng tương ứng rồi nhập số tiền theo đúng nghiệp vụ.',
     'Khi khai hộ, nếu BHXH không tự ra đúng thì nhập đúng số tiền thực tế phải đóng trước khi duyệt.',
@@ -235,13 +236,13 @@ window.HD_DATA = [
  alt:'đổi bí thư thì đổi chủ tài khoản; giữ nguyên số TK; đổi tên TK tổ chức'},
 
 /* ===== TRƯỜNG HỢP ĐẶC BIỆT ===== */
-{id:'QA008',c:'dt',st:'note',
+{id:'QA008',c:'tt',st:'note',
  q:'Đảng viên chuyển sinh hoạt tạm thời nộp đảng phí ở đâu, có khai trên TTHC không?',
  a:['Nộp đảng phí tại chi bộ sinh hoạt tạm thời, bằng tiền mặt; chi bộ cũ chỉ quản lý danh sách, không thu đảng phí.',
     'Trường hợp chuyển sinh hoạt tạm thời không khai hồ sơ thu/nộp đảng phí trên TTHC.'],
  alt:'chuyển sinh hoạt tạm thời; chi bộ tạm thời; nộp tiền mặt; chi bộ cũ hay chi bộ mới thu'},
 
-{id:'QA059',c:'dt',st:'ok',
+{id:'QA059',c:'tt',st:'ok',
  q:'Đảng viên chuyển sinh hoạt tạm thời, trên 4.0 đã ở đơn vị tạm thời nhưng TTHC vẫn ở chi bộ cũ — có phải lỗi?',
  a:['Không nhất thiết là lỗi. Chuyển sinh hoạt tạm thời không cắt số lượng khỏi chi bộ cũ (cắt mới là sai), nên TTHC còn hiển thị ở chi bộ cũ là phù hợp.',
     'Nếu là chuyển sinh hoạt chính thức thì mới xử lý theo nhóm lỗi đồng bộ chuyển đơn vị.'],
@@ -341,7 +342,7 @@ window.HD_DATA = [
  alt:'xóa quyền người cũ; bỏ vai trò bí thư cũ; thu hồi quyền'},
 
 /* ===== ĐỒNG BỘ DỮ LIỆU & SÁP NHẬP ===== */
-{id:'QA019',c:'db',st:'ok',
+{id:'QA019',c:'db',ref:'QA084',st:'ok',
  q:'Sau sáp nhập/chia tách, dữ liệu tổ chức và đảng viên trên TTHC chưa đúng thì làm theo thứ tự nào?',
  a:['TTHC lấy dữ liệu từ CSDL 4.0.',
     '1. Sửa đúng cơ cấu tổ chức, đảng viên trên CSDL 4.0.',
@@ -402,7 +403,7 @@ window.HD_DATA = [
     'Danh sách vẫn thiếu → kiểm tra quyền và trạng thái đồng bộ; 4.0 đúng mà vẫn thiếu thì báo đầu mối hỗ trợ.'],
  alt:'không xem được tất cả thành viên; danh sách đảng viên chi bộ'},
 
-{id:'QA069',c:'db',st:'note',
+{id:'QA069',c:'db',ref:'QA094',st:'note',
  q:'Làm sao xuất danh sách toàn bộ đảng viên của Đảng ủy xã để theo dõi ai đã/chưa kích hoạt?',
  a:['Hiện chưa có chức năng xuất/lọc ổn định theo trạng thái kích hoạt. “Chưa kích hoạt” = chưa đăng nhập hệ thống.',
     'Tạm kiểm tra trong Quản lý đảng viên; cần danh sách tổng hợp thì nhờ đầu mối hỗ trợ.'],
@@ -492,5 +493,182 @@ window.HD_DATA = [
  a:['Dùng thư mục “Tài liệu” trên trang theo dõi DVC Lào Cai (văn bản, video hướng dẫn). Ưu tiên tài liệu tại đây thay vì file Zalo đã hết hạn.',
     'File đính kèm trong nhóm Zalo đã hết hạn thì không lấy lại được; đề nghị người gửi hoặc đầu mối hỗ trợ gửi lại file/link mới.'],
  alt:'tài liệu hướng dẫn; video hướng dẫn; HDSD; file hết hạn; hướng dẫn hoàn tiền; tập huấn',
- ref:'QA032',link:'https://drive.google.com/drive/folders/1_qh0ruwMpYI15BlIwaXmOyFk3q24TMIa'}
+ ref:'QA032',link:'https://drive.google.com/drive/folders/1_qh0ruwMpYI15BlIwaXmOyFk3q24TMIa'},
+
+/* ===== BỔ SUNG 19/10/2026 – CHUYỂN SINH HOẠT & NHẬN XÉT NƠI CƯ TRÚ ===== */
+{id:'QA112',c:'tt',st:'ok',
+ q:'Chuyển sinh hoạt Đảng chính thức cần chuẩn bị và thao tác gì?',
+ a:['1. Chọn cơ quan tiếp nhận.',
+    '2. Khai thông tin và lý do chuyển.',
+    '3. Đính kèm Bản tự kiểm điểm có nhận xét của chi bộ (bắt buộc, dung lượng dưới 20MB).',
+    '4. Xem lại hồ sơ, cam kết và nộp.',
+    'Trước khi chuyển cần thực hiện nghĩa vụ đảng phí theo quy định.'],
+ alt:'chuyển đơn vị sinh hoạt; chuyển từ chi bộ này sang chi bộ khác; chuyển sang đảng bộ khác; bản tự kiểm điểm; nhận xét chi bộ; 20MB'},
+
+{id:'QA113',c:'tt',st:'ok',
+ q:'Chuyển sinh hoạt Đảng tạm thời cần nhập và đính kèm gì?',
+ a:['1. Chọn cơ quan tiếp nhận.',
+    '2. Khai lý do và thời gian chuyển “từ ngày … đến ngày …” (bắt buộc).',
+    '3. Đính kèm Bản tự kiểm điểm có nhận xét của chi bộ (dưới 20MB).',
+    '4. Xem lại hồ sơ, cam kết và nộp.',
+    'Về đảng phí và quân số trong thời gian sinh hoạt tạm thời, xem các mục cùng nhóm.'],
+ alt:'chuyển sinh hoạt tạm thời; từ ngày đến ngày; bản tự kiểm điểm; nhận xét chi bộ; thời hạn tạm thời'},
+
+{id:'QA114',c:'tt',st:'ok',
+ q:'Thủ tục lấy ý kiến nhận xét nơi cư trú có những lựa chọn nội dung nào?',
+ a:['Chọn thủ tục và cơ quan tiếp nhận. Ở mục Nội dung chọn một trong hai:',
+    '1. Lập giấy giới thiệu đảng viên sinh hoạt nơi cư trú; hoặc',
+    '2. Lập phiếu xin ý kiến nhận xét của chi ủy/chi bộ nơi cư trú.',
+    'Sau đó khai theo biểu mẫu → xem lại → nộp.'],
+ alt:'nơi cư trú; giấy giới thiệu; phiếu xin ý kiến; lấy ý kiến nơi cư trú năm 2026; nhận xét chi bộ'},
+
+{id:'QA101',c:'tt',st:'note',
+ q:'Luồng xử lý điện tử thủ tục nhận xét nơi cư trú (213) đi qua những bước nào?',
+ a:['Bên gửi: nộp hồ sơ → chi bộ duyệt → đảng ủy ký → văn thư đóng dấu/chuyển đi.',
+    'Bên nhận: tiếp nhận/tạo phiếu → đảng ủy ký → văn thư đóng dấu → hoàn tất.',
+    'Luồng này lấy từ trao đổi thực tế; cần đối chiếu với phiên bản hệ thống hiện hành.'],
+ alt:'213; nhận xét nơi cư trú; chi bộ duyệt; đảng ủy ký; văn thư đóng dấu; phiếu nhận'},
+
+{id:'QA103',c:'tt',st:'note',
+ q:'Muốn biết ai chưa cập nhật thông tin tổ chức đảng nơi cư trú thì kiểm tra thế nào?',
+ a:['Chưa có báo cáo tổng hợp tự động.',
+    'Cách được hướng dẫn: Bí thư xem danh sách Quản lý đảng viên — người đã cập nhật thì cột “Tổ chức đảng nơi cư trú” có thông tin; chưa có thông tin thì coi là chưa cập nhật.'],
+ alt:'nơi cư trú; chưa cập nhật; quản lý đảng viên; tổ chức đảng nơi cư trú; thống kê'},
+
+{id:'QA115',c:'tt',st:'ok',
+ q:'Cán bộ xử lý hồ sơ TTHC thế nào khi hồ sơ thiếu, không đạt hoặc đạt?',
+ a:['Thiếu → chọn Yêu cầu bổ sung và ghi rõ cần bổ sung gì.',
+    'Không đạt → chọn Từ chối xử lý và ghi lý do.',
+    'Đạt → Phê duyệt, hoàn thiện phiếu/văn bản; đơn vị có con dấu thì ký số theo quy trình trước khi hoàn tất.'],
+ alt:'yêu cầu bổ sung; từ chối xử lý; phê duyệt; ký số; xử lý hồ sơ chuyển sinh hoạt; nhận xét nơi cư trú'},
+
+{id:'QA116',c:'tt',st:'ok',
+ q:'Trước và sau khi nộp hồ sơ TTHC nên kiểm tra gì để tránh phải bổ sung lại?',
+ a:['Trước khi bấm Nộp, kiểm tra: cơ quan tiếp nhận, người đề nghị, tờ khai và tệp đính kèm.',
+    'Sau khi nộp, vào Hồ sơ của tôi/Tra cứu hồ sơ để theo dõi trạng thái, yêu cầu bổ sung và kết quả xử lý.'],
+ alt:'trước khi nộp; cơ quan tiếp nhận; người đề nghị; tờ khai; tệp đính kèm; tra cứu hồ sơ'},
+
+{id:'QA091',c:'tt',st:'ok',
+ q:'Muốn biết một hồ sơ TTHC đang nằm ở bước nào thì xem ở đâu?',
+ a:['Dùng chức năng Tra cứu hồ sơ; tại đây thấy hồ sơ đang ở bước/đơn vị nào trong luồng xử lý.'],
+ alt:'tra cứu hồ sơ; hồ sơ đang ở đâu; trạng thái hồ sơ; tiến độ xử lý'},
+
+/* ===== BỔ SUNG 19/10/2026 – CÁC NỘI DUNG KHÁC ===== */
+{id:'QA105',c:'dp',st:'note',
+ q:'Khi nào bắt đầu thu, nộp đảng phí qua DVC/TTHC?',
+ a:['Triển khai thực tế thu/nộp đảng phí qua DVC/TTHC từ tháng 10/2026. Mốc tháng 9 chỉ là dự kiến cũ.',
+    'Kê khai/phê duyệt hồ sơ lần đầu thực hiện trong tháng 9/2026; từ tháng 10, hồ sơ định kỳ được hệ thống tự sinh sau khi dữ liệu BHXH được chốt.'],
+ alt:'thời điểm triển khai; bắt đầu nộp đảng phí; mở cổng; tháng 9; tháng 10; lúc nào nộp'},
+
+{id:'QA108',c:'dp',st:'note',
+ q:'Đảng phí trực tuyến trong tháng phải nộp trước ngày 15 hay nộp đến hết tháng?',
+ a:['Theo hướng dẫn 2026, hệ thống cho nộp trong cả tháng. Mốc ngày 15 mới là dự thảo/mốc tính chậm, chưa phải hạn khóa nộp.',
+    'Nếu có quy định mới thì ưu tiên văn bản mới.'],
+ alt:'thời hạn nộp; ngày 1 đến 30; ngày 15; chậm nộp'},
+
+{id:'QA109',c:'dp',st:'note',
+ q:'Số tiền đảng phí có phần lẻ thì làm tròn lên hay xuống?',
+ a:['Theo hướng dẫn trong nhóm: phần lẻ từ 1 đến 499 đồng làm tròn xuống; từ 500 đồng trở lên làm tròn lên.'],
+ alt:'làm tròn tiền; 500 đồng; làm tròn lên; làm tròn xuống; số lẻ'},
+
+{id:'QA106',c:'dp',st:'ok',
+ q:'Người thuộc diện BHXH bắt buộc thì mức 1% đảng phí tính trên khoản nào? Phụ cấp có nhân 1% riêng không?',
+ a:['1% tính trên mức tiền lương làm căn cứ đóng BHXH bắt buộc, không nhân riêng từng khoản phụ cấp.',
+    'Dữ liệu BHXH sai thì điều chỉnh số tiền theo thực tế trước khi duyệt.'],
+ alt:'1%; phụ cấp; mức đóng BHXH bắt buộc; tiền lương BHXH'},
+
+{id:'QA086',c:'dp',st:'note',
+ q:'Đảng viên hưởng lương hưu nhưng hệ thống tính mức đảng phí theo 1% có phải lỗi không?',
+ a:['Phía hỗ trợ cho biết API BHXH đang trả dư cả một số người hưởng lương hưu và đang chờ điều chỉnh.',
+    'Nhóm hưu trí dùng mức lương hưu được hưởng hàng tháng làm căn cứ; khi hệ thống tính sai thì điều chỉnh số tiền theo thực tế trước khi duyệt.'],
+ alt:'lương hưu; hưu trí; 1%; BHXH; mức đảng phí; API'},
+
+{id:'QA087',c:'dp',st:'ok',
+ q:'Muốn cấu hình trường hợp miễn/giảm đảng phí thì vào đâu?',
+ a:['Vào Quản lý đảng viên → Cập nhật tình trạng đảng viên, phần cấu hình đảng phí để chọn mức miễn/giảm phù hợp rồi cập nhật.',
+    'Nên cập nhật tình trạng trước khi lập hồ sơ đảng phí.'],
+ alt:'cập nhật tình trạng; miễn giảm; cấu hình đảng phí; 50%; miễn sinh hoạt'},
+
+{id:'QA104',c:'dp',st:'ok',
+ q:'Hồ sơ đảng phí kê khai sai thông tin/số tiền thì có những cách nào để sửa?',
+ a:['Có hai cách, tùy trạng thái hồ sơ và quyền đang có:',
+    '1. Bí thư từ chối phê duyệt để người kê khai tự khai lại; hoặc',
+    '2. Bí thư điều chỉnh hộ thông tin/số tiền trên hồ sơ.'],
+ alt:'sai hồ sơ; sai số tiền; từ chối phê duyệt; khai lại; bí thư điều chỉnh hộ'},
+
+{id:'QA093',c:'dp',st:'ok',
+ q:'Muốn xuất danh sách người chưa khai báo/nộp đảng phí theo đảng bộ hoặc từng chi bộ thì làm thế nào?',
+ a:['Vào Theo dõi thu nộp đảng phí → Xem chi tiết → chọn tổ chức → lọc theo trạng thái.',
+    'Ở phạm vi đảng bộ có thể xuất toàn đảng bộ; cần chi bộ nào thì chọn chi bộ đó rồi xuất.'],
+ alt:'chưa khai báo đảng phí; chưa nộp; xuất danh sách; theo dõi đảng phí; lọc theo chi bộ'},
+
+{id:'QA089',c:'pb',st:'ok',
+ q:'Đã thêm tài khoản ngân hàng nhưng tình trạng xác nhận dữ liệu phân bổ vẫn ghi “Chưa xác nhận” thì làm gì?',
+ a:['Vào chức năng Xác nhận dữ liệu phân bổ, kiểm tra tỷ lệ giữ lại/nộp lên và xác nhận theo đơn vị.',
+    'Việc nhận phân bổ còn phụ thuộc tài khoản ngân hàng đã được khai báo/xác thực đầy đủ.'],
+ alt:'chưa xác nhận; xác nhận dữ liệu phân bổ; tỷ lệ giữ lại; tỷ lệ nộp lên'},
+
+{id:'QA090',c:'pb',st:'ok',
+ q:'Sau khi đơn vị đổi loại hình có phải xác nhận lại tỷ lệ phân bổ không?',
+ a:['Tỷ lệ phân bổ phụ thuộc loại hình tổ chức. Sau khi đổi loại hình:',
+    '1. Sửa đúng dữ liệu nguồn trên CSDL 4.0.',
+    '2. Đồng bộ lại.',
+    '3. Kiểm tra tỷ lệ, chỉ xác nhận khi đúng.',
+    'Vẫn giữ tỷ lệ cũ → báo đầu mối hỗ trợ.'],
+ alt:'đổi loại hình; xác nhận lại; tỷ lệ phân bổ; phân loại đơn vị'},
+
+{id:'QA099',c:'pb',st:'note',
+ q:'Một tài khoản ngân hàng có dùng chung cho nhiều tổ chức đảng được không? Đơn vị chưa có tài khoản tổ chức thì sao?',
+ a:['Không dùng chung. Hiện mỗi tài khoản ngân hàng chỉ được cấu hình cho một tổ chức đảng.',
+    'Đơn vị chưa có tài khoản của tổ chức: tại thời điểm trao đổi, hệ thống vẫn cho cấu hình tài khoản cá nhân, nhưng phải bảo đảm đúng quy định tài chính và hướng dẫn của đơn vị.'],
+ alt:'dùng chung tài khoản ngân hàng; một tài khoản một đơn vị; tài khoản cá nhân; tổ chức chưa có tài khoản'},
+
+{id:'QA102',c:'pb',st:'ok',
+ q:'Ngân hàng chưa có trong danh sách khi khai báo tài khoản thì thêm ở đâu?',
+ a:['Danh sách ngân hàng do cổng thanh toán của Dịch vụ công quốc gia quản lý. Muốn bổ sung phải được tích hợp với cổng quốc gia, phần mềm TTHC không tự thêm trực tiếp được.'],
+ alt:'ngân hàng không có trong danh sách; cổng thanh toán; DVCQG; tích hợp ngân hàng'},
+
+{id:'QA088',c:'pq',st:'ok',
+ q:'Tài khoản không thấy chức năng Đồng bộ dữ liệu từ 4.0 hoặc Cập nhật tình trạng đảng viên thì vì sao?',
+ a:['Các chức năng này phụ thuộc vai trò. Kiểm tra tài khoản đã có đúng quyền Bí thư/Quản trị; thiếu thì phân quyền lại.',
+    'Quyền đúng mà vẫn không có thì báo đầu mối hỗ trợ.'],
+ alt:'không có đồng bộ 4.0; không có cập nhật tình trạng; thiếu chức năng; quyền'},
+
+{id:'QA097',c:'pq',st:'ok',
+ q:'Đang là quản trị của một đơn vị, muốn thêm vai trò quản trị cho đơn vị khác thì làm thế nào?',
+ a:['Vào Quản lý tài khoản và khai báo thêm một quyền mới cho đơn vị mới. Không cần tạo tài khoản mới chỉ để có thêm vai trò ở đơn vị khác.'],
+ alt:'đổi vai trò; quản trị tỉnh; quản trị chi bộ; thêm quyền; quản lý tài khoản'},
+
+{id:'QA095',c:'db',st:'ok',
+ q:'Vì sao CSDL 4.0 có đảng viên nhưng danh sách trên TTHC chưa hiện đủ?',
+ a:['Thiếu danh sách có thể do đảng viên chưa đăng nhập lần nào hoặc do chưa đồng bộ.',
+    'Kiểm tra trạng thái đăng nhập trước; đã đăng nhập mà vẫn thiếu thì kiểm tra đồng bộ.'],
+ alt:'danh sách đảng viên; chưa hiện; chưa đăng nhập; dữ liệu 4.0'},
+
+{id:'QA107',c:'db',st:'ok',
+ q:'Có cần cập nhật mã định danh tổ chức đảng trên TTHC để liên thông văn bản không?',
+ a:['Có. Muốn liên thông Hệ điều hành tác nghiệp, mã định danh tổ chức đảng trên TTHC phải trùng mã gửi/nhận văn bản đang dùng. Thiếu hoặc sai mã thì cập nhật trước khi triển khai.'],
+ alt:'mã định danh tổ chức đảng; mã gửi nhận văn bản; HĐTN; liên thông văn bản; cấp xã'},
+
+{id:'QA098',c:'dn',st:'ok',
+ q:'Hiện còn phải vào riêng trang quantri-gqtthc và gqtthc không?',
+ a:['Không. Từ 22/05/2026, hai trang quản trị và xử lý TTHC đã gộp về một địa chỉ gqtthc.dcs.vn. Khi đăng nhập, hệ thống tự chuyển tới phân hệ phù hợp theo vai trò.'],
+ alt:'quantri-gqtthc; gqtthc; gộp trang; một link; menu theo vai trò'},
+
+{id:'QA100',c:'dn',st:'ok',
+ q:'Dashboard đang thấy có phải số liệu tổng hợp toàn tỉnh không? Xem tổng hợp ở đâu?',
+ a:['Dashboard có thể chỉ là hồ sơ mà người dùng đó xử lý, không phải báo cáo tổng hợp.',
+    'Tổng hợp 3 TTHC nằm ở khu Báo cáo thống kê; riêng thu nộp đảng phí xem tại Theo dõi thu nộp đảng phí.'],
+ alt:'dashboard; báo cáo thống kê; tổng hợp 3 TTHC; theo dõi thu nộp đảng phí; toàn tỉnh'},
+
+{id:'QA096',c:'dn',st:'note',
+ q:'Đăng nhập bỗng báo “không thuộc đối tượng” và tìm đảng viên không ra dữ liệu thì do đâu?',
+ a:['Nếu nhiều người cùng báo lỗi này và tìm đảng viên không ra, có thể API CSDL 4.0 đang lỗi. Chờ thông báo kỹ thuật/khôi phục, không sửa từng tài khoản.'],
+ alt:'API 4.0; không thuộc đối tượng; tìm kiếm không ra; đăng nhập lỗi'},
+
+{id:'QA117',c:'ks',st:'open',
+ q:'Tổ chức cơ sở đảng thuộc doanh nghiệp tư nhân chưa đăng ký được chứng thư số tổ chức thì xử lý thế nào?',
+ a:['Chưa có quy trình chính thức. Đây là vướng mắc đã được nêu, đang chờ hướng dẫn của cơ quan Trung ương/Ban Cơ yếu; chưa nên coi ý kiến “tự đăng ký với Cục” là hướng dẫn bắt buộc.',
+    'Liên hệ đầu mối Cơ yếu hoặc đầu mối hỗ trợ để có hướng dẫn hiện hành đúng loại tổ chức.'],
+ alt:'doanh nghiệp tư nhân; chứng thư số tổ chức; Ban Cơ yếu; chưa đăng ký được; chữ ký số'}
 ];
