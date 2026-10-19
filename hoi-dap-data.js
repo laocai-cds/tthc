@@ -670,5 +670,35 @@ window.HD_DATA = [
  q:'Tổ chức cơ sở đảng thuộc doanh nghiệp tư nhân chưa đăng ký được chứng thư số tổ chức thì xử lý thế nào?',
  a:['Chưa có quy trình chính thức. Đây là vướng mắc đã được nêu, đang chờ hướng dẫn của cơ quan Trung ương/Ban Cơ yếu; chưa nên coi ý kiến “tự đăng ký với Cục” là hướng dẫn bắt buộc.',
     'Liên hệ đầu mối Cơ yếu hoặc đầu mối hỗ trợ để có hướng dẫn hiện hành đúng loại tổ chức.'],
- alt:'doanh nghiệp tư nhân; chứng thư số tổ chức; Ban Cơ yếu; chưa đăng ký được; chữ ký số'}
+ alt:'doanh nghiệp tư nhân; chứng thư số tổ chức; Ban Cơ yếu; chưa đăng ký được; chữ ký số'},
+
+/* ===== BỔ SUNG TỪ TAB "HỎI ĐÁP CÁ NHÂN" (câu hỏi thực tế của cán bộ) ===== */
+{id:'CN03',c:'dp',st:'note',
+ q:'Đảng viên chưa kê khai, đến khi vào nộp thì hệ thống báo “không nợ đảng phí” thì xử lý thế nào?',
+ a:['Phải tạo hồ sơ đảng phí đúng kỳ trước: đảng viên tự kê khai → người có quyền phê duyệt → hồ sơ sang “Chờ nộp” → lúc đó mới thanh toán được.',
+    'Hồ sơ đã ở “Chờ nộp” mà vẫn báo “không nợ đảng phí” → chụp trạng thái, ghi mã hồ sơ và gửi đầu mối hỗ trợ kiểm tra.'],
+ alt:'không nợ đảng phí; chưa kê khai; hệ thống báo không nợ; nộp tiền báo lỗi'},
+
+{id:'CN08',c:'dp',st:'open',
+ q:'Đảng ủy từ chối phê duyệt hồ sơ cập nhật, hồ sơ quay về đảng viên nhưng đảng viên không vào chỉnh sửa và gửi phê duyệt lại được?',
+ a:['Chưa có hướng dẫn xử lý được xác nhận cho trường hợp này. Gửi đầu mối hỗ trợ mã hồ sơ, tên đảng viên, đơn vị và ảnh màn hình.'],
+ alt:'từ chối phê duyệt; không chỉnh sửa được; gửi phê duyệt lại; hồ sơ quay về đảng viên'},
+
+{id:'CN09',c:'dp',st:'open',
+ q:'Đảng viên của chi bộ nộp nhầm đảng phí vào tài khoản của đảng bộ thì tháng đó có được tính là đã nộp không?',
+ a:['Chưa có hướng dẫn xác nhận. Khoản chuyển thẳng vào tài khoản ngoài luồng TTHC không được tính là hồ sơ nộp trên hệ thống (xem mục về chuyển tiền trực tiếp vào tài khoản chi bộ).',
+    'Trường hợp cụ thể: liên hệ đầu mối hỗ trợ trước khi hoàn tiền hoặc yêu cầu nộp lại.'],
+ alt:'nộp nhầm tài khoản; nộp vào tài khoản đảng bộ; có tính đã nộp không; chuyển nhầm',
+ ref:'QA024'},
+
+{id:'CN15',c:'dp',st:'open',
+ q:'Đảng viên đã nộp thành công đảng phí nhưng hệ thống của đảng bộ và chi bộ vẫn báo trong danh sách chưa nộp?',
+ a:['Chưa có nguyên nhân/cách xử lý được xác nhận. Kiểm tra hồ sơ đã ở trạng thái “Hoàn thành/Đã nộp” chưa.',
+    'Đã hoàn thành mà vẫn nằm trong danh sách chưa nộp → gửi đầu mối hỗ trợ mã hồ sơ, tên đảng viên, kỳ nộp và ảnh hai màn hình.'],
+ alt:'nộp rồi vẫn báo chưa nộp; danh sách chưa nộp; theo dõi đảng phí sai; đã nộp nhưng chưa ghi nhận'},
+
+{id:'CN13',c:'tt',st:'open',
+ q:'Bao giờ phải nộp bản lấy ý kiến nơi cư trú năm 2026?',
+ a:['Chưa có mốc thời gian được xác nhận trong kho hỏi – đáp. Theo dõi văn bản/chỉ đạo của cấp ủy cấp trên hoặc liên hệ đầu mối hỗ trợ.'],
+ alt:'thời hạn lấy ý kiến nơi cư trú; năm 2026; khi nào nộp nhận xét nơi cư trú; hạn nộp'}
 ];
