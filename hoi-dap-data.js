@@ -27,7 +27,8 @@ window.HD_CATS = {
   pq: 'Phân quyền & vai trò',
   db: 'Đồng bộ dữ liệu & sáp nhập',
   ks: 'Chữ ký số',
-  dn: 'Đăng nhập, giao diện & tài liệu'
+  dn: 'Đăng nhập, giao diện & tài liệu',
+  cg: 'Chưa có lời giải – liên hệ đầu mối Lào Cai'
 };
 
 window.HD_DATA = [

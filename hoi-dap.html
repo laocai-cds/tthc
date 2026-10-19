@@ -252,10 +252,13 @@ mark{background:#fbe39a;color:inherit;border-radius:3px;padding:0 1px}
   const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d');
   const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+  // Mục chưa có lời giải gom về một nhóm riêng (giữ chủ đề gốc để hiển thị)
+  DATA.forEach(d => { d.topic = d.c; if (d.st === 'open') d.c = 'cg'; });
+
   // Chỉ mục tìm kiếm không dấu
   DATA.forEach(d => {
     d._a = Array.isArray(d.a) ? d.a : [d.a];
-    d._ix = norm([d.id, d.ref||'', d.q, d._a.join(' '), d.alt||'', CATS[d.c]||''].join(' '));
+    d._ix = norm([d.id, d.ref||'', d.q, d._a.join(' '), d.alt||'', CATS[d.topic]||''].join(' '));
     d._qn = norm(d.q); d._altn = norm(d.alt||'');
   });
 
@@ -327,7 +330,7 @@ mark{background:#fbe39a;color:inherit;border-radius:3px;padding:0 1px}
       + '<button class="q" type="button" aria-expanded="false" aria-controls="a-'+esc(d.id)+'"><span class="dot '+d.st+'" aria-hidden="true"></span><span class="txt">'+hl(d.q, ts)+'</span>'
       + '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>'
       + '<div class="ans" id="a-'+esc(d.id)+'"><span class="badge '+d.st+'">'+ST[d.st]+'</span>'+answerHTML(d, ts)+link+contact
-      + '<div class="foot"><span class="id">'+esc(d.id)+(d.ref ? ' · '+esc(d.ref) : '')+'</span><span>'+esc(CATS[d.c]||'')+'</span>'
+      + '<div class="foot"><span class="id">'+esc(d.id)+(d.ref ? ' · '+esc(d.ref) : '')+'</span><span>'+esc(CATS[d.topic]||'')+'</span>'
       + '<button class="copy" type="button" data-id="'+esc(d.id)+'">Sao chép liên kết</button>'
       + (d.alt ? '<span class="alt"><b>Cách hỏi khác:</b> '+hl(d.alt.replace(/;\s*/g,' · '), ts)+'</span>' : '')
       + '</div></div></article>';
