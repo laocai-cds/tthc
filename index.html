@@ -300,41 +300,35 @@ body{background:radial-gradient(ellipse at 92% 2%,#e2eaff 0,transparent 34%),lin
  const st=document.getElementById('hvStage'),pg=document.getElementById('hvProg'),tg=document.getElementById('hvToggle'),sb=document.getElementById('hvSound'),hint=document.getElementById('hvHint');
  if(!st)return;
  pg.innerHTML=S.map((s,i)=>`<button type="button" role="tab" aria-label="Cảnh ${i+1}"><i></i></button>`).join('');
- const bars=[...pg.children],SY=window.speechSynthesis;
- let idx=0,t0=0,el=0,playing=true,userPaused=false,sound=false,muted=false,voice=null,spoken=false,dur=6,tok=0;
- function pickVoice(){if(!SY)return;const vs=SY.getVoices().filter(v=>/^vi/i.test(v.lang));voice=vs.find(v=>/google|natural|online|hoaimy|namminh/i.test(v.name))||vs[0]||null}
- if(SY){pickVoice();SY.onvoiceschanged=pickVoice}
- const estimate=t=>t.length/13+1.2; /* giây, ~13 ký tự/giây */
- function speak(){if(!SY||!sound)return;SY.cancel();const s=S[idx];if(!s.say)return;
-  const u=new SpeechSynthesisUtterance(s.say);u.lang='vi-VN';if(voice)u.voice=voice;u.rate=1;const my=++tok;
-  u.onend=()=>{if(my===tok&&playing){spoken=true}};u.onerror=()=>{if(my===tok)spoken=true};
-  spoken=false;SY.speak(u)}
- function show(i){idx=(i+S.length)%S.length;el=0;t0=performance.now();
-  const s=S[idx];dur=sound&&s.say?Math.max(s.dur,estimate(s.say)):s.dur;
-  const d=document.createElement('div');d.className='hv-sc '+s.cls;if(s.hc)d.style.setProperty('--hc',s.hc);d.innerHTML=s.h;
+ const bars=[...pg.children];
+ /* Thuyết minh thu sẵn: audio/tm0.mp3 … tm5.mp3 (một phần tử audio dùng chung để điện thoại cho phát liên tục) */
+ const au=new Audio();au.preload='auto';const AD=S.map(()=>0);
+ S.forEach((s,i)=>{const m=new Audio();m.preload='metadata';m.src='audio/tm'+i+'.mp3';m.addEventListener('loadedmetadata',()=>{AD[i]=m.duration||0})});
+ let idx=0,t0=0,el=0,playing=true,userPaused=false,sound=false,muted=false,dur=6;
+ const need=i=>Math.max(S[i].dur,(sound&&AD[i]?AD[i]+0.8:0));
+ function playVoice(){if(!sound)return;au.pause();au.src='audio/tm'+idx+'.mp3';au.currentTime=0;const p=au.play();if(p&&p.catch)p.catch(()=>{})}
+ function show(i){idx=(i+S.length)%S.length;el=0;t0=performance.now();dur=need(idx);
+  const s=S[idx],d=document.createElement('div');d.className='hv-sc '+s.cls;if(s.hc)d.style.setProperty('--hc',s.hc);d.innerHTML=s.h;
   st.replaceChildren(d);void d.offsetWidth;d.classList.add('in');
-  bars.forEach((b,k)=>{b.firstChild.style.width=k<idx?'100%':'0';b.setAttribute('aria-selected',k===idx)});speak()}
- function tick(now){if(playing){const t=(el+now-t0)/1000,p=Math.min(1,t/dur);bars[idx].firstChild.style.width=(p*100)+'%';
-   const talking=sound&&SY&&S[idx].say&&!spoken&&SY.speaking;
-   if(p>=1&&!talking&&t>=S[idx].dur)show(idx+1)}requestAnimationFrame(tick)}
+  bars.forEach((b,k)=>{b.firstChild.style.width=k<idx?'100%':'0';b.setAttribute('aria-selected',k===idx)});playVoice()}
+ function tick(now){if(playing){dur=need(idx);const t=(el+now-t0)/1000,p=Math.min(1,t/dur);bars[idx].firstChild.style.width=(p*100)+'%';
+   const talking=sound&&!au.paused&&!au.ended;
+   if(p>=1&&!talking)show(idx+1)}requestAnimationFrame(tick)}
  function setPlay(v){if(v===playing)return;const now=performance.now();if(!v)el+=now-t0;else t0=now;playing=v;
   tg.textContent=v?'❚❚':'▶';tg.setAttribute('aria-label',v?'Tạm dừng video':'Phát video');
   st.querySelectorAll('.hv-a').forEach(a=>a.style.animationPlayState=v?'':'paused');
-  if(SY&&sound){v?SY.resume():SY.pause()}}
- function setSound(v){if(!SY){sb.title='Trình duyệt không hỗ trợ giọng đọc';return}
-  sound=v;sb.classList.toggle('on',v);sb.textContent=v?'🔊':'🔇';sb.setAttribute('aria-label',v?'Tắt tiếng':'Bật tiếng');hint.hidden=true;
-  if(v&&!voice){pickVoice();if(!voice)sb.title='Thiết bị chưa cài giọng đọc tiếng Việt — có thể đọc bằng giọng mặc định'}
-  if(v){setPlay(true);userPaused=false;show(idx)}else SY.cancel()}
- if(!SY)hint.hidden=true;
+  if(sound){if(v){const p=au.play();if(p&&p.catch)p.catch(()=>{})}else au.pause()}}
+ function setSound(v){sound=v;sb.classList.toggle('on',v);sb.textContent=v?'🔊':'🔇';sb.setAttribute('aria-label',v?'Tắt tiếng':'Bật tiếng');hint.hidden=true;
+  if(v){userPaused=false;if(!playing)setPlay(true);show(idx)}else au.pause()}
  tg.addEventListener('click',e=>{e.stopPropagation();setPlay(!playing);userPaused=!playing});
  sb.addEventListener('click',e=>{e.stopPropagation();muted=sound;setSound(!sound)});
- st.addEventListener('click',e=>{if(!sound&&!muted&&SY){e.stopPropagation();setSound(true);return}setPlay(!playing);userPaused=!playing});
+ st.addEventListener('click',e=>{if(!sound&&!muted){e.stopPropagation();setSound(true);return}setPlay(!playing);userPaused=!playing});
  pg.addEventListener('click',e=>{const b=e.target.closest('button');if(b){e.stopPropagation();show(bars.indexOf(b));setPlay(true);userPaused=false}});
- /* Trình duyệt chỉ cho phát tiếng sau tương tác đầu tiên: bật tiếng ở lần bấm/chạm đầu tiên trên trang */
- const unlock=()=>{document.removeEventListener('pointerdown',unlock,true);document.removeEventListener('keydown',unlock,true);if(!sound&&!muted&&SY)setSound(true)};
+ /* Trình duyệt chỉ cho phát tiếng sau lần bấm/chạm đầu tiên trên trang */
+ const unlock=e=>{document.removeEventListener('pointerdown',unlock,true);document.removeEventListener('keydown',unlock,true);
+  if(e&&e.target&&e.target.closest&&e.target.closest('#heroVideo'))return; if(!sound&&!muted)setSound(true)};
  document.addEventListener('pointerdown',unlock,true);document.addEventListener('keydown',unlock,true);
  document.addEventListener('visibilitychange',()=>{if(document.hidden)setPlay(false);else if(!userPaused)setPlay(true)});
- window.addEventListener('pagehide',()=>SY&&SY.cancel());
  show(0);requestAnimationFrame(tick);
 })();
 </script>
