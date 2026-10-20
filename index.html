@@ -4910,6 +4910,13 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 @keyframes tkSpk{50%{transform:scale(1.12)}}
 .tk-mega:hover{filter:brightness(1.15)}
 </style>
+<style id="tk-mute-icon">
+/* Loa thông báo: đang tắt → gạch chéo, ẩn sóng âm; đang bật → bỏ gạch, sóng âm chuyển động */
+.tk-pro .tk-mega::after{content:"";position:absolute;left:50%;top:50%;width:24px;height:2.5px;border-radius:3px;background:#fff;box-shadow:0 0 0 1.5px #8f0b12;transform:translate(-50%,-50%) rotate(-45deg);pointer-events:none;transition:opacity .2s,transform .2s}
+.tk-pro .tk-mega.tk-speaking::after{opacity:0;transform:translate(-50%,-50%) rotate(-45deg) scaleX(0)}
+.tk-pro .tk-mega:not(.tk-speaking) .w1,.tk-pro .tk-mega:not(.tk-speaking) .w2{opacity:0;animation:none}
+.tk-pro .tk-mega:not(.tk-speaking) svg{animation:none}
+</style>
 </body></html>
 
 
