@@ -4670,9 +4670,11 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 <style id="hero-one-row">
 /* Khung đầu trang: 3 mục (tiêu đề · bản đồ · video) luôn nằm trên 1 hàng ở màn hình máy tính (zoom 100%) */
 @media(min-width:901px){
-.app .content>.heading.hero{display:grid;grid-template-columns:minmax(230px,.9fr) minmax(0,1.55fr) minmax(0,1.2fr);align-items:stretch;gap:14px 16px}
+.app .content>.heading.hero{display:grid;grid-template-columns:minmax(auto,.9fr) minmax(0,1.55fr) minmax(0,1.2fr);align-items:stretch;gap:14px 16px}
 .app .content>.heading.hero>*{grid-column:1/-1;min-width:0}
 .app .content>.heading.hero>.hero-main{grid-column:1;width:auto;max-width:none;flex:none;align-self:center}
+.app .content>.heading.hero>.hero-main{min-width:min-content}
+.app .content>.heading.hero #pageTitle{white-space:nowrap;font-size:clamp(15px,1.3vw,21px)!important}
 .app .content>.heading.hero>.hero-live{grid-column:2;width:auto;max-width:none;flex:none;align-self:stretch}
 .app .content>.heading.hero>.hv{grid-column:3;width:auto;max-width:none;flex:none}
 .app .content>.heading.hero>.hero-live.hm-on{width:auto;justify-content:center}
@@ -4683,10 +4685,9 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 .app .content>.heading.hero .hero-stat{flex:1 1 120px;min-width:0}
 }
 @media(min-width:901px) and (max-width:1250px){
-.app .content>.heading.hero{grid-template-columns:minmax(200px,.8fr) minmax(0,1.5fr) minmax(0,1.15fr);gap:12px}
+.app .content>.heading.hero{grid-template-columns:minmax(auto,.8fr) minmax(0,1.5fr) minmax(0,1.15fr);gap:12px}
 .app .content>.heading.hero .hm-row{grid-template-columns:minmax(100px,130px) minmax(0,1fr)}
 .app .content>.heading.hero .hm-tabs button{font-size:8.5px}
-.app .hero #pageTitle{font-size:15.5px!important}
 }
 </style>
 </body></html>
