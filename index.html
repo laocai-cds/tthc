@@ -4914,14 +4914,14 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
   if(on){if(!auto)stop();return}
   const text=clean(sp.textContent);if(!text){note('Chưa có thông báo để đọc.');return}
   const my=++session;setState(true);const parts=chunks('Thông báo. '+text);
-  /* Giọng nam / nữ ngẫu nhiên mỗi lần bật loa: ưu tiên giọng tiếng Việt thật trên máy (nếu có), không có thì dùng giọng trực tuyến (giọng nam = hạ tông) */
-  const male=Math.random()<0.5,real=localVoice(male);mega.dataset.voice=male?'nam':'nữ';mega.title='Kích vào loa để bật/tắt đọc thông báo · lần này: giọng '+(male?'nam':'nữ');
+  /* Chỉ dùng giọng nữ: ưu tiên giọng nữ tiếng Việt trên máy (nếu có), không có thì dùng giọng trực tuyến (giọng nữ) */
+  const male=false,real=localVoice(false);mega.dataset.voice='nữ';mega.title='Kích vào loa để bật/tắt đọc thông báo · giọng nữ';
   let ok=real?await playLocal(parts,my,real):false;
   if(my!==session)return;
   if(!ok)ok=await playOnline(parts,my,male);
   if(my!==session)return;
   if(ok==='blocked'){setState(false);noRef(false);if(auto)armAuto();else note('Trình duyệt đang chặn phát âm thanh. Hãy kích lại vào loa.');return}
-  if(!ok)ok=await playLocal(parts,my);
+  if(!ok){const vs=(synth?synth.getVoices():[]).filter(v=>/^vi/i.test(v.lang)&&!MALE.test(v.name));const fv=vs.find(x=>/google/i.test(x.name))||vs[0];ok=fv?await playLocal(parts,my,fv):false}
   if(my!==session)return;
   if(!ok&&!auto)note('Không phát được giọng đọc: cần kết nối Internet, hoặc cài giọng nói Tiếng Việt cho Windows (Cài đặt → Thời gian và ngôn ngữ → Giọng nói).');
   setState(false);noRef(false)}
