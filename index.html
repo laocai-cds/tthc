@@ -4879,7 +4879,7 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
     const a=next||make(i);next=i+1<parts.length?make(i+1):null;audio=a;let started=false;
     a.onplaying=()=>{started=true;if(male&&a.playbackRate!==0.84)a.playbackRate=0.84};a.onended=()=>{i++;step()};
     a.onerror=()=>{if(my!==session)return resolve(true);noRef(false);resolve(i===0&&!started?false:true)};
-    const p=a.play();if(p&&p.catch)p.catch(()=>{if(my===session){noRef(false);resolve(i===0?false:true)}})};
+    const p=a.play();if(p&&p.catch)p.catch(err=>{if(my===session){noRef(false);resolve(i===0?(err&&err.name==='NotAllowedError'?'blocked':false):true)}})};
    step()})}
  const MALE=/\b(an|nam ?minh|male|nam)\b/i,FEMALE=/hoai ?my|female|nữ|linh|mai/i;
  function localVoice(male){const vs=(synth?synth.getVoices():[]).filter(v=>/^vi/i.test(v.lang));if(male===undefined)return vs.find(x=>/google/i.test(x.name))||vs.find(x=>/natural|online/i.test(x.name))||vs[0];const want=vs.filter(v=>male?MALE.test(v.name):FEMALE.test(v.name));return want.find(x=>/natural|online/i.test(x.name))||want[0]||null}
@@ -4888,8 +4888,9 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
    const go=()=>{const v=voice||localVoice();if(!v)return resolve(false);
     synth.cancel();parts.forEach((p,k)=>{const u=new SpeechSynthesisUtterance(p);u.voice=v;u.lang=v.lang;if(k===parts.length-1)u.onend=()=>resolve(true);u.onerror=()=>resolve(true);if(my===session)synth.speak(u)})};
    if(synth.getVoices().length)go();else{let d=false;const once=()=>{if(!d){d=true;go()}};synth.addEventListener('voiceschanged',once,{once:true});setTimeout(once,800)}})}
- async function speak(){
-  if(on){stop();return}
+ async function speak(opt){
+  const auto=!!(opt&&opt.auto);
+  if(on){if(!auto)stop();return}
   const text=clean(sp.textContent);if(!text){note('Chưa có thông báo để đọc.');return}
   const my=++session;setState(true);const parts=chunks('Thông báo. '+text);
   /* Giọng nam / nữ ngẫu nhiên mỗi lần bật loa: ưu tiên giọng tiếng Việt thật trên máy (nếu có), không có thì dùng giọng trực tuyến (giọng nam = hạ tông) */
@@ -4898,9 +4899,10 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
   if(my!==session)return;
   if(!ok)ok=await playOnline(parts,my,male);
   if(my!==session)return;
+  if(ok==='blocked'){setState(false);noRef(false);if(auto)armAuto();else note('Trình duyệt đang chặn phát âm thanh. Hãy kích lại vào loa.');return}
   if(!ok)ok=await playLocal(parts,my);
   if(my!==session)return;
-  if(!ok)note('Không phát được giọng đọc: cần kết nối Internet, hoặc cài giọng nói Tiếng Việt cho Windows (Cài đặt → Thời gian và ngôn ngữ → Giọng nói).');
+  if(!ok&&!auto)note('Không phát được giọng đọc: cần kết nối Internet, hoặc cài giọng nói Tiếng Việt cho Windows (Cài đặt → Thời gian và ngôn ngữ → Giọng nói).');
   setState(false);noRef(false)}
  mega.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();speak()});
  mega.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.stopPropagation();e.preventDefault();speak()}});
@@ -4908,6 +4910,14 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
  document.getElementById('anbSpeak')?.addEventListener('click',speak);
  window.addEventListener('pagehide',stop);
  window.speakAnnouncement=speak;
+ /* Mở trang là đọc thông báo. Nếu trình duyệt chặn tự phát tiếng, đọc ngay ở lần kích chuột/chạm/phím đầu tiên trên trang */
+ let autoDone=false,autoArmed=false;
+ function armAuto(){if(autoDone||autoArmed)return;autoArmed=true;const go=e=>{document.removeEventListener('pointerdown',go,true);document.removeEventListener('keydown',go,true);
+   if(autoDone)return;autoDone=true;if(e&&e.target&&e.target.closest&&e.target.closest('.tk-mega,#anbSpeak'))return; /* kích thẳng vào loa thì để nút loa xử lý */
+   if(!on)speak({auto:true})};
+  document.addEventListener('pointerdown',go,true);document.addEventListener('keydown',go,true)}
+ const startAuto=()=>setTimeout(()=>{if(!autoDone&&!on&&!document.hidden)speak({auto:true}).then(()=>{if(!autoArmed)autoDone=true})},1500);
+ if(document.readyState==='complete')startAuto();else window.addEventListener('load',startAuto,{once:true});
 })();
 </script>
 <style id="tk-speak-style">
