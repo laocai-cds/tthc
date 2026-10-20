@@ -3038,7 +3038,7 @@ body.dp-lock{overflow:hidden}
     if (!api) { q('dpLast').innerHTML = 'Chưa cấu hình địa chỉ API. <button class="dp-link" type="button" id="dpLnkCfg">Cấu hình ngay</button>'; q('dpLnkCfg').onclick = toggleCfg; return; }
     q('dpLast').innerHTML = 'Lần đồng bộ gần nhất: <b>đang kiểm tra…</b>';
     try {
-      const l = (await jsonp(api))?.last;
+      const l = (await jsonp(api, 45000))?.last;
       q('dpLast').innerHTML = l
         ? 'Lần đồng bộ gần nhất: <b>' + esc(l.updatedAtText) + '</b> · ' + l.rowCount + ' đơn vị<br>' + esc(l.fileName || '')
         : 'Lần đồng bộ gần nhất: <b>chưa có</b>';
@@ -3061,12 +3061,32 @@ body.dp-lock{overflow:hidden}
     showMsg('info', 'Đang gửi ' + rows.length + ' đơn vị lên Google Sheet…');
     const t0 = Date.now();
     try {
-      // Chia dữ liệu thành các phần nhỏ (≤ 2.000 ký tự sau mã hóa) và gửi song song
-      const json = JSON.stringify(payload), chunks = [];
+      const json = JSON.stringify(payload);
+      // Cách nhanh: gửi toàn bộ dữ liệu trong MỘT yêu cầu POST, sau đó hỏi trạng thái để xác nhận đã ghi xong
+      let res = null;
+      try {
+        q('dpSyncLabel').textContent = 'Đang gửi dữ liệu (1 lần)…';
+        const ctl = new AbortController(), tAbort = setTimeout(() => ctl.abort(), 90000);
+        fetch(api, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: json }), signal: ctl.signal }).catch(() => {}).finally(() => clearTimeout(tAbort));
+        const until = Date.now() + 100000;
+        await new Promise(r => setTimeout(r, 2500));
+        while (Date.now() < until && !res) {
+          q('dpSyncLabel').textContent = 'Đang ghi vào Google Sheet… ' + Math.round((Date.now() - t0) / 1000) + 's';
+          try {
+            const st = await jsonp(api, 30000);
+            if (st?.last?.syncId === syncId) res = Object.assign({ ok: true }, st.last);
+            else if (st?.lastError?.syncId === syncId) res = { ok: false, error: st.lastError.error };
+          } catch (_) {}
+          if (!res) await new Promise(r => setTimeout(r, 2500));
+        }
+      } catch (_) {}
+      if (!res) {
+      // Dự phòng: chia dữ liệu thành các phần nhỏ (≤ 6.000 ký tự sau mã hóa) và gửi song song
+      const chunks = [];
       let cur = '', curLen = 0;
       for (const ch of json) {
         const l = encodeURIComponent(ch).length;
-        if (curLen + l > 2000) { chunks.push(cur); cur = ''; curLen = 0; }
+        if (curLen + l > 6000) { chunks.push(cur); cur = ''; curLen = 0; }
         cur += ch; curLen += l;
       }
       if (cur) chunks.push(cur);
@@ -3074,7 +3094,7 @@ body.dp-lock{overflow:hidden}
       const sendChunk = async i => {
         for (let attempt = 0; ; attempt++) {
           try {
-            const r = await jsonp(api, 20000, 'action=chunk&id=' + syncId + '&i=' + i + '&d=' + encodeURIComponent(chunks[i]));
+            const r = await jsonp(api, 45000, 'action=chunk&id=' + syncId + '&i=' + i + '&d=' + encodeURIComponent(chunks[i]));
             if (r && r.ok) break;
             throw new Error((r && r.error) || 'lỗi');
           } catch (e) { if (attempt >= 2) throw new Error('Gửi phần ' + (i + 1) + ' thất bại: ' + e.message); }
@@ -3084,8 +3104,9 @@ body.dp-lock{overflow:hidden}
       const queue = chunks.map((_, i) => i);
       await Promise.all(Array.from({ length: Math.min(4, chunks.length) }, async () => { while (queue.length) await sendChunk(queue.shift()); }));
       q('dpSyncLabel').textContent = 'Đang ghi vào Google Sheet…';
-      let res = await jsonp(api, 60000, 'action=commit&id=' + syncId + '&n=' + chunks.length);
+      res = await jsonp(api, 60000, 'action=commit&id=' + syncId + '&n=' + chunks.length);
       if (res && res.retry) res = await jsonp(api, 60000, 'action=commit&id=' + syncId + '&n=' + chunks.length);
+      }
       if (!res) throw new Error('Không nhận được phản hồi từ Google.');
       if (res.ok === undefined || (res.version && !res.syncId && res.ok)) throw new Error('Apps Script đang chạy bản code cũ. Dán Code.gs mới → Triển khai → Quản lý các bản triển khai → Sửa → Phiên bản mới → Triển khai.');
       if (!res.ok) throw new Error(res.error || 'Máy chủ từ chối yêu cầu.');
