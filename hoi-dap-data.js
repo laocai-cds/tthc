@@ -11,7 +11,7 @@
            'open' : chưa có lời giải xác nhận → liên hệ đầu mối hỗ trợ tỉnh Lào Cai
    Muốn thêm câu hỏi: chép một khối { … } và sửa nội dung. */
 
-window.HD_UPDATED = '19/10/2026';
+window.HD_UPDATED = '20/10/2026';
 
 window.HD_CONTACT = {
   name: 'Đầu mối hỗ trợ kỹ thuật TTHC tỉnh Lào Cai',
@@ -701,5 +701,22 @@ window.HD_DATA = [
 {id:'CN13',c:'tt',st:'open',
  q:'Bao giờ phải nộp bản lấy ý kiến nơi cư trú năm 2026?',
  a:['Chưa có mốc thời gian được xác nhận trong kho hỏi – đáp. Theo dõi văn bản/chỉ đạo của cấp ủy cấp trên hoặc liên hệ đầu mối hỗ trợ.'],
- alt:'thời hạn lấy ý kiến nơi cư trú; năm 2026; khi nào nộp nhận xét nơi cư trú; hạn nộp'}
+ alt:'thời hạn lấy ý kiến nơi cư trú; năm 2026; khi nào nộp nhận xét nơi cư trú; hạn nộp'},
+
+/* ===== BỔ SUNG 20/10/2026 ===== */
+{id:'CN05',c:'dn',st:'note',
+ q:'Không nhận được mã OTP khi đăng nhập/kích hoạt tài khoản thì làm thế nào?',
+ a:['1. Kiểm tra lại số điện thoại đã đăng ký có đúng không; máy có sóng và nhận được tin nhắn SMS.',
+    '2. Khởi động lại điện thoại rồi bấm gửi lại OTP.',
+    '3. Xem mục tin nhắn rác/spam, tìm tin nhắn từ đầu số DVC_CQDang.',
+    '4. Vẫn không nhận được → kiểm tra với nhà mạng xem có chặn tin nhắn quảng cáo/thương hiệu không, hoặc gửi đầu mối hỗ trợ kèm số điện thoại và thời điểm gửi.'],
+ alt:'không nhận được OTP; không có mã xác thực; SMS không về; mã OTP; DVC_CQDang; tin nhắn rác'},
+
+{id:'QA084',c:'db',st:'ok',
+ q:'Dữ liệu tổ chức/đảng viên trên TTHC bị sai thì có sửa trực tiếp trên TTHC được không?',
+ a:['Không. Dữ liệu tổ chức, đảng viên trên TTHC lấy từ CSDL 4.0.',
+    '1. Sửa đúng dữ liệu trên CSDL 4.0.',
+    '2. Đồng bộ lại sang TTHC.',
+    '3. Kiểm tra lại trên TTHC. Dữ liệu 4.0 đã đúng mà TTHC vẫn chưa cập nhật → gửi đầu mối hỗ trợ kèm tên đơn vị/đảng viên và ảnh màn hình.'],
+ alt:'sửa dữ liệu trên TTHC; dữ liệu sai; cơ cấu tổ chức sai; TTHC chưa cập nhật theo 4.0; sửa ở đâu; nguồn dữ liệu'}
 ];
