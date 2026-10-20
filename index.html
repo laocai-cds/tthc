@@ -4872,25 +4872,31 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
  function noRef(v){if(v&&!refMeta){refMeta=document.createElement('meta');refMeta.name='referrer';refMeta.content='no-referrer';document.head.appendChild(refMeta)}else if(!v&&refMeta){refMeta.remove();refMeta=null}}
  function stop(){session++;try{synth&&synth.cancel()}catch(e){}if(audio){try{audio.pause()}catch(e){}audio.src='';audio=null}noRef(false);setState(false)}
  const ttsUrl=t=>'https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&ttsspeed=1&q='+encodeURIComponent(t);
- function playOnline(parts,my){ // trả về Promise<true> khi đọc xong, <false> nếu không phát được
+ function playOnline(parts,my,male){ // trả về Promise<true> khi đọc xong, <false> nếu không phát được
   return new Promise(resolve=>{noRef(true);let i=0,next=null;
-   const make=k=>{const a=new Audio();a.preload='auto';a.src=ttsUrl(parts[k]);return a};
+   const make=k=>{const a=new Audio();a.preload='auto';if(male){a.preservesPitch=false;a.mozPreservesPitch=false;a.webkitPreservesPitch=false;a.defaultPlaybackRate=0.84;a.playbackRate=0.84}a.src=ttsUrl(parts[k]);return a};
    const step=()=>{if(my!==session)return resolve(true);if(i>=parts.length){noRef(false);return resolve(true)}
     const a=next||make(i);next=i+1<parts.length?make(i+1):null;audio=a;let started=false;
-    a.onplaying=()=>{started=true};a.onended=()=>{i++;step()};
+    a.onplaying=()=>{started=true;if(male&&a.playbackRate!==0.84)a.playbackRate=0.84};a.onended=()=>{i++;step()};
     a.onerror=()=>{if(my!==session)return resolve(true);noRef(false);resolve(i===0&&!started?false:true)};
     const p=a.play();if(p&&p.catch)p.catch(()=>{if(my===session){noRef(false);resolve(i===0?false:true)}})};
    step()})}
- function playLocal(parts,my){
+ const MALE=/\b(an|nam ?minh|male|nam)\b/i,FEMALE=/hoai ?my|female|nữ|linh|mai/i;
+ function localVoice(male){const vs=(synth?synth.getVoices():[]).filter(v=>/^vi/i.test(v.lang));if(male===undefined)return vs.find(x=>/google/i.test(x.name))||vs.find(x=>/natural|online/i.test(x.name))||vs[0];const want=vs.filter(v=>male?MALE.test(v.name):FEMALE.test(v.name));return want.find(x=>/natural|online/i.test(x.name))||want[0]||null}
+ function playLocal(parts,my,voice){
   return new Promise(resolve=>{if(!synth||!window.SpeechSynthesisUtterance)return resolve(false);
-   const go=()=>{const vs=synth.getVoices().filter(v=>/^vi/i.test(v.lang));const v=vs.find(x=>/google/i.test(x.name))||vs.find(x=>/natural|online/i.test(x.name))||vs[0];if(!v)return resolve(false);
+   const go=()=>{const v=voice||localVoice();if(!v)return resolve(false);
     synth.cancel();parts.forEach((p,k)=>{const u=new SpeechSynthesisUtterance(p);u.voice=v;u.lang=v.lang;if(k===parts.length-1)u.onend=()=>resolve(true);u.onerror=()=>resolve(true);if(my===session)synth.speak(u)})};
    if(synth.getVoices().length)go();else{let d=false;const once=()=>{if(!d){d=true;go()}};synth.addEventListener('voiceschanged',once,{once:true});setTimeout(once,800)}})}
  async function speak(){
   if(on){stop();return}
   const text=clean(sp.textContent);if(!text){note('Chưa có thông báo để đọc.');return}
   const my=++session;setState(true);const parts=chunks('Thông báo. '+text);
-  let ok=await playOnline(parts,my);
+  /* Giọng nam / nữ ngẫu nhiên mỗi lần bật loa: ưu tiên giọng tiếng Việt thật trên máy (nếu có), không có thì dùng giọng trực tuyến (giọng nam = hạ tông) */
+  const male=Math.random()<0.5,real=localVoice(male);mega.dataset.voice=male?'nam':'nữ';mega.title='Kích vào loa để bật/tắt đọc thông báo · lần này: giọng '+(male?'nam':'nữ');
+  let ok=real?await playLocal(parts,my,real):false;
+  if(my!==session)return;
+  if(!ok)ok=await playOnline(parts,my,male);
   if(my!==session)return;
   if(!ok)ok=await playLocal(parts,my);
   if(my!==session)return;
