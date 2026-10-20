@@ -1546,20 +1546,22 @@ var C=['#c51620','#2f6df0','#10a981','#d99412'],C2=['#f2683c','#5aa0ff','#4fd1a5
 function pill(cls,t){return '<span class="pill '+cls+'">'+t+'</span>'}
 function metric(label,a,b){var r=Math.round(100*ratio(a,b));return '<div class="ud-metric"><div class="ud-m-top"><span>'+label+'</span><b>'+fmt(a)+' / '+fmt(b)+'</b></div><div class="ud-bar"><i style="width:'+Math.min(100,r)+'%"></i></div></div>'}
 function fact(label,v){return '<div class="ud-fact"><span>'+label+'</span><span>'+v+'</span></div>'}
+var UDR=0;function udRing(r,size,sw){var v=Math.max(0,Math.min(1,Number(r)||0)),R=(size-sw)/2,c=size/2,C=2*Math.PI*R,id='udg'+(++UDR);return '<svg class="ud-ring" viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" aria-hidden="true"><defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--a)"/><stop offset="1" style="stop-color:var(--a2)"/></linearGradient></defs><circle class="trk" cx="'+c+'" cy="'+c+'" r="'+R.toFixed(2)+'" stroke-width="'+sw+'"/><circle class="val" cx="'+c+'" cy="'+c+'" r="'+R.toFixed(2)+'" stroke-width="'+sw+'" stroke="url(#'+id+')" stroke-dasharray="'+C.toFixed(2)+'" stroke-dashoffset="'+(C*(1-v)).toFixed(2)+'" style="--c:'+C.toFixed(2)+'" transform="rotate(-90 '+c+' '+c+')"'+(v<=0?' opacity="0"':'')+'/></svg>'}
+function udMini(label,short,a,b){var r=ratio(a,b);return '<div class="ud-mr" title="'+label+': '+fmt(a)+' / '+fmt(b)+'"><div class="ud-mr-ring">'+udRing(r,60,6)+'<b>'+fmt(a)+'<small>/'+fmt(b)+'</small></b></div><span>'+short+'</span></div>'}
 function card(p,i,u){
  var a=C[i%4],a2=C2[i%4],icon=(typeof NAV_ICON!=='undefined'?NAV_ICON[p.id]:'')||'',head='<div class="ud-card-head"><span class="ud-ico">'+icon+'</span><h3>'+esc(p.short)+'</h3>';
  if(!u)return '<article class="ud-card" style="--a:'+a+';--a2:'+a2+'">'+head+'</div><p class="ud-empty">Đơn vị chưa có dữ liệu ở thủ tục này.</p></article>';
  var pr=progress(p,u),st=state(p,u),owner=u.owner?esc(String(u.owner).split(/\n+/).map(function(x){return x.trim()}).filter(Boolean).join(' · ')):'<em>Chưa phân công</em>',m='',f='';
  f+=fact('Cán bộ phụ trách',owner)+fact('Đã hướng dẫn quy trình',u.guided==='Có'?pill('good','Có'):pill('gray','Chưa'));
  if(p.kind==='fee'){
-  m=metric('Tài khoản DVC đã tạo',u.dvccreated,u.dvctotal)+metric('Tài khoản ngân hàng đã tạo',u.bankcreated,u.banktotal);
+  m=udMini('Tài khoản DVC đã tạo','TK DVC',u.dvccreated,u.dvctotal)+udMini('Tài khoản ngân hàng đã tạo','TK ngân hàng',u.bankcreated,u.banktotal);
   f+=fact('Đã nộp đảng phí',u.paid==='☑'?pill('good','Đã nộp'):pill('gray','Chưa nộp'))+fact('Hoàn thành thu trong kỳ',pill(collectedRatio(u.collected)>=1?'good':collectedRatio(u.collected)>0?'warn':'gray',collectedLabel(u.collected)));
  }else{
-  m=metric('Hồ sơ đã tiếp nhận',u.received,u.total)+metric('Hồ sơ đã xử lý',u.processed,u.need)+metric('Hồ sơ đã hoàn thành',u.done,Math.max(u.total,u.need,1));
+  m=udMini('Hồ sơ đã tiếp nhận','Tiếp nhận',u.received,u.total)+udMini('Hồ sơ đã xử lý','Đã xử lý',u.processed,u.need)+udMini('Hồ sơ đã hoàn thành','Hoàn thành',u.done,Math.max(u.total,u.need,1));
   f+=fact('Hoàn thành 10 hồ sơ',isChecked(u.done10)?pill('good','Có'):pill('gray','Chưa'));
  }
  var note=p.kind==='fee'&&u.note?'<div class="ud-note">'+esc(u.note)+'</div>':'';
- return '<article class="ud-card" style="--a:'+a+';--a2:'+a2+'">'+head+pill(st[1],esc(st[0]))+'</div><div class="ud-pct"><strong>'+pct(pr)+'</strong><span style="font-size:10px;color:#8794a8">Tiến độ thủ tục</span></div><div class="ud-bar"><i style="width:'+Math.min(100,pr*100).toFixed(1)+'%"></i></div><div class="ud-metrics">'+m+'</div><div class="ud-facts">'+f+'</div>'+note+'</article>';
+ return '<article class="ud-card" style="--a:'+a+';--a2:'+a2+'">'+head+pill(st[1],esc(st[0]))+'</div><div class="ud-viz"><div class="ud-big">'+udRing(pr,108,11)+'<div class="ud-big-in"><strong>'+pct(pr)+'</strong><span>Tiến độ</span></div></div><div class="ud-mrs" style="--n:'+(p.kind==='fee'?2:3)+'">'+m+'</div></div><div class="ud-facts">'+f+'</div>'+note+'</article>';
 }
 function build(){
  if(overlay)return;
@@ -4713,6 +4715,26 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 .sidebar .docs-link:not(.qa-link) .sbx-ico{color:#0b8562}
 </style>
 <style id="dd-rank-col">.dd-tbl td.stt,#ddBody td.stt{text-align:center}#ddBody td.stt .dd-rank{margin:0 auto}</style>
+<style id="ud-rings">
+/* Thẻ chi tiết đơn vị: vòng tròn tiến độ */
+.ud-viz{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:14px;margin:12px 0 6px}
+.ud-big{position:relative;width:108px;height:108px;flex:none}
+.ud-ring{display:block;overflow:visible}
+.ud-ring .trk{fill:none;stroke:color-mix(in srgb,var(--a) 12%,#eef1f5)}
+.ud-ring .val{fill:none;stroke-linecap:round;filter:drop-shadow(0 2px 4px color-mix(in srgb,var(--a) 35%,transparent));animation:udRing 1.1s cubic-bezier(.22,1,.36,1) both}
+@keyframes udRing{from{stroke-dashoffset:var(--c)}}
+.ud-big-in{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:1px}
+.ud-big-in strong{font-size:22px;font-weight:850;letter-spacing:-.5px;color:var(--a);font-variant-numeric:tabular-nums;line-height:1}
+.ud-big-in span{font-size:9.5px;font-weight:700;color:#8794a8;text-transform:uppercase;letter-spacing:.5px}
+.ud-mrs{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:6px;justify-items:center}
+.ud-mr{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+.ud-mr-ring{position:relative;width:60px;height:60px}
+.ud-mr-ring b{position:absolute;inset:0;display:grid;place-content:center;font-size:13px;font-weight:850;color:#172c4a;font-variant-numeric:tabular-nums;line-height:1;text-align:center}
+.ud-mr-ring b small{font-size:9.5px;font-weight:700;color:#8794a8}
+.ud-mr>span{font-size:10px;font-weight:700;color:#5d6d84;text-align:center;line-height:1.2;white-space:nowrap}
+@media(max-width:520px){.ud-viz{grid-template-columns:1fr;justify-items:center}}
+@media(prefers-reduced-motion:reduce){.ud-ring .val{animation:none}}
+</style>
 </body></html>
 
 
