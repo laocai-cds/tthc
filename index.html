@@ -306,7 +306,7 @@ body{background:radial-gradient(ellipse at 92% 2%,#e2eaff 0,transparent 34%),lin
  S.forEach((s,i)=>{const m=new Audio();m.preload='metadata';m.src='audio/tm'+i+'.mp3';m.addEventListener('loadedmetadata',()=>{AD[i]=m.duration||0})});
  let idx=0,t0=0,el=0,playing=true,userPaused=false,sound=false,muted=false,dur=6;
  const need=i=>Math.max(S[i].dur,(sound&&AD[i]?AD[i]+0.8:0));
- function playVoice(){if(!sound)return;au.pause();au.src='audio/tm'+idx+'.mp3';au.currentTime=0;const p=au.play();if(p&&p.catch)p.catch(()=>{})}
+ function playVoice(){if(!sound||window.__hvDucked)return;au.pause();au.src='audio/tm'+idx+'.mp3';au.currentTime=0;const p=au.play();if(p&&p.catch)p.catch(()=>{})}
  function show(i){idx=(i+S.length)%S.length;el=0;t0=performance.now();dur=need(idx);
   const s=S[idx],d=document.createElement('div');d.className='hv-sc '+s.cls;if(s.hc)d.style.setProperty('--hc',s.hc);d.innerHTML=s.h;
   st.replaceChildren(d);void d.offsetWidth;d.classList.add('in');
@@ -322,7 +322,8 @@ body{background:radial-gradient(ellipse at 92% 2%,#e2eaff 0,transparent 34%),lin
   if(v){userPaused=false;if(!playing)setPlay(true);show(idx)}else au.pause()}
  tg.addEventListener('click',e=>{e.stopPropagation();setPlay(!playing);userPaused=!playing});
  sb.addEventListener('click',e=>{e.stopPropagation();muted=sound;setSound(!sound)});
- st.addEventListener('click',e=>{if((!sound||(au.paused&&playing))&&!muted){e.stopPropagation();setSound(true);return}setPlay(!playing);userPaused=!playing});
+ /* Video chạy liên tục: bấm vào khung video chỉ bật thuyết minh (nếu đang tắt), không tạm dừng — muốn dừng thì bấm nút ❚❚ */
+ st.addEventListener('click',e=>{if(!sound&&!window.__hvDucked){e.stopPropagation();muted=false;setSound(true)}});
  pg.addEventListener('click',e=>{const b=e.target.closest('button');if(b){e.stopPropagation();show(bars.indexOf(b));setPlay(true);userPaused=false}});
  /* Trình duyệt chỉ cho phát tiếng sau lần bấm/chạm đầu tiên trên trang */
  const unlock=e=>{document.removeEventListener('pointerdown',unlock,true);document.removeEventListener('keydown',unlock,true);
@@ -333,9 +334,9 @@ body{background:radial-gradient(ellipse at 92% 2%,#e2eaff 0,transparent 34%),lin
  sound=false;sb.classList.remove('on');sb.textContent='🔇';sb.setAttribute('aria-label','Bật tiếng');hint.hidden=true;
  show(0);requestAnimationFrame(tick);
  /* Khi loa thông báo đang đọc: tạm dừng video và thuyết minh để không đọc chồng tiếng; đọc xong thì phát tiếp */
- let duckWas=null;
- window.hvDuck=on=>{if(on){if(duckWas===null)duckWas={playing,sound};window.__hvDucked=true;au.pause();setPlay(false)}
-  else{window.__hvDucked=false;const w=duckWas;duckWas=null;if(w&&w.playing&&!userPaused&&!document.hidden){setPlay(true);if(w.sound&&sound){const p=au.play();if(p&&p.catch)p.catch(()=>{})}}}};
+ window.hvDuck=on=>{ /* loa thông báo đang đọc: chỉ tạm ngắt thuyết minh, hình video vẫn chạy */
+  if(on){window.__hvDucked=true;au.pause()}
+  else{window.__hvDucked=false;if(sound&&playing&&!document.hidden)playVoice()}};
  au.addEventListener('playing',()=>{hint.hidden=true},{once:true});
  /* (đã bỏ tự bật tiếng khi tải trang) */
 })();
