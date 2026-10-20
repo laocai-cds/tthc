@@ -3033,12 +3033,13 @@ body.dp-lock{overflow:hidden}
     });
   }
 
+  let dpLastStatus = null;
   async function loadStatus() {
     const api = getApi();
     if (!api) { q('dpLast').innerHTML = 'Chưa cấu hình địa chỉ API. <button class="dp-link" type="button" id="dpLnkCfg">Cấu hình ngay</button>'; q('dpLnkCfg').onclick = toggleCfg; return; }
     q('dpLast').innerHTML = 'Lần đồng bộ gần nhất: <b>đang kiểm tra…</b>';
     try {
-      const l = (await jsonp(api, 45000))?.last;
+      const l = (await jsonp(api, 45000))?.last; dpLastStatus = l || { none: true };
       q('dpLast').innerHTML = l
         ? 'Lần đồng bộ gần nhất: <b>' + esc(l.updatedAtText) + '</b> · ' + l.rowCount + ' đơn vị<br>' + esc(l.fileName || '')
         : 'Lần đồng bộ gần nhất: <b>chưa có</b>';
@@ -3070,12 +3071,15 @@ body.dp-lock{overflow:hidden}
           try {
             const st = await jsonp(api, 30000);
             if (st?.last?.syncId === syncId) return Object.assign({ ok: true }, st.last);
+            if (st?.last && !st.last.syncId && st.last.updatedAtText && st.last.updatedAtText !== prevKey && Number(st.last.rowCount) === rows.length) return Object.assign({ ok: true }, st.last);
             if (st?.lastError?.syncId === syncId) return { ok: false, error: st.lastError.error };
           } catch (_) {}
           await sleep(1500);
         }
         return null;
       };
+      let prevKey = dpLastStatus ? (dpLastStatus.updatedAtText || '') : null;
+      if (prevKey === null) { try { prevKey = ((await jsonp(api, 20000))?.last?.updatedAtText) || ''; } catch (_) { prevKey = ''; } }
       const tick = setInterval(() => { q('dpSyncLabel').textContent = 'Đang ghi vào Google Sheet… ' + Math.round((Date.now() - t0) / 1000) + 's'; }, 500);
       const ctl = new AbortController(), tAbort = setTimeout(() => ctl.abort(), 120000);
       const post = fetch(api, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: json }), signal: ctl.signal })
