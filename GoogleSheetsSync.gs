@@ -47,6 +47,8 @@ function doGet(e) {
     return json_({ ok: false, error: 'Yêu cầu đọc dữ liệu không hợp lệ.' });
   }
   try {
+    const cached = params.fresh ? null : cacheGet_();
+    if (cached) return jsonpText_(callback, cached);
     const procedures = {};
     const procedureBook = SpreadsheetApp.openById(CONFIG.procedureSpreadsheetId);
     Object.entries(CONFIG.procedureTabs).forEach(([id, tabName]) => {
@@ -54,7 +56,7 @@ function doGet(e) {
     });
     const feeSheet = SpreadsheetApp.openById(CONFIG.feeSpreadsheetId).getSheetByName(CONFIG.feeTab);
     const props = PropertiesService.getScriptProperties();
-    return jsonp_(callback, {
+    const body = JSON.stringify({
       ok: true,
       version: CONFIG.version,
       updatedAt: new Date().toISOString(),
@@ -65,6 +67,8 @@ function doGet(e) {
         activated: Number(props.getProperty('ADMIN_ACTIVATED_COUNT') || CONFIG.adminDefaults.activated)
       }
     });
+    cachePut_(body);
+    return jsonpText_(callback, body);
   } catch (err) {
     console.error(JSON.stringify({event:'read_failed', error:String(err && err.message || err)}));
     return jsonp_(callback, {ok:false, error:String(err && err.message || err)});
@@ -147,6 +151,7 @@ function doPost(e) {
     console.error(JSON.stringify({event:'write_failed', unitId, procedureId, error:String(err && err.message || err)}));
     return json_({ ok: false, error: String(err && err.message || err) });
   } finally {
+    cacheClear_();
     try { lock.releaseLock(); } catch (_) {}
   }
 }
@@ -262,4 +267,38 @@ function json_(value) {
 function jsonp_(callback, value) {
   return ContentService.createTextOutput(callback + '(' + JSON.stringify(value) + ');')
     .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
+
+/* ===== Bộ nhớ đệm dữ liệu đọc (giảm thời gian chờ khi nhiều người mở trang cùng lúc) ===== */
+const READ_CACHE_SECONDS = 60;
+const READ_CACHE_KEY = 'read_v3';
+const READ_CACHE_CHUNK = 90000;
+function cachePut_(body) {
+  try {
+    const cache = CacheService.getScriptCache(), parts = {}, n = Math.ceil(body.length / READ_CACHE_CHUNK);
+    if (n > 20) return;
+    for (let i = 0; i < n; i++) parts[READ_CACHE_KEY + '_' + i] = body.slice(i * READ_CACHE_CHUNK, (i + 1) * READ_CACHE_CHUNK);
+    parts[READ_CACHE_KEY + '_n'] = String(n);
+    cache.putAll(parts, READ_CACHE_SECONDS);
+  } catch (e) { console.warn('cachePut_ failed: ' + e); }
+}
+function cacheGet_() {
+  try {
+    const cache = CacheService.getScriptCache(), n = Number(cache.get(READ_CACHE_KEY + '_n') || 0);
+    if (!n) return null;
+    const keys = []; for (let i = 0; i < n; i++) keys.push(READ_CACHE_KEY + '_' + i);
+    const got = cache.getAll(keys); let body = '';
+    for (const k of keys) { if (got[k] == null) return null; body += got[k]; }
+    return body;
+  } catch (e) { return null; }
+}
+function cacheClear_() {
+  try {
+    const keys = [READ_CACHE_KEY + '_n']; for (let i = 0; i < 20; i++) keys.push(READ_CACHE_KEY + '_' + i);
+    CacheService.getScriptCache().removeAll(keys);
+  } catch (e) {}
+}
+function jsonpText_(callback, body) {
+  return ContentService.createTextOutput(callback + '(' + body + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
