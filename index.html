@@ -1989,7 +1989,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const qn=query.trim().toLowerCase();
   const rows=DATA.filter(d=>(filter==='all'||band(d.mrate)===filter)&&(!qn||d.name.toLowerCase().includes(qn)));
   rows.sort((a,b)=>{const x=a[sortKey],y=b[sortKey];return(typeof x==='string'?x.localeCompare(y,'vi'):x-y)*sortDir||(sortKey==='rate'||sortKey==='mrate'?b.nop-a.nop:0)||a.stt-b.stt});lastRows=rows;const RK=new Map([...DATA].sort((a,b)=>b.mrate-a.mrate||b.nop-a.nop||a.stt-b.stt).map((d,i)=>[d.stt,i+1]));
-  $('ddBody').innerHTML=rows.map(d=>{const rk=RK.get(d.stt);return`<tr data-i="${d.stt}" tabindex="0" title="Bấm để xem thông tin ${esc(d.name)}"><td class="stt">${rk}</td><td class="nm"><span class="dd-rank${rk<=3?' r'+rk:''}" title="Hạng ${rk}">${rk}</span><span class="dd-link">${esc(d.name)}</span></td><td>${fmt(d.t)}</td><td>${fmt(d.need)}</td><td class="b">${fmt(d.dn)}</td><td class="${d.chua?'w':'mut'}">${fmt(d.chua)}</td><td class="mut">${fmt(d.kb)}</td><td class="dd-paid"><span>${fmt(d.nop)}</span></td><td class="c-rate"><div class="dd-rb"><span class="dd-rt dd-${band(d.mrate)}">${pct(d.mrate)}%</span><i><b class="dd-${band(d.mrate)}" style="width:${Math.min(100,d.mrate).toFixed(1)}%"></b></i></div></td></tr>`}).join('')
+  $('ddBody').innerHTML=rows.map(d=>{const rk=RK.get(d.stt);return`<tr data-i="${d.stt}" tabindex="0" title="Bấm để xem thông tin ${esc(d.name)}"><td class="stt"><span class="dd-rank${rk<=3?' r'+rk:''}" title="Hạng ${rk}">${rk}</span></td><td class="nm"><span class="dd-link">${esc(d.name)}</span></td><td>${fmt(d.t)}</td><td>${fmt(d.need)}</td><td class="b">${fmt(d.dn)}</td><td class="${d.chua?'w':'mut'}">${fmt(d.chua)}</td><td class="mut">${fmt(d.kb)}</td><td class="dd-paid"><span>${fmt(d.nop)}</span></td><td class="c-rate"><div class="dd-rb"><span class="dd-rt dd-${band(d.mrate)}">${pct(d.mrate)}%</span><i><b class="dd-${band(d.mrate)}" style="width:${Math.min(100,d.mrate).toFixed(1)}%"></b></i></div></td></tr>`}).join('')
    ||`<tr><td colspan="9" class="dd-empty">${DATA.length?'Không có đơn vị phù hợp':(loading?'Đang tải dữ liệu…':'Chưa có dữ liệu')}</td></tr>`;
   const tot={};COLS.forEach(k=>tot[k]=rows.reduce((s,d)=>s+d[k],0));
   const r=tot.kb>0?tot.nop/tot.kb*100:0,mden=tot.ct+tot.tt-tot.chuyen-tot.mien,mr=mden>0?tot.dn/mden*100:0;
@@ -4696,6 +4696,7 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 .sidebar .docs-link:not(.qa-link):hover{box-shadow:0 12px 26px rgba(14,159,116,.45),0 0 0 3px rgba(110,230,180,.25)!important}
 .sidebar .docs-link:not(.qa-link) .sbx-ico{color:#0b8562}
 </style>
+<style id="dd-rank-col">.dd-tbl td.stt,#ddBody td.stt{text-align:center}#ddBody td.stt .dd-rank{margin:0 auto}</style>
 </body></html>
 
 
