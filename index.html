@@ -281,7 +281,7 @@ body{background:radial-gradient(ellipse at 92% 2%,#e2eaff 0,transparent 34%),lin
 .hv-prog button i{display:block;height:100%;width:0;background:#c51620}
 .hv-prog button.done i{width:100%}
 .hv-ctl{display:flex;gap:4px}.hv-snd.on{background:#c51620;color:#fff;border-color:#c51620}
-.hv-hint{position:absolute;left:10px;right:70px;top:8px;z-index:2;padding:4px 6px;border-radius:6px;background:#fff1ec;color:#b3111b;font-size:10px;font-weight:700;text-align:center;pointer-events:none;animation:hvBlink 1.6s ease-in-out infinite}.hv-hint[hidden]{display:none}
+.hv-hint{position:absolute;left:16px;right:16px;top:40px;z-index:2;padding:4px 6px;border-radius:6px;background:#fff1ec;color:#b3111b;font-size:10px;font-weight:700;text-align:center;pointer-events:none;animation:hvBlink 1.6s ease-in-out infinite}.hv-hint[hidden]{display:none}
 @keyframes hvBlink{50%{opacity:.45}}
 @media(max-width:1100px){.hero:has(#heroVideo) .hero-main{flex-basis:100%}}
 @media(max-width:760px){.hv{max-width:none;width:100%;min-width:0;flex-basis:100%}}
@@ -326,12 +326,16 @@ body{background:radial-gradient(ellipse at 92% 2%,#e2eaff 0,transparent 34%),lin
  pg.addEventListener('click',e=>{const b=e.target.closest('button');if(b){e.stopPropagation();show(bars.indexOf(b));setPlay(true);userPaused=false}});
  /* Trình duyệt chỉ cho phát tiếng sau lần bấm/chạm đầu tiên trên trang */
  const unlock=e=>{document.removeEventListener('pointerdown',unlock,true);document.removeEventListener('keydown',unlock,true);
-  if(e&&e.target&&e.target.closest&&e.target.closest('#heroVideo'))return; if(!muted&&(!sound||au.paused))setSound(true)};
+  if(e&&e.target&&e.target.closest&&e.target.closest('#heroVideo,.tk-mega,#anbSpeak'))return; if(window.__hvDucked)return; if(!muted&&(!sound||au.paused))setSound(true)};
  document.addEventListener('pointerdown',unlock,true);document.addEventListener('keydown',unlock,true);
  document.addEventListener('visibilitychange',()=>{if(document.hidden)setPlay(false);else if(!userPaused)setPlay(true)});
  /* Thử phát tiếng ngay khi tải trang; trình duyệt chặn thì chờ lần chạm đầu tiên */
  sound=true;sb.classList.add('on');sb.textContent='🔊';sb.setAttribute('aria-label','Tắt tiếng');hint.hidden=true;
  show(0);requestAnimationFrame(tick);
+ /* Khi loa thông báo đang đọc: tạm dừng video và thuyết minh để không đọc chồng tiếng; đọc xong thì phát tiếp */
+ let duckWas=null;
+ window.hvDuck=on=>{if(on){if(duckWas===null)duckWas={playing,sound};window.__hvDucked=true;au.pause();setPlay(false)}
+  else{window.__hvDucked=false;const w=duckWas;duckWas=null;if(w&&w.playing&&!userPaused&&!document.hidden){setPlay(true);if(w.sound&&sound){const p=au.play();if(p&&p.catch)p.catch(()=>{})}}}};
  au.addEventListener('playing',()=>{hint.hidden=true},{once:true});
  setTimeout(()=>{if(au.paused&&!muted&&sound&&au.currentTime===0){sound=false;sb.classList.remove('on');sb.textContent='🔇';sb.setAttribute('aria-label','Bật tiếng');hint.hidden=false}},900);
 })();
@@ -4864,7 +4868,7 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
    .replace(/\s*[┃|]\s*/g,'. ').replace(/(\d)\s*(đ|₫)(?![a-zà-ỹ])/gi,'$1 đồng').replace(/\bđ\)/g,'đồng)')
    .replace(/(\d+),(\d+)\s*%/g,'$1 phẩy $2 phần trăm').replace(/(\d)\s*%/g,'$1 phần trăm').replace(/\s+/g,' ').trim();
  const chunks=t=>{const out=[];t.split(/(?<=[.!?;:])\s+|(?<=\),)\s+/).forEach(s=>{while(s.length>180){let k=s.lastIndexOf(',',180);if(k<60)k=s.lastIndexOf(' ',180);if(k<1)k=180;out.push(s.slice(0,k+1).trim());s=s.slice(k+1).trim()}if(s)out.push(s)});return out};
- function setState(v){on=v;mega.classList.toggle('tk-speaking',v);mega.setAttribute('aria-pressed',String(v));const b=document.getElementById('anbSpeak');if(b)b.textContent=v?'⏹ Tắt loa':'🔊 Đọc thông báo'}
+ function setState(v){if(v!==on){try{window.hvDuck&&window.hvDuck(v)}catch(e){}}on=v;mega.classList.toggle('tk-speaking',v);mega.setAttribute('aria-pressed',String(v));const b=document.getElementById('anbSpeak');if(b)b.textContent=v?'⏹ Tắt loa':'🔊 Đọc thông báo'}
  function noRef(v){if(v&&!refMeta){refMeta=document.createElement('meta');refMeta.name='referrer';refMeta.content='no-referrer';document.head.appendChild(refMeta)}else if(!v&&refMeta){refMeta.remove();refMeta=null}}
  function stop(){session++;try{synth&&synth.cancel()}catch(e){}if(audio){try{audio.pause()}catch(e){}audio.src='';audio=null}noRef(false);setState(false)}
  const ttsUrl=t=>'https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&ttsspeed=1&q='+encodeURIComponent(t);
