@@ -4651,7 +4651,7 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 <div class="anb-ov" id="anbOv" role="dialog" aria-modal="true" aria-labelledby="anbTitle"><section class="anb-dlg">
  <header class="anb-head"><span class="tk-mega" id="anbIcon"></span><div class="anb-ttl"><small>THÔNG BÁO CHUNG</small><h2 id="anbTitle">Bảng thông báo</h2><p id="anbSub"></p></div><button type="button" class="anb-x" data-anb-close aria-label="Đóng">×</button></header>
  <div class="anb-body" id="anbBody"></div>
- <footer class="anb-foot"><span>Nguồn: Hệ thống theo dõi TTHC</span><button type="button" class="anb-btn" id="anbCopy">⧉ Sao chép</button><button type="button" class="anb-btn" id="anbEdit">✎ Cập nhật thông báo</button><button type="button" class="anb-btn pri" data-anb-close>Đóng</button></footer>
+ <footer class="anb-foot"><span>Nguồn: Hệ thống theo dõi TTHC</span><button type="button" class="anb-btn" id="anbSpeak">🔊 Đọc thông báo</button><button type="button" class="anb-btn" id="anbCopy">⧉ Sao chép</button><button type="button" class="anb-btn" id="anbEdit">✎ Cập nhật thông báo</button><button type="button" class="anb-btn pri" data-anb-close>Đóng</button></footer>
 </section></div>
 <script id="anb-script">
 (()=>{const ov=document.getElementById('anbOv'),badge=document.querySelector('.tk-pro .tk-badge'),sp=document.getElementById('announcementText');if(!ov||!badge||!sp)return;
@@ -4850,6 +4850,43 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 @media(max-width:1100px){.zl-low .zl-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:860px){.zl-low .zl-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:540px){.zl-low .zl-grid{grid-template-columns:1fr}}
+</style>
+<script id="tk-speak">
+/* Loa thông báo: bấm biểu tượng loa (hoặc nút "Đọc thông báo") để nghe đọc nội dung bằng giọng tiếng Việt */
+(()=>{
+ const sp=document.getElementById('announcementText'),badge=document.querySelector('.tk-pro .tk-badge'),mega=badge&&badge.querySelector('.tk-mega');
+ if(!sp||!mega)return;
+ const synth=window.speechSynthesis;let speaking=false;
+ mega.setAttribute('title','Bấm loa để nghe đọc thông báo');mega.setAttribute('role','button');mega.setAttribute('aria-label','Đọc thông báo bằng giọng nói');mega.style.cursor='pointer';
+ const note=t=>{try{toast(t)}catch(e){alert(t)}};
+ const pickVoice=()=>{const vs=synth.getVoices().filter(v=>/^vi/i.test(v.lang));return vs.find(v=>/google/i.test(v.name))||vs.find(v=>/natural|online/i.test(v.name))||vs[0]||null};
+ const clean=t=>String(t||'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,' ')
+   .replace(/\s*[┃|]\s*/g,'. ').replace(/(\d)\s*(đ|₫)(?![a-zà-ỹ])/gi,'$1 đồng').replace(/\bđ\)/g,'đồng)')
+   .replace(/(\d+),(\d+)\s*%/g,'$1 phẩy $2 phần trăm').replace(/(\d)\s*%/g,'$1 phần trăm').replace(/\s+/g,' ').trim();
+ const chunks=t=>{const out=[];t.split(/(?<=[.!?;:])\s+|(?<=\),)\s+/).forEach(s=>{while(s.length>200){let k=s.lastIndexOf(',',200);if(k<60)k=s.lastIndexOf(' ',200);out.push(s.slice(0,k+1));s=s.slice(k+1).trim()}if(s)out.push(s)});return out};
+ function setState(on){speaking=on;mega.classList.toggle('tk-speaking',on);const b=document.getElementById('anbSpeak');if(b)b.textContent=on?'⏹ Dừng đọc':'🔊 Đọc thông báo'}
+ function stop(){try{synth.cancel()}catch(e){}setState(false)}
+ function speak(){
+  if(!synth||!window.SpeechSynthesisUtterance){note('Trình duyệt này chưa hỗ trợ đọc bằng giọng nói. Hãy dùng Chrome, Cốc Cốc hoặc Edge bản mới.');return}
+  if(speaking){stop();return}
+  const go=()=>{const v=pickVoice();
+   if(!v){note('Máy chưa có giọng đọc tiếng Việt. Dùng Chrome/Cốc Cốc (có sẵn giọng Google Tiếng Việt) hoặc cài gói giọng nói Tiếng Việt cho Windows.');return}
+   const text=clean(sp.textContent);if(!text){note('Chưa có thông báo để đọc.');return}
+   synth.cancel();const parts=chunks('Thông báo. '+text);setState(true);
+   parts.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p);u.voice=v;u.lang=v.lang;u.rate=1;u.pitch=1;if(i===parts.length-1){u.onend=()=>setState(false)}u.onerror=()=>setState(false);synth.speak(u)});
+  };
+  if(synth.getVoices().length)go();else{let done=false;const once=()=>{if(done)return;done=true;go()};synth.addEventListener('voiceschanged',once,{once:true});setTimeout(once,800)}
+ }
+ mega.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();speak()});
+ document.getElementById('anbSpeak')?.addEventListener('click',speak);
+ window.addEventListener('pagehide',stop);
+ window.speakAnnouncement=speak;
+})();
+</script>
+<style id="tk-speak-style">
+.tk-mega.tk-speaking{animation:tkSpk 1s ease-in-out infinite;box-shadow:0 0 0 3px rgba(255,214,102,.75),0 0 14px rgba(255,214,102,.8)}
+@keyframes tkSpk{50%{transform:scale(1.12)}}
+.tk-mega:hover{filter:brightness(1.15)}
 </style>
 </body></html>
 
