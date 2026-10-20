@@ -4690,6 +4690,12 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 .app .content>.heading.hero .hm-tabs button{font-size:8.5px}
 }
 </style>
+<style id="sidebar-btn-colors">
+/* Mỗi nút cuối thanh menu một màu: AI (đỏ) · Hỏi–đáp (vàng) · Tài liệu (xanh lá) · Hướng dẫn (xanh dương) */
+.sidebar .docs-link:not(.qa-link){border:1px solid rgba(140,235,190,.45)!important;background:radial-gradient(120% 160% at 0% 0%,rgba(170,255,210,.3),transparent 55%),linear-gradient(115deg,#05644c,#0e9f74 58%,#2fc28d)!important;box-shadow:0 8px 20px rgba(14,159,116,.32),inset 0 1px 0 rgba(255,255,255,.22)!important}
+.sidebar .docs-link:not(.qa-link):hover{box-shadow:0 12px 26px rgba(14,159,116,.45),0 0 0 3px rgba(110,230,180,.25)!important}
+.sidebar .docs-link:not(.qa-link) .sbx-ico{color:#0b8562}
+</style>
 </body></html>
 
 
