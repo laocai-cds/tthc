@@ -3062,24 +3062,41 @@ body.dp-lock{overflow:hidden}
     const t0 = Date.now();
     try {
       const json = JSON.stringify(payload);
-      // Cách nhanh: gửi toàn bộ dữ liệu trong MỘT yêu cầu POST, sau đó hỏi trạng thái để xác nhận đã ghi xong
+      // Cách nhanh: gửi toàn bộ dữ liệu trong MỘT yêu cầu POST. Khi yêu cầu POST trả về là Google đã ghi xong.
       let res = null;
-      try {
-        q('dpSyncLabel').textContent = 'Đang gửi dữ liệu (1 lần)…';
-        const ctl = new AbortController(), tAbort = setTimeout(() => ctl.abort(), 90000);
-        fetch(api, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: json }), signal: ctl.signal }).catch(() => {}).finally(() => clearTimeout(tAbort));
-        const until = Date.now() + 100000;
-        await new Promise(r => setTimeout(r, 2500));
-        while (Date.now() < until && !res) {
-          q('dpSyncLabel').textContent = 'Đang ghi vào Google Sheet… ' + Math.round((Date.now() - t0) / 1000) + 's';
+      const sleep = ms => new Promise(r => setTimeout(r, ms));
+      const confirmSync = async () => {
+        for (let k = 0; k < 4; k++) {
           try {
             const st = await jsonp(api, 30000);
-            if (st?.last?.syncId === syncId) res = Object.assign({ ok: true }, st.last);
-            else if (st?.lastError?.syncId === syncId) res = { ok: false, error: st.lastError.error };
+            if (st?.last?.syncId === syncId) return Object.assign({ ok: true }, st.last);
+            if (st?.lastError?.syncId === syncId) return { ok: false, error: st.lastError.error };
           } catch (_) {}
-          if (!res) await new Promise(r => setTimeout(r, 2500));
+          await sleep(1500);
         }
-      } catch (_) {}
+        return null;
+      };
+      const tick = setInterval(() => { q('dpSyncLabel').textContent = 'Đang ghi vào Google Sheet… ' + Math.round((Date.now() - t0) / 1000) + 's'; }, 500);
+      const ctl = new AbortController(), tAbort = setTimeout(() => ctl.abort(), 120000);
+      const post = fetch(api, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: json }), signal: ctl.signal })
+        .then(() => true, () => false).finally(() => clearTimeout(tAbort));
+      const quick = await Promise.race([post, sleep(8000).then(() => 'slow')]);
+      if (quick === 'slow') {
+        // Google ghi chậm: không bắt người dùng chờ — báo đã gửi, tự xác nhận khi xong
+        clearInterval(tick);
+        showMsg('info', '✓ Đã gửi <b>' + rows.length + ' đơn vị</b> lên Google. Google Sheet đang ghi dữ liệu, trang sẽ tự báo khi xong — bạn có thể đóng cửa sổ này và làm việc khác.');
+        btn.classList.remove('busy'); updateSyncBtn();
+        post.then(async ok => {
+          const r = ok ? await confirmSync() : null;
+          const sec = ((Date.now() - t0) / 1000).toFixed(0);
+          if (r && r.ok) { showMsg('ok', '✓ Đã đồng bộ <b>' + r.rowCount + ' đơn vị</b> lúc ' + esc(r.updatedAtText) + ' (' + sec + ' giây).'); try { toast('Đã đồng bộ ' + r.rowCount + ' đơn vị đảng phí lên Google Sheet.'); } catch (_) {} [1,2,3].forEach(i => { q('dpSt' + i).classList.add('done'); q('dpSt' + i).classList.remove('active'); }); loadStatus(); }
+          else if (r) { showMsg('bad', '✕ ' + esc(r.error)); try { toast('Đồng bộ đảng phí lỗi: ' + r.error); } catch (_) {} }
+          else { showMsg('bad', '✕ Chưa xác nhận được kết quả ghi. Hãy bấm Đồng bộ lại (dữ liệu sẽ được ghi đè, không bị trùng).'); }
+        });
+        return;
+      }
+      if (quick === true) res = await confirmSync();
+      clearInterval(tick);
       if (!res) {
       // Dự phòng: chia dữ liệu thành các phần nhỏ (≤ 6.000 ký tự sau mã hóa) và gửi song song
       const chunks = [];
