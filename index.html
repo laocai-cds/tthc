@@ -330,7 +330,7 @@ body{background:radial-gradient(ellipse at 92% 2%,#e2eaff 0,transparent 34%),lin
  document.addEventListener('visibilitychange',()=>{if(document.hidden)setPlay(false);else if(!userPaused)setPlay(true)});
  /* Thử phát tiếng ngay khi tải trang; trình duyệt chặn thì chờ lần chạm đầu tiên */
  /* Mặc định tắt tiếng: chỉ đọc thuyết minh khi người xem bật loa (nút 🔇/🔊 hoặc bấm vào video) */
- sound=false;sb.classList.remove('on');sb.textContent='🔇';sb.setAttribute('aria-label','Bật tiếng');hint.hidden=false;
+ sound=false;sb.classList.remove('on');sb.textContent='🔇';sb.setAttribute('aria-label','Bật tiếng');hint.hidden=true;
  show(0);requestAnimationFrame(tick);
  /* Khi loa thông báo đang đọc: tạm dừng video và thuyết minh để không đọc chồng tiếng; đọc xong thì phát tiếp */
  let duckWas=null;
@@ -4905,6 +4905,7 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 })();
 </script>
 <style id="tk-speak-style">
+#hvHint{display:none!important}
 .tk-mega.tk-speaking{animation:tkSpk 1s ease-in-out infinite;box-shadow:0 0 0 3px rgba(255,214,102,.75),0 0 14px rgba(255,214,102,.8)}
 @keyframes tkSpk{50%{transform:scale(1.12)}}
 .tk-mega:hover{filter:brightness(1.15)}
