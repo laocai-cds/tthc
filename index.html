@@ -1580,7 +1580,7 @@ function open(name){
  var rows=getOverallRankingRows(),idx=rows.findIndex(function(r){return r.unit===name}),avg=idx>=0?rows[idx].average:0,found=data.procedures.map(function(p){return p.units.find(function(u){return String(u.unit||'').trim()===name})});
  var done=0,run=0,none=0;data.procedures.forEach(function(p,i){var u=found[i];if(!u)return;var v=progress(p,u);if(v>=.999)done++;else if(v>0)run++;else none++});
  var rank=idx+1,cls=rank===1?'gold':rank===2?'silver':rank===3?'bronze':'';
- body.innerHTML='<div class="ud-hero"><span class="ud-medal '+cls+'">'+(idx>=0?String(rank).padStart(2,'0'):'—')+'</span><div class="ud-title"><small>Chỉ số các thủ tục hành chính</small><h2 id="udTitle">'+esc(name)+'</h2><div class="ud-chips"><span class="ud-chip">Hạng <b>'+(idx>=0?rank:'—')+'</b> / '+fmt(rows.length)+' đơn vị</span><span class="ud-chip"><b>'+done+'</b> hoàn thành</span><span class="ud-chip"><b>'+run+'</b> đang triển khai</span><span class="ud-chip"><b>'+none+'</b> chưa triển khai</span></div></div><div class="ud-total"><span>Tiến độ tổng</span><strong>'+pct(avg)+'</strong><div class="ud-bar"><i style="width:'+Math.min(100,avg*100).toFixed(1)+'%;background:linear-gradient(90deg,#f2ca63,#ffb347)"></i></div></div></div><div class="ud-grid">'+data.procedures.map(function(p,i){return card(p,i,found[i])}).join('')+'</div><div class="ud-foot"><button class="ud-btn" type="button" data-ud-table="'+esc(name)+'">Xem trong bảng theo dõi</button><button class="ud-btn primary" type="button" data-ud-close>Đóng</button></div>';
+ body.innerHTML='<div class="ud-hero"><span class="ud-medal '+cls+'">'+(idx>=0?String(rank).padStart(2,'0'):'—')+'</span><div class="ud-title"><small>Chỉ số các thủ tục hành chính</small><h2 id="udTitle">'+esc(name)+'</h2><div class="ud-chips"><span class="ud-chip">Hạng <b>'+(idx>=0?rank:'—')+'</b> / '+fmt(rows.length)+' đơn vị</span><span class="ud-chip"><b>'+done+'</b> hoàn thành</span><span class="ud-chip"><b>'+run+'</b> đang triển khai</span><span class="ud-chip"><b>'+none+'</b> chưa triển khai</span></div></div><div class="ud-total ud-total-ring" style="--a:#f2ca63;--a2:#ffb347"><div class="ud-tr">'+udRing(avg,92,9)+'<div class="ud-tr-in"><strong>'+pct(avg)+'</strong></div></div><span>Tiến độ tổng</span></div></div><div class="ud-grid">'+data.procedures.map(function(p,i){return card(p,i,found[i])}).join('')+'</div><div class="ud-foot"><button class="ud-btn" type="button" data-ud-table="'+esc(name)+'">Xem trong bảng theo dõi</button><button class="ud-btn primary" type="button" data-ud-close>Đóng</button></div>';
  lastFocus=document.activeElement;overlay.classList.add('open');document.body.style.overflow='hidden';
  var c=overlay.querySelector('.ud-close');if(c)c.focus({preventScroll:true});overlay.querySelector('.ud-dialog').scrollTop=0;
 }
@@ -4734,6 +4734,15 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 .ud-mr>span{font-size:10px;font-weight:700;color:#5d6d84;text-align:center;line-height:1.2;white-space:nowrap}
 @media(max-width:520px){.ud-viz{grid-template-columns:1fr;justify-items:center}}
 @media(prefers-reduced-motion:reduce){.ud-ring .val{animation:none}}
+</style>
+<style id="ud-total-ring">
+.ud-total.ud-total-ring{margin-right:34px;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;padding:8px 14px;width:auto}
+.ud-tr{position:relative;width:92px;height:92px}
+.ud-total-ring .ud-ring .trk{stroke:#ffffff26}
+.ud-total-ring .ud-ring .val{filter:drop-shadow(0 0 6px rgba(242,202,99,.55))}
+.ud-tr-in{position:absolute;inset:0;display:grid;place-content:center}
+.ud-total-ring .ud-tr-in strong{margin:0;font-size:19px;line-height:1;color:#ffd97a}
+.ud-total-ring>span{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#cfdaea}
 </style>
 </body></html>
 
