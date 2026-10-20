@@ -2537,10 +2537,10 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const zero=lastRows.filter(r=>r.amount===0).sort((a,b)=>a.unit.localeCompare(b.unit,'vi'));
   const overlay=document.createElement('div');overlay.id='top3MoneyZeroOverlay';overlay.className='zl-overlay';
-  const body=zero.map((r,i)=>`<tr data-n="${esc(norm(r.unit))}"><td>${i+1}</td><td class="zl-unit">${esc(r.unit)}</td><td><span class="zl-zero">0 ₫</span></td></tr>`).join('');
-  overlay.innerHTML=`<section class="zl-dialog" role="dialog" aria-modal="true" aria-labelledby="zlTitle"><header class="zl-head"><span class="zl-ico" aria-hidden="true">!</span><div class="zl-title"><small>THU ĐẢNG PHÍ TRONG KỲ</small><h2 id="zlTitle">Danh sách đơn vị chưa thu được tiền</h2><span class="zl-chip"><b>${zero.length.toLocaleString('vi-VN')}</b> / ${lastRows.length.toLocaleString('vi-VN')} đơn vị có số tiền 0 ₫</span></div><button type="button" class="zl-close" aria-label="Đóng">×</button></header><div class="zl-tools"><input type="search" class="zl-search" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị"><span class="zl-count"></span></div><div class="zl-wrap"><table class="zl-table"><thead><tr><th>STT</th><th>Đơn vị</th><th>Số tiền đã nộp</th></tr></thead><tbody>${body||'<tr><td colspan="3" class="zl-empty">Tất cả đơn vị đã thu được tiền</td></tr>'}</tbody></table></div><footer class="zl-foot"><span>Nguồn: Google Sheets · tự động cập nhật</span><button type="button" class="zl-btn">Đóng</button></footer></section>`;
+  const body=zero.map((r,i)=>`<li class="zl-item" data-n="${esc(norm(r.unit))}"><span class="zl-no">${i+1}</span><span class="zl-name" title="${esc(r.unit)}">${esc(r.unit)}</span><span class="zl-zero">0 ₫</span></li>`).join('');
+  overlay.innerHTML=`<section class="zl-dialog" role="dialog" aria-modal="true" aria-labelledby="zlTitle"><header class="zl-head"><span class="zl-ico" aria-hidden="true">!</span><div class="zl-title"><small>THU ĐẢNG PHÍ TRONG KỲ</small><h2 id="zlTitle">Danh sách đơn vị chưa thu được tiền</h2><span class="zl-chip"><b>${zero.length.toLocaleString('vi-VN')}</b> / ${lastRows.length.toLocaleString('vi-VN')} đơn vị có số tiền 0 ₫</span></div><button type="button" class="zl-close" aria-label="Đóng">×</button></header><div class="zl-tools"><input type="search" class="zl-search" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị"><span class="zl-count"></span></div><div class="zl-wrap zl-grid-wrap"><ul class="zl-grid">${body||'<li class="zl-empty">Tất cả đơn vị đã thu được tiền</li>'}</ul></div><footer class="zl-foot"><span>Nguồn: Google Sheets · tự động cập nhật</span><button type="button" class="zl-btn">Đóng</button></footer></section>`;
   const input=overlay.querySelector('.zl-search'),count=overlay.querySelector('.zl-count');
-  const apply=()=>{const q=norm(input.value);let n=0;overlay.querySelectorAll('tbody tr[data-n]').forEach(tr=>{const ok=!q||tr.dataset.n.includes(q);tr.style.display=ok?'':'none';if(ok)n++});count.textContent=q?n+' / '+zero.length+' đơn vị':''};
+  const apply=()=>{const q=norm(input.value);let n=0;overlay.querySelectorAll('.zl-item[data-n]').forEach(tr=>{const ok=!q||tr.dataset.n.includes(q);tr.style.display=ok?'':'none';if(ok)n++});count.textContent=q?n+' / '+zero.length+' đơn vị':''};
   input.addEventListener('input',apply);
   overlay.addEventListener('click',e=>{if(e.target===overlay||e.target.closest('.zl-close')||e.target.closest('.zl-btn'))closeZero()});
   document.body.append(overlay);document.addEventListener('keydown',onEscZero);input.focus();
@@ -4770,6 +4770,20 @@ function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 .ud-mr-ring{width:40px;height:40px}.ud-mr-ring .ud-ring{width:40px;height:40px}
 .ud-tr{width:58px;height:58px}.ud-tr .ud-ring{width:58px;height:58px}
 }
+</style>
+<style id="zl-grid">
+/* Danh sách đơn vị chưa thu được tiền: chia 3 cột */
+.zl-dialog{width:min(1040px,100%)}
+.zl-grid-wrap{border:0;background:transparent}
+.zl-grid{list-style:none;margin:0;padding:2px 0 4px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.zl-item{display:flex;align-items:center;gap:9px;min-width:0;padding:9px 11px;border:1px solid #efe4dc;border-radius:11px;background:#fff;box-shadow:0 2px 6px rgba(23,44,74,.04);transition:border-color .15s,box-shadow .15s,transform .15s}
+.zl-item:hover{border-color:#f0b49c;box-shadow:0 6px 14px rgba(211,64,42,.12);transform:translateY(-1px)}
+.zl-no{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#fdece6;color:#b3361d;font-size:10.5px;font-weight:850}
+.zl-name{flex:1;min-width:0;font-size:12px;font-weight:700;color:#172c4a;line-height:1.3}
+.zl-item .zl-zero{flex:none}
+.zl-empty{grid-column:1/-1;padding:24px;text-align:center;color:#5d6d84;font-weight:600}
+@media(max-width:860px){.zl-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){.zl-grid{grid-template-columns:1fr}}
 </style>
 </body></html>
 
