@@ -7,7 +7,8 @@
  *    nếu lệch tháng hiện tại của máy chủ thì từ chối (tránh ghi nhầm vào tháng khác).
  *  - Lần đồng bộ đầu tiên của tháng mới tự tạo tab "Thang{M}" bằng cách sao chép tab tháng gần nhất
  *    (giữ 2 dòng tiêu đề, ô gộp, độ rộng cột), xóa dữ liệu cũ, rồi ghi dữ liệu mới.
- *  - Tab "DANH MUC THANG" (THANG | TEN TAB | CAP NHAT) được dựng lại sau mỗi lần đồng bộ; trang web đọc danh sách tháng từ đây.
+ *  - Tab "DANH MUC THANG" (THANG | TEN TAB | CAP NHAT | SO DON VI) được dựng lại sau mỗi lần đồng bộ; trang web đọc danh sách tháng từ đây
+ *    và chỉ hiện các tháng có dữ liệu. 12 tab Thang1…Thang12 có thể tạo sẵn; tab thiếu sẽ tự tạo khi cần.
  *  - Tab các tháng trước không bị đụng tới nữa.
  *
  * Cài đặt:
@@ -193,7 +194,8 @@ function templateSheet_(ss, key) {
   return ss.getSheets().find(s => s.getSheetId() === DATA_SHEET_GID) || null;
 }
 
-/** Dựng lại danh mục tháng từ tên các tab "Thang{M}"; giữ giờ cập nhật cũ, đặt giờ mới cho tháng vừa đồng bộ. */
+/** Dựng lại danh mục tháng từ tên các tab "Thang{M}"; giữ giờ cập nhật cũ, đặt giờ mới cho tháng vừa đồng bộ.
+ *  Cột D "SO DON VI" là công thức COUNT trên cột STT của từng tab – trang web chỉ hiện các tháng có dữ liệu. */
 function updateRegistry_(ss, nowKey, when) {
   let reg = ss.getSheetByName(REGISTRY_SHEET_NAME);
   const old = {};
@@ -202,17 +204,18 @@ function updateRegistry_(ss, nowKey, when) {
   }
   if (!reg) {
     reg = ss.insertSheet(REGISTRY_SHEET_NAME);
-    reg.getRange(1, 1, 1, 3).setValues([['THANG', 'TEN TAB', 'CAP NHAT']]).setFontWeight('bold').setBackground('#eef3fb');
     reg.setFrozenRows(1);
   }
+  reg.getRange(1, 1, 1, 4).setValues([['THANG', 'TEN TAB', 'CAP NHAT', 'SO DON VI']]).setFontWeight('bold').setBackground('#eef3fb');
   const stamp = when || Utilities.formatDate(new Date(), TZ, 'dd/MM/yyyy HH:mm:ss');
   const rows = ss.getSheets().map(s => ({ k: parseMonthTab_(s.getName()), n: s.getName() })).filter(x => x.k)
     .sort((a, b) => (a.k < b.k ? -1 : 1))
-    .map(x => [x.k, x.n, x.k === nowKey ? stamp : (old[x.k] || '')]);
+    .map(x => [x.k, x.n, x.k === nowKey ? stamp : (old[x.k] || ''), "=COUNT('" + x.n + "'!A" + (HEADER_ROWS + 1) + ":A400)"]);
   const prevLast = reg.getLastRow();
   reg.getRange(2, 1, Math.max(rows.length, 1), 1).setNumberFormat('@');     // THANG phải là văn bản, không bị đổi thành ngày
-  if (rows.length) reg.getRange(2, 1, rows.length, 3).setValues(rows);
-  if (prevLast > rows.length + 1) reg.getRange(rows.length + 2, 1, prevLast - rows.length - 1, 3).clearContent();
+  reg.getRange(2, 4, Math.max(rows.length, 1), 1).setNumberFormat('0');
+  if (rows.length) reg.getRange(2, 1, rows.length, 4).setValues(rows);
+  if (prevLast > rows.length + 1) reg.getRange(rows.length + 2, 1, prevLast - rows.length - 1, 4).clearContent();
 }
 
 /** Chạy tay khi cần dựng lại danh mục từ các tab tháng đang có (Thang9, Thang10, …). */

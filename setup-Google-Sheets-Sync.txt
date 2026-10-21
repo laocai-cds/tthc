@@ -26,10 +26,11 @@ Dự án 1voL0j5JyZLC3lKTuj7LwKxlr31zfmtLlS7AQy7FUJ8qmSnBfji_37VvI hiện chỉ 
 
 THU NOP DANG PHI – MOI THANG MOT TAB (bang 1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-M1AGkWO4g)
 - Mỗi tháng một tab: Thang10, Thang11, … (năm khác 2026: Thang10_2027). Bố cục 14 cột, 2 dòng tiêu đề.
-- Tab "DANH MUC THANG" liệt kê các tab tháng (THANG yyyy-MM | TEN TAB | CAP NHAT); trang web đọc danh sách tháng từ đây.
+- Đã tạo sẵn 12 tab Thang1 … Thang12 (cùng bố cục 2 dòng tiêu đề). Tab "DANH MUC THANG" liệt kê chúng (THANG | TEN TAB | CAP NHAT | SO DON VI);
+  SO DON VI = công thức COUNT số đơn vị trong tab – trang web chỉ hiện các tháng có dữ liệu (SO DON VI > 0).
 - Excel luôn đồng bộ vào tab của THÁNG HIỆN TẠI (giờ Việt Nam). Lần đồng bộ đầu tiên của tháng mới tự tạo tab mới
   (sao chép bố cục tab tháng gần nhất) và cập nhật danh mục. Tab các tháng trước không bị ghi đè.
 - Trang web: chọn Tháng hoặc Lũy kế; chỉ tháng hiện tại tự làm mới mỗi phút, các tháng trước chỉ tải một lần.
 - Lũy kế đến tháng K = cộng dồn hai cột tiền của các tháng từ đầu năm đến K; các cột khác lấy theo tháng K.
-- Cần tab tháng cũ (vd Thang9)? Đổi tên/sao chép dữ liệu vào tab "Thang9" rồi chạy rebuildMonthRegistry() trong Apps Script.
+- Có dữ liệu tháng cũ (vd Thang9)? Dán số liệu vào tab "Thang9" từ dòng 3 (cột A = STT): tháng đó tự hiện trên trang nhờ SO DON VI > 0.
 - Code.gs (v4) = bản Apps Script "Input DangPhi" đang chạy (v3) + chia tab theo tháng. Dán đè, rồi Triển khai → Quản lý bản triển khai → Sửa → Phiên bản mới (URL /exec giữ nguyên).

@@ -3,7 +3,7 @@
  *
  * Nguồn dữ liệu (Google Sheet 1N8o54EO…): MỖI THÁNG MỘT TAB, tên "Thang{M}" (Thang10, Thang11, …;
  * năm khác 2026 thì "Thang{M}_{YYYY}"), cùng một bố cục 14 cột, 2 dòng tiêu đề.
- *  - Tab "DANH MUC THANG" liệt kê các tab tháng (cột THANG yyyy-MM | TEN TAB | CAP NHAT).
+ *  - Tab "DANH MUC THANG" liệt kê 12 tab tháng (THANG yyyy-MM | TEN TAB | CAP NHAT | SO DON VI); chỉ tháng có dữ liệu (SO DON VI > 0) mới hiện trong bộ chọn.
  *  - Excel luôn đồng bộ vào tab của THÁNG HIỆN TẠI (giờ Việt Nam); các tab tháng trước chỉ xem.
  *  - Chưa có tab của tháng hiện tại (đầu tháng, Excel chưa đồng bộ) → hiển thị tab gần nhất kèm cảnh báo.
  *  - Không đọc được danh mục → dùng tab gid 193289320 như trước đây (tương thích ngược).
@@ -195,8 +195,11 @@
       const rows = valid
         ? (p.table.rows || []).map(r => r.c || []).map(c => ({
             key: String(c[0] && (c[0].v != null ? c[0].v : c[0].f) || '').trim(),
-            tab: String(c[1] && (c[1].v != null ? c[1].v : c[1].f) || '').trim()
-          })).filter(x => validKey(x.key) && x.tab && x.key <= currentKey())
+            tab: String(c[1] && (c[1].v != null ? c[1].v : c[1].f) || '').trim(),
+            // Cột D "SO DON VI" = số đơn vị đang có trong tab (công thức COUNT); thiếu cột D → coi là có dữ liệu
+            count: c[3] && typeof c[3].v === 'number' ? c[3].v : null
+          })).filter(x => validKey(x.key) && x.tab && x.key <= currentKey() && (x.count == null || x.count > 0))
+            .map(x => ({ key: x.key, tab: x.tab }))
         : [];
       rows.sort((a, b) => (a.key < b.key ? 1 : -1));
       const ok = valid && rows.length > 0;
