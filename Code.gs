@@ -28,6 +28,9 @@ const COLS = 14;                             // STT, Tên đơn vị, (1)…(9),
 const VERSION = 4;
 const TZ = 'Asia/Ho_Chi_Minh';
 
+/** Định dạng số chỉ để cho đẹp: nếu ô thuộc "bảng"/cột có kiểu dữ liệu cố định thì Sheets từ chối → bỏ qua, không làm hỏng đồng bộ. */
+function fmt_(range, f) { try { range.setNumberFormat(f); } catch (e) { /* bỏ qua */ } }
+
 /* ---------- Tháng ---------- */
 function monthKey_(d) { return Utilities.formatDate(d || new Date(), TZ, 'yyyy-MM'); }
 function monthTab_(key) {
@@ -142,8 +145,8 @@ function write_(payload) {
     if (last > HEADER_ROWS) sh.getRange(HEADER_ROWS + 1, 1, last - HEADER_ROWS, COLS).clearContent();
     const rg = sh.getRange(HEADER_ROWS + 1, 1, data.length, COLS);
     rg.setValues(data);
-    sh.getRange(HEADER_ROWS + 1, 3, data.length, 11).setNumberFormat('#,##0');
-    sh.getRange(HEADER_ROWS + 1, 14, data.length, 1).setNumberFormat('0.00%');
+    fmt_(sh.getRange(HEADER_ROWS + 1, 3, data.length, 11), '#,##0');
+    fmt_(sh.getRange(HEADER_ROWS + 1, 14, data.length, 1), '0.00%');
 
     const now = new Date();
     const when = Utilities.formatDate(now, TZ, 'dd/MM/yyyy HH:mm:ss');
@@ -212,8 +215,8 @@ function updateRegistry_(ss, nowKey, when) {
     .sort((a, b) => (a.k < b.k ? -1 : 1))
     .map(x => [x.k, x.n, x.k === nowKey ? stamp : (old[x.k] || ''), "=COUNT('" + x.n + "'!A" + (HEADER_ROWS + 1) + ":A400)"]);
   const prevLast = reg.getLastRow();
-  reg.getRange(2, 1, Math.max(rows.length, 1), 1).setNumberFormat('@');     // THANG phải là văn bản, không bị đổi thành ngày
-  reg.getRange(2, 4, Math.max(rows.length, 1), 1).setNumberFormat('0');
+  fmt_(reg.getRange(2, 1, Math.max(rows.length, 1), 1), '@');     // THANG phải là văn bản, không bị đổi thành ngày
+  fmt_(reg.getRange(2, 4, Math.max(rows.length, 1), 1), '0');
   if (rows.length) reg.getRange(2, 1, rows.length, 4).setValues(rows);
   if (prevLast > rows.length + 1) reg.getRange(rows.length + 2, 1, prevLast - rows.length - 1, 4).clearContent();
 }
