@@ -2709,6 +2709,15 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
 #dpModal .dp-hidden{display:none!important}
 #dpModal .dp-foot{text-align:center;color:var(--dp-muted);font-size:12px;margin-top:14px}
 body.dp-lock{overflow:hidden}
+/* Gọn: cửa sổ nhỏ hơn, không hiện bảng xem trước */
+#dpModal .dp-preview-off{display:none!important}
+#dpModal .dp-panel{width:min(880px,100%)}
+#dpModal .dp-top{padding:14px 18px 48px}
+#dpModal .dp-body{padding:0 16px 16px;margin-top:-38px}
+#dpModal .dp-steps{margin-bottom:12px}#dpModal .dp-step{padding:7px 10px}
+#dpModal .dp-grid{gap:12px;margin-bottom:12px}
+#dpModal .dp-drop{padding:16px 12px}
+#dpModal .dp-kpis{gap:8px;margin-bottom:0}#dpModal .dp-kpi{padding:9px 11px}#dpModal .dp-kpi b{font-size:17px}#dpModal .dp-kpi small{font-size:11px}
 @media (max-width:1050px){#dpModal .dp-kpis{grid-template-columns:repeat(2,1fr)}#dpModal .dp-grid{grid-template-columns:1fr}}
 @media (max-width:640px){#dpModal{padding:0}#dpModal .dp-panel{border-radius:0;min-height:100%}#dpModal .dp-top{padding:16px 16px 56px}#dpModal .dp-body{padding:0 12px 16px}#dpModal .dp-steps{grid-template-columns:1fr}#dpModal .dp-search{min-width:0;width:100%}}
 </style>
@@ -2783,7 +2792,7 @@ body.dp-lock{overflow:hidden}
     <div class="dp-card dp-kpi" style="--c:var(--dp-gold)"><small>Tỷ lệ thực tế chung (Đã nộp ÷ Khai báo)</small><b id="dpKRate">—</b><div class="dp-bar"><div id="dpKRateBar" style="width:0"></div></div></div>
    </section>
 
-   <section class="dp-card">
+   <section class="dp-card dp-preview-off" hidden>
     <div class="dp-tbl-head">
      <h3>Xem trước dữ liệu</h3>
      <div class="dp-seg" id="dpSeg">
