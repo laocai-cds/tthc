@@ -12,26 +12,33 @@
  *   URL /exec giữ nguyên.)
  */
 
-const SPREADSHEET_ID = '1VzWQk2y2NeFxLQ66HNFMTT-o8qDONQlnwqVN-znJADY';
-const SHEET_GID = 1183037062;          // tab nhận dữ liệu (gid trong URL)
-const FALLBACK_SHEET_NAME = 'Sheet1';
+const SPREADSHEET_ID = '1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-M1AGkWO4g';   // bảng mà trang web đọc (đối chiếu với script đang chạy!)
+const SHEET_GID = 193289320;           // tab tháng đầu tiên (Thang10) – chỉ dùng làm mẫu bố cục khi tạo tab tháng mới
+const FALLBACK_SHEET_NAME = 'Thang10';
 const LOG_SHEET_NAME = 'Nhật ký đồng bộ';
 const TZ = 'Asia/Ho_Chi_Minh';
 const NCOL = 14;
 const MAX_ROWS = 3000;
-const LAYOUT_VERSION = '2';
-const REGISTRY_SHEET_NAME = 'DANH MUC THANG';   // danh mục các tháng đã chốt (THANG | TEN TAB | CAP NHAT)
-const MONTH_STAMP_COL = NCOL + 2;                 // cột P: đóng dấu tháng của dữ liệu đang nằm ở tab nhận dữ liệu
-const SCRIPT_VERSION = 5;
+const REGISTRY_SHEET_NAME = 'DANH MUC THANG';   // danh mục tab tháng (THANG yyyy-MM | TEN TAB | CAP NHAT)
+const BASE_YEAR = 2026;                          // năm của tab "Thang{M}"; năm khác → "Thang{M}_{YYYY}"
+const SCRIPT_VERSION = 6;
 
-/* ---------------- Tháng ----------------
- * Tab nhận dữ liệu (gid SHEET_GID, "Sheet1") luôn là THÁNG HIỆN TẠI (giờ Việt Nam) – Excel đồng bộ thẳng vào đây.
- * Khi sang tháng mới, lần đồng bộ đầu tiên tự sao lưu dữ liệu tháng trước sang tab "T{MM}-{YYYY}" (chỉ xem)
- * và ghi vào danh mục tháng, rồi mới ghi đè tab nhận dữ liệu bằng số liệu tháng mới. */
+/* ---------------- Mỗi tháng một tab ----------------
+ * Excel luôn đồng bộ vào tab của THÁNG HIỆN TẠI (giờ Việt Nam): Thang10, Thang11, ...
+ * Lần đồng bộ đầu tiên của tháng mới tự tạo tab (sao chép bố cục/định dạng của tab tháng gần nhất),
+ * rồi cập nhật danh mục tháng. Tab các tháng trước không bị đụng tới nữa (chỉ xem). */
 function monthKey_(d) { return Utilities.formatDate(d || new Date(), TZ, 'yyyy-MM'); }
-function monthTab_(key) { return 'T' + key.slice(5) + '-' + key.slice(0, 4); }
+function monthTab_(key) {
+  const y = Number(key.slice(0, 4)), m = Number(key.slice(5));
+  return 'Thang' + m + (y === BASE_YEAR ? '' : '_' + y);
+}
+function parseMonthTab_(name) {
+  const m = /^Thang(\d{1,2})(?:_(\d{4}))?$/.exec(String(name));
+  if (!m || Number(m[1]) < 1 || Number(m[1]) > 12) return null;
+  return (m[2] ? m[2] : String(BASE_YEAR)) + '-' + ('0' + m[1]).slice(-2);
+}
 
-const HEADER_1 = ['STT', 'Tên đơn vị', 'Đảng viên', '', '', '', '', 'Hồ sơ đảng phí', '', '', '', 'Số tiền', '', 'Tỉ lệ (8/(2+3-4-5))'];
+const HEADER_1 = ['STT', 'Tên đơn vị', 'Đảng viên', '', '', '', '', 'Hồ sơ đảng phí', '', '', '', 'Số tiền', '', ''];
 const HEADER_2 = ['', '',
   'Tổng sl đảng viên (1)',
   'Số lượng ĐV sinh hoạt chính thức (2)',
@@ -44,7 +51,7 @@ const HEADER_2 = ['', '',
   'Số đảng viên chưa có hồ sơ (9)',
   'Tổng tiền theo hồ sơ đã khai báo',
   'Tổng tiền đã nộp',
-  ''];
+  'Tỷ lệ hoàn thành\n đảng phí thực tế'];
 
 /* ---------------- HTTP ---------------- */
 
@@ -145,11 +152,9 @@ function sync_(data) {
   if (!lock.tryLock(20000)) throw new Error('Hệ thống đang bận, vui lòng thử lại.');
   try {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sh = getTargetSheet_(ss);
     const props = PropertiesService.getScriptProperties();
-
-    // 0) Sang tháng mới: sao lưu số liệu tháng trước trước khi bị ghi đè
-    rolloverIfNeeded_(ss, sh, props, nowKey);
+    // 0) Tab của tháng hiện tại (tự tạo nếu là tháng mới) – các tháng trước không bị ghi đè
+    const sh = monthSheet_(ss, nowKey);
 
     // 1) Tiêu đề + dữ liệu ghi bằng MỘT lệnh
     const block = [HEADER_1, HEADER_2].concat(clean);
@@ -157,19 +162,14 @@ function sync_(data) {
     sh.getRange(1, 1, block.length, NCOL).setValues(block);
     // 2) Xóa phần dư nếu file mới ít dòng hơn
     if (oldLast > block.length) sh.getRange(block.length + 1, 1, oldLast - block.length, NCOL).clearContent();
-    // 3) Định dạng, gộp ô: chỉ làm lần đầu (hoặc khi đổi phiên bản bố cục)
-    if (props.getProperty('LAYOUT_V') !== LAYOUT_VERSION) {
-      applyLayout_(sh);
-      props.setProperty('LAYOUT_V', LAYOUT_VERSION);
-    }
-
-    // Đóng dấu tháng của dữ liệu (ô P1) để trang web biết số liệu thuộc tháng nào
-    sh.getRange(1, MONTH_STAMP_COL).setNumberFormat('@').setValue(nowKey);
-    props.setProperty('LAST_SYNC_MONTH', nowKey);
+    // 3) Chỉ khi phải tạo tab trống (không có tab mẫu) mới dựng bố cục từ đầu
+    if (NEW_BLANK_TABS_[sh.getName()]) { applyLayout_(sh); delete NEW_BLANK_TABS_[sh.getName()]; }
+    updateRegistry_(ss, nowKey);
 
     const at = new Date();
     const meta = {
       month: nowKey,
+      tab: sh.getName(),
       syncId: String(data.syncId || ''),
       updatedAt: at.toISOString(),
       updatedAtText: Utilities.formatDate(at, TZ, 'dd/MM/yyyy HH:mm:ss'),
@@ -185,62 +185,69 @@ function sync_(data) {
   }
 }
 
-/** Sao lưu tab nhận dữ liệu sang tab tháng (idempotent: không ghi đè tab đã có). */
-function rolloverIfNeeded_(ss, sh, props, nowKey) {
-  let last = props.getProperty('LAST_SYNC_MONTH');
-  if (!last) {
-    // Lần đầu sau khi nâng cấp: suy ra tháng của dữ liệu đang nằm trong bảng từ lần đồng bộ trước
-    try { const raw = props.getProperty('LAST_SYNC'); if (raw) last = monthKey_(new Date(JSON.parse(raw).updatedAt)); } catch (_) {}
-  }
-  if (!last || last >= nowKey) return;
-  archiveMonth_(ss, sh, last);
-}
+const NEW_BLANK_TABS_ = {};
 
-function archiveMonth_(ss, sh, key) {
+/** Tab của tháng `key`; chưa có thì tạo từ tab tháng gần nhất để giữ nguyên bố cục + định dạng. */
+function monthSheet_(ss, key) {
   const name = monthTab_(key);
-  let tab = ss.getSheetByName(name);
-  if (!tab) {
-    tab = sh.copyTo(ss);
-    tab.setName(name);
-    tab.getRange(1, MONTH_STAMP_COL).setNumberFormat('@').setValue(key);
-    try { tab.protect().setWarningOnly(true).setDescription('Tháng đã chốt – chỉ xem'); } catch (_) {}
+  let sh = ss.getSheetByName(name);
+  if (sh) return sh;
+  const src = templateSheet_(ss, key);
+  if (src) {
+    sh = src.copyTo(ss);
+    sh.setName(name);
+    const last = sh.getLastRow();
+    if (last > 2) sh.getRange(3, 1, last - 2, NCOL).clearContent();    // giữ 2 dòng tiêu đề
+  } else {
+    sh = ss.insertSheet(name);
+    NEW_BLANK_TABS_[name] = true;
   }
-  const reg = registrySheet_(ss);
-  const keys = reg.getLastRow() > 1 ? reg.getRange(2, 1, reg.getLastRow() - 1, 1).getDisplayValues().map(r => String(r[0]).trim()) : [];
-  const stamp = Utilities.formatDate(new Date(), TZ, 'dd/MM/yyyy HH:mm:ss');
-  const i = keys.indexOf(key);
-  if (i >= 0) { reg.getRange(i + 2, 2, 1, 2).setValues([[name, stamp]]); }
-  else {
-    const r = reg.getLastRow() + 1;
-    reg.getRange(r, 1).setNumberFormat('@').setValue(key);
-    reg.getRange(r, 2, 1, 2).setValues([[name, stamp]]);
-  }
-  SpreadsheetApp.flush();
+  try { ss.setActiveSheet(sh); ss.moveActiveSheet(1); } catch (_) {}      // tab tháng mới nhất đứng đầu
+  return sh;
 }
 
-function registrySheet_(ss) {
+function templateSheet_(ss, key) {
+  const prior = ss.getSheets()
+    .map(s => ({ s, k: parseMonthTab_(s.getName()) }))
+    .filter(x => x.k && x.k < key)
+    .sort((a, b) => (a.k < b.k ? 1 : -1));
+  if (prior.length) return prior[0].s;
+  const byGid = ss.getSheets().filter(s => s.getSheetId() === SHEET_GID)[0];
+  return byGid || ss.getSheetByName(FALLBACK_SHEET_NAME) || null;
+}
+
+/** Dựng lại danh mục tháng từ tên các tab "Thang{M}"; giữ nguyên giờ cập nhật cũ, đặt giờ mới cho tháng đang đồng bộ. */
+function updateRegistry_(ss, nowKey) {
   let reg = ss.getSheetByName(REGISTRY_SHEET_NAME);
+  const old = {};
+  if (reg && reg.getLastRow() > 1) {
+    reg.getRange(2, 1, reg.getLastRow() - 1, 3).getDisplayValues().forEach(r => { old[String(r[0]).trim()] = String(r[2]); });
+  }
   if (!reg) {
     reg = ss.insertSheet(REGISTRY_SHEET_NAME);
     reg.getRange(1, 1, 1, 3).setValues([['THANG', 'TEN TAB', 'CAP NHAT']]).setFontWeight('bold').setBackground('#eef3fb');
-    reg.getRange(2, 1, reg.getMaxRows() - 1, 1).setNumberFormat('@');
     reg.setFrozenRows(1);
   }
-  return reg;
+  const stamp = Utilities.formatDate(new Date(), TZ, 'dd/MM/yyyy HH:mm:ss');
+  const rows = ss.getSheets().map(s => ({ k: parseMonthTab_(s.getName()), n: s.getName() })).filter(x => x.k)
+    .sort((a, b) => (a.k < b.k ? -1 : 1))
+    .map(x => [x.k, x.n, x.k === nowKey ? stamp : (old[x.k] || '')]);
+  const prevLast = reg.getLastRow();
+  reg.getRange(2, 1, Math.max(rows.length, 1), 1).setNumberFormat('@');
+  if (rows.length) reg.getRange(2, 1, rows.length, 3).setValues(rows);
+  if (prevLast > rows.length + 1) reg.getRange(rows.length + 2, 1, prevLast - rows.length - 1, 3).clearContent();
 }
 
-/** Chạy tay khi cần: sao lưu số liệu hiện có thành tab tháng (vd: archiveMonthManually('2026-09')). */
-function archiveMonthManually(key) {
-  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(String(key || ''))) throw new Error('Tháng phải có dạng yyyy-MM, ví dụ 2026-09.');
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  archiveMonth_(ss, getTargetSheet_(ss), key);
+/** Chạy tay một lần để dựng danh mục từ các tab tháng đang có (Thang10, Thang9, …). */
+function rebuildMonthRegistry() {
+  updateRegistry_(SpreadsheetApp.openById(SPREADSHEET_ID), monthKey_());
 }
 
 /** Bố cục cố định: gộp ô tiêu đề, định dạng số cho cả cột. Chạy 1 lần. */
 function applyLayout_(sh) {
   const maxRows = sh.getMaxRows();
   sh.getRange(1, 1, 2, NCOL).breakApart();
-  ['A1:A2', 'B1:B2', 'C1:G1', 'H1:K1', 'L1:M1', 'N1:N2'].forEach(a => sh.getRange(a).merge());
+  ['A1:A2', 'B1:B2', 'C1:G1', 'H1:K1', 'L1:M1'].forEach(a => sh.getRange(a).merge());
   sh.getRange(1, 1, 2, NCOL).setFontWeight('bold').setWrap(true)
     .setHorizontalAlignment('center').setVerticalAlignment('middle').setBackground('#eef3fb');
   const rest = maxRows - 2;
@@ -249,18 +256,11 @@ function applyLayout_(sh) {
   sh.setFrozenRows(2);
 }
 
-function getTargetSheet_(ss) {
-  const byGid = ss.getSheets().filter(s => s.getSheetId() === SHEET_GID)[0];
-  const sh = byGid || ss.getSheetByName(FALLBACK_SHEET_NAME);
-  if (!sh) throw new Error('Không tìm thấy trang tính đích (gid ' + SHEET_GID + ').');
-  return sh;
-}
-
 function writeLog_(ss, meta) {
   let log = ss.getSheetByName(LOG_SHEET_NAME);
   if (!log) {
     log = ss.insertSheet(LOG_SHEET_NAME);
-    log.appendRow(['Thời gian', 'Tên file', 'Số đơn vị', 'Tổng ĐV', 'ĐV đã nộp (8)', 'Tổng tiền khai báo', 'Tổng tiền đã nộp', 'Tỉ lệ chung (%)', 'Mã đồng bộ']);
+    log.appendRow(['Thời gian', 'Tên file', 'Số đơn vị', 'Tổng ĐV', 'ĐV đã nộp (8)', 'Tổng tiền khai báo', 'Tổng tiền đã nộp', 'Tỷ lệ thực tế chung (%)', 'Mã đồng bộ']);
     log.getRange(1, 1, 1, 9).setFontWeight('bold').setBackground('#eef3fb');
     log.setFrozenRows(1);
   }
@@ -274,11 +274,11 @@ function getStatus_() {
   const raw = props.getProperty('LAST_SYNC'), err = props.getProperty('LAST_ERROR');
   return { last: raw ? JSON.parse(raw) : null, lastError: err ? JSON.parse(err) : null,
            tokenConfigured: !!props.getProperty('SYNC_TOKEN'), version: SCRIPT_VERSION,
-           currentMonth: monthKey_(), dataMonth: props.getProperty('LAST_SYNC_MONTH') || '' };
+           currentMonth: monthKey_(), currentTab: monthTab_(monthKey_()) };
 }
 
 /** Chạy thử trong trình soạn thảo để cấp quyền lần đầu. */
 function testAuthorize() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  Logger.log('Trang tính đích: ' + getTargetSheet_(ss).getName());
+  Logger.log('Tab tháng hiện tại sẽ ghi vào: ' + monthTab_(monthKey_()) + (ss.getSheetByName(monthTab_(monthKey_())) ? ' (đã có)' : ' (sẽ tự tạo)'));
 }

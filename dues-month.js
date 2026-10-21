@@ -1,13 +1,15 @@
 /*
  * DuesMonth – chọn tháng + lũy kế cho phần Thu nộp đảng phí.
  *
- * Nguồn dữ liệu (Google Sheet 1N8o54EO…):
- *  - Sheet1 (gid 193289320)  = THÁNG HIỆN TẠI, Excel đồng bộ thẳng vào đây (thời gian thực).
- *  - Tab "T{MM}-{YYYY}"      = tháng đã chốt (Apps Script tự sao lưu khi sang tháng), chỉ đọc.
- *  - Tab "DANH MUC THANG"    = danh sách tháng đã chốt (cột THANG | TEN TAB | CAP NHAT).
+ * Nguồn dữ liệu (Google Sheet 1N8o54EO…): MỖI THÁNG MỘT TAB, tên "Thang{M}" (Thang10, Thang11, …;
+ * năm khác 2026 thì "Thang{M}_{YYYY}"), cùng một bố cục 14 cột, 2 dòng tiêu đề.
+ *  - Tab "DANH MUC THANG" liệt kê các tab tháng (cột THANG yyyy-MM | TEN TAB | CAP NHAT).
+ *  - Excel luôn đồng bộ vào tab của THÁNG HIỆN TẠI (giờ Việt Nam); các tab tháng trước chỉ xem.
+ *  - Chưa có tab của tháng hiện tại (đầu tháng, Excel chưa đồng bộ) → hiển thị tab gần nhất kèm cảnh báo.
+ *  - Không đọc được danh mục → dùng tab gid 193289320 như trước đây (tương thích ngược).
  *
  * Quy tắc:
- *  - Chỉ tháng hiện tại (giờ Việt Nam) được tự làm mới mỗi phút; tháng đã chốt chỉ tải một lần.
+ *  - Chỉ tháng hiện tại được tự làm mới mỗi phút; tháng đã chốt chỉ tải một lần.
  *  - Lũy kế đến tháng K = cộng dồn hai cột tiền (khai báo, đã nộp) của các tháng từ đầu năm đến K;
  *    các cột còn lại (số đảng viên, hồ sơ, tỷ lệ) lấy theo tháng K.
  */
@@ -78,8 +80,9 @@
   }
 
   /* ---------- Trạng thái ---------- */
-  let archives = [];                      // [{key, tab}] các tháng đã chốt, mới nhất trước
-  const state = { month: currentKey(), mode: 'month' };
+  let months = [];                        // [{key, tab}] các tab tháng trong danh mục, mới nhất trước
+  let registryOk = false;                 // đã đọc được danh mục hợp lệ
+  const state = { month: currentKey(), mode: 'month', stale: null };
   try {
     const saved = JSON.parse(sessionStorage.getItem(SS_KEY) || 'null');
     if (saved && validKey(saved.month) && saved.month <= currentKey()) {
@@ -89,13 +92,24 @@
 
   const isCurrent = (k) => (k || state.month) === currentKey();
   const live = () => isCurrent();         // chỉ tháng hiện tại (hoặc lũy kế gồm tháng hiện tại) được tự làm mới
-  const tabOf = k => { const a = archives.find(x => x.key === k); return a ? a.tab : null; };
-  const available = () => [currentKey()].concat(archives.map(a => a.key).filter(k => k !== currentKey()))
+  const tabOf = k => { const a = months.find(x => x.key === k); return a ? a.tab : null; };
+  const available = () => [currentKey()].concat(months.map(a => a.key).filter(k => k !== currentKey()))
     .sort((a, b) => (a < b ? 1 : -1));
+  /** Nguồn thực sự đọc cho tháng k: {spec, staleKey}. staleKey != null khi chưa có tab của tháng hiện tại. */
+  function sourceFor(k) {
+    const t = tabOf(k);
+    if (t) return { spec: { tab: t }, staleKey: null };
+    if (k !== currentKey()) return { spec: { tab: null }, staleKey: null };
+    if (!registryOk) return { spec: {}, staleKey: null };                  // tương thích ngược: tab gid cũ
+    const prev = months.filter(x => x.key < k)[0];                        // mới nhất trước tháng hiện tại
+    return prev ? { spec: { tab: prev.tab }, staleKey: prev.key } : { spec: {}, staleKey: null };
+  }
+  const staleNow = () => (state.month === currentKey() ? sourceFor(state.month).staleKey : null);
 
   function normalizeState() {
     const cur = currentKey();
     if (!validKey(state.month) || state.month > cur || (state.month !== cur && !tabOf(state.month))) state.month = cur;
+    state.stale = staleNow();
   }
   function emit() {
     try { sessionStorage.setItem(SS_KEY, JSON.stringify(state)); } catch (_) {}
@@ -142,35 +156,28 @@
       sc.src = gvizUrl(spec, cb); sc.async = true; document.head.appendChild(sc);
     });
   }
-  const specFor = k => (k === currentKey() ? {} : { tab: tabOf(k) });
+  const specFor = k => sourceFor(k).spec;
+  const specId = sp => (sp && sp.tab) || 'gid';
 
   async function cumulativePayload(snap) {
     const year = snap.month.slice(0, 4);
     const keys = available().filter(k => k.slice(0, 4) === year && k <= snap.month);
     if (!keys.includes(snap.month)) keys.unshift(snap.month);
-    const results = await Promise.all(keys.map(k => fetchTab(specFor(k)).then(p => ({ k, p }))));
-    const base = results.find(r => r.k === snap.month).p;
-    return mergeCumulative(base, results.filter(r => r.k !== snap.month).map(r => r.p));
+    const uniq = new Map();                                   // tránh cộng trùng khi tháng hiện tại đang dùng tab tháng trước
+    keys.forEach(k => { const sp = specFor(k), id = specId(sp); if (!uniq.has(id) || k === snap.month) uniq.set(id, { k, sp }); });
+    const baseId = specId(specFor(snap.month));
+    const entries = [...uniq.entries()];
+    const results = await Promise.all(entries.map(([id, e]) => fetchTab(e.sp).then(p => ({ id, p }))));
+    const base = results.find(r => r.id === baseId).p;
+    return mergeCumulative(base, results.filter(r => r.id !== baseId).map(r => r.p));
   }
 
   /**
    * Các trình đọc cũ gọi hàm này thay cho `script.src = …gviz…`.
    * Chế độ tháng: trả về đúng URL gviz của tab tương ứng. Chế độ lũy kế: gộp nhiều tab rồi gọi window[cb].
    */
-  function noteStamp(payload) {
-    // Ô P1 do Apps Script đóng dấu tháng của số liệu đang nằm ở tab nhận dữ liệu.
-    const cols = (payload && payload.table && payload.table.cols) || [];
-    const hit = cols.map(c => String((c && (c.label || c.id)) || '').trim()).find(l => /^\d{4}-(0[1-9]|1[0-2])$/.test(l));
-    const stale = hit && hit < currentKey() ? hit : null;
-    if (stale !== state.stale) { state.stale = stale; renderBars(); }
-  }
-
   function attach(script, cb) {
     const snap = { month: state.month, mode: state.mode };
-    if (snap.month === currentKey() && typeof root[cb] === 'function') {
-      const orig = root[cb];
-      root[cb] = function (p) { try { noteStamp(p); } catch (_) {} return orig.apply(this, arguments); };
-    }
     if (snap.mode === 'month') { script.src = gvizUrl(specFor(snap.month), cb); return; }
     script.src = 'data:text/javascript;charset=utf-8,0';      // script rỗng để phần còn lại của trình đọc chạy bình thường
     cumulativePayload(snap).then(p => {
@@ -184,18 +191,20 @@
       const p = await fetchTab({ tab: REGISTRY_TAB, headers: 1 }, 15000);
       const first = norm((p.table.cols && p.table.cols[0] && (p.table.cols[0].label || p.table.cols[0].id)) || '');
       // Nếu chưa có tab danh mục, gviz trả về tab đầu tiên → nhãn cột khác "thang".
-      const rows = first === 'thang'
+      const valid = first === 'thang';
+      const rows = valid
         ? (p.table.rows || []).map(r => r.c || []).map(c => ({
             key: String(c[0] && (c[0].v != null ? c[0].v : c[0].f) || '').trim(),
             tab: String(c[1] && (c[1].v != null ? c[1].v : c[1].f) || '').trim()
-          })).filter(x => validKey(x.key) && x.tab && x.key < currentKey())
+          })).filter(x => validKey(x.key) && x.tab && x.key <= currentKey())
         : [];
       rows.sort((a, b) => (a.key < b.key ? 1 : -1));
-      const same = JSON.stringify(rows) === JSON.stringify(archives);
-      archives = rows;
-      const beforeMonth = state.month;
+      const ok = valid && rows.length > 0;
+      const same = ok === registryOk && JSON.stringify(rows) === JSON.stringify(months);
+      months = rows; registryOk = ok;
+      const before = state.month + '|' + state.stale;
       normalizeState();
-      if (!same || beforeMonth !== state.month) { renderBars(); if (beforeMonth !== state.month) emit(); }
+      if (!same || before !== state.month + '|' + state.stale) emit();
     } catch (_) { /* giữ danh mục cũ */ }
   }
 
@@ -258,7 +267,7 @@
     }
     refreshLabels();
     loadRegistry();
-    setInterval(() => { if (!document.hidden) loadRegistry(); }, REGISTRY_REFRESH_MS);
+    (function tick() { setTimeout(() => { if (!document.hidden) loadRegistry(); tick(); }, state.stale ? 60 * 1000 : REGISTRY_REFRESH_MS); })();
     setInterval(refreshLabels, 30 * 1000);
     // Sang tháng mới khi trang vẫn mở: quay về tháng hiện tại mới.
     let lastCur = currentKey();
@@ -270,7 +279,7 @@
 
   root.DuesMonth = {
     state, live, isCurrent, currentKey, labelOf, periodLabel, fullLabel, attach, mount, set,
-    mergeCumulative, available, _setArchives: a => { archives = a; }
+    mergeCumulative, available, _setMonths: (a, ok) => { months = a; registryOk = ok !== false; normalizeState(); }, sourceFor
   };
 
   if (typeof document !== 'undefined') {
