@@ -93,16 +93,19 @@
   const isCurrent = (k) => (k || state.month) === currentKey();
   const live = () => isCurrent();         // chỉ tháng hiện tại (hoặc lũy kế gồm tháng hiện tại) được tự làm mới
   const tabOf = k => { const a = months.find(x => x.key === k); return a ? a.tab : null; };
+  const hasData = k => { const m = months.find(x => x.key === k); return !!m && m.count !== 0; };   // count null = chưa rõ → coi là có
+  // Tất cả các tháng trong danh mục (kể cả tháng trống / chưa đến) + tháng hiện tại, cũ → mới
   const available = () => [currentKey()].concat(months.map(a => a.key).filter(k => k !== currentKey()))
-    .sort((a, b) => (a < b ? 1 : -1));
+    .sort((a, b) => (a < b ? -1 : 1));
   /** Nguồn thực sự đọc cho tháng k: {spec, staleKey}. staleKey != null khi chưa có tab của tháng hiện tại. */
   function sourceFor(k) {
     const t = tabOf(k);
-    if (t) return { spec: { tab: t }, staleKey: null };
-    if (k !== currentKey()) return { spec: { tab: null }, staleKey: null };
+    if (t && hasData(k)) return { spec: { tab: t }, staleKey: null };
+    if (k !== currentKey()) return t ? { spec: { tab: t }, staleKey: null } : { spec: { tab: null }, staleKey: null };
     if (!registryOk) return { spec: {}, staleKey: null };                  // tương thích ngược: tab gid cũ
-    const prev = months.filter(x => x.key < k)[0];                        // mới nhất trước tháng hiện tại
-    return prev ? { spec: { tab: prev.tab }, staleKey: prev.key } : { spec: {}, staleKey: null };
+    const prev = months.filter(x => x.key < k && hasData(x.key)).sort((a, b) => (a.key < b.key ? 1 : -1))[0];   // mới nhất trước tháng hiện tại có số liệu
+    if (prev) return { spec: { tab: prev.tab }, staleKey: prev.key };
+    return t ? { spec: { tab: t }, staleKey: null } : { spec: {}, staleKey: null };
   }
   const staleNow = () => (state.month === currentKey() ? sourceFor(state.month).staleKey : null);
 
@@ -161,11 +164,15 @@
 
   async function cumulativePayload(snap) {
     const year = snap.month.slice(0, 4);
-    const keys = available().filter(k => k.slice(0, 4) === year && k <= snap.month);
-    if (!keys.includes(snap.month)) keys.unshift(snap.month);
+    const sel = sourceFor(snap.month);
+    const selEmpty = !hasData(snap.month) && !sel.staleKey;           // tháng đang chọn trống: lấy tháng gần nhất có số liệu làm nền
+    let keys = available().filter(k => k.slice(0, 4) === year && k <= snap.month && (hasData(k) || k === snap.month));
+    if (selEmpty && keys.length > 1) keys = keys.filter(k => k !== snap.month);
+    if (!keys.length) keys = [snap.month];
+    const baseKey = keys.includes(snap.month) ? snap.month : keys[keys.length - 1];
     const uniq = new Map();                                   // tránh cộng trùng khi tháng hiện tại đang dùng tab tháng trước
-    keys.forEach(k => { const sp = specFor(k), id = specId(sp); if (!uniq.has(id) || k === snap.month) uniq.set(id, { k, sp }); });
-    const baseId = specId(specFor(snap.month));
+    keys.forEach(k => { const sp = specFor(k), id = specId(sp); if (!uniq.has(id) || k === baseKey) uniq.set(id, { k, sp }); });
+    const baseId = specId(specFor(baseKey));
     const entries = [...uniq.entries()];
     const results = await Promise.all(entries.map(([id, e]) => fetchTab(e.sp).then(p => ({ id, p }))));
     const base = results.find(r => r.id === baseId).p;
@@ -198,8 +205,8 @@
             tab: String(c[1] && (c[1].v != null ? c[1].v : c[1].f) || '').trim(),
             // Cột D "SO DON VI" = số đơn vị đang có trong tab (công thức COUNT); thiếu cột D → coi là có dữ liệu
             count: c[3] && typeof c[3].v === 'number' ? c[3].v : null
-          })).filter(x => validKey(x.key) && x.tab && x.key <= currentKey() && (x.count == null || x.count > 0))
-            .map(x => ({ key: x.key, tab: x.tab }))
+          })).filter(x => validKey(x.key) && x.tab)
+            .map(x => ({ key: x.key, tab: x.tab, count: x.count }))
         : [];
       rows.sort((a, b) => (a.key < b.key ? 1 : -1));
       const ok = valid && rows.length > 0;
@@ -232,8 +239,11 @@
   }
   function barHtml() {
     const cur = currentKey();
-    const opts = available().map(k => '<option value="' + k + '"' + (k === state.month ? ' selected' : '') + '>' +
-      labelOf(k) + (k === cur ? ' (hiện tại)' : '') + '</option>').join('');
+    const opts = available().map(k => {
+      const future = k > cur, empty = !future && k !== cur && !hasData(k);
+      return '<option value="' + k + '"' + (k === state.month ? ' selected' : '') + (future ? ' disabled' : '') + '>' +
+        labelOf(k) + (k === cur ? ' (hiện tại)' : future ? ' (chưa đến)' : empty ? ' (chưa có dữ liệu)' : '') + '</option>';
+    }).join('');
     const badge = live() && state.stale
       ? '<span class="dm-badge stale" title="Excel của tháng hiện tại chưa được đồng bộ">Chưa có số liệu ' + labelOf(cur) + ' – đang hiển thị ' + labelOf(state.stale) + '</span>'
       : live()
@@ -276,7 +286,7 @@
 
   root.DuesMonth = {
     state, live, isCurrent, currentKey, labelOf, periodLabel, fullLabel, attach, mount, set,
-    mergeCumulative, available, _setMonths: (a, ok) => { months = a; registryOk = ok !== false; normalizeState(); }, sourceFor
+    mergeCumulative, available, hasData, _setMonths: (a, ok) => { months = a; registryOk = ok !== false; normalizeState(); }, sourceFor
   };
 
   if (typeof document !== 'undefined') {
