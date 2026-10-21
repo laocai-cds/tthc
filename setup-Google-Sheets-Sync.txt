@@ -34,3 +34,9 @@ THU NOP DANG PHI – MOI THANG MOT TAB (bang 1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-
 - Lũy kế đến tháng K = cộng dồn hai cột tiền của các tháng từ đầu năm đến K; các cột khác lấy theo tháng K.
 - Có dữ liệu tháng cũ (vd Thang9)? Dán số liệu vào tab "Thang9" từ dòng 3 (cột A = STT): tháng đó tự hiện trên trang nhờ SO DON VI > 0.
 - Code.gs (v4) = bản Apps Script "Input DangPhi" đang chạy (v3) + chia tab theo tháng. Dán đè, rồi Triển khai → Quản lý bản triển khai → Sửa → Phiên bản mới (URL /exec giữ nguyên).
+
+TAB "LUY KE" (trong bảng tính 1N8o54EO…) – lũy kế ngay trên Google Sheet, hoàn toàn bằng công thức
+- Ô C2 = tháng K (mặc định tự lấy tháng gần nhất có số liệu; nhập 1–12 để xem tháng khác).
+- Hai cột tiền (L, M) = cộng dồn Thang1 … ThangK theo tên đơn vị (SUMIF); các cột còn lại lấy từ ThangK. Tỷ lệ = Đã nộp ÷ Khai báo.
+- Dòng 5 = tổng cộng. Tối đa 120 đơn vị (dòng 6–125). Công thức dùng dấu ";" vì bảng tính ở ngôn ngữ Việt.
+- Không chạy qua Apps Script nên không bị ảnh hưởng khi đồng bộ Excel.
