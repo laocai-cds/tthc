@@ -261,13 +261,7 @@
 
   function init() {
     injectStyle();
-    const card = document.getElementById('top3Dues');
-    if (card && !card.querySelector('.dues-month-bar')) {
-      const head = card.querySelector('.top3-dues-head');
-      const el = document.createElement('div'); el.className = 'dues-month-bar';
-      if (head) head.after(el); else card.prepend(el);
-      bars.add(el); renderBar(el);
-    }
+    // Thanh chọn tháng chỉ nằm trong cửa sổ "Xem chi tiết" (bảng tổng hợp); thẻ Top 03 không có thanh này.
     refreshLabels();
     loadRegistry();
     (function tick() { setTimeout(() => { if (!document.hidden) loadRegistry(); tick(); }, state.stale ? 60 * 1000 : REGISTRY_REFRESH_MS); })();
