@@ -1696,8 +1696,9 @@ tbody tr:hover{filter:brightness(1.04);background:linear-gradient(90deg,#fff1ee,
 @media(hover:none){.panel:hover,.card:hover,.leaderboard:hover,.mini:hover{transform:none}}
 </style>
 
+<script src="dues-month.js?v=20261021a"></script>
 <script id="top3-dues-script">
-(function(){const sheetId='1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-M1AGkWO4g',gid='193289320',list=document.getElementById('top3DuesList'),status=document.getElementById('top3DuesStatus'),button=document.getElementById('top3DuesRefresh');const number=value=>{if(typeof value==='number')return value;const parsed=Number(String(value??'').replace(/[^0-9,.-]/g,'').replace(/\.(?=\d{3}(?:\D|$))/g,'').replace(',','.'));return Number.isFinite(parsed)?parsed:0};function sync(){if(button)button.disabled=true;status.classList.remove('error');status.textContent='Đang tải dữ liệu mới nhất từ Google Sheets…';const callback='__top3Dues_'+Date.now()+'_'+Math.random().toString(36).slice(2),script=document.createElement('script');let finished=false;const timer=setTimeout(()=>finish(new Error('Google Sheets không phản hồi.')),20000);function finish(error,payload){if(finished)return;finished=true;clearTimeout(timer);delete window[callback];script.remove();if(button)button.disabled=false;if(error){status.classList.add('error');status.textContent='Chưa tải được dữ liệu Google Sheets. Hãy kiểm tra quyền xem của bảng rồi đồng bộ lại.';return}try{const rows=payload?.table?.rows||[],records=rows.map(row=>{const cells=row.c||[],unit=String(cells[1]?.f??cells[1]?.v??'').trim(),rawRate=cells[13]?.f??cells[13]?.v;let rate=number(rawRate);return{unit,rate,hasRate:rawRate!==undefined&&rawRate!==null&&rawRate!==''}}).filter(r=>r.unit&&r.hasRate&&Number.isFinite(r.rate)&&!/^(tổng|cộng|grand total)$/i.test(r.unit));records.sort((a,b)=>b.rate-a.rate||a.unit.localeCompare(b.unit,'vi'));const top=records.slice(0,3);list.replaceChildren();if(!top.length){status.textContent='Google Sheets chưa có đơn vị có dữ liệu ở cột “Tỉ lệ”.';return}top.forEach((record,index)=>{const item=document.createElement('div'),medal=document.createElement('span'),copy=document.createElement('div'),name=document.createElement('span'),score=document.createElement('span');item.className='top3-dues-item';medal.className='top3-dues-medal';medal.textContent=String(index+1).padStart(2,'0');copy.className='top3-dues-copy';name.className='top3-dues-name';name.textContent=record.unit;name.title=record.unit;score.className='top3-dues-score';score.textContent=record.rate.toLocaleString('vi-VN',{maximumFractionDigits:2})+'% hoàn thành';copy.append(name,score);item.append(medal,copy);list.appendChild(item)});status.textContent='Cập nhật lúc '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})+' · Nguồn: Google Sheets'}catch(error){status.classList.add('error');status.textContent='Dữ liệu Google Sheets chưa đúng định dạng dự kiến.'}}window[callback]=payload=>finish(null,payload);script.onerror=()=>finish(new Error('Không tải được Google Sheets.'));script.src='https://docs.google.com/spreadsheets/d/'+sheetId+'/gviz/tq?tqx=out:json;responseHandler:'+callback+'&gid='+gid+'&headers=2&_='+Date.now();script.async=true;document.head.appendChild(script)}button?.addEventListener('click',sync)})();
+(function(){const sheetId='1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-M1AGkWO4g',gid='193289320',list=document.getElementById('top3DuesList'),status=document.getElementById('top3DuesStatus'),button=document.getElementById('top3DuesRefresh');const number=value=>{if(typeof value==='number')return value;const parsed=Number(String(value??'').replace(/[^0-9,.-]/g,'').replace(/\.(?=\d{3}(?:\D|$))/g,'').replace(',','.'));return Number.isFinite(parsed)?parsed:0};function sync(){if(button)button.disabled=true;status.classList.remove('error');status.textContent='Đang tải dữ liệu mới nhất từ Google Sheets…';const callback='__top3Dues_'+Date.now()+'_'+Math.random().toString(36).slice(2),script=document.createElement('script');let finished=false;const timer=setTimeout(()=>finish(new Error('Google Sheets không phản hồi.')),20000);function finish(error,payload){if(finished)return;finished=true;clearTimeout(timer);delete window[callback];script.remove();if(button)button.disabled=false;if(error){status.classList.add('error');status.textContent='Chưa tải được dữ liệu Google Sheets. Hãy kiểm tra quyền xem của bảng rồi đồng bộ lại.';return}try{const rows=payload?.table?.rows||[],records=rows.map(row=>{const cells=row.c||[],unit=String(cells[1]?.f??cells[1]?.v??'').trim(),rawRate=cells[13]?.f??cells[13]?.v;let rate=number(rawRate);return{unit,rate,hasRate:rawRate!==undefined&&rawRate!==null&&rawRate!==''}}).filter(r=>r.unit&&r.hasRate&&Number.isFinite(r.rate)&&!/^(tổng|cộng|grand total)$/i.test(r.unit));records.sort((a,b)=>b.rate-a.rate||a.unit.localeCompare(b.unit,'vi'));const top=records.slice(0,3);list.replaceChildren();if(!top.length){status.textContent='Google Sheets chưa có đơn vị có dữ liệu ở cột “Tỉ lệ”.';return}top.forEach((record,index)=>{const item=document.createElement('div'),medal=document.createElement('span'),copy=document.createElement('div'),name=document.createElement('span'),score=document.createElement('span');item.className='top3-dues-item';medal.className='top3-dues-medal';medal.textContent=String(index+1).padStart(2,'0');copy.className='top3-dues-copy';name.className='top3-dues-name';name.textContent=record.unit;name.title=record.unit;score.className='top3-dues-score';score.textContent=record.rate.toLocaleString('vi-VN',{maximumFractionDigits:2})+'% hoàn thành';copy.append(name,score);item.append(medal,copy);list.appendChild(item)});status.textContent='Cập nhật lúc '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})+' · Nguồn: Google Sheets'}catch(error){status.classList.add('error');status.textContent='Dữ liệu Google Sheets chưa đúng định dạng dự kiến.'}}window[callback]=payload=>finish(null,payload);script.onerror=()=>finish(new Error('Không tải được Google Sheets.'));DuesMonth.attach(script,callback);script.async=true;document.head.appendChild(script)}button?.addEventListener('click',sync)})();
 </script><script id="top3-dues-sheet-loader">
 (()=>{
  const list=document.getElementById('top3DuesList'),status=document.getElementById('top3DuesStatus');
@@ -1753,8 +1754,8 @@ tbody tr:hover{filter:brightness(1.04);background:linear-gradient(90deg,#fff1ee,
 /* Top 03 xếp theo tỷ lệ đảng viên đã nộp = (8) ÷ ((2)+(3)−(4)−(5)) */
 const mv=(r,i)=>{const n=Number(String(r.metrics[i]?.value??'').replace(/[^\d-]/g,''));return Number.isFinite(n)?n:0};
 rows.forEach(r=>{if(r.metrics.length<14)return;r.actualPercent=r.percent;const den=mv(r,3)+mv(r,4)-mv(r,5)-mv(r,6);r.percent=den>0?Math.min(100,mv(r,9)/den*100):0});
-render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>finish(null,payload);const timer=setTimeout(()=>finish(new Error('timeout')),20000);script.onerror=()=>finish(new Error('network'));script.src='https://docs.google.com/spreadsheets/d/1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-M1AGkWO4g/gviz/tq?tqx=out:json;responseHandler:'+cb+'&gid=193289320&headers=2&_='+Date.now();script.async=true;document.head.appendChild(script)}
- load();setInterval(()=>{if(!document.hidden)load()},60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>finish(null,payload);const timer=setTimeout(()=>finish(new Error('timeout')),20000);script.onerror=()=>finish(new Error('network'));DuesMonth.attach(script,cb);script.async=true;document.head.appendChild(script)}
+ load();setInterval(()=>{if(!document.hidden&&DuesMonth.live())load()},60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&DuesMonth.live())load()});window.addEventListener('dues-month-change',()=>load());
 })();
 </script>
 <style id="dues-detail-table-style">
@@ -1998,6 +1999,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
  </section>`;
  document.body.appendChild(ov);
  const $=id=>document.getElementById(id);
+ DuesMonth.mount($('ddSub').parentNode,'append');
 
  let DATA=[],lastRows=[],lastSync=null,sortKey='mrate',sortDir=-1,filter='all',query='',loading=false;
 
@@ -2019,7 +2021,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
 
  function setStatus(ok,msg){
   const t=lastSync?lastSync.toLocaleTimeString('vi-VN',{hour12:false}):'';
-  $('ddSub').textContent=ok?`Tự động đồng bộ từ Google Sheets · cập nhật lúc ${t}`:(DATA.length?`Lần đồng bộ thành công gần nhất: ${t}`:'Chưa tải được dữ liệu');
+  const __k=DuesMonth.fullLabel(),__lv=DuesMonth.live();$('ddSub').textContent=ok?(__lv?`${__k} · tự động đồng bộ thời gian thực từ Google Sheets · cập nhật lúc ${t}`:`${__k} · số liệu đã chốt (không đồng bộ lại) · tải lúc ${t}`):(DATA.length?`Lần đồng bộ thành công gần nhất: ${t}`:'Chưa tải được dữ liệu');
   const w=$('ddWarn');w.style.display=ok?'none':'block';w.textContent=msg||'';
  }
 
@@ -2033,11 +2035,11 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
     const list=rows.map(c=>({stt:num(c[0]),name:String(c[1]?.v??c[1]?.f).trim(),t:num(c[2]),ct:num(c[3]),tt:num(c[4]),chuyen:num(c[5]),mien:num(c[6]),cd:num(c[7]),dcn:num(c[8]),dn:num(c[9]),chua:num(c[10]),kb:num(c[11]),nop:num(c[12])}))
      .filter(d=>d.t>0).map(d=>({...d,need:Math.max(0,d.ct+d.tt-d.chuyen-d.mien),rate:rateOf(d),mrate:mrateOf(d)}));
     if(!list.length)throw new Error('empty');
-    DATA=list;window.__duesDetailData=DATA;lastSync=new Date();setStatus(true);render();applyFeeRates();
+    DATA=list;lastSync=new Date();const __curView=DuesMonth.isCurrent()&&DuesMonth.state.mode==='month';if(__curView)window.__duesDetailData=DATA;setStatus(true);render();if(__curView)applyFeeRates();
    }catch(e){setStatus(false,'Dữ liệu Google Sheets chưa đúng định dạng (cần các cột STT, Tên đơn vị … Tổng tiền đã nộp như Sheet1).');render()}
   };
   window[cb]=p=>finish(null,p);const timer=setTimeout(()=>finish(new Error('timeout')),20000);script.onerror=()=>finish(new Error('network'));
-  script.src='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json;responseHandler:'+cb+'&gid='+GID+'&headers=2&_='+Date.now();script.async=true;document.head.appendChild(script);
+  DuesMonth.attach(script,cb);script.async=true;document.head.appendChild(script);
  }
 
  const isOpen=()=>ov.classList.contains('open');
@@ -2057,7 +2059,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const bi={g:0,y:1,o:2,r:3,z:4};
   const out=[],merges=[],H={};let r=0;const put=(cells,h)=>{r++;out.push({r,cells});if(h)H[r]=h;return r};const c=(i,v,st)=>({i,v,st});
   const fill=(v,st)=>[c(0,v,st),...Array.from({length:NC-1},(_,i)=>c(i+1,'',st))];
-  put(fill('BẢNG TỔNG HỢP THU NỘP ĐẢNG PHÍ TRÊN MÔI TRƯỜNG ĐIỆN TỬ',1),36);merges.push(`A1:${L}1`);
+  put(fill('BẢNG TỔNG HỢP THU NỘP ĐẢNG PHÍ TRÊN MÔI TRƯỜNG ĐIỆN TỬ – '+DuesMonth.fullLabel().toUpperCase(),1),36);merges.push(`A1:${L}1`);
   put(fill(`Xuất lúc ${stamp}  •  Dữ liệu Google Sheets đồng bộ lúc ${syncT}  •  ${rows.length}/${DATA.length} đơn vị`,2),22);merges.push(`A2:${L}2`);
   const T={};COLS.forEach(k=>T[k]=rows.reduce((s,d)=>s+d[k],0));const need=T.ct+T.tt-T.chuyen-T.mien,mr=need>0?T.dn/need:0;
   const kp=[['ĐV phải nộp',need,4],['ĐV đã duyệt, đã nộp',T.dn,4],['Tiền theo hồ sơ khai báo (đ)',T.kb,4],['Tiền đã nộp (đ)',T.nop,4],['Tỷ lệ ĐV đã nộp chung',mr,5]],sp=[[0,1],[2,3],[4,5],[6,7],[8,8]];
@@ -2097,7 +2099,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
    'xl/_rels/workbook.xml.rels':'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
    'xl/styles.xml':styles,'xl/worksheets/sheet1.xml':sheet};
   const blob=rptZip(files,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-  const fn=`tong-hop-thu-dang-phi_${now.getFullYear()}-${p2(now.getMonth()+1)}-${p2(now.getDate())}_${p2(now.getHours())}${p2(now.getMinutes())}.xlsx`;
+  const fn=`tong-hop-thu-dang-phi_${DuesMonth.state.mode==='cum'?'luy-ke-den-':''}${DuesMonth.state.month}_${p2(now.getDate())}-${p2(now.getMonth()+1)}-${now.getFullYear()}_${p2(now.getHours())}${p2(now.getMinutes())}.xlsx`;
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
   if(typeof toast==='function')toast('Đã xuất '+rows.length+' đơn vị ra Excel');
  }
@@ -2186,7 +2188,8 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'}));
   a.download='bang-tong-dang-phi-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)});
  /* Tự đồng bộ mỗi 60 giây khi bảng đang mở */
- setTimeout(load,800);setInterval(()=>{if(!document.hidden)load()},60*1000);
+ setTimeout(load,800);setInterval(()=>{if(!document.hidden&&DuesMonth.live())load()},60*1000);
+ window.addEventListener('dues-month-change',()=>{loading=false;load()});
 })();
 </script>
 
@@ -2591,10 +2594,10 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   window[cb]=p=>finish(null,p);
   const timer=setTimeout(()=>finish(new Error('timeout')),20000);
   script.onerror=()=>finish(new Error('network'));
-  script.src='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?tqx=out:json;responseHandler:'+cb+'&gid='+GID+'&headers=2&_='+Date.now();
+  DuesMonth.attach(script,cb);
   script.async=true;document.head.appendChild(script);
  }
- load();setInterval(()=>{if(!document.hidden)load()},60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+ load();setInterval(()=>{if(!document.hidden&&DuesMonth.live())load()},60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&DuesMonth.live())load()});window.addEventListener('dues-month-change',()=>load());
 })();
 </script>
 
@@ -2768,6 +2771,7 @@ body.dp-lock{overflow:hidden}
       </ol>
      </div>
      <div class="dp-last" id="dpLast">Lần đồng bộ gần nhất: <b>—</b></div>
+     <div class="dp-last" id="dpMonthNote" style="margin-top:4px">Excel luôn đồng bộ vào <b data-dp-cur-month></b> (tháng hiện tại, thời gian thực); các tháng trước đã chốt và chỉ xem.</div>
     </section>
    </div>
 
@@ -3058,7 +3062,7 @@ body.dp-lock{overflow:hidden}
     store.set(LS.token, q('dpRemember').checked ? token : '');
     const syncId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     const payload = {
-      token, syncId, fileName: fileMeta.name,
+      token, syncId, fileName: fileMeta.name, month: (window.DuesMonth ? DuesMonth.currentKey() : ''),
       totals: { units: totals.units, members: totals.members, paidProfiles: totals.paidProfiles, declared: totals.declared, paid: totals.paid, rate: totals.rate },
       rows: rows.map(r => [r.stt, r.unit, ...r.v])
     };
@@ -3545,7 +3549,7 @@ html body .progress-cell.lv-done strong{box-shadow:inset 0 0 0 1px color-mix(in 
 </style>
 <script id="dues-period-script">
 /* Hiện tháng hiện tại sau chữ "kỳ" và tự đổi khi sang tháng mới */
-function periodText(d){d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
+function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=d||new Date();return 'Tháng '+(d.getMonth()+1)}
 (function(){const upd=()=>document.querySelectorAll('[data-dues-period]').forEach(el=>{const t=periodText();if(el.textContent!==t)el.textContent=t});upd();setInterval(upd,60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)upd()})})();
 </script>
 <style id="dues-period-style">
