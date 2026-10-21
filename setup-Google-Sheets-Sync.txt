@@ -32,4 +32,4 @@ THU NOP DANG PHI – MOI THANG MOT TAB (bang 1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-
 - Trang web: chọn Tháng hoặc Lũy kế; chỉ tháng hiện tại tự làm mới mỗi phút, các tháng trước chỉ tải một lần.
 - Lũy kế đến tháng K = cộng dồn hai cột tiền của các tháng từ đầu năm đến K; các cột khác lấy theo tháng K.
 - Cần tab tháng cũ (vd Thang9)? Đổi tên/sao chép dữ liệu vào tab "Thang9" rồi chạy rebuildMonthRegistry() trong Apps Script.
-- Dán Code.gs mới: đối chiếu với script đang chạy trước (SPREADSHEET_ID, tiêu đề cột, cấu trúc nhật ký).
+- Code.gs (v4) = bản Apps Script "Input DangPhi" đang chạy (v3) + chia tab theo tháng. Dán đè, rồi Triển khai → Quản lý bản triển khai → Sửa → Phiên bản mới (URL /exec giữ nguyên).
