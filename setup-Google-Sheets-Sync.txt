@@ -47,3 +47,4 @@ TRANG WEB CAC DON VI (menu trai cua trang) - BANG TINH VA APPS SCRIPT RIENG
 - Apps Script rieng: 1RTj6LoBOytJRSbA2RR2KxXlotH_SmlgXqqLkzWqgWq6N3h2hR3NU7C9T - dan file UnitSites.gs, chay initializeSharedAccessCode,
   Trien khai moi (Ung dung web, Thuc thi: Toi, Truy cap: Bat ky ai), roi dan URL /exec vao hang UNITS_API_URL trong index.html.
 - Them/sua/xoa tai Tac vu > Trang web don vi tren website (nhap ma truy cap chung), hoac sua tay tren Sheets - trang tu doc lai khi mo.
+- Web App /exec (da trien khai): https://script.google.com/macros/s/AKfycbzbbPi7NVH9Ks9zhiyMKAO7hJwUwQYmx8nV05fkRpIhA7r7B5toOymgEuM3VCwe0bWWAg/exec
