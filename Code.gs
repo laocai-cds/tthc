@@ -11,9 +11,6 @@
  *    và chỉ hiện các tháng có dữ liệu. 12 tab Thang1…Thang12 có thể tạo sẵn; tab thiếu sẽ tự tạo khi cần.
  *  - Tab các tháng trước không bị đụng tới nữa.
  *
- * Phiên bản 5: thêm danh sách "Trang web các đơn vị" (GET ?action=units đọc; POST {action:'units', token, units:[{name,url}]} ghi,
- *   dùng cùng SYNC_TOKEN). Danh sách lưu trong Thuộc tính tập lệnh UNIT_SITES.
- *
  * Cài đặt:
  *  1. Dán toàn bộ file này vào Code.gs (thay thế code cũ).
  *  2. Thuộc tính tập lệnh SYNC_TOKEN (hoặc MAT_KHAU) giữ nguyên.
@@ -28,7 +25,7 @@ const REGISTRY_SHEET_NAME = 'DANH MUC THANG'; // THANG yyyy-MM | TEN TAB | CAP N
 const BASE_YEAR = 2026;                      // "Thang10" = tháng 10/2026; năm khác → "Thang10_2027"
 const HEADER_ROWS = 2;                       // 2 dòng tiêu đề giữ nguyên
 const COLS = 14;                             // STT, Tên đơn vị, (1)…(9), tiền khai báo, tiền đã nộp, tỷ lệ
-const VERSION = 5;
+const VERSION = 4;
 const TZ = 'Asia/Ho_Chi_Minh';
 
 /** Định dạng số chỉ để cho đẹp: nếu ô thuộc "bảng"/cột có kiểu dữ liệu cố định thì Sheets từ chối → bỏ qua, không làm hỏng đồng bộ. */
@@ -52,7 +49,6 @@ function doGet(e) {
   try {
     if (p.action === 'chunk') out = saveChunk_(p);
     else if (p.action === 'commit') out = commit_(p);
-    else if (p.action === 'units') out = unitsRead_();
     else out = status_();
   } catch (err) {
     out = { ok: false, error: String(err && err.message || err) };
@@ -65,7 +61,7 @@ function doPost(e) { // nhận cả gói trong 1 lần POST (payload=JSON) — c
   try {
     const raw = (e.parameter && e.parameter.payload) || (e.postData && e.postData.contents) || '{}';
     data = JSON.parse(raw);
-    out = (data && data.action === 'units') ? unitsWrite_(data) : write_(data);
+    out = write_(data);
   } catch (err) {
     out = { ok: false, error: String(err && err.message || err) };
     saveError_(data && data.syncId, out.error);
@@ -255,29 +251,4 @@ function status_() {
 function testAuthorize() {
   Logger.log(JSON.stringify(status_()));
   Logger.log('Tab tháng hiện tại: ' + monthTab_(monthKey_()));
-}
-
-
-/* ---------- Danh sách "Trang web các đơn vị" (menu trái của trang) ---------- */
-function unitsRead_() {
-  const props = PropertiesService.getScriptProperties();
-  const raw = props.getProperty('UNIT_SITES');
-  let units = null;
-  if (raw) { try { units = JSON.parse(raw); } catch (_) { units = null; } }
-  return { ok: true, units: Array.isArray(units) ? units : null, updatedAtText: props.getProperty('UNIT_SITES_AT') || '' };
-}
-
-function unitsWrite_(payload) {
-  const props = PropertiesService.getScriptProperties();
-  const token = props.getProperty('SYNC_TOKEN') || props.getProperty('MAT_KHAU');
-  if (!token) throw new Error('Chưa đặt SYNC_TOKEN (hoặc MAT_KHAU) trong Thuộc tính tập lệnh.');
-  if (String(payload.token || '') !== token) throw new Error('Mật khẩu đồng bộ không đúng.');
-  const list = Array.isArray(payload.units) ? payload.units : [];
-  if (list.length > 60) throw new Error('Tối đa 60 đơn vị.');
-  const units = list.map(u => ({ name: String((u && u.name) || '').trim().slice(0, 120), url: String((u && u.url) || '').trim().slice(0, 300) }))
-    .filter(u => u.name && /^https?:\/\//i.test(u.url));
-  props.setProperty('UNIT_SITES', JSON.stringify(units));
-  const at = Utilities.formatDate(new Date(), TZ, 'dd/MM/yyyy HH:mm:ss');
-  props.setProperty('UNIT_SITES_AT', at);
-  return { ok: true, units: units, updatedAtText: at };
 }

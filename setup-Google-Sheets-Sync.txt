@@ -40,3 +40,10 @@ TAB "LUY KE" (trong bảng tính 1N8o54EO…) – lũy kế ngay trên Google Sh
 - Hai cột tiền (L, M) = cộng dồn Thang1 … ThangK theo tên đơn vị (SUMIF); các cột còn lại lấy từ ThangK. Tỷ lệ = Đã nộp ÷ Khai báo.
 - Dòng 5 = tổng cộng. Tối đa 120 đơn vị (dòng 6–125). Công thức dùng dấu ";" vì bảng tính ở ngôn ngữ Việt.
 - Không chạy qua Apps Script nên không bị ảnh hưởng khi đồng bộ Excel.
+
+
+TRANG WEB CAC DON VI (menu trai cua trang)
+- Doc/ghi bang GoogleSheetsSync.gs (cung Web App /exec va cung ma truy cap chung voi cac thu tuc). Can dan lai ma moi va Trien khai > Phien ban moi.
+- Du lieu nam o tab "TRANG WEB ĐƠN VỊ" trong bang tinh thu tuc (tu tao khi luu lan dau): STT | TEN DON VI | LIEN KET | CAP NHAT.
+- Them/sua/xoa tai Tac vu > Trang web don vi tren website (nhap ma truy cap chung), hoac sua tay truc tiep tren tab - trang tu doc lai khi mo.
+- Chua co tab: trang dung danh sach mac dinh (Luong Thinh, Bao Thang).

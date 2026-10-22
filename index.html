@@ -4993,7 +4993,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
 </style>
 <script id="units-web-js">
 /* Trang web các đơn vị: danh sách mặc định + quản lý bằng form ở Tác vụ → 🔗 Trang web đơn vị.
-   Lưu: Google Sheets (Apps Script Code.gs v5, mã truy cập chung) và bản nhớ trên trình duyệt. */
+   Lưu: tab “TRANG WEB ĐƠN VỊ” trên Google Sheets (Apps Script GoogleSheetsSync.gs, mã truy cập chung) và bản nhớ trên trình duyệt. */
 (function(){
 const DEFAULT_UNITS=[
   {name:'Đảng bộ xã Lương Thịnh',url:'https://laocai-cds.github.io/luongthinh/'},
@@ -5082,12 +5082,12 @@ $('umSave').onclick=async()=>{const pass=$('umPass').value;if(!pass){say('Nhập
  const list=clean(draft),btn=$('umSave');btn.disabled=true;say('Đang lưu lên Google Sheets…');
  try{localStorage.setItem(LS,JSON.stringify(list))}catch(_){}
  units=list;renderMenu();
- try{await fetch(API,{method:'POST',mode:'no-cors',body:new URLSearchParams({payload:JSON.stringify({action:'units',token:pass,units:list})})})}catch(_){}
+ try{await fetch(API,{method:'POST',mode:'no-cors',body:new URLSearchParams({payload:JSON.stringify({action:'units',accessCode:pass,units:list})})})}catch(_){}
  let ok=false,reached=false;
- for(let n=0;n<4&&!ok;n++){if(n)await new Promise(r=>setTimeout(r,900));try{const d=await jsonp('action=units');reached=true;if(d&&Array.isArray(d.units)&&JSON.stringify(clean(d.units))===JSON.stringify(list))ok=true}catch(_){}}
+ for(let n=0;n<4&&!ok;n++){if(n)await new Promise(r=>setTimeout(r,900));try{const d=await jsonp('action=units',7000);reached=true;if(d&&Array.isArray(d.units)&&JSON.stringify(clean(d.units))===JSON.stringify(list))ok=true}catch(_){if(!reached)break}}
  btn.disabled=false;$('umPass').value='';
  if(ok){say('Đã lưu lên Google Sheets – mọi người đều thấy danh sách mới.','ok')}
- else if(reached){say('Danh sách đã áp dụng trên trình duyệt này nhưng chưa xác nhận được trên Google Sheets: mã truy cập có thể sai, hoặc Apps Script chưa cập nhật bản Code.gs mới (v5).','err')}
+ else if(reached){say('Danh sách đã áp dụng trên trình duyệt này nhưng chưa xác nhận được trên Google Sheets: mã truy cập có thể sai, hoặc Apps Script chưa cập nhật bản GoogleSheetsSync.gs mới.','err')}
  else{say('Danh sách đã áp dụng trên trình duyệt này; chưa kết nối được Google Sheets để đồng bộ.','err')}};
 
 function addMenuItem(){const m=document.getElementById('exportMenu');if(!m||document.getElementById('unitsMenuAction'))return;
