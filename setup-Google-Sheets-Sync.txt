@@ -42,8 +42,8 @@ TAB "LUY KE" (trong bảng tính 1N8o54EO…) – lũy kế ngay trên Google Sh
 - Không chạy qua Apps Script nên không bị ảnh hưởng khi đồng bộ Excel.
 
 
-TRANG WEB CAC DON VI (menu trai cua trang)
-- Doc/ghi bang GoogleSheetsSync.gs (cung Web App /exec va cung ma truy cap chung voi cac thu tuc). Can dan lai ma moi va Trien khai > Phien ban moi.
-- Du lieu nam o tab "TRANG WEB ĐƠN VỊ" trong bang tinh thu tuc (tu tao khi luu lan dau): STT | TEN DON VI | LIEN KET | CAP NHAT.
-- Them/sua/xoa tai Tac vu > Trang web don vi tren website (nhap ma truy cap chung), hoac sua tay truc tiep tren tab - trang tu doc lai khi mo.
-- Chua co tab: trang dung danh sach mac dinh (Luong Thinh, Bao Thang).
+TRANG WEB CAC DON VI (menu trai cua trang) - BANG TINH VA APPS SCRIPT RIENG
+- Bang tinh "link website": 1oxCFjtQrtCwNWTc0ugP3M_KdOhbt1XYHjTRkJeIuEwk (tab dau tien): STT | TEN DON VI | LIEN KET | CAP NHAT.
+- Apps Script rieng: 1RTj6LoBOytJRSbA2RR2KxXlotH_SmlgXqqLkzWqgWq6N3h2hR3NU7C9T - dan file UnitSites.gs, chay initializeSharedAccessCode,
+  Trien khai moi (Ung dung web, Thuc thi: Toi, Truy cap: Bat ky ai), roi dan URL /exec vao hang UNITS_API_URL trong index.html.
+- Them/sua/xoa tai Tac vu > Trang web don vi tren website (nhap ma truy cap chung), hoac sua tay tren Sheets - trang tu doc lai khi mo.

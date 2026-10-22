@@ -2,8 +2,6 @@
  * API đồng bộ trang laocai-cds.github.io/tthc <-> Google Sheets (phiên bản 3).
  * - Đọc: GET ?action=read&callback=fn (JSONP)
  * - Ghi: POST payload=JSON (mã truy cập chung, kiểm tra bằng SHA-256)
- * - Trang web các đơn vị (menu trái): đọc GET ?action=units&callback=fn; ghi POST {action:'units', accessCode, units:[{name,url}]}
- *   → lưu ở tab "TRANG WEB ĐƠN VỊ" của bảng tính thủ tục (có thể sửa tay trực tiếp trên Sheets).
  * - Ảnh kiểm chứng: lưu vào thư mục Drive "ảnh lưu kiểm chứng",
  *   đường dẫn ghi vào cột M, thời gian ghi vào cột N của tab thủ tục.
  *
@@ -21,7 +19,6 @@ const CONFIG = {
     'nhan-xet': 'LẤY PHIẾU NHẬN XÉT NƠI CƯ TRÚ'
   },
   feeTab: 'TIẾN ĐỘ 103 ĐƠN VỊ',
-  unitSitesTab: 'TRANG WEB ĐƠN VỊ', // trong bảng tính thủ tục: STT | TÊN ĐƠN VỊ | LIÊN KẾT | CẬP NHẬT
   adminDefaults: { accounts: 274, activated: 256 },
   // Cột (1-based)
   caseProofCol: 13,   // M: ẢNH KIỂM CHỨNG
@@ -46,12 +43,8 @@ function testProofFolder() {
 function doGet(e) {
   const params = e && e.parameter || {};
   const callback = String(params.callback || '');
-  if (!/^[A-Za-z_$][0-9A-Za-z_$.]*$/.test(callback) || (params.action !== 'read' && params.action !== 'units')) {
+  if (params.action !== 'read' || !/^[A-Za-z_$][0-9A-Za-z_$.]*$/.test(callback)) {
     return json_({ ok: false, error: 'Yêu cầu đọc dữ liệu không hợp lệ.' });
-  }
-  if (params.action === 'units') {
-    try { return jsonp_(callback, unitsRead_()); }
-    catch (err) { return jsonp_(callback, { ok: false, error: String(err && err.message || err) }); }
   }
   try {
     const cached = params.fresh ? null : cacheGet_();
@@ -124,7 +117,6 @@ function doPost(e) {
       throw new Error('Mã truy cập không hợp lệ.');
     }
     lock.waitLock(20000);
-    if (request.action === 'units') return json_(unitsWrite_(request.units));
     const isBatch = Array.isArray(request.updates) || request.admin != null;
     if (isBatch) {
       const updates = Array.isArray(request.updates) ? request.updates : [];
@@ -309,61 +301,4 @@ function cacheClear_() {
 }
 function jsonpText_(callback, body) {
   return ContentService.createTextOutput(callback + '(' + body + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
-}
-
-
-/* ---------- Trang web các đơn vị (menu trái của trang) ---------- */
-function unitSheet_(create) {
-  const book = SpreadsheetApp.openById(CONFIG.procedureSpreadsheetId);
-  let sh = book.getSheetByName(CONFIG.unitSitesTab);
-  if (!sh && create) {
-    sh = book.insertSheet(CONFIG.unitSitesTab);
-    sh.getRange(1, 1, 1, 4).setValues([['STT', 'TÊN ĐƠN VỊ', 'LIÊN KẾT', 'CẬP NHẬT']]).setFontWeight('bold').setBackground('#4c1d95').setFontColor('#ffffff');
-    sh.setFrozenRows(1);
-    sh.setColumnWidths(1, 1, 50); sh.setColumnWidths(2, 1, 320); sh.setColumnWidths(3, 1, 460); sh.setColumnWidths(4, 1, 150);
-  }
-  return sh;
-}
-
-function cleanUnits_(list) {
-  const seen = {};
-  return (Array.isArray(list) ? list : []).map(u => ({
-    name: String((u && u.name) || '').replace(/\s+/g, ' ').trim().replace(/^[=+\-@]+/, '').slice(0, 120),
-    url: String((u && u.url) || '').trim().slice(0, 300)
-  })).filter(u => {
-    if (!u.name || !/^https?:\/\/[^\s]+\.[^\s]+$/i.test(u.url)) return false;
-    const k = u.url.replace(/\/$/, '').toLowerCase();
-    if (seen[k]) return false;
-    seen[k] = true;
-    return true;
-  });
-}
-
-/** Chưa có tab (hoặc tab trống) → units:null để trang dùng danh sách mặc định. */
-function unitsRead_() {
-  const sh = unitSheet_(false);
-  if (!sh) return { ok: true, units: null };
-  const last = sh.getLastRow();
-  if (last < 2) return { ok: true, units: [] };
-  const rows = sh.getRange(2, 1, last - 1, 4).getValues();
-  const units = cleanUnits_(rows.map(r => ({ name: r[1], url: r[2] })));
-  const at = rows.map(r => r[3]).filter(Boolean).pop();
-  return { ok: true, units: units, updatedAtText: at ? dateText_(at) : '' };
-}
-
-function unitsWrite_(list) {
-  if (!Array.isArray(list)) throw new Error('Danh sách đơn vị không hợp lệ.');
-  if (list.length > 60) throw new Error('Tối đa 60 đơn vị.');
-  const units = cleanUnits_(list);
-  const sh = unitSheet_(true);
-  const last = sh.getLastRow();
-  if (last > 1) sh.getRange(2, 1, last - 1, 4).clearContent();
-  if (units.length) {
-    const now = new Date();
-    const range = sh.getRange(2, 1, units.length, 4);
-    range.setNumberFormat('@');
-    range.setValues(units.map((u, i) => [String(i + 1), u.name, u.url, Utilities.formatDate(now, 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss')]));
-  }
-  console.log(JSON.stringify({ event: 'units_saved', count: units.length }));
-  return { ok: true, count: units.length, units: units };
 }

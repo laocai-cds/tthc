@@ -4993,13 +4993,14 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
 </style>
 <script id="units-web-js">
 /* Trang web các đơn vị: danh sách mặc định + quản lý bằng form ở Tác vụ → 🔗 Trang web đơn vị.
-   Lưu: tab “TRANG WEB ĐƠN VỊ” trên Google Sheets (Apps Script GoogleSheetsSync.gs, mã truy cập chung) và bản nhớ trên trình duyệt. */
+   Lưu: bảng tính riêng “link website” (Apps Script UnitSites.gs, mã truy cập chung) và bản nhớ trên trình duyệt. */
 (function(){
 const DEFAULT_UNITS=[
   {name:'Đảng bộ xã Lương Thịnh',url:'https://laocai-cds.github.io/luongthinh/'},
   {name:'Đảng bộ xã Bảo Thắng',url:'https://laocai-cds.github.io/baothang/'}
 ];
-const API='https://script.google.com/macros/s/AKfycbym3FHqtE20kg8F3SCuc6LizXSwGhSFT-KBY90c58BuOuRigFbOdyruPkTx4uBscZ-ibw/exec';
+const UNITS_API_URL=''; /* ← dán URL /exec của Apps Script UnitSites.gs (bảng tính riêng “link website”) */
+const API=UNITS_API_URL;
 const LS='dvc-unit-sites';
 const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clean=l=>(Array.isArray(l)?l:[]).map(u=>({name:String(u&&u.name||'').trim(),url:String(u&&u.url||'').trim()})).filter(u=>u.name&&/^https?:\/\//i.test(u.url));
@@ -5011,11 +5012,11 @@ function renderMenu(){const ul=document.getElementById('unitsList');if(!ul)retur
  units.forEach(u=>{const li=document.createElement('li'),a=document.createElement('a');a.href=u.url;a.target='_blank';a.rel='noopener noreferrer';a.title='Mở trang '+u.name+' (tab mới)';
   const sp=document.createElement('span');sp.textContent=u.name;const ic=document.createElement('i');ic.textContent='↗';ic.setAttribute('aria-hidden','true');a.append(sp,ic);li.append(a);ul.append(li)})}
 
-function jsonp(query,timeout){return new Promise((res,rej)=>{const cb='__units_'+Date.now()+Math.random().toString(36).slice(2,6),s=document.createElement('script');let done=false;
+function jsonp(query,timeout){return new Promise((res,rej)=>{if(!API){rej(new Error('Chưa cấu hình'));return}const cb='__units_'+Date.now()+Math.random().toString(36).slice(2,6),s=document.createElement('script');let done=false;
  const end=()=>{done=true;clearTimeout(t);delete window[cb];s.remove()};const t=setTimeout(()=>{if(!done){end();rej(new Error('Hết thời gian chờ'))}},timeout||12000);
  window[cb]=d=>{end();res(d)};s.onerror=()=>{if(!done){end();rej(new Error('Không tải được'))}};s.src=API+'?'+query+'&callback='+cb+'&_='+Date.now();document.head.append(s)})}
 
-async function loadCloud(){try{const d=await jsonp('action=units');if(d&&d.ok&&Array.isArray(d.units)){units=clean(d.units);try{localStorage.setItem(LS,JSON.stringify(units))}catch(_){}renderMenu();return true}}catch(_){}return false}
+async function loadCloud(){if(!API)return false;try{const d=await jsonp('action=units');if(d&&d.ok&&Array.isArray(d.units)){units=clean(d.units);try{localStorage.setItem(LS,JSON.stringify(units))}catch(_){}renderMenu();return true}}catch(_){}return false}
 
 /* ---- form quản lý ---- */
 const css=document.createElement('style');css.id='units-form-css';css.textContent=`
@@ -5078,7 +5079,7 @@ $('umList').addEventListener('click',e=>{const b=e.target.closest('button');if(!
  else if(b.dataset.ed!=null){const i=+b.dataset.ed;editIdx=i;$('umName').value=draft[i].name;$('umUrl').value=draft[i].url;$('umFormTitle').textContent='Sửa đơn vị';$('umAdd').textContent='Cập nhật';$('umCancel').hidden=false;$('umName').focus()}
  else if(b.dataset.up!=null){const i=+b.dataset.up;if(i>0){[draft[i-1],draft[i]]=[draft[i],draft[i-1]];resetForm();renderDraft()}}});
 
-$('umSave').onclick=async()=>{const pass=$('umPass').value;if(!pass){say('Nhập mã truy cập chung để lưu.','err');$('umPass').focus();return}
+$('umSave').onclick=async()=>{const pass=$('umPass').value;if(!API){say('Chưa cấu hình địa chỉ Google Sheets (UNITS_API_URL) nên chỉ lưu được trên trình duyệt này.','err')}if(!pass){say('Nhập mã truy cập chung để lưu.','err');$('umPass').focus();return}
  const list=clean(draft),btn=$('umSave');btn.disabled=true;say('Đang lưu lên Google Sheets…');
  try{localStorage.setItem(LS,JSON.stringify(list))}catch(_){}
  units=list;renderMenu();
@@ -5087,7 +5088,7 @@ $('umSave').onclick=async()=>{const pass=$('umPass').value;if(!pass){say('Nhập
  for(let n=0;n<4&&!ok;n++){if(n)await new Promise(r=>setTimeout(r,900));try{const d=await jsonp('action=units',7000);reached=true;if(d&&Array.isArray(d.units)&&JSON.stringify(clean(d.units))===JSON.stringify(list))ok=true}catch(_){if(!reached)break}}
  btn.disabled=false;$('umPass').value='';
  if(ok){say('Đã lưu lên Google Sheets – mọi người đều thấy danh sách mới.','ok')}
- else if(reached){say('Danh sách đã áp dụng trên trình duyệt này nhưng chưa xác nhận được trên Google Sheets: mã truy cập có thể sai, hoặc Apps Script chưa cập nhật bản GoogleSheetsSync.gs mới.','err')}
+ else if(reached){say('Danh sách đã áp dụng trên trình duyệt này nhưng chưa xác nhận được trên Google Sheets: mã truy cập có thể sai, hoặc Apps Script UnitSites.gs chưa được triển khai đúng.','err')}
  else{say('Danh sách đã áp dụng trên trình duyệt này; chưa kết nối được Google Sheets để đồng bộ.','err')}};
 
 function addMenuItem(){const m=document.getElementById('exportMenu');if(!m||document.getElementById('unitsMenuAction'))return;
