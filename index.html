@@ -5083,7 +5083,9 @@ $('umSave').onclick=async()=>{const pass=$('umPass').value;if(!API){say('Chưa c
  const list=clean(draft),btn=$('umSave');btn.disabled=true;say('Đang lưu lên Google Sheets…');
  try{localStorage.setItem(LS,JSON.stringify(list))}catch(_){}
  units=list;renderMenu();
- try{await fetch(API,{method:'POST',mode:'no-cors',body:new URLSearchParams({payload:JSON.stringify({action:'units',accessCode:pass,units:list})})})}catch(_){}
+ let resp=null;const body=new URLSearchParams({payload:JSON.stringify({action:'units',accessCode:pass.trim(),units:list})});
+ try{const r=await fetch(API,{method:'POST',body});resp=await r.json()}catch(_){resp=null;try{await fetch(API,{method:'POST',mode:'no-cors',body})}catch(_2){}}
+ if(resp&&resp.ok===false){btn.disabled=false;$('umPass').value='';say((resp.error||'Lưu không thành công.')+(/Mã truy cập/.test(resp.error||'')?' Hãy nhập lại đúng mã truy cập chung (không có khoảng trắng thừa).':''),'err');return}
  let ok=false,reached=false;
  for(let n=0;n<4&&!ok;n++){if(n)await new Promise(r=>setTimeout(r,900));try{const d=await jsonp('action=units',7000);reached=true;if(d&&Array.isArray(d.units)&&JSON.stringify(clean(d.units))===JSON.stringify(list))ok=true}catch(_){if(!reached)break}}
  btn.disabled=false;$('umPass').value='';
