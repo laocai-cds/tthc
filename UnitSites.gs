@@ -8,7 +8,7 @@
  *
  * Cài đặt (dự án Apps Script riêng):
  *  1. Dán toàn bộ file này vào Code.gs của dự án.
- *  2. Chạy hàm initializeSharedAccessCode một lần (cấp quyền Sheets khi được hỏi) – dùng cùng mã truy cập chung với các thủ tục.
+ *  2. Thay '<SHA-256 của mã truy cập chung>' bằng bản SHA-256 của mã truy cập chung rồi chạy hàm initializeSharedAccessCode một lần (cấp quyền Sheets khi được hỏi).
  *  3. Triển khai → Triển khai mới → loại "Ứng dụng web": Thực thi với tư cách = Tôi; Ai có quyền truy cập = Bất kỳ ai → Triển khai.
  *  4. Gửi URL /exec cho người quản trang để dán vào hằng UNITS_API_URL trong index.html.
  */
@@ -18,7 +18,7 @@ const MAX_UNITS = 60;
 const HEADER = ['STT', 'TÊN ĐƠN VỊ', 'LIÊN KẾT', 'CẬP NHẬT'];
 
 function initializeSharedAccessCode() {
-  PropertiesService.getScriptProperties().setProperty('SHARED_ACCESS_CODE_HASH', '29e642a2f2d2631dbbc95da448972535a2df68e92288e5a20ed88029e075e967');
+  PropertiesService.getScriptProperties().setProperty('SHARED_ACCESS_CODE_HASH', '<SHA-256 của mã truy cập chung>' /* đã đặt trên Apps Script; không công khai bản mã hóa trong repo */);
   Logger.log('Đã bật mã truy cập chung.');
 }
 
