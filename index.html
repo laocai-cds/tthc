@@ -4992,15 +4992,113 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
 .tk-pro .tk-mega:not(.tk-speaking) svg{animation:none}
 </style>
 <script id="units-web-js">
-/* Danh sách trang web các đơn vị – muốn thêm đơn vị mới, chỉ cần thêm một dòng {name,url} */
-const UNIT_SITES=[
+/* Trang web các đơn vị: danh sách mặc định + quản lý bằng form ở Tác vụ → 🔗 Trang web đơn vị.
+   Lưu: Google Sheets (Apps Script Code.gs v5, mã truy cập chung) và bản nhớ trên trình duyệt. */
+(function(){
+const DEFAULT_UNITS=[
   {name:'Đảng bộ xã Lương Thịnh',url:'https://laocai-cds.github.io/luongthinh/'},
   {name:'Đảng bộ xã Bảo Thắng',url:'https://laocai-cds.github.io/baothang/'}
 ];
-(function(){const ul=document.getElementById('unitsList');if(!ul)return;
-if(!UNIT_SITES.length){ul.innerHTML='<li class="units-empty">Chưa có đơn vị nào.</li>';return}
-UNIT_SITES.forEach(u=>{const li=document.createElement('li'),a=document.createElement('a');a.href=u.url;a.target='_blank';a.rel='noopener noreferrer';a.title='Mở trang '+u.name+' (tab mới)';
-const sp=document.createElement('span');sp.textContent=u.name;const ic=document.createElement('i');ic.textContent='↗';ic.setAttribute('aria-hidden','true');a.append(sp,ic);li.append(a);ul.append(li)})})();
+const API='https://script.google.com/macros/s/AKfycbym3FHqtE20kg8F3SCuc6LizXSwGhSFT-KBY90c58BuOuRigFbOdyruPkTx4uBscZ-ibw/exec';
+const LS='dvc-unit-sites';
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clean=l=>(Array.isArray(l)?l:[]).map(u=>({name:String(u&&u.name||'').trim(),url:String(u&&u.url||'').trim()})).filter(u=>u.name&&/^https?:\/\//i.test(u.url));
+let units=DEFAULT_UNITS.slice(),draft=[],editIdx=-1;
+try{const c=JSON.parse(localStorage.getItem(LS)||'null');if(Array.isArray(c))units=clean(c)}catch(_){}
+
+function renderMenu(){const ul=document.getElementById('unitsList');if(!ul)return;ul.textContent='';
+ if(!units.length){const li=document.createElement('li');li.className='units-empty';li.textContent='Chưa có đơn vị nào. Thêm tại Tác vụ → Trang web đơn vị.';ul.append(li);return}
+ units.forEach(u=>{const li=document.createElement('li'),a=document.createElement('a');a.href=u.url;a.target='_blank';a.rel='noopener noreferrer';a.title='Mở trang '+u.name+' (tab mới)';
+  const sp=document.createElement('span');sp.textContent=u.name;const ic=document.createElement('i');ic.textContent='↗';ic.setAttribute('aria-hidden','true');a.append(sp,ic);li.append(a);ul.append(li)})}
+
+function jsonp(query,timeout){return new Promise((res,rej)=>{const cb='__units_'+Date.now()+Math.random().toString(36).slice(2,6),s=document.createElement('script');let done=false;
+ const end=()=>{done=true;clearTimeout(t);delete window[cb];s.remove()};const t=setTimeout(()=>{if(!done){end();rej(new Error('Hết thời gian chờ'))}},timeout||12000);
+ window[cb]=d=>{end();res(d)};s.onerror=()=>{if(!done){end();rej(new Error('Không tải được'))}};s.src=API+'?'+query+'&callback='+cb+'&_='+Date.now();document.head.append(s)})}
+
+async function loadCloud(){try{const d=await jsonp('action=units');if(d&&d.ok&&Array.isArray(d.units)){units=clean(d.units);try{localStorage.setItem(LS,JSON.stringify(units))}catch(_){}renderMenu();return true}}catch(_){}return false}
+
+/* ---- form quản lý ---- */
+const css=document.createElement('style');css.id='units-form-css';css.textContent=`
+#unitsModal{position:fixed;inset:0;z-index:10000;background:rgba(14,28,52,.55);display:flex;align-items:flex-start;justify-content:center;padding:28px 14px;overflow:auto;font:14px/1.5 "Segoe UI",system-ui,Arial,sans-serif;color:#182b44}
+#unitsModal[hidden]{display:none}#unitsModal *{box-sizing:border-box}#unitsModal button,#unitsModal input{font:inherit}
+#unitsModal .um-panel{width:min(640px,100%);background:#f3f6fb;border-radius:16px;box-shadow:0 30px 90px rgba(10,25,50,.35);overflow:hidden}
+#unitsModal .um-top{display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(135deg,#4c1d95,#7c3aed);color:#fff;border-bottom:3px solid #d6a94d}
+#unitsModal .um-top h2{margin:0;font-size:19px;color:#fff}#unitsModal .um-top p{margin:2px 0 0;font-size:12.5px;color:#e4d8ff}
+#unitsModal .um-sp{flex:1}#unitsModal .um-x{width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:20px;line-height:1;cursor:pointer}
+#unitsModal .um-body{padding:16px 20px 20px;display:grid;gap:14px}
+#unitsModal .um-card{background:#fff;border:1px solid #e3e9f2;border-radius:12px;padding:14px}
+#unitsModal h3{margin:0 0 10px;font-size:14px}
+#unitsModal label{display:block;font-size:12.5px;font-weight:700;color:#4a5b73;margin:0 0 4px}
+#unitsModal input{width:100%;padding:9px 11px;border:1px solid #cfd8e6;border-radius:9px;background:#fff;color:#182b44}
+#unitsModal input:focus{outline:2px solid #7c3aed;outline-offset:1px;border-color:#7c3aed}
+#unitsModal .um-row{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px}
+#unitsModal .um-btns{display:flex;gap:8px;flex-wrap:wrap}
+#unitsModal .um-btn{padding:8px 14px;border-radius:9px;border:1px solid #cfd8e6;background:#fff;color:#182b44;font-weight:700;cursor:pointer}
+#unitsModal .um-btn.pri{background:#7c3aed;border-color:#7c3aed;color:#fff}#unitsModal .um-btn:disabled{opacity:.55;cursor:default}
+#unitsModal ul{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+#unitsModal li.um-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #e3e9f2;border-radius:10px;background:#fafbff}
+#unitsModal li.um-item .um-t{flex:1;min-width:0}#unitsModal li.um-item b{display:block;font-size:13.5px}
+#unitsModal li.um-item small{display:block;color:#6f7f96;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#unitsModal li.um-item button{width:32px;height:32px;border-radius:8px;border:1px solid #cfd8e6;background:#fff;cursor:pointer}
+#unitsModal .um-empty{color:#6f7f96;font-size:13px}
+#unitsModal .um-msg{min-height:20px;font-size:13px;font-weight:600}#unitsModal .um-msg.err{color:#c0392b}#unitsModal .um-msg.ok{color:#0e8a5f}
+#unitsModal .um-hint{font-size:12px;color:#6f7f96;margin:6px 0 0}`;
+document.head.append(css);
+
+const modal=document.createElement('div');modal.id='unitsModal';modal.hidden=true;modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-labelledby','umTitle');
+modal.innerHTML=`<div class="um-panel"><div class="um-top"><div><h2 id="umTitle">Trang web các đơn vị</h2><p>Thêm tên và liên kết – tự hiện ở mục “Trang web các đơn vị” trên menu trái</p></div><span class="um-sp"></span><button class="um-x" type="button" id="umClose" aria-label="Đóng">×</button></div>
+<div class="um-body"><div class="um-card"><h3 id="umFormTitle">Thêm đơn vị</h3><div class="um-row"><div><label for="umName">Tên đơn vị</label><input id="umName" maxlength="120" placeholder="VD: Đảng bộ xã Mường Khương" autocomplete="off"></div><div><label for="umUrl">Liên kết trang web</label><input id="umUrl" maxlength="300" placeholder="https://laocai-cds.github.io/muongkhuong/" inputmode="url" autocomplete="off"></div></div><div class="um-btns"><button class="um-btn pri" type="button" id="umAdd">＋ Thêm vào danh sách</button><button class="um-btn" type="button" id="umCancel" hidden>Hủy sửa</button></div></div>
+<div class="um-card"><h3>Danh sách (<span id="umCount">0</span>)</h3><ul id="umList"></ul><p class="um-empty" id="umNone" hidden>Chưa có đơn vị nào.</p></div>
+<div class="um-card"><h3>Lưu thay đổi</h3><label for="umPass">Mã truy cập chung</label><input id="umPass" type="password" autocomplete="off" placeholder="Nhập mã để lưu lên Google Sheets"><p class="um-hint">Lưu lên Google Sheets để mọi người cùng thấy; đồng thời nhớ trên trình duyệt này.</p><div class="um-btns" style="margin-top:10px"><button class="um-btn pri" type="button" id="umSave">Lưu danh sách</button></div><div class="um-msg" id="umMsg" role="status" aria-live="polite"></div></div></div></div>`;
+document.body.append(modal);
+const $=id=>document.getElementById(id);
+const say=(t,k)=>{const m=$('umMsg');m.textContent=t||'';m.className='um-msg'+(k?' '+k:'')};
+
+function renderDraft(){const ul=$('umList');ul.textContent='';$('umCount').textContent=draft.length;$('umNone').hidden=draft.length>0;
+ draft.forEach((u,i)=>{const li=document.createElement('li');li.className='um-item';
+  li.innerHTML=`<div class="um-t"><b>${esc(u.name)}</b><small>${esc(u.url)}</small></div><button type="button" data-up="${i}" title="Lên" aria-label="Chuyển lên"${i?'':' disabled'}>↑</button><button type="button" data-ed="${i}" title="Sửa" aria-label="Sửa">✎</button><button type="button" data-del="${i}" title="Xóa" aria-label="Xóa">🗑</button>`;ul.append(li)})}
+function resetForm(){editIdx=-1;$('umName').value='';$('umUrl').value='';$('umFormTitle').textContent='Thêm đơn vị';$('umAdd').textContent='＋ Thêm vào danh sách';$('umCancel').hidden=true}
+function normUrl(v){v=String(v||'').trim();if(!v)return null;if(!/^[a-z][a-z0-9+.-]*:/i.test(v))v='https://'+v;try{const u=new URL(v);if(!/^https?:$/.test(u.protocol)||!u.hostname.includes('.'))return null;return u.href}catch(_){return null}}
+function open_(){draft=units.map(u=>({...u}));resetForm();renderDraft();say('');$('umPass').value='';modal.hidden=false;setTimeout(()=>$('umName').focus(),30)}
+function close_(){modal.hidden=true}
+
+$('umClose').onclick=close_;modal.addEventListener('mousedown',e=>{if(e.target===modal)close_()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close_()});
+$('umCancel').onclick=()=>{resetForm();say('')};
+$('umAdd').onclick=()=>{const name=$('umName').value.trim().replace(/\s+/g,' '),url=normUrl($('umUrl').value);
+ if(!name){say('Nhập tên đơn vị.','err');$('umName').focus();return}
+ if(!url){say('Liên kết không hợp lệ (cần dạng https://…).','err');$('umUrl').focus();return}
+ if(draft.some((u,i)=>i!==editIdx&&u.url.replace(/\/$/,'')===url.replace(/\/$/,''))){say('Liên kết này đã có trong danh sách.','err');return}
+ if(editIdx<0&&draft.length>=60){say('Tối đa 60 đơn vị.','err');return}
+ if(editIdx>=0)draft[editIdx]={name,url};else draft.push({name,url});
+ const was=editIdx>=0;resetForm();renderDraft();say((was?'Đã cập nhật. ':'Đã thêm. ')+'Bấm “Lưu danh sách” để áp dụng.','ok');$('umName').focus()};
+[$('umName'),$('umUrl')].forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('umAdd').click()}}));
+$('umList').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.del!=null){const i=+b.dataset.del;if(confirm('Xóa “'+draft[i].name+'” khỏi danh sách?')){draft.splice(i,1);if(editIdx===i)resetForm();else if(editIdx>i)editIdx--;renderDraft();say('Đã xóa. Bấm “Lưu danh sách” để áp dụng.','ok')}}
+ else if(b.dataset.ed!=null){const i=+b.dataset.ed;editIdx=i;$('umName').value=draft[i].name;$('umUrl').value=draft[i].url;$('umFormTitle').textContent='Sửa đơn vị';$('umAdd').textContent='Cập nhật';$('umCancel').hidden=false;$('umName').focus()}
+ else if(b.dataset.up!=null){const i=+b.dataset.up;if(i>0){[draft[i-1],draft[i]]=[draft[i],draft[i-1]];resetForm();renderDraft()}}});
+
+$('umSave').onclick=async()=>{const pass=$('umPass').value;if(!pass){say('Nhập mã truy cập chung để lưu.','err');$('umPass').focus();return}
+ const list=clean(draft),btn=$('umSave');btn.disabled=true;say('Đang lưu lên Google Sheets…');
+ try{localStorage.setItem(LS,JSON.stringify(list))}catch(_){}
+ units=list;renderMenu();
+ try{await fetch(API,{method:'POST',mode:'no-cors',body:new URLSearchParams({payload:JSON.stringify({action:'units',token:pass,units:list})})})}catch(_){}
+ let ok=false,reached=false;
+ for(let n=0;n<4&&!ok;n++){if(n)await new Promise(r=>setTimeout(r,900));try{const d=await jsonp('action=units');reached=true;if(d&&Array.isArray(d.units)&&JSON.stringify(clean(d.units))===JSON.stringify(list))ok=true}catch(_){}}
+ btn.disabled=false;$('umPass').value='';
+ if(ok){say('Đã lưu lên Google Sheets – mọi người đều thấy danh sách mới.','ok')}
+ else if(reached){say('Danh sách đã áp dụng trên trình duyệt này nhưng chưa xác nhận được trên Google Sheets: mã truy cập có thể sai, hoặc Apps Script chưa cập nhật bản Code.gs mới (v5).','err')}
+ else{say('Danh sách đã áp dụng trên trình duyệt này; chưa kết nối được Google Sheets để đồng bộ.','err')}};
+
+function addMenuItem(){const m=document.getElementById('exportMenu');if(!m||document.getElementById('unitsMenuAction'))return;
+ const b=document.createElement('button');b.type='button';b.role='menuitem';b.id='unitsMenuAction';b.textContent='🔗 Trang web đơn vị';
+ b.onclick=()=>{m.classList.remove('open');const t=document.getElementById('exportBtn');if(t)t.setAttribute('aria-expanded','false');open_()};
+ const ref=document.getElementById('announcementMenuAction');ref?ref.after(b):m.append(b)}
+
+renderMenu();addMenuItem();
+document.addEventListener('DOMContentLoaded',addMenuItem);
+loadCloud();
+})();
 </script>
 </body></html>
 
