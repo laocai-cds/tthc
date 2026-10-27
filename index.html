@@ -5115,6 +5115,7 @@ loadCloud();
 #unit-news-pop .unp-close{position:absolute;top:12px;right:12px;z-index:3;width:34px;height:34px;border:1px solid #e1e6ee;border-radius:50%;background:#fff;color:#44546a;font-size:22px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 #unit-news-pop .unp-close:hover{background:#f3f5f9}
 #unit-news-pop #unit-news .un-head{padding-right:56px}
+#unit-news .un-live{display:flex;align-items:center;gap:7px;margin:7px 0 0;font:600 12px var(--sans);color:#0f7a5f}#unit-news .un-live i{width:8px;height:8px;border-radius:50%;background:#16b27f;box-shadow:0 0 0 0 rgba(22,178,127,.6);animation:unlive 1.8s infinite}@keyframes unlive{70%{box-shadow:0 0 0 7px rgba(22,178,127,0)}100%{box-shadow:0 0 0 0 rgba(22,178,127,0)}}
 body.unp-lock{overflow:hidden}
 @media(max-width:600px){#unit-news-pop{padding:0}#unit-news-pop .unp-panel{max-height:100vh;height:100%;border-radius:0}}
 .sidebar .news-launch{position:relative;display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;margin:0 0 6px;padding:7px 9px;border:1px solid rgba(255,190,150,.5);border-radius:12px;color:#fff;cursor:pointer;overflow:hidden;font:inherit;text-align:left;background:radial-gradient(120% 160% at 0% 0%,rgba(255,225,200,.32),transparent 55%),linear-gradient(115deg,#9d1219,#d12a2f 55%,#ef5a3c);box-shadow:0 8px 20px rgba(197,22,32,.34),inset 0 1px 0 rgba(255,255,255,.22);transition:transform .15s,filter .15s,box-shadow .15s}
@@ -5398,8 +5399,34 @@ body.unp-lock{overflow:hidden}
   }
   btn.title='Về '+cap(DEFAULT)+' (mặc định)';btn.setAttribute('aria-label',btn.title);
   btn.addEventListener('click',()=>{cur=DEFAULT;sel.value=DEFAULT;load()});let loaded=false;
-  const openNews=()=>{host.hidden=false;document.body.classList.add('unp-lock');if(!loaded){loaded=true;load();setInterval(load,30*60*1000)}else if(Date.now()-poolAt>10*60*1000)load();setTimeout(()=>host.querySelector('.unp-close').focus(),30)};
-  const closeNews=()=>{host.hidden=true;document.body.classList.remove('unp-lock');const b=document.getElementById('localNewsBtn');b&&b.focus()};
+  const openNews=()=>{host.hidden=false;liveStart();document.body.classList.add('unp-lock');if(!loaded){loaded=true;load();setInterval(load,30*60*1000)}else if(Date.now()-poolAt>10*60*1000)load();setTimeout(()=>host.querySelector('.unp-close').focus(),30)};
+  /* Người đang xem mục tin: dùng Firebase Realtime Database của trang (nhánh newsViewers), tự xóa khi đóng hoặc mất kết nối. */
+  const liveEl=el('p','un-live');liveEl.setAttribute('role','status');liveEl.hidden=true;sub.after(liveEl);
+  let lv=null;
+  const liveStart=()=>{
+    try{
+      if(!window.firebase||typeof firebaseConfig==='undefined'||lv)return;
+      if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+      const db=firebase.database(),root=db.ref('newsViewers');
+      let sid=null;try{sid=sessionStorage.getItem('newsViewerId')}catch(_){}
+      if(!sid){sid=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'v-'+Date.now()+'-'+Math.random().toString(36).slice(2);try{sessionStorage.setItem('newsViewerId',sid)}catch(_){}}
+      const me=root.child(sid),conn=db.ref('.info/connected');
+      const put=()=>me.update({unit:cur,lastSeen:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{});
+      const onConn=conn.on('value',sn=>{if(sn.val()===true){me.onDisconnect().remove().catch(()=>{});put()}});
+      const timer=setInterval(put,20000);
+      const onVal=root.on('value',sn=>{
+        const now=Date.now(),rows=Object.values(sn.val()||{}).filter(x=>x&&Number(x.lastSeen)>0&&now-Number(x.lastSeen)<60000);
+        const n=rows.length,m=rows.filter(x=>x.unit===cur).length;
+        liveEl.innerHTML='<i></i><span>'+n.toLocaleString('vi-VN')+' người đang xem mục tin'+(n>0&&m>0&&cur!==PROV?' · '+m.toLocaleString('vi-VN')+' xem '+cap(cur):'')+'</span>';liveEl.hidden=false;
+      },()=>{liveEl.hidden=true});
+      lv={put,stop(){clearInterval(timer);conn.off('value',onConn);root.off('value',onVal);me.remove().catch(()=>{});liveEl.hidden=true;lv=null}};
+      put();
+    }catch(_){liveEl.hidden=true}
+  };
+  const liveStop=()=>{if(lv)lv.stop()};
+  sel.addEventListener('change',()=>{if(lv)lv.put()});btn.addEventListener('click',()=>{if(lv)setTimeout(lv.put,0)});
+  addEventListener('pagehide',liveStop);
+  const closeNews=()=>{liveStop();host.hidden=true;document.body.classList.remove('unp-lock');const b=document.getElementById('localNewsBtn');b&&b.focus()};
   host.querySelector('.unp-close').onclick=closeNews;
   host.addEventListener('mousedown',e=>{if(e.target===host)closeNews()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!host.hidden&&!(document.getElementById('un-modal')&&document.getElementById('un-modal').classList.contains('on')))closeNews()});
