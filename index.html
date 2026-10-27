@@ -5407,6 +5407,22 @@ body.unp-lock{overflow:hidden}
   document.addEventListener('click',e=>{if(e.target.closest('#localNewsBtn')){e.preventDefault();openNews()}});
 })();
 </script>
+<script>
+/* Thanh menu trái: tự co nhỏ vừa khung hình để thấy toàn bộ các mục, không phải cuộn. */
+(()=>{const sc=document.querySelector('.sidebar-scroll');if(!sc)return;let busy=false,t=0;
+ function fit(){if(busy)return;busy=true;const kids=[...sc.children];kids.forEach(k=>k.style.zoom='');
+  const need=sc.scrollHeight,have=sc.clientHeight;
+  if(need>have+1){const z=Math.max(.5,Math.floor(have/need*100)/100);kids.forEach(k=>k.style.zoom=z);
+   /* đo lại, nếu còn tràn thì co thêm */
+   if(sc.scrollHeight>sc.clientHeight+1){const z2=Math.max(.5,Math.floor(z*sc.clientHeight/sc.scrollHeight*100)/100);kids.forEach(k=>k.style.zoom=z2)}}
+  busy=false}
+ const later=()=>{clearTimeout(t);t=setTimeout(fit,60)};
+ addEventListener('resize',later);addEventListener('load',later);
+ new MutationObserver(later).observe(sc,{childList:true,subtree:true,attributes:true,attributeFilter:['open','hidden','class']});
+ sc.addEventListener('toggle',later,true);
+ later();setTimeout(fit,800);setTimeout(fit,2500);
+})();
+</script>
 </body></html>
 
 
