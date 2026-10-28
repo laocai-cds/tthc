@@ -2790,7 +2790,7 @@ body.dp-lock{overflow:hidden}
       <div class="dp-field" style="margin-bottom:8px"><label for="dpApi">① Apps Script — nhập file Excel (URL …/exec)</label>
        <div class="dp-row"><input id="dpApi" type="text" spellcheck="false" autocomplete="off" placeholder="Dán URL Ứng dụng web …/exec hoặc Mã triển khai AKfy…"><button class="dp-btn sec" id="dpApiSave" type="button" style="padding:9px 12px">Lưu</button></div>
        <div class="dp-msg" id="dpApiMsg" style="margin-top:8px"></div></div>
-      <div class="dp-field" style="margin-bottom:8px"><label for="dpApi2">② API — Nút API đồng bộ từ gqtthc (URL Apps Script …/exec; để trống = dùng ô ①)</label>
+      <div class="dp-field" style="margin-bottom:8px"><label for="dpApi2">② API — Nút API đồng bộ từ gqtthc (dán URL …/exec hoặc cả mã dấu trang; để trống = dùng ô ①)</label>
        <div class="dp-row"><input id="dpApi2" type="text" spellcheck="false" autocomplete="off" placeholder="Dán URL Ứng dụng web …/exec hoặc Mã triển khai AKfy…"><button class="dp-btn sec" id="dpApiSave2" type="button" style="padding:9px 12px">Lưu</button></div>
        <div class="dp-msg" id="dpApiMsg2" style="margin-top:8px"></div></div>
       <ol>
@@ -3211,7 +3211,14 @@ body.dp-lock{overflow:hidden}
   function apiMsg2(type, html) { const m = q('dpApiMsg2'); m.className = 'dp-msg' + (type ? ' show ' + type : ''); m.innerHTML = html || ''; }
   q('dpApi2').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); q('dpApiSave2').click(); } });
   q('dpApiSave2').onclick = async () => {
-    const r = normalizeApi(q('dpApi2').value);
+    let raw2 = q('dpApi2').value;
+    if (/^\s*javascript:/i.test(raw2)) {
+      let dec = raw2; try { dec = decodeURIComponent(raw2); } catch (e) {}
+      const mm = dec.match(/https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec/);
+      if (!mm) return apiMsg2('bad', 'Mã dấu trang này chưa chứa địa chỉ Apps Script. Hãy cấu hình ô ① trước rồi sao chép lại mã.');
+      raw2 = mm[0];
+    }
+    const r = normalizeApi(raw2);
     if (r.err) return apiMsg2('bad', esc(r.err));
     store.set(LS.api2, r.url);
     q('dpApi2').value = r.url;
