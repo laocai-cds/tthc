@@ -5601,8 +5601,8 @@ body.unp-lock{overflow:hidden}
 .topbar .top-actions .export-wrap #exportBtn{box-sizing:border-box;width:100%}}
 .mkt-ov{position:fixed;inset:0;z-index:10100;display:none;align-items:center;justify-content:center;background:#0b1220b8;backdrop-filter:blur(3px);padding:2.5vh 2vw}
 .mkt-ov.on{display:flex}
-.mkt-box{position:relative;width:1240px;height:700px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px -18px #000b,0 0 0 1px #ffffff26}
-.mkt-box iframe{display:block;width:1240px;height:700px;border:0;background:#fff;transform-origin:0 0}
+.mkt-box{position:relative;width:1180px;height:700px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px -18px #000b,0 0 0 1px #ffffff26}
+.mkt-box iframe{display:block;width:1180px;height:700px;border:0;background:#fff;transform-origin:0 0}
 .mkt-x{position:absolute;top:12px;right:14px;z-index:2;width:34px;height:34px;border-radius:50%;border:1px solid #ffffff55;background:#0f1d33cc;color:#fff;font-size:18px;line-height:1;cursor:pointer}
 .mkt-x:hover{background:#d97706;color:#fff}
 @media(max-width:700px){.mkt-ov{padding:0}.mkt-box{width:100vw;height:100vh;border-radius:0}.mkt-box iframe{width:100%;height:100%;transform:none!important}}
@@ -5613,7 +5613,7 @@ body.unp-lock{overflow:hidden}
 function ov(){return document.getElementById('mktOv')}
 function fitMkt(){const f=document.getElementById('mktFr'),b=f&&f.parentNode;if(!b)return;
  if(innerWidth<=700){b.style.width='';b.style.height='';f.style.width='';f.style.height='';f.style.transform='';return}
- const BW=1240,BH=700,k=Math.min(innerWidth*.94/BW,innerHeight*.92/BH,1);
+ const BW=1180,BH=700,k=Math.min(innerWidth*.94/BW,innerHeight*.94/BH,1.3);
  b.style.width=Math.floor(BW*k)+'px';b.style.height=Math.floor(BH*k)+'px';
  f.style.width=BW+'px';f.style.height=BH+'px';f.style.transform='scale('+k+')'}
 function openMkt(){const o=ov(),f=document.getElementById('mktFr');if(!o)return;if(f&&!f.getAttribute('src'))f.src='bang-ty-gia-usd-gia-vang.html';o.classList.add('on');document.body.style.overflow='hidden';fitMkt()}
