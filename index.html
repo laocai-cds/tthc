@@ -2787,9 +2787,12 @@ body.dp-lock{overflow:hidden}
       </ol>
      </details>
      <div class="dp-cfg dp-hidden" id="dpCfg">
-      <div class="dp-field" style="margin-bottom:8px"><label for="dpApi">Địa chỉ API (Apps Script /exec)</label>
+      <div class="dp-field" style="margin-bottom:8px"><label for="dpApi">① Địa chỉ API — nhập file Excel (Apps Script /exec)</label>
        <div class="dp-row"><input id="dpApi" type="text" spellcheck="false" autocomplete="off" placeholder="Dán URL Ứng dụng web …/exec hoặc Mã triển khai AKfy…"><button class="dp-btn sec" id="dpApiSave" type="button" style="padding:9px 12px">Lưu</button></div>
        <div class="dp-msg" id="dpApiMsg" style="margin-top:8px"></div></div>
+      <div class="dp-field" style="margin-bottom:8px"><label for="dpApi2">② Địa chỉ API — Nút API từ gqtthc (để trống = dùng địa chỉ ①)</label>
+       <div class="dp-row"><input id="dpApi2" type="text" spellcheck="false" autocomplete="off" placeholder="Dán URL Ứng dụng web …/exec hoặc Mã triển khai AKfy…"><button class="dp-btn sec" id="dpApiSave2" type="button" style="padding:9px 12px">Lưu</button></div>
+       <div class="dp-msg" id="dpApiMsg2" style="margin-top:8px"></div></div>
       <ol>
        <li>Mở Google Sheet → Tiện ích mở rộng → Apps Script, dán <b>Code.gs</b>.</li>
        <li>Cài đặt dự án → Thuộc tính tập lệnh: thêm <code>SYNC_TOKEN</code>.</li>
@@ -2851,7 +2854,7 @@ body.dp-lock{overflow:hidden}
   /* ===== CẤU HÌNH ===== */
   const DP_API_DEFAULT = '';   // ← dán URL Apps Script .../exec vào đây để mọi máy dùng chung
   const DP_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-M1AGkWO4g/edit?gid=193289320#gid=193289320';
-  const LS = { api: 'dangphi.api', token: 'dangphi.token' };
+  const LS = { api: 'dangphi.api', api2: 'dangphi.api2', token: 'dangphi.token' };
 
   const q = id => document.getElementById(id);
   const store = {
@@ -2863,6 +2866,7 @@ body.dp-lock{overflow:hidden}
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
   const norm = s => String(s ?? '').normalize('NFC').toLowerCase().replace(/\s+/g, ' ').trim();
   const getApi = () => store.get(LS.api) || DP_API_DEFAULT;
+  const getApi2 = () => store.get(LS.api2) || getApi();
 
   let rows = [], fileMeta = null, filter = 'all', sortDir = 0, totals = null, canSync = false, statusLoaded = false;
   if(q('dpSheetLink'))q('dpSheetLink').href = DP_SHEET_URL;
@@ -3182,7 +3186,7 @@ body.dp-lock{overflow:hidden}
     const box = q('dpCfg');
     const show = typeof force === 'boolean' ? force : box.classList.contains('dp-hidden');
     box.classList.toggle('dp-hidden', !show);
-    if (show) { q('dpApi').value = getApi(); apiMsg(); q('dpApi').focus(); }
+    if (show) { q('dpApi').value = getApi(); q('dpApi2').value = store.get(LS.api2); apiMsg(); apiMsg2(); q('dpApi').focus(); }
   }
   q('dpCfgBtn').onclick = () => toggleCfg();
   function normalizeApi(raw) {
@@ -3204,6 +3208,22 @@ body.dp-lock{overflow:hidden}
   }
   function apiMsg(type, html) { const m = q('dpApiMsg'); m.className = 'dp-msg' + (type ? ' show ' + type : ''); m.innerHTML = html || ''; }
   q('dpApi').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); q('dpApiSave').click(); } });
+  function apiMsg2(type, html) { const m = q('dpApiMsg2'); m.className = 'dp-msg' + (type ? ' show ' + type : ''); m.innerHTML = html || ''; }
+  q('dpApi2').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); q('dpApiSave2').click(); } });
+  q('dpApiSave2').onclick = async () => {
+    const r = normalizeApi(q('dpApi2').value);
+    if (r.err) return apiMsg2('bad', esc(r.err));
+    store.set(LS.api2, r.url);
+    q('dpApi2').value = r.url;
+    if (typeof dpBmRefresh === 'function') dpBmRefresh();
+    if (!r.url) return apiMsg2('info', 'Đã xóa — Nút API sẽ dùng địa chỉ ①.');
+    apiMsg2('info', 'Đã lưu. Đang kiểm tra kết nối…');
+    try {
+      const st = await jsonp(r.url);
+      if (st && st.ok) apiMsg2('ok', '✓ Kết nối thành công. Hãy kéo lại nút “Đồng bộ đảng phí” lên thanh dấu trang để cập nhật địa chỉ mới.');
+      else apiMsg2('bad', 'Đã lưu nhưng máy chủ trả lỗi: ' + esc((st && st.error) || 'không rõ') + '.');
+    } catch (e) { apiMsg2('bad', 'Đã lưu nhưng chưa kết nối được (' + esc(e.message) + ').'); }
+  };
   q('dpApiSave').onclick = async () => {
     const r = normalizeApi(q('dpApi').value);
     if (r.err) return apiMsg('bad', esc(r.err));
@@ -3294,15 +3314,15 @@ body.dp-lock{overflow:hidden}
       }
     })();
   }
-  function dpBmSrc() { return '(' + dpBookmarklet.toString() + ')(' + JSON.stringify(getApi()) + ');void 0'; }
+  function dpBmSrc() { return '(' + dpBookmarklet.toString() + ')(' + JSON.stringify(getApi2()) + ');void 0'; }
   (function () {
     const a = q('dpApiBm'), c = q('dpApiCopy'); if (!a) return;
-    const refresh = () => { const api = getApi(); a.href = api ? 'javascript:' + encodeURIComponent(dpBmSrc()) : '#'; a.title = api ? 'Kéo lên thanh dấu trang' : 'Cần cấu hình địa chỉ API trước'; };
-    refresh();
+    const refresh = () => { const api = getApi2(); a.href = api ? 'javascript:' + encodeURIComponent(dpBmSrc()) : '#'; a.title = api ? 'Kéo lên thanh dấu trang' : 'Cần cấu hình địa chỉ API trước'; };
+    refresh(); window.dpBmRefresh = refresh;
     q('dpApiBox').addEventListener('toggle', refresh);
     a.addEventListener('click', e => { e.preventDefault(); showMsg('info', 'Hãy <b>kéo</b> nút này lên thanh dấu trang (đừng bấm tại đây).'); });
     c.onclick = async () => {
-      if (!getApi()) return showMsg('bad', 'Cần cấu hình địa chỉ API trước.');
+      if (!getApi2()) return showMsg('bad', 'Cần cấu hình địa chỉ API trước.');
       try { await navigator.clipboard.writeText('javascript:' + encodeURIComponent(dpBmSrc())); showMsg('ok', 'Đã sao chép mã dấu trang.'); } catch (e) { showMsg('bad', 'Không sao chép được — hãy kéo nút lên thanh dấu trang.'); }
     };
   })();
