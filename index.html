@@ -5791,8 +5791,6 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 .ad-slide span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ad-cta{flex:none;position:relative;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:10px;border:0;background:#fff;color:#5b21b6;font:800 12.5px "Segoe UI",Arial,sans-serif;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.18);transition:transform .15s,box-shadow .15s}
 .ad-strip:hover .ad-cta{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.26)}
-.ad-x{flex:none;position:relative;width:26px;height:26px;border:0;border-radius:8px;background:rgba(255,255,255,.16);color:#fff;font-size:16px;line-height:1;cursor:pointer}
-.ad-x:hover{background:rgba(255,255,255,.32)}
 @media(max-width:760px){.ad-strip{margin:8px 14px 0}.ad-tag span{display:none}.ad-slide{font-size:12.5px}.ad-cta{padding:0 10px}}
 .adp-ov{position:fixed;inset:0;z-index:10100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(10,22,42,.6);backdrop-filter:blur(3px);font-family:"Segoe UI",Arial,sans-serif}
 .adp-ov.on{display:flex}
@@ -5854,7 +5852,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 (()=>{const tb=document.querySelector('.topbar');if(!tb)return;
  /* Thông tin liên hệ hiển thị cuối popup, ví dụ: 'Liên hệ: Đ/c ... - ĐT/Zalo ...' (để trống thì dùng câu mặc định) */
  const CONTACT='';
- const KEY='dvc-ad-strip-closed';let closed=false;try{closed=sessionStorage.getItem(KEY)==='1'}catch(_){}
+ try{sessionStorage.removeItem('dvc-ad-strip-closed')}catch(_){}
  const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  /* Các website xã đã triển khai (luôn hiển thị, gộp với danh sách ở “Trang web các đơn vị”, bỏ trùng theo địa chỉ) */
  const KNOWN=[['Đảng bộ xã Lương Thịnh','luongthinh'],['Đảng bộ xã Bảo Thắng','baothang'],['Đảng bộ xã Trạm Tấu','tramtau'],['Đảng bộ xã Phình Hồ','phinhho'],['Đảng bộ xã Võ Lao','volao']].map(x=>({name:x[0],url:'https://laocai-cds.github.io/'+x[1]+'/'}));
@@ -5862,7 +5860,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  const units=()=>{try{const own=(window.__unitSites&&window.__unitSites()||[]).filter(u=>u&&u.name&&/^https?:\/\//i.test(u.url)),seen=new Set(own.map(u=>norm(u.url)));return own.concat(KNOWN.filter(u=>!seen.has(norm(u.url))))}catch(_){return KNOWN.slice()}};
  const short=n=>String(n).replace(/^Đảng bộ /,'');
  const el=document.createElement('div');el.className='ad-strip';el.id='adStrip';el.hidden=false;el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','Quảng cáo dịch vụ thiết kế website cho đơn vị. Bấm để xem chi tiết');
- el.innerHTML='<span class="ad-tag">🌐 <span>THIẾT KẾ WEBSITE</span></span><div class="ad-msg" id="adMsg"></div><span class="ad-cta">Xem chi tiết ↗</span><button class="ad-x" type="button" id="adX" aria-label="Ẩn quảng cáo" title="Ẩn">×</button>';
+ el.innerHTML='<span class="ad-tag">🌐 <span>THIẾT KẾ WEBSITE</span></span><div class="ad-msg" id="adMsg"></div><span class="ad-cta">Xem chi tiết ↗</span>';
  tb.after(el);
  const ov=document.getElementById('adpOv');if(CONTACT)document.getElementById('adpContact').textContent=CONTACT;
  let i=0,timer=null,sig='',slides=[];
@@ -5880,13 +5878,12 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  let lastFocus=null;
  function openP(){lastFocus=document.activeElement;fillPopup();ov.classList.add('on');document.documentElement.style.overflow='hidden';setTimeout(()=>{const f=ov.querySelector('button[data-adp-close]');f&&f.focus()},30)}
  function closeP(){ov.classList.remove('on');document.documentElement.style.overflow='';try{lastFocus&&lastFocus.focus()}catch(_){}}
- el.addEventListener('click',e=>{if(e.target.closest('#adX'))return;openP()});
+ el.addEventListener('click',openP);
  el.addEventListener('keydown',e=>{if(e.target===el&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openP()}});
  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-adp-close]'))closeP()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ov.classList.contains('on'))closeP()});
- el.querySelector('#adX').addEventListener('click',e=>{e.stopPropagation();closed=true;try{sessionStorage.setItem(KEY,'1')}catch(_){}el.hidden=true;clearInterval(timer)});
  el.addEventListener('mouseenter',()=>clearInterval(timer));el.addEventListener('mouseleave',restart);
- function refresh(){if(closed){el.hidden=true;return}const sg=JSON.stringify(units());if(sg===sig)return;sig=sg;build();restart()}
+ function refresh(){el.hidden=false;const sg=JSON.stringify(units());if(sg===sig)return;sig=sg;build();restart()}
  refresh();setInterval(refresh,3000);
 })();
 </script>
