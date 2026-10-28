@@ -5848,7 +5848,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  const KEY='dvc-ad-strip-closed';let closed=false;try{closed=sessionStorage.getItem(KEY)==='1'}catch(_){}
  const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  /* Các website xã đã triển khai (luôn hiển thị, gộp với danh sách ở “Trang web các đơn vị”, bỏ trùng theo địa chỉ) */
- const KNOWN=[['Đảng bộ xã Lương Thịnh','luongthinh'],['Đảng bộ xã Bảo Thắng','baothang'],['Đảng bộ xã Mường Khương','muongkhuong'],['Đảng bộ xã Trạm Tấu','tramtau'],['Đảng bộ xã Phình Hồ','phinhho'],['Đảng bộ xã Võ Lao','volao']].map(x=>({name:x[0],url:'https://laocai-cds.github.io/'+x[1]+'/'}));
+ const KNOWN=[['Đảng bộ xã Lương Thịnh','luongthinh'],['Đảng bộ xã Bảo Thắng','baothang'],['Đảng bộ xã Trạm Tấu','tramtau'],['Đảng bộ xã Phình Hồ','phinhho'],['Đảng bộ xã Võ Lao','volao']].map(x=>({name:x[0],url:'https://laocai-cds.github.io/'+x[1]+'/'}));
  const norm=u=>String(u).trim().toLowerCase().replace(/^https?:\/\//,'').replace(/[\/#?].*$/,m=>m).replace(/\/+$/,'');
  const units=()=>{try{const own=(window.__unitSites&&window.__unitSites()||[]).filter(u=>u&&u.name&&/^https?:\/\//i.test(u.url)),seen=new Set(own.map(u=>norm(u.url)));return own.concat(KNOWN.filter(u=>!seen.has(norm(u.url))))}catch(_){return KNOWN.slice()}};
  const short=n=>String(n).replace(/^Đảng bộ /,'');
