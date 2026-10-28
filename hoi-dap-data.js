@@ -11,7 +11,7 @@
            'open' : chưa có lời giải xác nhận → liên hệ đầu mối hỗ trợ tỉnh Lào Cai
    Muốn thêm câu hỏi: chép một khối { … } và sửa nội dung. */
 
-window.HD_UPDATED = '20/10/2026';
+window.HD_UPDATED = '28/10/2026';
 
 window.HD_CONTACT = {
   name: 'Đầu mối hỗ trợ kỹ thuật TTHC tỉnh Lào Cai',
@@ -674,12 +674,6 @@ window.HD_DATA = [
  alt:'doanh nghiệp tư nhân; chứng thư số tổ chức; Ban Cơ yếu; chưa đăng ký được; chữ ký số'},
 
 /* ===== BỔ SUNG TỪ TAB "HỎI ĐÁP CÁ NHÂN" (câu hỏi thực tế của cán bộ) ===== */
-{id:'CN03',c:'dp',st:'note',
- q:'Đảng viên chưa kê khai, đến khi vào nộp thì hệ thống báo “không nợ đảng phí” thì xử lý thế nào?',
- a:['Phải tạo hồ sơ đảng phí đúng kỳ trước: đảng viên tự kê khai → người có quyền phê duyệt → hồ sơ sang “Chờ nộp” → lúc đó mới thanh toán được.',
-    'Hồ sơ đã ở “Chờ nộp” mà vẫn báo “không nợ đảng phí” → chụp trạng thái, ghi mã hồ sơ và gửi đầu mối hỗ trợ kiểm tra.'],
- alt:'không nợ đảng phí; chưa kê khai; hệ thống báo không nợ; nộp tiền báo lỗi'},
-
 {id:'CN08',c:'dp',st:'open',
  q:'Đảng ủy từ chối phê duyệt hồ sơ cập nhật, hồ sơ quay về đảng viên nhưng đảng viên không vào chỉnh sửa và gửi phê duyệt lại được?',
  a:['Chưa có hướng dẫn xử lý được xác nhận cho trường hợp này. Gửi đầu mối hỗ trợ mã hồ sơ, tên đảng viên, đơn vị và ảnh màn hình.'],
@@ -692,31 +686,97 @@ window.HD_DATA = [
  alt:'nộp nhầm tài khoản; nộp vào tài khoản đảng bộ; có tính đã nộp không; chuyển nhầm',
  ref:'QA024'},
 
-{id:'CN15',c:'dp',st:'open',
- q:'Đảng viên đã nộp thành công đảng phí nhưng hệ thống của đảng bộ và chi bộ vẫn báo trong danh sách chưa nộp?',
- a:['Chưa có nguyên nhân/cách xử lý được xác nhận. Kiểm tra hồ sơ đã ở trạng thái “Hoàn thành/Đã nộp” chưa.',
-    'Đã hoàn thành mà vẫn nằm trong danh sách chưa nộp → gửi đầu mối hỗ trợ mã hồ sơ, tên đảng viên, kỳ nộp và ảnh hai màn hình.'],
- alt:'nộp rồi vẫn báo chưa nộp; danh sách chưa nộp; theo dõi đảng phí sai; đã nộp nhưng chưa ghi nhận'},
-
 {id:'CN13',c:'tt',st:'open',
  q:'Bao giờ phải nộp bản lấy ý kiến nơi cư trú năm 2026?',
  a:['Chưa có mốc thời gian được xác nhận trong kho hỏi – đáp. Theo dõi văn bản/chỉ đạo của cấp ủy cấp trên hoặc liên hệ đầu mối hỗ trợ.'],
  alt:'thời hạn lấy ý kiến nơi cư trú; năm 2026; khi nào nộp nhận xét nơi cư trú; hạn nộp'},
 
 /* ===== BỔ SUNG 20/10/2026 ===== */
-{id:'CN05',c:'dn',st:'note',
- q:'Không nhận được mã OTP khi đăng nhập/kích hoạt tài khoản thì làm thế nào?',
- a:['1. Kiểm tra lại số điện thoại đã đăng ký có đúng không; máy có sóng và nhận được tin nhắn SMS.',
-    '2. Khởi động lại điện thoại rồi bấm gửi lại OTP.',
-    '3. Xem mục tin nhắn rác/spam, tìm tin nhắn từ đầu số DVC_CQDang.',
-    '4. Vẫn không nhận được → kiểm tra với nhà mạng xem có chặn tin nhắn quảng cáo/thương hiệu không, hoặc gửi đầu mối hỗ trợ kèm số điện thoại và thời điểm gửi.'],
- alt:'không nhận được OTP; không có mã xác thực; SMS không về; mã OTP; DVC_CQDang; tin nhắn rác'},
-
 {id:'QA084',c:'db',st:'ok',
  q:'Dữ liệu tổ chức/đảng viên trên TTHC bị sai thì có sửa trực tiếp trên TTHC được không?',
  a:['Không. Dữ liệu tổ chức, đảng viên trên TTHC lấy từ CSDL 4.0.',
     '1. Sửa đúng dữ liệu trên CSDL 4.0.',
     '2. Đồng bộ lại sang TTHC.',
     '3. Kiểm tra lại trên TTHC. Dữ liệu 4.0 đã đúng mà TTHC vẫn chưa cập nhật → gửi đầu mối hỗ trợ kèm tên đơn vị/đảng viên và ảnh màn hình.'],
- alt:'sửa dữ liệu trên TTHC; dữ liệu sai; cơ cấu tổ chức sai; TTHC chưa cập nhật theo 4.0; sửa ở đâu; nguồn dữ liệu'}
+ alt:'sửa dữ liệu trên TTHC; dữ liệu sai; cơ cấu tổ chức sai; TTHC chưa cập nhật theo 4.0; sửa ở đâu; nguồn dữ liệu'},
+
+/* ===== BỔ SUNG 28/10/2026 – ĐỒNG BỘ TỪ KHO QA "Hỗ trợ kỹ thuật CDSTUHUE" (tab QA TTHC) ===== */
+{id:'QA118',c:'dp',st:'ok',
+ q:'Đảng viên đã thanh toán đảng phí thành công nhưng trạng thái trên TTHC chưa cập nhật (vẫn báo chưa nộp) thì có nộp lại không?',
+ a:['Không nộp lại nếu đã xác định giao dịch thanh toán thành công mà trạng thái TTHC chưa đồng bộ – nộp lần nữa sẽ tạo giao dịch trùng và sau đó phải xử lý hoàn tiền.',
+    'Với sự cố giao dịch qua VietinBank ngày 15/10/2026: chờ trung gian thanh toán/ngân hàng xử lý rồi đồng bộ lại trạng thái.',
+    'Chưa chắc giao dịch đã thành công thật hay chưa → đối chiếu chứng từ/trạng thái ngân hàng và gửi đầu mối hỗ trợ kiểm tra trước khi thanh toán lần nữa.',
+    'Trường hợp đảng bộ/chi bộ vẫn hiển thị tên người đã thanh toán trong danh sách chưa nộp cũng xử lý theo hướng này: gửi đầu mối hỗ trợ mã hồ sơ, tên đảng viên, kỳ nộp và ảnh màn hình.'],
+ alt:'đã trừ tiền nhưng hệ thống vẫn chưa nộp; giao dịch thành công mà trạng thái chưa đổi; có nên quét QR nộp lại không; sợ nộp trùng giao dịch; đã thanh toán nhưng báo còn nợ; nộp rồi vẫn báo chưa nộp; danh sách chưa nộp; VietinBank'},
+
+{id:'QA122',c:'dp',st:'note',
+ q:'Khi nộp đảng phí, hệ thống báo “không nợ đảng phí” dù đảng viên chưa nộp thì kiểm tra và xử lý thế nào?',
+ a:['1. Kiểm tra đảng viên đã tạo hồ sơ đảng phí đúng kỳ hay chưa. Chưa có → kê khai đúng kỳ → người có quyền phê duyệt → hồ sơ sang “Chờ nộp” rồi mới thanh toán.',
+    '2. Hồ sơ đã ở “Chờ nộp” mà vẫn báo “không nợ đảng phí” → không tự tạo giao dịch mới để thử; gửi đầu mối hỗ trợ mã hồ sơ, kỳ thu và ảnh trạng thái.',
+    'Lưu ý: đây là hướng dẫn thao tác tham khảo từ Lào Cai, chưa phải quy định độc lập.'],
+ alt:'không nợ đảng phí; chưa kê khai; đã tạo tờ khai nhưng báo không nợ; không thấy khoản cần thanh toán; nộp tiền báo lỗi'},
+
+{id:'QA085',c:'dp',st:'note',
+ q:'Đảng viên nông thôn không hưởng lương nhưng có BHXH tự nguyện, hệ thống tự nhảy mức 1% thì có đúng không và chỉnh thế nào?',
+ a:['Không nên mặc định lấy 1% theo BHXH tự nguyện nếu không đúng đối tượng tính đảng phí.',
+    'Có hướng dẫn chọn lại nhóm đối tượng phù hợp, hoặc thao tác không lấy BHXH rồi nhập mức tiền đúng theo nghiệp vụ.',
+    'Cần đối chiếu quy định mức đóng cho đúng đối tượng trước khi áp dụng.'],
+ alt:'BH tự nguyện làm đảng phí tăng cao; nông thôn không lương mà hệ thống tính 1%; BHXH tự nguyện; mức đảng phí nông thôn'},
+
+{id:'QA120',c:'dp',st:'ok',
+ q:'Hồ sơ đảng phí bị chuyển nhầm lên Đảng bộ vì cây tổ chức chưa trả đủ đến Chi bộ thì kiểm tra và xử lý thế nào?',
+ a:['1. Mở chi tiết hồ sơ, kiểm tra cây tổ chức tại thời điểm kê khai có hiển thị đầy đủ đến đúng Chi bộ hay không. Trong giai đoạn CSDL nâng cấp hạ tầng, có lúc cây cơ cấu trả về chưa đủ đến cấp Chi bộ nên hồ sơ bị đẩy lên Đảng bộ.',
+    '2. Xác định hồ sơ đã đi nhầm cấp vì cây chưa đủ → sau khi cơ cấu/dữ liệu đã đúng, để Chi bộ từ chối hồ sơ đó và yêu cầu đảng viên khai lại để hồ sơ đi đúng tuyến.',
+    'Không xử lý tiếp ở cấp Đảng bộ chỉ để hoàn tất hồ sơ khi cây tổ chức của hồ sơ ban đầu đã sai.'],
+ alt:'hồ sơ đảng phí không về chi bộ; tự chạy lên đảng bộ; chi bộ không thấy hồ sơ; cây tổ chức thiếu cấp chi bộ; phải từ chối hay xử lý tiếp'},
+
+{id:'QA058',c:'tt',st:'note',
+ q:'Chuyển sinh hoạt tạm thời: đảng viên có còn tính vào số lượng/danh sách của chi bộ cũ không?',
+ a:['Chuyển sinh hoạt tạm thời không cắt số lượng ở chi bộ cũ; chi bộ cũ vẫn quản lý danh sách.',
+    'Việc thu đảng phí thực hiện tại chi bộ tạm thời theo hướng dẫn đã nêu (xem câu về nộp đảng phí khi chuyển sinh hoạt tạm thời).'],
+ alt:'chi bộ cũ còn tên đảng viên tạm thời có đúng không; có giảm quân số không; cắt khỏi danh sách chi bộ cũ; sinh hoạt tạm thời'},
+
+{id:'QA068',c:'db',st:'note',
+ q:'Tên và loại hình tổ chức trên TTHC không khớp CSDL 4.0 sau Quy định 208-QĐ/TW (ví dụ 4.0 đã là “chi bộ” nhưng TTHC vẫn là “chi bộ cơ sở” hoặc “đảng bộ”) thì xử lý thế nào?',
+ a:['Ưu tiên chuẩn hóa đúng cơ cấu và loại hình tổ chức trên CSDL 4.0 theo Quy định số 208-QĐ/TW ngày 26/7/2026, vì TTHC lấy dữ liệu cơ cấu từ nguồn này. Khi cây cơ cấu chưa đồng bộ xong, TTHC có thể vẫn hiển thị mô hình cũ.',
+    'Không tự đổi tên/loại hình hoặc tỷ lệ để “chữa” ở TTHC.',
+    '1. 4.0 đã đúng → thực hiện hoặc chờ đồng bộ.',
+    '2. TTHC vẫn sai → gửi đầu mối hỗ trợ ảnh loại hình trên 4.0 và ảnh màn hình TTHC.',
+    'Sai loại hình có thể kéo theo tỷ lệ phân bổ hoặc luồng xử lý/ký số không đúng; sau khi cơ cấu theo 208 đồng bộ xong, đơn vị từ “chi bộ cơ sở” về “chi bộ” sẽ không còn nút ký số như mô hình cũ.'],
+ alt:'4.0 là chi bộ nhưng TTHC vẫn chi bộ cơ sở; tên chi bộ nhưng loại hình đảng bộ; TTHC nhảy thành đảng bộ trực thuộc; sai tỷ lệ vì sai loại hình; mất nút ký số sau 208; Quy định 208'},
+
+{id:'QA121',c:'db',st:'note',
+ q:'“Loại cơ quan, đơn vị” và “Phân loại cơ quan, đơn vị” trên dữ liệu nguồn không phù hợp thực tế thì ảnh hưởng gì và xử lý thế nào?',
+ a:['Hai trường này phải phản ánh đúng bản chất tổ chức. Gán sai có thể kéo theo kết quả sai ở các chức năng phụ thuộc dữ liệu tổ chức, rõ nhất là tỷ lệ phân bổ đảng phí; một số trường hợp còn làm lệch luồng xử lý hoặc yêu cầu ký số.',
+    '1. Xác định đúng loại hình/phân loại của đơn vị theo hồ sơ tổ chức và quy định hiện hành.',
+    '2. Sửa trên CSDL 4.0 → đồng bộ lại → kiểm tra các chức năng liên quan rồi mới xác nhận. Không sửa kết quả ở TTHC để che lỗi nguồn.',
+    'Ví dụ nhận diện dữ liệu bất hợp lý: (1) tên/loại là tổ chức đảng cấp xã nhưng Phân loại lại là “Đơn vị sự nghiệp công lập”; (2) tên hiển thị là “chi bộ” nhưng Loại lại là “đảng bộ”. Tỷ lệ đúng vẫn phải căn cứ loại/phân loại đúng sau khi chuẩn hóa, không suy ngược chỉ từ tên đơn vị.'],
+ alt:'loại và phân loại không khớp; Đảng bộ xã ghi đơn vị sự nghiệp công lập; tên chi bộ nhưng loại đảng bộ; sai loại hình làm sai tỷ lệ; sửa nguồn hay sửa TTHC'},
+
+{id:'QA119',c:'db',st:'ok',
+ q:'Đảng viên bị nhân đôi trên TTHC, hoặc 4.0 đã xóa bản ghi thừa nhưng TTHC vẫn còn thì xử lý thế nào?',
+ a:['Xóa đảng viên trên 4.0 không tự đồng bộ việc xóa xuống TTHC; bản nhân đôi thường do hai số CCCD.',
+    '1. Xuất danh sách TTHC, rà các bản cùng họ tên + ngày sinh nhưng CCCD khác nhau.',
+    '2. Xác định chắc bản thừa rồi mới xóa trên TTHC. Tránh xóa nhầm bản CCCD đúng vì có thể làm đảng viên không dùng được DVC/TTHC.',
+    '3. Bản mang CCCD sai đã có hồ sơ nộp đảng phí → không xóa thẳng: gửi đầu mối hỗ trợ CCCD sai và CCCD đúng để chuyển hồ sơ sang bản đúng rồi mới xóa.'],
+ alt:'4.0 xóa rồi TTHC chưa mất; một người thành hai đảng viên; đổi CCCD sinh thêm bản; dò trùng họ tên ngày sinh; đảng viên nhân đôi; bản CCCD sai đã có hồ sơ nộp'},
+
+{id:'QA094',c:'dn',st:'ok',
+ q:'Trong Quản lý đảng viên, trạng thái “Chưa kích hoạt” nghĩa là gì?',
+ a:['“Chưa kích hoạt” nghĩa là người đó chưa đăng nhập vào hệ thống để kê khai hồ sơ.'],
+ alt:'chưa kích hoạt khác đang sinh hoạt thế nào; trạng thái tài khoản; chưa đăng nhập; kích hoạt tài khoản'},
+
+{id:'QA123',c:'dn',st:'note',
+ q:'Đăng nhập hoặc kích hoạt tài khoản TTHC không nhận được mã OTP thì nên kiểm tra những gì?',
+ a:['1. Kiểm tra số điện thoại đang dùng, sóng điện thoại và khả năng nhận SMS.',
+    '2. Xem mục tin nhắn rác/bị chặn, tìm tin gửi từ DVC_CQDang; khởi động lại điện thoại rồi yêu cầu gửi lại OTP.',
+    '3. Vẫn không nhận được → hỏi nhà mạng về việc chặn SMS theo tên thương hiệu, đồng thời gửi đầu mối hỗ trợ số điện thoại, thời điểm yêu cầu OTP và ảnh lỗi.',
+    'Đây là các bước kiểm tra vận hành tham khảo; không mặc định lỗi do nhà mạng và không thay cho hướng dẫn OTP riêng trên STDV.'],
+ alt:'không nhận được OTP; không có mã xác thực; SMS không về; mã OTP; DVC_CQDang; tin nhắn rác; kích hoạt TTHC'},
+
+{id:'QA032',c:'dn',st:'note',
+ q:'File/PDF/video hướng dẫn trong nhóm Zalo báo “File đã hết hạn” thì tìm nội dung ở đâu?',
+ a:['File Zalo đã hết hạn thì không thể lấy lại từ dữ liệu đã quét.',
+    'Xin người gửi hoặc đầu mối dự án gửi lại file/link mới; kho hỏi – đáp chỉ giữ tên và chủ đề tài liệu để tra cứu.'],
+ alt:'file hướng dẫn hoàn tiền hết hạn; video đồng bộ hết hạn; xin lại tài liệu; file Zalo hết hạn'}
 ];
