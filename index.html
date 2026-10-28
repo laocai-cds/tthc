@@ -4733,7 +4733,13 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
  badge.addEventListener('click',open);badge.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-anb-close]'))close()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ov.classList.contains('open'))close()});
- document.getElementById('anbCopy').addEventListener('click',e=>{navigator.clipboard?.writeText(sp.textContent.trim()).then(()=>{e.target.textContent='✓ Đã sao chép';setTimeout(()=>e.target.textContent='⧉ Sao chép',1500)})});
+ document.getElementById('anbCopy').addEventListener('click',e=>{const btn=e.currentTarget;
+  const cards=[...document.querySelectorAll('#anbBody .anb-card')].map(c=>(c.innerText||c.textContent).replace(/\s*\n\s*/g,' ').trim()).filter(Boolean);
+  const sub=(document.getElementById('anbSub')?.textContent||'').trim();
+  const txt=cards.length?('BẢNG THÔNG BÁO'+(sub?' - '+sub:'')+'\n\n'+cards.map(t=>'- '+t).join('\n\n')):sp.textContent.trim();
+  const done=()=>{btn.textContent='✓ Đã sao chép';setTimeout(()=>btn.textContent='⧉ Sao chép',1500)};
+  const fb=()=>{const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;left:-9999px;top:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(_){}ta.remove()};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(done,fb);else fb()});
  document.getElementById('anbEdit').addEventListener('click',()=>{close();document.getElementById('editAnnouncement')?.click()});
  window.openAnnouncementBoard=open;
 })();
