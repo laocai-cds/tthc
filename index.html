@@ -5260,6 +5260,7 @@ const LS='dvc-unit-sites';
 const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clean=l=>(Array.isArray(l)?l:[]).map(u=>({name:String(u&&u.name||'').trim(),url:String(u&&u.url||'').trim()})).filter(u=>u.name&&/^https?:\/\//i.test(u.url));
 let units=DEFAULT_UNITS.slice(),draft=[],editIdx=-1;
+window.__unitSites=()=>units;
 try{const c=JSON.parse(localStorage.getItem(LS)||'null');if(Array.isArray(c))units=clean(c)}catch(_){}
 
 function renderMenu(){const ul=document.getElementById('unitsList');if(!ul)return;ul.textContent='';
@@ -5775,6 +5776,96 @@ document.addEventListener('click',function(e){const t=e.target;if(!t||!t.closest
  if(t.closest('#mktX')||t===ov()){closeMkt()}
 },true);
 document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'&&o&&o.classList.contains('on'))closeMkt()});
+})();
+</script>
+<style id="ad-strip-css">
+.ad-strip{position:relative;display:flex;align-items:center;gap:12px;margin:8px 26px 0;padding:7px 12px 7px 8px;border:1px solid #d9c8ff;border-radius:14px;overflow:hidden;background:linear-gradient(100deg,#2e1065,#5b21b6 55%,#7c3aed);color:#fff;box-shadow:0 6px 18px rgba(76,29,149,.22);font-family:"Segoe UI",Arial,sans-serif;cursor:pointer}
+.ad-strip[hidden]{display:none}
+.ad-strip::before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);animation:adShine 6s ease-in-out infinite;pointer-events:none}
+@keyframes adShine{0%,65%{transform:translateX(-120%)}90%,100%{transform:translateX(120%)}}
+.ad-tag{flex:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:10px;background:linear-gradient(135deg,#ffe08a,#f2ca63);color:#4a2c00;font-size:11.5px;font-weight:850;letter-spacing:.6px;white-space:nowrap}
+.ad-msg{position:relative;flex:1;min-width:0;height:34px;overflow:hidden}
+.ad-slide{position:absolute;left:0;right:0;top:50%;display:flex;align-items:center;gap:8px;min-width:0;transform:translateY(-50%) translateY(14px);opacity:0;transition:opacity .45s,transform .45s;color:#fff;font-size:14px;line-height:1.3}
+.ad-slide.on{opacity:1;transform:translateY(-50%)}
+.ad-slide b{font-weight:850;color:#ffe08a;white-space:nowrap}
+.ad-slide span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ad-cta{flex:none;position:relative;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:10px;border:0;background:#fff;color:#5b21b6;font:800 12.5px "Segoe UI",Arial,sans-serif;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.18);transition:transform .15s,box-shadow .15s}
+.ad-strip:hover .ad-cta{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.26)}
+.ad-x{flex:none;position:relative;width:26px;height:26px;border:0;border-radius:8px;background:rgba(255,255,255,.16);color:#fff;font-size:16px;line-height:1;cursor:pointer}
+.ad-x:hover{background:rgba(255,255,255,.32)}
+@media(max-width:760px){.ad-strip{margin:8px 14px 0}.ad-tag span{display:none}.ad-slide{font-size:12.5px}.ad-cta{padding:0 10px}}
+.adp-ov{position:fixed;inset:0;z-index:10100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(10,22,42,.6);backdrop-filter:blur(3px);font-family:"Segoe UI",Arial,sans-serif}
+.adp-ov.on{display:flex}
+.adp-box{width:min(780px,100%);max-height:92vh;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:#f6f3ff;box-shadow:0 30px 80px rgba(5,15,35,.5);animation:anbIn .22s ease-out}
+.adp-head{position:relative;display:flex;align-items:center;gap:14px;padding:20px 22px;color:#fff;background:radial-gradient(120% 200% at 0% 0%,rgba(255,224,138,.35),transparent 55%),linear-gradient(115deg,#2e1065,#5b21b6 60%,#7c3aed)}
+.adp-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#ffe08a,#fff3c9,#ffe08a)}
+.adp-ico{flex:none;width:50px;height:50px;border-radius:14px;display:grid;place-items:center;font-size:26px;background:linear-gradient(135deg,#ffe08a,#f2ca63)}
+.adp-ttl{flex:1;min-width:0}.adp-ttl small{display:block;font-size:11px;font-weight:800;letter-spacing:1.6px;color:#e4d8ff}
+.adp-ttl h2{margin:2px 0 0;font-size:21px;font-weight:850;color:#fff;line-height:1.25}
+.adp-x{flex:none;width:34px;height:34px;border:0;border-radius:10px;background:rgba(255,255,255,.18);color:#fff;font-size:20px;cursor:pointer}
+.adp-x:hover{background:rgba(255,255,255,.32)}
+.adp-body{flex:1;overflow:auto;padding:18px 22px;display:grid;gap:16px;color:#24364f}
+.adp-body h3{margin:0 0 8px;font-size:14.5px;font-weight:850;color:#4c1d95}
+.adp-lead{margin:0;font-size:14.5px;line-height:1.65}
+.adp-feat{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.adp-feat li{display:flex;gap:8px;align-items:flex-start;padding:9px 11px;border:1px solid #e4dcfb;border-radius:12px;background:#fff;font-size:13.5px;line-height:1.45}
+.adp-feat li::before{content:"✔";flex:none;color:#0d8a62;font-weight:900}
+.adp-sites{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.adp-site{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid #e4dcfb;border-radius:14px;background:#fff;color:#24364f;text-decoration:none;transition:transform .15s,box-shadow .15s,border-color .15s}
+.adp-site:hover{transform:translateY(-2px);border-color:#7c3aed;box-shadow:0 8px 20px rgba(124,58,237,.18)}
+.adp-site i{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-style:normal;font-size:19px;background:linear-gradient(135deg,#ede7ff,#d9c8ff)}
+.adp-site b{display:block;font-size:14px;line-height:1.3}.adp-site small{display:block;margin-top:1px;font-size:11.5px;color:#7a6a9f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adp-site em{flex:none;margin-left:auto;font-style:normal;font-weight:800;font-size:12px;color:#6d28d9}
+.adp-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 22px;border-top:1px solid #e4dcfb;background:#fff}
+.adp-foot span{margin-right:auto;font-size:12.5px;color:#5a4a86;font-weight:600}
+.adp-btn{border:1px solid #d9c8ff;border-radius:10px;padding:9px 16px;background:#fff;color:#4c1d95;font:800 13px "Segoe UI",Arial,sans-serif;cursor:pointer;text-decoration:none}
+.adp-btn.pri{border-color:transparent;background:linear-gradient(115deg,#5b21b6,#7c3aed);color:#fff;box-shadow:0 4px 12px rgba(91,33,182,.3)}
+@media(max-width:640px){.adp-ov{padding:0}.adp-box{max-height:100vh;height:100vh;border-radius:0}.adp-feat,.adp-sites{grid-template-columns:1fr}.adp-ttl h2{font-size:18px}}
+</style>
+<div class="adp-ov" id="adpOv" role="dialog" aria-modal="true" aria-labelledby="adpTitle"><section class="adp-box">
+ <header class="adp-head"><span class="adp-ico">🌐</span><div class="adp-ttl"><small>DỊCH VỤ THIẾT KẾ WEBSITE</small><h2 id="adpTitle">Website theo dõi thu nộp đảng phí riêng cho đảng bộ của bạn</h2></div><button type="button" class="adp-x" data-adp-close aria-label="Đóng">×</button></header>
+ <div class="adp-body">
+  <p class="adp-lead">Mỗi đảng bộ có một trang web riêng, tự đồng bộ số liệu từ Google Sheets, giao diện thống nhất với hệ thống theo dõi TTHC, dùng được trên máy tính và điện thoại.</p>
+  <div><h3>Website gồm những gì</h3><ul class="adp-feat"><li>Tiến độ thu nộp đảng phí theo tháng, có lũy kế</li><li>Xếp hạng, biểu đồ, danh sách chi bộ chưa hoàn thành</li><li>Nhập dữ liệu và đồng bộ lên Google Sheets</li><li>Bản tin thị trường, tin tức địa phương</li><li>Thông báo, biểu dương đơn vị hoàn thành</li><li>Xuất CSV, in báo cáo</li></ul></div>
+  <div><h3>Các website đã triển khai <span id="adpCnt" style="color:#7a6a9f;font-weight:700"></span></h3><div class="adp-sites" id="adpSites"></div></div>
+ </div>
+ <footer class="adp-foot"><span id="adpContact">Đơn vị quan tâm vui lòng liên hệ Ban quản trị hệ thống để được hỗ trợ.</span><button type="button" class="adp-btn pri" data-adp-close>Đóng</button></footer>
+</section></div>
+<script id="ad-strip-script">
+(()=>{const tb=document.querySelector('.topbar');if(!tb)return;
+ /* Thông tin liên hệ hiển thị cuối popup, ví dụ: 'Liên hệ: Đ/c ... - ĐT/Zalo ...' (để trống thì dùng câu mặc định) */
+ const CONTACT='';
+ const KEY='dvc-ad-strip-closed';let closed=false;try{closed=sessionStorage.getItem(KEY)==='1'}catch(_){}
+ const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const units=()=>{try{return (window.__unitSites&&window.__unitSites()||[]).filter(u=>u&&u.name&&/^https?:\/\//i.test(u.url))}catch(_){return[]}};
+ const short=n=>String(n).replace(/^Đảng bộ /,'');
+ const el=document.createElement('div');el.className='ad-strip';el.id='adStrip';el.hidden=false;el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','Quảng cáo dịch vụ thiết kế website cho đơn vị. Bấm để xem chi tiết');
+ el.innerHTML='<span class="ad-tag">🌐 <span>THIẾT KẾ WEBSITE</span></span><div class="ad-msg" id="adMsg"></div><span class="ad-cta">Xem chi tiết ↗</span><button class="ad-x" type="button" id="adX" aria-label="Ẩn quảng cáo" title="Ẩn">×</button>';
+ tb.after(el);
+ const ov=document.getElementById('adpOv');if(CONTACT)document.getElementById('adpContact').textContent=CONTACT;
+ let i=0,timer=null,sig='',slides=[];
+ function lines(){const l=units(),n=l.length,names=l.slice(0,3).map(u=>short(u.name)).join(', ');
+  const a=['Thiết kế <b>website theo dõi đảng phí riêng</b> cho đảng bộ của bạn: đẹp, nhanh, tự đồng bộ Google Sheets'];
+  if(n)a.push(`Đã triển khai <b>${n} website</b> đơn vị: ${esc(names)}${n>3?' …':''}`);
+  a.push('Một web, đủ tính năng: tiến độ, xếp hạng, biểu đồ, thông báo, <b>bản tin thị trường</b>');
+  return a}
+ function build(){const m=el.querySelector('#adMsg');m.textContent='';slides=lines().map(h=>{const d=document.createElement('div');d.className='ad-slide';d.innerHTML='<span>'+h+'</span>';m.append(d);return d});i=0;go(0)}
+ function go(k){if(!slides.length)return;i=(k+slides.length)%slides.length;slides.forEach((n,j)=>n.classList.toggle('on',j===i))}
+ function restart(){clearInterval(timer);if(slides.length>1)timer=setInterval(()=>{if(!document.hidden)go(i+1)},5000)}
+ function fillPopup(){const l=units(),box=document.getElementById('adpSites');box.textContent='';document.getElementById('adpCnt').textContent=l.length?'('+l.length+')':'';
+  if(!l.length){box.innerHTML='<div style="color:#7a6a9f;font-size:13.5px">Chưa có website nào được liệt kê.</div>';return}
+  l.forEach(u=>{const a=document.createElement('a');a.className='adp-site';a.href=u.url;a.target='_blank';a.rel='noopener noreferrer';a.title='Mở '+u.name+' (tab mới)';a.innerHTML='<i>🏛</i><div style="min-width:0"><b>'+esc(u.name)+'</b><small>'+esc(u.url.replace(/^https?:\/\//,''))+'</small></div><em>Mở ↗</em>';box.append(a)})}
+ let lastFocus=null;
+ function openP(){lastFocus=document.activeElement;fillPopup();ov.classList.add('on');document.documentElement.style.overflow='hidden';setTimeout(()=>ov.querySelector('.adp-btn.pri').focus(),30)}
+ function closeP(){ov.classList.remove('on');document.documentElement.style.overflow='';try{lastFocus&&lastFocus.focus()}catch(_){}}
+ el.addEventListener('click',e=>{if(e.target.closest('#adX'))return;openP()});
+ el.addEventListener('keydown',e=>{if(e.target===el&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openP()}});
+ ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-adp-close]'))closeP()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ov.classList.contains('on'))closeP()});
+ el.querySelector('#adX').addEventListener('click',e=>{e.stopPropagation();closed=true;try{sessionStorage.setItem(KEY,'1')}catch(_){}el.hidden=true;clearInterval(timer)});
+ el.addEventListener('mouseenter',()=>clearInterval(timer));el.addEventListener('mouseleave',restart);
+ function refresh(){if(closed){el.hidden=true;return}const sg=JSON.stringify(units());if(sg===sig)return;sig=sg;build();restart()}
+ refresh();setInterval(refresh,3000);
 })();
 </script>
 </body></html>
