@@ -4827,8 +4827,9 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
   inp.value=it.t.slice(0,inp.maxLength>0?inp.maxLength:it.t.length);inp.dispatchEvent(new Event('input',{bubbles:true}));if(typeof updateAnnouncementPreview==='function')updateAnnouncementPreview();inp.focus()});
  window.addEventListener('ann-open',writeUI);
  window.AutoNotice={readUI,active:()=>!!cfg().on,
-  boardText(){const c=cfg(),g=window.__noticeGen,out=[];if(c.keep&&window.__annManual)out.push(window.__annManual);
-   if(g)c.cats.forEach(k=>{try{if(k==='full'&&g.fullList){const t=g.fullList('full');if(t){out.push(t);return}}const a=g.gen(k,c.mode);if(a.length)out.push(a[0])}catch(e){}});
+  boardText(){const c=cfg(),g=window.__noticeGen,out=[];let top='';if(c.keep&&window.__annManual)out.push(window.__annManual);
+   if(g)c.cats.forEach(k=>{try{if(k==='full'&&g.fullList){const t=g.fullList('short');if(t){top=t;return}}const a=g.gen(k,c.mode);if(a.length)out.push(a[0])}catch(e){}});
+   if(top)out.unshift(top);
    return out.length?out.join(' ┃ '):(sp.textContent||'')}};
 })();
 </script>
