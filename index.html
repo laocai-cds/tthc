@@ -4738,7 +4738,11 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-anb-close]'))close()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ov.classList.contains('open'))close()});
  document.getElementById('anbCopy').addEventListener('click',e=>{const btn=e.currentTarget;
-  const cards=[...document.querySelectorAll('#anbBody .anb-card')].map(c=>(c.innerText||c.textContent).replace(/\s*\n\s*/g,' ').trim()).filter(Boolean);
+  const EM={'#c51620':'🔴','#d97706':'🟠','#0d8a62':'🟢','#1d4ed8':'🔵','#7c3aed':'🟣','#db2777':'🌺','#0891b2':'🔷','#65a30d':'🍀','#ea580c':'🧡','#4338ca':'🟦','#be123c':'🟥','#047857':'🟩'};
+  const rgb=h=>{const n=parseInt(h.slice(1),16);return 'rgb('+(n>>16&255)+', '+(n>>8&255)+', '+(n&255)+')'},EMR={};Object.keys(EM).forEach(h=>EMR[rgb(h)]=EM[h]);
+  const cards=[...document.querySelectorAll('#anbBody .anb-card')].map(c=>{const k=c.cloneNode(true);
+   k.querySelectorAll('b.tk-u').forEach(b=>{const em=EMR[(b.style.color||'').replace(/\s+/g,' ').trim()]||'▪️';b.replaceWith(document.createTextNode(em+b.textContent))});
+   return (k.textContent||'').replace(/\s+/g,' ').trim()}).filter(Boolean);
   const sub=(document.getElementById('anbSub')?.textContent||'').trim();
   const txt=cards.length?('BẢNG THÔNG BÁO'+(sub?' - '+sub:'')+'\n\n'+cards.map(t=>'- '+t).join('\n\n')):sp.textContent.trim();
   const done=()=>{btn.textContent='✓ Đã sao chép';setTimeout(()=>btn.textContent='⧉ Sao chép',1500)};
