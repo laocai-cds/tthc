@@ -2778,6 +2778,14 @@ body.dp-lock{overflow:hidden}
      <label class="dp-chk"><input type="checkbox" id="dpRemember"> Ghi nhớ trên máy này</label>
      <button class="dp-btn primary" id="dpSync" type="button" disabled><span class="dp-spin"></span><span id="dpSyncLabel">Đồng bộ dữ liệu</span></button>
      <div class="dp-msg" id="dpMsg"></div>
+     <details class="dp-api" id="dpApiBox" style="margin-top:14px;border:1px solid var(--dp-line,#dbe3ef);border-radius:11px;padding:10px 12px">
+      <summary style="cursor:pointer;font-weight:700">⚡ Nút API — đồng bộ thẳng từ gqtthc.dcs.vn (không cần xuất Excel)</summary>
+      <ol style="margin:10px 0 0 18px;padding:0;font-size:13px;line-height:1.55">
+       <li>Kéo nút <a id="dpApiBm" href="#" draggable="true" style="display:inline-block;padding:4px 10px;border-radius:8px;background:#c8102e;color:#fff;font-weight:700;text-decoration:none">₫ Đồng bộ đảng phí</a> lên thanh dấu trang. Nếu không kéo được: <button class="dp-link" type="button" id="dpApiCopy">sao chép mã</button> rồi tạo dấu trang mới, dán mã vào ô URL.</li>
+       <li>Mở <b>gqtthc.dcs.vn</b> (đã đăng nhập) rồi bấm dấu trang đó.</li>
+       <li>Nhập <b>mật khẩu đồng bộ</b> ở lần đầu (máy nhớ lại cho lần sau). Dữ liệu 104 đơn vị tháng hiện tại được lấy qua API và ghi lên Google Sheet.</li>
+      </ol>
+     </details>
      <div class="dp-cfg dp-hidden" id="dpCfg">
       <div class="dp-field" style="margin-bottom:8px"><label for="dpApi">Địa chỉ API (Apps Script /exec)</label>
        <div class="dp-row"><input id="dpApi" type="text" spellcheck="false" autocomplete="off" placeholder="Dán URL Ứng dụng web …/exec hoặc Mã triển khai AKfy…"><button class="dp-btn sec" id="dpApiSave" type="button" style="padding:9px 12px">Lưu</button></div>
@@ -3234,6 +3242,70 @@ body.dp-lock{overflow:hidden}
   q('dpSortRate').addEventListener('click', () => { sortDir = sortDir === -1 ? 1 : sortDir === 1 ? 0 : -1; render(); });
   q('dpToken').addEventListener('input', updateSyncBtn);
   q('dpEye').onclick = () => { const t = q('dpToken'); t.type = t.type === 'password' ? 'text' : 'password'; };
+  /* ===== Nút API: dấu trang chạy trên gqtthc.dcs.vn, lấy số liệu qua API rồi gửi lên Google Sheet ===== */
+  function dpBookmarklet(API) {
+    (async () => {
+      const box = document.createElement('div');
+      box.style.cssText = 'position:fixed;z-index:2147483647;top:14px;right:14px;max-width:360px;padding:12px 16px;border-radius:12px;background:#12315f;color:#fff;font:600 14px/1.45 system-ui,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.35)';
+      const say = (m, bad) => { box.textContent = m; box.style.background = bad ? '#a50d26' : '#12315f'; if (!box.parentNode) document.body.appendChild(box); };
+      try {
+        if (!/gqtthc\.dcs\.vn$/.test(location.hostname)) { alert('Hãy bấm dấu trang này khi đang mở trang gqtthc.dcs.vn (đã đăng nhập).'); return; }
+        const tk = localStorage.getItem('token');
+        if (!tk) { alert('Chưa đăng nhập gqtthc.dcs.vn.'); return; }
+        let pw = localStorage.getItem('dangphi.token') || '';
+        if (!pw) { pw = (prompt('Mật khẩu đồng bộ đảng phí:') || '').trim(); if (!pw) return; }
+        say('Đang lấy số liệu từ API…');
+        const d = new Date(), p2 = n => String(n).padStart(2, '0'), mm = p2(d.getMonth() + 1), yy = d.getFullYear();
+        const body = { kyNopStart: '01/' + mm + '/' + yy, kyNopEnd: new Date(yy, d.getMonth() + 1, 0).getDate() + '/' + mm + '/' + yy, parentId: 2122408, hasChildren: true, page: 1, size: 500 };
+        const r = await fetch('https://gateway-gqtthc.dcs.vn/report/dashboard/danh-sach-theo-doi-dang-phi', { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
+        if (!r.ok) throw new Error('API trả lỗi ' + r.status + (r.status === 401 ? ' — hãy đăng nhập lại.' : ''));
+        const j = await r.json();
+        const list = j.data || [];
+        if (!list.length) throw new Error('API không trả đơn vị nào.');
+        const num = x => Number(x) || 0;
+        const rows = list.map((x, i) => [i + 1, x.tenDonVi, num(x.tongSoLuongDangVien), num(x.soLuongDangVienChinhThuc), num(x.soLuongDangVienTamThoi), num(x.soLuongChuyenTamThoi), num(x.soLuongDangVienMienGiam), num(x.tongSoHoSoChuaDuyet), num(x.tongSoHoSoDaDuyetChuaNop), num(x.tongSoHoSoDaDuyetDaNop), num(x.soLuongHoSoChuaKhaiBao), num(x.tongSoTienDaKhaiBao), num(x.tongSoTienDaNop), num(x.mucDoThucHien)]);
+        const sum = k => rows.reduce((a, r) => a + r[k], 0);
+        const declared = sum(11), paid = sum(12);
+        const syncId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        const payload = { token: pw, syncId, fileName: 'API gqtthc ' + p2(d.getDate()) + '/' + mm + '/' + yy + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes()), month: yy + '-' + mm,
+          totals: { units: rows.length, members: sum(2), paidProfiles: sum(9), declared, paid, rate: declared > 0 ? Math.round(paid / declared * 10000) / 100 : 0 }, rows };
+        say('Đang gửi ' + rows.length + ' đơn vị lên Google Sheet…');
+        await fetch(API, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify(payload) }) });
+        let ok = null;
+        for (let k = 0; k < 8 && !ok; k++) {
+          ok = await new Promise(res => {
+            const cb = '__dpbm' + Date.now() + k, s = document.createElement('script');
+            const t = setTimeout(() => { delete window[cb]; s.remove(); res(null); }, 9000);
+            window[cb] = v => { clearTimeout(t); delete window[cb]; s.remove(); res(v); };
+            s.onerror = () => { clearTimeout(t); res(null); };
+            s.src = API + '?action=status&callback=' + cb + '&_=' + Date.now();
+            document.head.appendChild(s);
+          });
+          if (ok && ok.lastError && ok.lastError.syncId === syncId) throw new Error(ok.lastError.error);
+          if (!(ok && ok.last && ok.last.syncId === syncId)) { ok = null; await new Promise(r2 => setTimeout(r2, 2000)); }
+        }
+        try { localStorage.setItem('dangphi.token', pw); } catch (e) {}
+        say(ok ? '✓ Đã đồng bộ ' + ok.last.rowCount + ' đơn vị lúc ' + ok.last.updatedAtText + '.' : '✓ Đã gửi ' + rows.length + ' đơn vị. Chưa xác nhận được kết quả — hãy mở lại trang Đảng phí để xem “Lần đồng bộ gần nhất”.');
+        setTimeout(() => box.remove(), 12000);
+      } catch (e) {
+        if (/mật khẩu|token|không hợp lệ/i.test(String(e.message))) { try { localStorage.removeItem('dangphi.token'); } catch (x) {} }
+        say('✕ ' + e.message, true);
+        setTimeout(() => box.remove(), 15000);
+      }
+    })();
+  }
+  function dpBmSrc() { return '(' + dpBookmarklet.toString() + ')(' + JSON.stringify(getApi()) + ');void 0'; }
+  (function () {
+    const a = q('dpApiBm'), c = q('dpApiCopy'); if (!a) return;
+    const refresh = () => { const api = getApi(); a.href = api ? 'javascript:' + encodeURIComponent(dpBmSrc()) : '#'; a.title = api ? 'Kéo lên thanh dấu trang' : 'Cần cấu hình địa chỉ API trước'; };
+    refresh();
+    q('dpApiBox').addEventListener('toggle', refresh);
+    a.addEventListener('click', e => { e.preventDefault(); showMsg('info', 'Hãy <b>kéo</b> nút này lên thanh dấu trang (đừng bấm tại đây).'); });
+    c.onclick = async () => {
+      if (!getApi()) return showMsg('bad', 'Cần cấu hình địa chỉ API trước.');
+      try { await navigator.clipboard.writeText('javascript:' + encodeURIComponent(dpBmSrc())); showMsg('ok', 'Đã sao chép mã dấu trang.'); } catch (e) { showMsg('bad', 'Không sao chép được — hãy kéo nút lên thanh dấu trang.'); }
+    };
+  })();
   q('dpSync').onclick = sync;
 
   const saved = store.get(LS.token);
