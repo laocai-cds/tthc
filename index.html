@@ -4723,7 +4723,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
 <div class="anb-ov" id="anbOv" role="dialog" aria-modal="true" aria-labelledby="anbTitle"><section class="anb-dlg">
  <header class="anb-head"><span class="tk-mega" id="anbIcon"></span><div class="anb-ttl"><small>THÔNG BÁO CHUNG</small><h2 id="anbTitle">Bảng thông báo</h2><p id="anbSub"></p></div><button type="button" class="anb-x" data-anb-close aria-label="Đóng">×</button></header>
  <div class="anb-body" id="anbBody"></div>
- <footer class="anb-foot"><span>Nguồn: Hệ thống theo dõi TTHC</span><button type="button" class="anb-btn" id="anbSpeak">🔊 Đọc thông báo</button><button type="button" class="anb-btn" id="anbCopy">⧉ Sao chép</button><button type="button" class="anb-btn" id="anbEdit">✎ Cập nhật thông báo</button><button type="button" class="anb-btn pri" data-anb-close>Đóng</button></footer>
+ <footer class="anb-foot"><span>Nguồn: Hệ thống theo dõi TTHC</span><button type="button" class="anb-btn" id="anbSpeak">🔊 Đọc thông báo</button><button type="button" class="anb-btn" id="anbCopy">⧉ Sao chép</button><button type="button" class="anb-btn" id="anbCopyImg" title="Chép bảng thông báo thành hình ảnh (có màu sắc) để dán vào Zalo">🖼 Chép hình ảnh</button><button type="button" class="anb-btn" id="anbEdit">✎ Cập nhật thông báo</button><button type="button" class="anb-btn pri" data-anb-close>Đóng</button></footer>
 </section></div>
 <script id="anb-script">
 (()=>{const ov=document.getElementById('anbOv'),badge=document.querySelector('.tk-pro .tk-badge'),sp=document.getElementById('announcementText');if(!ov||!badge||!sp)return;
@@ -4749,6 +4749,31 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
   const done=()=>{btn.textContent='✓ Đã sao chép';setTimeout(()=>btn.textContent='⧉ Sao chép',1500)};
   const fb=()=>{const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;left:-9999px;top:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(_){}ta.remove()};
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(done,fb);else fb()});
+ const H2C='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';let h2cP=null;
+ const loadH2C=()=>window.html2canvas?Promise.resolve(window.html2canvas):(h2cP||(h2cP=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=H2C;sc.onload=()=>res(window.html2canvas);sc.onerror=()=>{h2cP=null;rej(new Error('load'))};document.head.appendChild(sc)})));
+ function renderBoardPng(){return loadH2C().then(async h2c=>{
+  const dlg=ov.querySelector('.anb-dlg'),k=dlg.cloneNode(true);
+  k.querySelectorAll('.anb-x,.anb-foot').forEach(n=>n.remove());
+  k.style.cssText='position:fixed;left:-10000px;top:0;width:760px;max-width:none;max-height:none;height:auto;animation:none;border-radius:20px;overflow:hidden';
+  const bd=k.querySelector('.anb-body');if(bd){bd.style.overflow='visible';bd.style.flex='none'}
+  const ft=document.createElement('div');ft.style.cssText='padding:10px 20px;border-top:1px solid #efe4db;background:#fff;font:11.5px "Segoe UI",Arial,sans-serif;color:#8794a8';ft.textContent='Nguồn: Hệ thống theo dõi TTHC - laocai-cds.github.io/tthc';k.appendChild(ft);
+  document.body.appendChild(k);
+  try{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+   const cv=await h2c(k,{scale:2,backgroundColor:null,useCORS:true,logging:false});
+   return await new Promise((res,rej)=>cv.toBlob(b=>b?res(b):rej(new Error('blob')),'image/png'))}
+  finally{k.remove()}})}
+ document.getElementById('anbCopyImg')?.addEventListener('click',async e=>{const btn=e.currentTarget,orig='🖼 Chép hình ảnh';
+  if(!document.querySelector('#anbBody .anb-card')){return}
+  btn.disabled=true;btn.textContent='Đang tạo ảnh…';
+  const reset=()=>{btn.disabled=false;btn.textContent=orig},say=t=>{btn.textContent=t;setTimeout(reset,2200)};
+  const blobP=renderBoardPng();
+  try{
+   if(navigator.clipboard&&window.ClipboardItem){await navigator.clipboard.write([new ClipboardItem({'image/png':blobP})]);say('✓ Đã chép ảnh');return}
+   throw new Error('noclip')}
+  catch(err){
+   try{const b=await blobP,a=document.createElement('a'),d=new Date(),n=String(d.getFullYear())+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    a.href=URL.createObjectURL(b);a.download='bang-thong-bao-'+n+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);say('✓ Đã tải ảnh về máy')}
+   catch(e2){say('Không tạo được ảnh')}}});
  document.getElementById('anbEdit').addEventListener('click',()=>{close();document.getElementById('editAnnouncement')?.click()});
  window.openAnnouncementBoard=open;
 })();
