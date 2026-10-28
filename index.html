@@ -657,6 +657,8 @@ function rptDuesPraise(d){const top=d.honor.map(x=>x.name+' ('+rptPctD(x.r)+')')
  return `Biểu dương ${fmt(d.honor.length)} đơn vị có tỷ lệ đảng viên đã nộp đảng phí trên môi trường điện tử ${d.honorNote}: ${top}. Đây là những đơn vị đã chủ động chỉ đạo, hướng dẫn đảng viên kê khai, duyệt hồ sơ và nộp đảng phí kịp thời, cần được nhân rộng.`}
 function rptDuesGood(d){return d.good.length?`Ghi nhận ${fmt(d.good.length)} đơn vị đạt từ 80% đến dưới 95%: ${d.good.map(x=>rptShortName(x.name)+' ('+rptPctD(x.r)+')').join('; ')}.`:''}
 function rptDuesAsk(d){const w=[...d.weak,...d.zero];return w.length?`Đối với thu nộp đảng phí, đề nghị ${fmt(w.length)} đơn vị có tỷ lệ đảng viên đã nộp dưới 20% (trong đó ${fmt(d.zero.length)} đơn vị chưa có đảng viên nộp: ${rptNameList(d.zero,1e9)}) khẩn trương rà soát, hướng dẫn đảng viên kê khai hồ sơ, duyệt hồ sơ và đôn đốc nộp đảng phí trên môi trường điện tử ngay trong ${d.month}.`:''}
+function rptPraise50(m){const L=[...(m.ranking||[])].filter(r=>r.average>.5).sort((a,b)=>b.average-a.average||String(a.unit).localeCompare(b.unit,'vi'));
+ return L.length?`Biểu dương ${fmt(L.length)} đơn vị đạt tổng tiến độ trên 50%: ${L.map(r=>r.unit+' ('+rptPct(r.average)+')').join('; ')}. Đây là những đơn vị đã chủ động triển khai đồng bộ các thủ tục hành chính trên môi trường điện tử, cần tiếp tục phát huy và nhân rộng.`:'Hiện chưa có đơn vị nào đạt tổng tiến độ trên 50%; đề nghị các đơn vị tăng tốc triển khai để sớm đạt và vượt mức này.'}
 function rptHTML(m){
  const T=(head,rows,widths,center,o={})=>{const tw=widths.reduce((a,c)=>a+c,0);return `<table class="tb"${o.full?' style="width:100%"':''}><colgroup>${widths.map(w=>`<col style="width:${(w/tw*100).toFixed(2)}%">`).join('')}</colgroup><thead><tr>${head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((t,i)=>`<td${center.includes(i)?' class="c"':''}>${esc(t)}</td>`).join('')}</tr>`).join('')}</tbody></table><p class="sp"></p>`};
  const cap=t=>`<p class="cap">${esc(t)}</p>`,P=t=>`<p class="i">${t}</p>`,H=t=>`<h2>${esc(t)}</h2>`;
@@ -669,6 +671,7 @@ function rptHTML(m){
   body+=P(esc(`${rptProcText(x)} Có ${fmt(x.owners)}/${fmt(x.t.count)} đơn vị đã phân công cán bộ phụ trách, ${fmt(x.guided)} đơn vị đã hướng dẫn quy trình; ${fmt(x.t.doneUnits)} đơn vị hoàn thành, ${fmt(x.t.active)} đơn vị đang triển khai, ${fmt(x.notStarted)} đơn vị chưa triển khai.`));
   body+=P(`<b>Đơn vị dẫn đầu (đạt từ 50% tiến độ): </b>${esc(top.length?top.map(r=>r.u.unit+' ('+rptPct(r.v)+')').join('; ')+'.':'chưa có đơn vị đạt từ 50% tiến độ trở lên.')}`);
   if(zero.length)body+=P(`<b class="w"><i>Chưa triển khai (${zero.length}): </i></b>${esc(rptZeroList(zero,i))}`)});
+ body+=P(`<b class="g">Biểu dương: </b>${esc(rptPraise50(m))}`);
  const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
  if(D){body+=H(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>P(esc(t))).join('');
   body+=P(`<b class="g">Biểu dương: </b>${esc(rptDuesPraise(D).replace(/^Biểu dương /,''))}`);
@@ -949,6 +952,7 @@ function exportReportDocx(m,w){
   body+=para(`${rptProcText(x)} Có ${fmt(x.owners)}/${fmt(x.t.count)} đơn vị đã phân công cán bộ phụ trách, ${fmt(x.guided)} đơn vị đã hướng dẫn quy trình; ${fmt(x.t.doneUnits)} đơn vị hoàn thành, ${fmt(x.t.active)} đơn vị đang triển khai, ${fmt(x.notStarted)} đơn vị chưa triển khai.`,{ind:true});
   body+=para([run('Đơn vị dẫn đầu (đạt từ 50% tiến độ): ',{b:true}),run(top.length?top.map(r=>r.u.unit+' ('+rptPct(r.v)+')').join('; ')+'.':'chưa có đơn vị đạt từ 50% tiến độ trở lên.')],{ind:true});
   if(zero.length)body+=para([run(`Chưa triển khai (${zero.length}): `,{b:true,i:true,color:'8A3B12'}),run(rptZeroList(zero,i))],{ind:true})});
+ body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run(rptPraise50(m))],{ind:true});
  const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
  if(D){body+=h(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>para(t,{ind:true})).join('');
   body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run(rptDuesPraise(D).replace(/^Biểu dương /,''))],{ind:true});
