@@ -4713,6 +4713,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
 .anb-card::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:var(--c,#c51620)}
 .anb-card b.tk-u{font-weight:800}
 .anb-empty{padding:30px;text-align:center;color:#8794a8}
+.anb-cap .anb-body{padding:18px 22px;gap:12px}.anb-cap .anb-card{font-size:17.5px;line-height:1.65;padding:15px 18px 15px 22px}.anb-cap .anb-ttl h2{font-size:26px}.anb-cap .anb-ttl small{font-size:12.5px}.anb-cap .anb-ttl p{font-size:14.5px}.anb-cap .anb-head{padding:22px 24px}
 .anb-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid #efe4db;background:#fff}
 .anb-foot span{margin-right:auto;font-size:11.5px;color:#8794a8}
 .anb-btn{border:1px solid #e3d6cc;border-radius:10px;padding:8px 14px;background:#fff;color:#24364f;font:700 12.5px "Segoe UI",Arial,sans-serif;cursor:pointer}
@@ -4754,12 +4755,12 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
  function renderBoardPng(){return loadH2C().then(async h2c=>{
   const dlg=ov.querySelector('.anb-dlg'),k=dlg.cloneNode(true);
   k.querySelectorAll('.anb-x,.anb-foot').forEach(n=>n.remove());
-  k.style.cssText='position:fixed;left:-10000px;top:0;width:760px;max-width:none;max-height:none;height:auto;animation:none;border-radius:20px;overflow:hidden';
+  k.classList.add('anb-cap');k.style.cssText='position:fixed;left:-10000px;top:0;width:640px;max-width:none;max-height:none;height:auto;animation:none;border-radius:20px;overflow:hidden';
   const bd=k.querySelector('.anb-body');if(bd){bd.style.overflow='visible';bd.style.flex='none'}
-  const ft=document.createElement('div');ft.style.cssText='padding:10px 20px;border-top:1px solid #efe4db;background:#fff;font:11.5px "Segoe UI",Arial,sans-serif;color:#8794a8';ft.textContent='Nguồn: Hệ thống theo dõi TTHC - laocai-cds.github.io/tthc';k.appendChild(ft);
+  const ft=document.createElement('div');ft.style.cssText='padding:12px 22px;border-top:1px solid #efe4db;background:#fff;font:13px "Segoe UI",Arial,sans-serif;color:#8794a8';ft.textContent='Nguồn: Hệ thống theo dõi TTHC - laocai-cds.github.io/tthc';k.appendChild(ft);
   document.body.appendChild(k);
   try{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
-   const cv=await h2c(k,{scale:2,backgroundColor:null,useCORS:true,logging:false});
+   const sc=Math.max(2,Math.min(3,15000/Math.max(1,k.offsetHeight))),cv=await h2c(k,{scale:sc,backgroundColor:null,useCORS:true,logging:false});
    return await new Promise((res,rej)=>cv.toBlob(b=>b?res(b):rej(new Error('blob')),'image/png'))}
   finally{k.remove()}})}
  document.getElementById('anbCopyImg')?.addEventListener('click',async e=>{const btn=e.currentTarget,orig='🖼 Chép hình ảnh';
