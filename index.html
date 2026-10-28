@@ -5796,7 +5796,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 @media(max-width:760px){.ad-strip{margin:8px 14px 0}.ad-tag span{display:none}.ad-slide{font-size:12.5px}.ad-cta{padding:0 10px}}
 .adp-ov{position:fixed;inset:0;z-index:10100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(10,22,42,.6);backdrop-filter:blur(3px);font-family:"Segoe UI",Arial,sans-serif}
 .adp-ov.on{display:flex}
-.adp-box{width:min(780px,100%);max-height:92vh;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:#f6f3ff;box-shadow:0 30px 80px rgba(5,15,35,.5);animation:anbIn .22s ease-out}
+.adp-box{width:min(860px,100%);max-height:92vh;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:#f6f3ff;box-shadow:0 30px 80px rgba(5,15,35,.5);animation:anbIn .22s ease-out}
 .adp-head{position:relative;display:flex;align-items:center;gap:14px;padding:20px 22px;color:#fff;background:radial-gradient(120% 200% at 0% 0%,rgba(255,224,138,.35),transparent 55%),linear-gradient(115deg,#2e1065,#5b21b6 60%,#7c3aed)}
 .adp-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#ffe08a,#fff3c9,#ffe08a)}
 .adp-ico{flex:none;width:50px;height:50px;border-radius:14px;display:grid;place-items:center;font-size:26px;background:linear-gradient(135deg,#ffe08a,#f2ca63)}
@@ -5807,9 +5807,10 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 .adp-body{flex:1;overflow:auto;padding:18px 22px;display:grid;gap:16px;color:#24364f}
 .adp-body h3{margin:0 0 8px;font-size:14.5px;font-weight:850;color:#4c1d95}
 .adp-lead{margin:0;font-size:14.5px;line-height:1.65}
-.adp-feat{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.adp-feat li{display:flex;gap:8px;align-items:flex-start;padding:9px 11px;border:1px solid #e4dcfb;border-radius:12px;background:#fff;font-size:13.5px;line-height:1.45}
-.adp-feat li::before{content:"✔";flex:none;color:#0d8a62;font-weight:900}
+.adp-feat{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.adp-feat>div{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid #e4dcfb;border-radius:13px;background:#fff}
+.adp-feat i{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-style:normal;font-size:18px;background:linear-gradient(135deg,#ede7ff,#d9c8ff)}
+.adp-feat p{margin:0;font-size:13px;line-height:1.5;color:#3a4a63}.adp-feat p b{display:block;margin-bottom:1px;font-size:13.5px;color:#4c1d95}
 .adp-sites{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .adp-site{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid #e4dcfb;border-radius:14px;background:#fff;color:#24364f;text-decoration:none;transition:transform .15s,box-shadow .15s,border-color .15s}
 .adp-site:hover{transform:translateY(-2px);border-color:#7c3aed;box-shadow:0 8px 20px rgba(124,58,237,.18)}
@@ -5825,9 +5826,18 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 <div class="adp-ov" id="adpOv" role="dialog" aria-modal="true" aria-labelledby="adpTitle"><section class="adp-box">
  <header class="adp-head"><span class="adp-ico">🌐</span><div class="adp-ttl"><small>DỊCH VỤ THIẾT KẾ WEBSITE</small><h2 id="adpTitle">Website theo dõi thu nộp đảng phí riêng cho đảng bộ của bạn</h2></div><button type="button" class="adp-x" data-adp-close aria-label="Đóng">×</button></header>
  <div class="adp-body">
-  <p class="adp-lead">Mỗi đảng bộ có một trang web riêng, tự đồng bộ số liệu từ Google Sheets, giao diện thống nhất với hệ thống theo dõi TTHC, dùng được trên máy tính và điện thoại.</p>
-  <div><h3>Website gồm những gì</h3><ul class="adp-feat"><li>Tiến độ thu nộp đảng phí theo tháng, có lũy kế</li><li>Xếp hạng, biểu đồ, danh sách chi bộ chưa hoàn thành</li><li>Nhập dữ liệu và đồng bộ lên Google Sheets</li><li>Bản tin thị trường, tin tức địa phương</li><li>Thông báo, biểu dương đơn vị hoàn thành</li><li>Xuất CSV, in báo cáo</li></ul></div>
-  <div><h3>Các website đã triển khai <span id="adpCnt" style="color:#7a6a9f;font-weight:700"></span></h3><div class="adp-sites" id="adpSites"></div></div>
+  <p class="adp-lead">Mỗi xã, phường có một <b>website theo dõi thu nộp đảng phí riêng</b>, giao diện thống nhất với hệ thống theo dõi TTHC, số liệu tự đồng bộ từ Google Sheets, dùng được trên máy tính và điện thoại.</p>
+  <div><h3>Các xã đã có website <span id="adpCnt" style="color:#7a6a9f;font-weight:700"></span></h3><div class="adp-sites" id="adpSites"></div></div>
+  <div><h3>Tính năng của website xã</h3><div class="adp-feat">
+   <div><i>📊</i><p><b>Tổng quan nhanh</b>Bốn chỉ số chính trên một hàng: số đảng viên, đã nộp, tỷ lệ, tiền thu, có hiệu ứng khi rê chuột.</p></div>
+   <div><i>🍩</i><p><b>Tình hình thu</b>Biểu đồ vành khuyên quay liên tục, hiện tỷ lệ hoàn thành thu đảng phí của toàn đảng bộ.</p></div>
+   <div><i>🏛</i><p><b>Chi tiết từng chi bộ</b>Bấm vào chi bộ để xem số liệu đã nộp, chưa nộp; tự ẩn đơn vị chưa có số liệu.</p></div>
+   <div><i>🔄</i><p><b>Tự đồng bộ Google Sheets</b>Số liệu lấy trực tiếp từ bảng tính của đảng bộ, luôn là bản mới nhất.</p></div>
+   <div><i>✍</i><p><b>Nhập dữ liệu, xuất CSV</b>Nhập số liệu ngay trên web và đồng bộ lên Google Sheet, có đếm giây khi tải lên; xuất CSV để lưu trữ.</p></div>
+   <div><i>💹</i><p><b>Bản tin thị trường</b>Tỷ giá USD, giá vàng trong nước và thế giới ngay trên trang, mở bằng một nút.</p></div>
+   <div><i>📰</i><p><b>Tin tức địa phương</b>Khối tin lọc theo tên xã, phường, đặt ngay trên phần tổng quan.</p></div>
+   <div><i>👥</i><p><b>Lượt truy cập</b>Đếm số người đang xem và tổng lượt truy cập theo thời gian thực.</p></div>
+  </div></div>
  </div>
  <footer class="adp-foot"><span id="adpContact">Đơn vị quan tâm vui lòng liên hệ Ban quản trị hệ thống để được hỗ trợ.</span><button type="button" class="adp-btn pri" data-adp-close>Đóng</button></footer>
 </section></div>
@@ -5837,7 +5847,10 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  const CONTACT='';
  const KEY='dvc-ad-strip-closed';let closed=false;try{closed=sessionStorage.getItem(KEY)==='1'}catch(_){}
  const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const units=()=>{try{return (window.__unitSites&&window.__unitSites()||[]).filter(u=>u&&u.name&&/^https?:\/\//i.test(u.url))}catch(_){return[]}};
+ /* Các website xã đã triển khai (luôn hiển thị, gộp với danh sách ở “Trang web các đơn vị”, bỏ trùng theo địa chỉ) */
+ const KNOWN=[['Đảng bộ xã Lương Thịnh','luongthinh'],['Đảng bộ xã Bảo Thắng','baothang'],['Đảng bộ xã Mường Khương','muongkhuong'],['Đảng bộ xã Trạm Tấu','tramtau'],['Đảng bộ xã Phình Hồ','phinhho'],['Đảng bộ xã Võ Lao','volao']].map(x=>({name:x[0],url:'https://laocai-cds.github.io/'+x[1]+'/'}));
+ const norm=u=>String(u).trim().toLowerCase().replace(/^https?:\/\//,'').replace(/[\/#?].*$/,m=>m).replace(/\/+$/,'');
+ const units=()=>{try{const own=(window.__unitSites&&window.__unitSites()||[]).filter(u=>u&&u.name&&/^https?:\/\//i.test(u.url)),seen=new Set(own.map(u=>norm(u.url)));return own.concat(KNOWN.filter(u=>!seen.has(norm(u.url))))}catch(_){return KNOWN.slice()}};
  const short=n=>String(n).replace(/^Đảng bộ /,'');
  const el=document.createElement('div');el.className='ad-strip';el.id='adStrip';el.hidden=false;el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','Quảng cáo dịch vụ thiết kế website cho đơn vị. Bấm để xem chi tiết');
  el.innerHTML='<span class="ad-tag">🌐 <span>THIẾT KẾ WEBSITE</span></span><div class="ad-msg" id="adMsg"></div><span class="ad-cta">Xem chi tiết ↗</span><button class="ad-x" type="button" id="adX" aria-label="Ẩn quảng cáo" title="Ẩn">×</button>';
@@ -5854,7 +5867,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  function restart(){clearInterval(timer);if(slides.length>1)timer=setInterval(()=>{if(!document.hidden)go(i+1)},5000)}
  function fillPopup(){const l=units(),box=document.getElementById('adpSites');box.textContent='';document.getElementById('adpCnt').textContent=l.length?'('+l.length+')':'';
   if(!l.length){box.innerHTML='<div style="color:#7a6a9f;font-size:13.5px">Chưa có website nào được liệt kê.</div>';return}
-  l.forEach(u=>{const a=document.createElement('a');a.className='adp-site';a.href=u.url;a.target='_blank';a.rel='noopener noreferrer';a.title='Mở '+u.name+' (tab mới)';a.innerHTML='<i>🏛</i><div style="min-width:0"><b>'+esc(u.name)+'</b><small>'+esc(u.url.replace(/^https?:\/\//,''))+'</small></div><em>Mở ↗</em>';box.append(a)})}
+  l.forEach(u=>{const a=document.createElement('a');a.className='adp-site';a.href=u.url;a.target='_blank';a.rel='noopener noreferrer';a.title='Mở '+u.name+' (tab mới)';a.innerHTML='<i>🏛</i><div style="min-width:0"><b>'+esc(u.name)+'</b><small>Theo dõi thu nộp đảng phí · '+esc(u.url.replace(/^https?:\/\//,'').replace(/\/$/,''))+'</small></div><em>Mở ↗</em>';box.append(a)})}
  let lastFocus=null;
  function openP(){lastFocus=document.activeElement;fillPopup();ov.classList.add('on');document.documentElement.style.overflow='hidden';setTimeout(()=>ov.querySelector('.adp-btn.pri').focus(),30)}
  function closeP(){ov.classList.remove('on');document.documentElement.style.overflow='';try{lastFocus&&lastFocus.focus()}catch(_){}}
