@@ -3767,7 +3767,8 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
  }
  window.__noticeGen={
   ready:()=>D().length>0||['dues','money','proc'].some(k=>rowsOf(k).length),
-  gen(k,md){const keep=mode;mode=md==='short'?'short':'full';try{return genRaw(k).map(ok1).filter(Boolean)}finally{mode=keep}}
+  gen(k,md){const keep=mode;mode=md==='short'?'short':'full';try{return genRaw(k).map(ok1).filter(Boolean)}finally{mode=keep}},
+  fullList(md){const keep=mode;mode=md==='short'?'short':'full';try{return ok1(textFullAll())}finally{mode=keep}}
  };
  renderList();count();
 })();
@@ -4827,7 +4828,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
  window.addEventListener('ann-open',writeUI);
  window.AutoNotice={readUI,active:()=>!!cfg().on,
   boardText(){const c=cfg(),g=window.__noticeGen,out=[];if(c.keep&&window.__annManual)out.push(window.__annManual);
-   if(g)c.cats.forEach(k=>{try{const a=g.gen(k,c.mode);if(a.length)out.push(a[0])}catch(e){}});
+   if(g)c.cats.forEach(k=>{try{if(k==='full'&&g.fullList){const t=g.fullList(c.mode);if(t){out.push(t);return}}const a=g.gen(k,c.mode);if(a.length)out.push(a[0])}catch(e){}});
    return out.length?out.join(' ┃ '):(sp.textContent||'')}};
 })();
 </script>
