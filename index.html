@@ -5818,30 +5818,29 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 .adp-site b{display:block;font-size:14px;line-height:1.3}.adp-site small{display:block;margin-top:1px;font-size:11.5px;color:#7a6a9f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .adp-site em{flex:none;margin-left:auto;font-style:normal;font-weight:800;font-size:12px;color:#6d28d9}
 .adp-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 22px;border-top:1px solid #e4dcfb;background:#fff}
-.adp-foot span{margin-right:auto;font-size:12.5px;color:#5a4a86;font-weight:600}
-.adp-btn{border:1px solid #d9c8ff;border-radius:10px;padding:9px 16px;background:#fff;color:#4c1d95;font:800 13px "Segoe UI",Arial,sans-serif;cursor:pointer;text-decoration:none}
+.adp-foot span{margin-right:auto;font-size:13px;color:#4c1d95;font-weight:600}.adp-foot span a{color:#6d28d9;font-weight:800;text-decoration:none}.adp-chips{display:flex;flex-wrap:wrap;gap:7px}.adp-chips span{padding:6px 11px;border:1px solid #e4dcfb;border-radius:999px;background:#fff;font-size:12.5px;font-weight:700;color:#4c1d95}
+.adp-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #d9c8ff;border-radius:10px;padding:9px 16px;background:#fff;color:#4c1d95;font:800 13px "Segoe UI",Arial,sans-serif;cursor:pointer;text-decoration:none}
 .adp-btn.pri{border-color:transparent;background:linear-gradient(115deg,#5b21b6,#7c3aed);color:#fff;box-shadow:0 4px 12px rgba(91,33,182,.3)}
 @media(max-width:640px){.adp-ov{padding:0}.adp-box{max-height:100vh;height:100vh;border-radius:0}.adp-feat,.adp-sites{grid-template-columns:1fr}.adp-ttl h2{font-size:18px}}
 </style>
 <div class="adp-ov" id="adpOv" role="dialog" aria-modal="true" aria-labelledby="adpTitle"><section class="adp-box">
- <header class="adp-head"><span class="adp-ico">🌐</span><div class="adp-ttl"><small>DỊCH VỤ THIẾT KẾ WEBSITE</small><h2 id="adpTitle">Website theo dõi thu nộp đảng phí riêng cho đảng bộ của bạn</h2></div><button type="button" class="adp-x" data-adp-close aria-label="Đóng">×</button></header>
+ <header class="adp-head"><span class="adp-ico">🌐</span><div class="adp-ttl"><small>DỊCH VỤ THIẾT KẾ WEBSITE</small><h2 id="adpTitle">Website thu nộp đảng phí riêng cho xã của bạn</h2></div><button type="button" class="adp-x" data-adp-close aria-label="Đóng">×</button></header>
  <div class="adp-body">
-  <p class="adp-lead">Mỗi xã, phường có một <b>website theo dõi thu nộp đảng phí riêng</b>, giao diện thống nhất với hệ thống theo dõi TTHC, số liệu tự đồng bộ từ Google Sheets, dùng được trên máy tính và điện thoại.</p>
-  <div><h3>Các xã đã có website <span id="adpCnt" style="color:#7a6a9f;font-weight:700"></span></h3><div class="adp-sites" id="adpSites"></div></div>
-  <div><h3>Tính năng của website xã</h3><div class="adp-feat">
-   <div><i>📊</i><p><b>Tổng quan nhanh</b>Bốn chỉ số chính trên một hàng: số đảng viên, đã nộp, tỷ lệ, tiền thu, có hiệu ứng khi rê chuột.</p></div>
-   <div><i>🍩</i><p><b>Tình hình thu</b>Biểu đồ vành khuyên quay liên tục, hiện tỷ lệ hoàn thành thu đảng phí của toàn đảng bộ.</p></div>
-   <div><i>🏛</i><p><b>Chi tiết từng chi bộ</b>Bấm vào chi bộ để xem số liệu đã nộp, chưa nộp; tự ẩn đơn vị chưa có số liệu.</p></div>
-   <div><i>🔄</i><p><b>Tự đồng bộ Google Sheets</b>Số liệu lấy trực tiếp từ bảng tính của đảng bộ, luôn là bản mới nhất.</p></div>
-   <div><i>✍</i><p><b>Nhập dữ liệu, xuất CSV</b>Nhập số liệu ngay trên web và đồng bộ lên Google Sheet, có đếm giây khi tải lên; xuất CSV để lưu trữ.</p></div>
-   <div><i>💹</i><p><b>Bản tin thị trường</b>Tỷ giá USD, giá vàng trong nước và thế giới lấy qua API, hiện ngay trên trang bằng một nút.</p></div>
-   <div><i>📰</i><p><b>Tin tức địa phương</b>Khối tin lọc theo tên xã, phường, đặt ngay trên phần tổng quan.</p></div>
-   <div><i>👥</i><p><b>Lượt truy cập</b>Đếm số người đang xem và tổng lượt truy cập theo thời gian thực.</p></div>
-   <div><i>🔌</i><p><b>API Google Apps Script</b>Mỗi đảng bộ có API riêng để đọc, ghi dữ liệu Google Sheets, có kiểm soát truy cập, không cần máy chủ.</p></div>
-   <div><i>📡</i><p><b>API dữ liệu thời gian thực</b>Tự gọi API giá vàng (Vang.today), tỷ giá (Frankfurter) và Firebase cho bộ đếm truy cập; tự làm mới, có nguồn dự phòng.</p></div>
+  <p class="adp-lead">Website theo dõi thu nộp đảng phí <b>thiết kế riêng cho từng xã, phường</b>: nhanh, đẹp, dễ dùng và luôn cập nhật số liệu mới nhất.</p>
+  <div><h3>Ưu điểm nổi bật</h3><div class="adp-feat">
+   <div><i>⏱</i><p><b>Tiết kiệm thời gian</b>Số liệu tự đồng bộ từ Google Sheets, không phải tổng hợp, làm báo cáo thủ công.</p></div>
+   <div><i>🎯</i><p><b>Chính xác, thời gian thực</b>Luôn là bản số liệu mới nhất; tiến độ, tỷ lệ, tiền thu hiện ngay khi có cập nhật.</p></div>
+   <div><i>👁</i><p><b>Dễ nhìn, dễ dùng</b>Giao diện trực quan: vào là thấy ngay tiến độ, chi bộ nào đã xong, chi bộ nào cần đôn đốc.</p></div>
+   <div><i>🏆</i><p><b>Thúc đẩy thi đua</b>Xếp hạng, biểu dương đơn vị hoàn thành 100% giúp tạo động lực nộp đúng hạn.</p></div>
+   <div><i>📱</i><p><b>Dùng mọi thiết bị</b>Mở bằng đường link trên máy tính, máy tính bảng hay điện thoại, không cần cài đặt.</p></div>
+   <div><i>💰</i><p><b>Chi phí vận hành thấp</b>Chạy trên nền tảng miễn phí và Google Sheets sẵn có, không cần thuê máy chủ.</p></div>
+   <div><i>🎨</i><p><b>Thiết kế riêng cho từng đơn vị</b>Mang tên, nhận diện của đảng bộ xã; giao diện thống nhất với hệ thống theo dõi TTHC.</p></div>
+   <div><i>🚀</i><p><b>Triển khai nhanh gọn</b>Làm từ mẫu đã hoàn thiện, đơn vị chỉ cần cung cấp bảng số liệu là có website.</p></div>
   </div></div>
+  <div><h3>Các xã đã có website <span id="adpCnt" style="color:#7a6a9f;font-weight:700"></span></h3><div class="adp-sites" id="adpSites"></div></div>
+  <div><h3>Tính năng trong website</h3><div class="adp-chips"><span>📊 Tổng quan nhanh</span><span>🍩 Tình hình thu</span><span>🏛 Chi tiết từng chi bộ</span><span>✍ Nhập dữ liệu, đồng bộ Google Sheet</span><span>📥 Xuất CSV</span><span>💹 Bản tin thị trường</span><span>📰 Tin tức địa phương</span><span>👥 Đếm lượt truy cập</span><span>🔌 API Google Apps Script</span><span>📡 API giá vàng, tỷ giá, Firebase</span></div></div>
  </div>
- <footer class="adp-foot"><span id="adpContact">Đơn vị quan tâm vui lòng liên hệ Ban quản trị hệ thống để được hỗ trợ.</span><button type="button" class="adp-btn pri" data-adp-close>Đóng</button></footer>
+ <footer class="adp-foot"><span id="adpContact"><b>Người thiết kế: Mr. Dũng</b> · ĐT/Zalo: <a href="tel:0826066007">0826.066.007</a></span><a class="adp-btn" href="https://zalo.me/0826066007" target="_blank" rel="noopener noreferrer">💬 Zalo</a><a class="adp-btn pri" href="tel:0826066007">📞 Gọi 0826.066.007</a><button type="button" class="adp-btn" data-adp-close>Đóng</button></footer>
 </section></div>
 <script id="ad-strip-script">
 (()=>{const tb=document.querySelector('.topbar');if(!tb)return;
@@ -5860,9 +5859,9 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  const ov=document.getElementById('adpOv');if(CONTACT)document.getElementById('adpContact').textContent=CONTACT;
  let i=0,timer=null,sig='',slides=[];
  function lines(){const l=units(),n=l.length,names=l.slice(0,3).map(u=>short(u.name)).join(', ');
-  const a=['Thiết kế <b>website theo dõi đảng phí riêng</b> cho đảng bộ của bạn: đẹp, nhanh, tự đồng bộ Google Sheets'];
+  const a=['Thiết kế <b>website theo dõi đảng phí riêng</b> cho xã của bạn: <b>đẹp, nhanh, tự cập nhật số liệu</b>'];
   if(n)a.push(`Đã triển khai <b>${n} website</b> đơn vị: ${esc(names)}${n>3?' …':''}`);
-  a.push('Một web, đủ tính năng: tiến độ, xếp hạng, biểu đồ, thông báo, <b>bản tin thị trường</b>');
+  a.push('Tiết kiệm thời gian, không tốn máy chủ, dùng được trên điện thoại · Liên hệ <b>Mr. Dũng 0826.066.007</b>');
   return a}
  function build(){const m=el.querySelector('#adMsg');m.textContent='';slides=lines().map(h=>{const d=document.createElement('div');d.className='ad-slide';d.innerHTML='<span>'+h+'</span>';m.append(d);return d});i=0;go(0)}
  function go(k){if(!slides.length)return;i=(k+slides.length)%slides.length;slides.forEach((n,j)=>n.classList.toggle('on',j===i))}
@@ -5871,7 +5870,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
   if(!l.length){box.innerHTML='<div style="color:#7a6a9f;font-size:13.5px">Chưa có website nào được liệt kê.</div>';return}
   l.forEach(u=>{const a=document.createElement('a');a.className='adp-site';a.href=u.url;a.target='_blank';a.rel='noopener noreferrer';a.title='Mở '+u.name+' (tab mới)';a.innerHTML='<i>🏛</i><div style="min-width:0"><b>'+esc(u.name)+'</b><small>Theo dõi thu nộp đảng phí · '+esc(u.url.replace(/^https?:\/\//,'').replace(/\/$/,''))+'</small></div><em>Mở ↗</em>';box.append(a)})}
  let lastFocus=null;
- function openP(){lastFocus=document.activeElement;fillPopup();ov.classList.add('on');document.documentElement.style.overflow='hidden';setTimeout(()=>ov.querySelector('.adp-btn.pri').focus(),30)}
+ function openP(){lastFocus=document.activeElement;fillPopup();ov.classList.add('on');document.documentElement.style.overflow='hidden';setTimeout(()=>{const f=ov.querySelector('button[data-adp-close]');f&&f.focus()},30)}
  function closeP(){ov.classList.remove('on');document.documentElement.style.overflow='';try{lastFocus&&lastFocus.focus()}catch(_){}}
  el.addEventListener('click',e=>{if(e.target.closest('#adX'))return;openP()});
  el.addEventListener('keydown',e=>{if(e.target===el&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openP()}});
