@@ -6003,7 +6003,11 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 })();
 </script>
 <style id="authCss">
-html:not(.is-admin) :is(#openImport,#importJson,#announcementMenuAction,#dpMenuAction,#unitsMenuAction,#editAnnouncement,#anbEdit,#adminBtn){display:none!important}
+html:not(.is-admin) #adminBtn{display:none!important}
+#openImport,#importJson,#announcementMenuAction,#dpMenuAction,#unitsMenuAction,#editAnnouncement,#anbEdit{display:none!important}
+#admTools{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:0 0 14px}
+#admTools button{text-align:left;padding:10px 12px}
+#admBox h4{margin:14px 0 4px;font-size:14px}
 html.is-admin #adminBtn{display:inline-flex!important}
 #admOv{position:fixed;inset:0;z-index:99998;background:rgba(15,25,40,.5);display:none;align-items:center;justify-content:center;padding:16px}
 #admOv.on{display:flex}
@@ -6015,7 +6019,10 @@ html.is-admin #adminBtn{display:inline-flex!important}
 </style><div id="admOv" role="dialog" aria-modal="true" aria-labelledby="admTtl"><div id="admBox">
 <button type="button" class="btn x" id="admClose">Đóng</button>
 <h3 id="admTtl">🛡 Quản trị hệ thống</h3>
-<p class="hint">Tài khoản Gmail được phép dùng các chức năng: nhập Excel/JSON, sửa thông báo, Đảng phí, trang web đơn vị. Quyền do máy chủ Google Apps Script kiểm tra.</p>
+<p class="hint">Các chức năng quản trị nằm trong cửa sổ này. Quyền do máy chủ Google Apps Script kiểm tra.</p>
+<h4>Chức năng quản trị</h4>
+<div id="admTools"></div>
+<h4>Tài khoản quản trị</h4>
 <table><thead><tr><th>Gmail</th><th>Quyền</th><th></th></tr></thead><tbody id="admBody"><tr><td colspan="3">Đang tải…</td></tr></tbody></table>
 <div class="row"><input id="admEmail" type="email" placeholder="Thêm Gmail quản trị" autocomplete="off"><button type="button" class="btn" id="admAdd">Thêm</button><button type="button" class="btn" id="admReload">Tải lại</button></div>
 <div id="admMsg"></div></div></div><script id="authJs">
@@ -6077,6 +6084,11 @@ window.AUTH=(function(){
     g('adminBtn').onclick=()=>{g('admOv').classList.add('on');admLoad()};
     g('admClose').onclick=()=>g('admOv').classList.remove('on');
     g('admOv').addEventListener('click',e=>{if(e.target.id==='admOv')g('admOv').classList.remove('on')});
+    const TOOLS=[['#openImport','↑ Nhập Excel'],['#importJson','↑ Nhập JSON'],['#editAnnouncement','✎ Sửa thông báo'],['#dpMenuAction','₫ Đảng phí'],['#unitsMenuAction','🔗 Trang web đơn vị']];
+    g('admTools').innerHTML=TOOLS.map((t,i)=>'<button type="button" class="btn" data-tool="'+i+'">'+t[1]+'</button>').join('');
+    g('admTools').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(!b||role!=='admin')return;
+      const el=document.querySelector(TOOLS[+b.dataset.tool][0]);if(!el){say('Chức năng này chưa tải xong, thử lại sau giây lát.');return}
+      g('admOv').classList.remove('on');setTimeout(()=>el.click(),50)});
     g('admReload').onclick=admLoad;
     g('admAdd').onclick=()=>{const i=g('admEmail'),e=i.value.trim().toLowerCase();
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){g('admMsg').textContent='Gmail chưa đúng định dạng.';return}i.value='';admApply('admin_add',e)};
