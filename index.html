@@ -5856,7 +5856,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 @media(max-width:640px){.adp-ov{padding:0}.adp-box{max-height:100vh;height:100vh;border-radius:0}.adp-feat,.adp-sites{grid-template-columns:1fr}.adp-ttl h2{font-size:18px}}
 </style>
 <div class="adp-ov" id="adpOv" role="dialog" aria-modal="true" aria-labelledby="adpTitle"><section class="adp-box">
- <header class="adp-head"><span class="adp-ico">🌐</span><div class="adp-ttl"><small>QC · DỊCH VỤ THIẾT KẾ WEBSITE</small><h2 id="adpTitle">Website thu nộp đảng phí riêng cho xã của bạn</h2></div><button type="button" class="adp-x" data-adp-close aria-label="Đóng">×</button></header>
+ <header class="adp-head"><span class="adp-ico">🌐</span><div class="adp-ttl"><small>QC · THIẾT KẾ WEBSITE</small><h2 id="adpTitle">Website thu nộp đảng phí riêng cho xã của bạn</h2></div><button type="button" class="adp-x" data-adp-close aria-label="Đóng">×</button></header>
  <div class="adp-body pro">
   <nav class="adp-nav" role="tablist" aria-label="Nội dung giới thiệu">
    <button type="button" role="tab" class="adp-tab on" data-t="ov"><i>🎯</i>Tổng quan</button>
@@ -5937,7 +5937,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  const norm=u=>String(u).trim().toLowerCase().replace(/^https?:\/\//,'').replace(/[\/#?].*$/,m=>m).replace(/\/+$/,'');
  const units=()=>{try{const own=(window.__unitSites&&window.__unitSites()||[]).filter(u=>u&&u.name&&/^https?:\/\//i.test(u.url)),seen=new Set(own.map(u=>norm(u.url)));return own.concat(KNOWN.filter(u=>!seen.has(norm(u.url))))}catch(_){return KNOWN.slice()}};
  const short=n=>String(n).replace(/^Đảng bộ /,'');
- const el=document.createElement('div');el.className='ad-strip';el.id='adStrip';el.hidden=false;el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','Quảng cáo dịch vụ thiết kế website cho đơn vị. Bấm để xem chi tiết');
+ const el=document.createElement('div');el.className='ad-strip';el.id='adStrip';el.hidden=false;el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','Quảng cáo thiết kế website cho đơn vị. Bấm để xem chi tiết');
  el.innerHTML='<span class="ad-tag"><em>QC</em>🌐 <span>THIẾT KẾ WEBSITE</span></span><div class="ad-msg" id="adMsg"></div><span class="ad-cta">Xem chi tiết ↗</span>';
  tb.after(el);
  const ov=document.getElementById('adpOv');if(CONTACT)document.getElementById('adpContact').textContent=CONTACT;
