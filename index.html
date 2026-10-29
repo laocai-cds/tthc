@@ -6008,6 +6008,11 @@ html:not(.is-admin) #adminBtn{display:none!important}
 #admTools{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:0 0 14px}
 #admTools button{text-align:left;padding:10px 12px}
 #admBox h4{margin:14px 0 4px;font-size:14px}
+.admtabs{display:flex;gap:6px;margin:6px 0 14px;padding:5px;border:1px solid #d7dee8;border-radius:11px;background:#f6f8fb}
+.admtabs button{flex:1;border:0;background:transparent;padding:9px 10px;border-radius:8px;font:600 13px system-ui,sans-serif;color:#51607a;cursor:pointer}
+.admtabs button[aria-selected=true]{background:#162f53;color:#fff}
+.admpane.admhide{display:none}
+.admstat{display:flex;gap:10px;margin:0 0 8px}.admstat div{flex:1;padding:12px 14px;border:1px solid #d7dee8;border-radius:10px;background:#f6f8fb}.admstat small{display:block;color:#728198;font-size:12px}.admstat b{font-size:22px}
 html.is-admin #adminBtn{display:inline-flex!important}
 #admOv{position:fixed;inset:0;z-index:99998;background:rgba(15,25,40,.5);display:none;align-items:center;justify-content:center;padding:16px}
 #admOv.on{display:flex}
@@ -6020,12 +6025,12 @@ html.is-admin #adminBtn{display:inline-flex!important}
 <button type="button" class="btn x" id="admClose">Đóng</button>
 <h3 id="admTtl">🛡 Quản trị hệ thống</h3>
 <p class="hint">Các chức năng quản trị nằm trong cửa sổ này. Quyền do máy chủ Google Apps Script kiểm tra.</p>
-<h4>Chức năng quản trị</h4>
-<div id="admTools"></div>
-<h4>Tài khoản quản trị</h4>
-<table><thead><tr><th>Gmail</th><th>Quyền</th><th></th></tr></thead><tbody id="admBody"><tr><td colspan="3">Đang tải…</td></tr></tbody></table>
+<div class="admtabs" role="tablist"><button type="button" role="tab" data-g="tq">📊 Tổng quan</button><button type="button" role="tab" data-g="cn">⚙ Chức năng</button><button type="button" role="tab" data-g="pq">🔐 Phân quyền</button></div>
+<div class="admpane" data-grp="tq"><div class="admstat"><div><small>Đang online</small><b id="admOn">–</b></div><div><small>Tổng lượt truy cập</small><b id="admTot">–</b></div></div><p class="hint">Số liệu lấy từ bộ đếm truy cập của trang.</p></div>
+<div class="admpane" data-grp="cn"><div id="admTools"></div><p class="hint">Nhập Excel/JSON, sửa thông báo, Đảng phí và Trang web đơn vị chỉ mở được khi đã đăng nhập quản trị.</p></div>
+<div class="admpane" data-grp="pq"><table><thead><tr><th>Gmail</th><th>Quyền</th><th></th></tr></thead><tbody id="admBody"><tr><td colspan="3">Đang tải…</td></tr></tbody></table>
 <div class="row"><input id="admEmail" type="email" placeholder="Thêm Gmail quản trị" autocomplete="off"><button type="button" class="btn" id="admAdd">Thêm</button><button type="button" class="btn" id="admReload">Tải lại</button></div>
-<div id="admMsg"></div></div></div><script id="authJs">
+<div id="admMsg"></div></div></div></div><script id="authJs">
 window.AUTH=(function(){
   const CFG={apiKey:"AIzaSyCZ9gzT18b1QovsS0y4-SgmUFqtyMvkR0A",authDomain:"laocai-tthc.firebaseapp.com",projectId:"laocai-tthc",appId:"1:836624022047:web:7ee3c80e5e44b8ed3d732a"};
   const V='https://www.gstatic.com/firebasejs/10.12.2/',EP=GS_ENDPOINT_URL;
@@ -6081,7 +6086,7 @@ window.AUTH=(function(){
     m.textContent='Chưa thấy thay đổi. Bấm “Tải lại”; nếu vẫn chưa được, kiểm tra Apps Script đã triển khai bản mới.'}
   function init(){
     const b=g('loginBtn');if(b)b.onclick=()=>role==='admin'?logout():login();
-    g('adminBtn').onclick=()=>{g('admOv').classList.add('on');admLoad()};
+    g('adminBtn').onclick=()=>{g('admOv').classList.add('on');window.__admShowTab&&__admShowTab((document.querySelector('.admtabs [aria-selected=true]')||{dataset:{g:'tq'}}).dataset.g)};
     g('admClose').onclick=()=>g('admOv').classList.remove('on');
     g('admOv').addEventListener('click',e=>{if(e.target.id==='admOv')g('admOv').classList.remove('on')});
     const TOOLS=[['#openImport','↑ Nhập Excel'],['#exportJson','↓ Xuất JSON'],['#importJson','↑ Nhập JSON'],['#editAnnouncement','✎ Sửa thông báo'],['#dpMenuAction','₫ Đảng phí'],['#unitsMenuAction','🔗 Trang web đơn vị']];
@@ -6089,6 +6094,14 @@ window.AUTH=(function(){
     g('admTools').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(!b||role!=='admin')return;
       const el=document.querySelector(TOOLS[+b.dataset.tool][0]);if(!el){say('Chức năng này chưa tải xong, thử lại sau giây lát.');return}
       g('admOv').classList.remove('on');setTimeout(()=>el.click(),50)});
+    const tabs=document.querySelectorAll('.admtabs button');
+    function showTab(id){tabs.forEach(b=>b.setAttribute('aria-selected',b.dataset.g===id?'true':'false'));
+      document.querySelectorAll('.admpane').forEach(el=>el.classList.toggle('admhide',el.dataset.grp!==id));
+      if(id==='tq'){const o=document.getElementById('firebaseOnlineCount'),t=document.getElementById('firebaseTotalVisits');g('admOn').textContent=o?o.textContent:'–';g('admTot').textContent=t?t.textContent:'–'}
+      if(id==='pq')admLoad();try{localStorage.setItem('tt_admtab',id)}catch(_){}}
+    tabs.forEach(b=>b.onclick=()=>showTab(b.dataset.g));
+    let st='tq';try{st=localStorage.getItem('tt_admtab')||'tq'}catch(_){}showTab(['tq','cn','pq'].includes(st)?st:'tq');
+    window.__admShowTab=showTab;
     g('admReload').onclick=admLoad;
     g('admAdd').onclick=()=>{const i=g('admEmail'),e=i.value.trim().toLowerCase();
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){g('admMsg').textContent='Gmail chưa đúng định dạng.';return}i.value='';admApply('admin_add',e)};
