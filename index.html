@@ -3288,6 +3288,8 @@ body.dp-lock{overflow:hidden}
         if (!pw) { pw = (prompt('Mật khẩu đồng bộ đảng phí:') || '').trim(); if (!pw) return; }
         if (navigator.onLine === false) throw new Error('Máy đang mất kết nối mạng. Kiểm tra mạng rồi bấm lại.');
         say('Đang lấy số liệu từ API…', false, true);
+        /* Làm nóng Apps Script song song trong lúc chờ API gqtthc (tránh khởi động nguội khi gửi) */
+        try { fetch(API + '?action=status&warm=' + Date.now(), { mode: 'no-cors' }).catch(() => {}); } catch (e) {}
         const tA = performance.now();
         const d = new Date(), p2 = n => String(n).padStart(2, '0'), mm = p2(d.getMonth() + 1), yy = d.getFullYear();
         const body = { kyNopStart: '01/' + mm + '/' + yy, kyNopEnd: new Date(yy, d.getMonth() + 1, 0).getDate() + '/' + mm + '/' + yy, parentId: 2122408, hasChildren: true, page: 1, size: 500 };
