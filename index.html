@@ -5795,7 +5795,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 @media(max-width:760px){.ad-strip{margin:8px 14px 0}.ad-tag span{display:none}.ad-slide{font-size:12.5px}.ad-cta{padding:0 10px}}
 .adp-ov{position:fixed;inset:0;z-index:10100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(10,22,42,.6);backdrop-filter:blur(3px);font-family:"Segoe UI",Arial,sans-serif}
 .adp-ov.on{display:flex}
-.adp-box{width:min(860px,100%);max-height:92vh;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:#f6f3ff;box-shadow:0 30px 80px rgba(5,15,35,.5);animation:anbIn .22s ease-out}
+.adp-box{width:min(940px,100%);max-height:92vh;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:#f6f3ff;box-shadow:0 30px 80px rgba(5,15,35,.5);animation:anbIn .22s ease-out}
 .adp-head{position:relative;display:flex;align-items:center;gap:14px;padding:20px 22px;color:#fff;background:radial-gradient(120% 200% at 0% 0%,rgba(255,224,138,.35),transparent 55%),linear-gradient(115deg,#2e1065,#5b21b6 60%,#7c3aed)}
 .adp-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#ffe08a,#fff3c9,#ffe08a)}
 .adp-ico{flex:none;width:50px;height:50px;border-radius:14px;display:grid;place-items:center;font-size:26px;background:linear-gradient(135deg,#ffe08a,#f2ca63)}
@@ -5821,33 +5821,110 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 .adp-foot span{margin-right:auto;font-size:13px;color:#4c1d95;font-weight:600}.adp-foot span a{color:#6d28d9;font-weight:800;text-decoration:none}.adp-src{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border:1px dashed #cdbff0;border-radius:12px;background:#fbf9ff}.adp-src i{flex:none;font-style:normal;font-size:20px}.adp-src p{margin:0;font-size:13px;line-height:1.55;color:#4a3d70}.adp-src b{color:#4c1d95}.adp-chips{display:flex;flex-wrap:wrap;gap:7px}.adp-chips span.live{border-color:#f5b5b5;background:#fff1f1;color:#b4151f}.adp-chips span{padding:6px 11px;border:1px solid #e4dcfb;border-radius:999px;background:#fff;font-size:12.5px;font-weight:700;color:#4c1d95}
 .adp-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #d9c8ff;border-radius:10px;padding:9px 16px;background:#fff;color:#4c1d95;font:800 13px "Segoe UI",Arial,sans-serif;cursor:pointer;text-decoration:none}
 .adp-btn.pri{border-color:transparent;background:linear-gradient(115deg,#5b21b6,#7c3aed);color:#fff;box-shadow:0 4px 12px rgba(91,33,182,.3)}
+.adp-box{height:min(680px,92vh)}
+.adp-body.pro{display:grid;grid-template-columns:210px minmax(0,1fr);gap:0;padding:0;overflow:hidden;min-height:0}
+.adp-nav{display:flex;flex-direction:column;gap:4px;padding:14px 10px;border-right:1px solid #e4dcfb;background:#efeafd;overflow:auto}
+.adp-tab{display:flex;align-items:center;gap:9px;width:100%;padding:10px 12px;border:0;border-radius:11px;background:transparent;color:#4c1d95;font:700 13.5px "Segoe UI",Arial,sans-serif;text-align:left;cursor:pointer;transition:background .15s}
+.adp-tab i{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-style:normal;font-size:15px;background:#fff;color:#4c1d95}
+.adp-tab:hover{background:#e3dafb}.adp-tab.on{background:linear-gradient(115deg,#5b21b6,#7c3aed);color:#fff;box-shadow:0 4px 12px rgba(91,33,182,.28)}
+.adp-tab:focus-visible{outline:2px solid #f2ca63;outline-offset:1px}
+.adp-panels{min-width:0;overflow:auto;padding:20px 24px}
+.adp-pn[hidden]{display:none}
+.adp-pn h3{margin:0 0 10px}
+.adp-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.adp-stats>div{padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,#5b21b6,#7c3aed);color:#fff;box-shadow:0 6px 16px rgba(91,33,182,.22)}
+.adp-stats b{display:block;font-size:20px;font-weight:850;line-height:1.2;color:#ffe08a}.adp-stats span{display:block;margin-top:2px;font-size:12px;color:#e9defd}
+.adp-scope{display:flex;gap:12px;align-items:center;margin-bottom:16px;padding:13px 15px;border:1px solid #f0dcb0;border-radius:14px;background:linear-gradient(135deg,#fffaf0,#fff3dd)}
+.adp-scope>i{flex:none;font-style:normal;font-size:28px}.adp-scope p{margin:0;font-size:14px;line-height:1.55;color:#3a3220}.adp-scope b{color:#92400e}
+.adp-mn{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.adp-mn>div{padding:12px 14px;border:1px solid #e4dcfb;border-left:4px solid #7c3aed;border-radius:12px;background:#fff}
+.adp-mn b{display:block;margin-bottom:3px;font-size:14px;color:#4c1d95}.adp-mn p{margin:0;font-size:13px;line-height:1.55;color:#3a4a63}
+.adp-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.adp-groups>div{padding:12px 14px;border:1px solid #e4dcfb;border-radius:13px;background:#fff}
+.adp-groups h4{margin:0 0 7px;font-size:14px;color:#4c1d95}
+.adp-groups ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.adp-groups li{position:relative;padding-left:18px;font-size:13px;line-height:1.45;color:#3a4a63}.adp-groups li::before{content:"✔";position:absolute;left:0;color:#0d8a62;font-weight:900;font-size:12px}
+.adp-flow{display:flex;align-items:stretch;gap:6px;margin-bottom:18px}
+.adp-flow>div{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:12px 8px;border:1px solid #cdbff0;border-radius:14px;background:#fbf9ff;text-align:center}
+.adp-flow i{font-style:normal;font-size:24px}.adp-flow b{font-size:13px;color:#4c1d95;line-height:1.3}.adp-flow small{font-size:11.5px;color:#7a6a9f;line-height:1.35}
+.adp-flow>span{flex:none;align-self:center;color:#7c3aed;font-size:18px;font-weight:900}
+.adp-flow>div:first-child{border-color:#f5b5b5;background:#fff4f4}.adp-flow>div:first-child b{color:#b4151f}
+.adp-api{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.adp-api>div{display:flex;flex-direction:column;gap:1px;padding:10px 13px;border:1px solid #e4dcfb;border-radius:12px;background:#fff}
+.adp-api b{font-size:13.5px;color:#4c1d95}.adp-api span{font-size:12.5px;color:#5d6f88}
+@media(max-width:640px){.adp-body.pro{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.adp-nav{flex-direction:row;border-right:0;border-bottom:1px solid #e4dcfb;padding:8px;overflow-x:auto}.adp-tab{width:auto;flex:none;white-space:nowrap;padding:8px 11px}.adp-tab i{display:none}.adp-panels{padding:14px 14px}.adp-stats,.adp-mn,.adp-groups,.adp-api{grid-template-columns:1fr}.adp-flow{flex-direction:column;gap:2px}.adp-flow>div{flex-direction:row;justify-content:flex-start;gap:10px;padding:8px 12px;text-align:left}.adp-flow>div i{font-size:20px}.adp-flow>div b,.adp-flow>div small{display:inline}.adp-flow>span{transform:rotate(90deg);line-height:1;font-size:15px}}
 @media(max-width:640px){.adp-ov{padding:0}.adp-box{max-height:100vh;height:100vh;border-radius:0}.adp-feat,.adp-sites{grid-template-columns:1fr}.adp-ttl h2{font-size:18px}}
 </style>
 <div class="adp-ov" id="adpOv" role="dialog" aria-modal="true" aria-labelledby="adpTitle"><section class="adp-box">
  <header class="adp-head"><span class="adp-ico">🌐</span><div class="adp-ttl"><small>QC · DỊCH VỤ THIẾT KẾ WEBSITE</small><h2 id="adpTitle">Website thu nộp đảng phí riêng cho xã của bạn</h2></div><button type="button" class="adp-x" data-adp-close aria-label="Đóng">×</button></header>
- <div class="adp-body">
-  <div class="adp-mean"><h3>Ý nghĩa</h3><ul>
-   <li><b>Phạm vi thiết kế:</b> toàn bộ xã, phường trong cả nước.</li>
-   <li><b>Chuyển đổi số:</b> thay tổng hợp thủ công.</li>
-   <li><b>Minh bạch:</b> kết quả từng chi bộ rõ ràng.</li>
-   <li><b>Thi đua:</b> xếp hạng, biểu dương, nhắc đơn vị chậm.</li>
-   <li><b>Chỉ đạo:</b> nắm nhanh tiến độ để đôn đốc.</li>
-  </ul></div>
-  <div><h3>Ưu điểm</h3><div class="adp-feat">
-   <div><i>⏱</i><p><b>Tiết kiệm thời gian</b>Số liệu tự đồng bộ.</p></div>
-   <div><i>🔴</i><p><b>Dữ liệu sống</b>Luôn mới nhất, chính xác.</p></div>
-   <div><i>🤖</i><p><b>Báo cáo tích hợp AI</b>Nhanh, chính xác; xuất Word, Excel, PDF.</p></div>
-   <div><i>📅</i><p><b>Lũy kế tháng, năm</b>Xem theo tháng và cả năm.</p></div>
-   <div><i>📰</i><p><b>Tin địa phương</b>Từ báo chính thống viết về đơn vị.</p></div>
-   <div><i>💹</i><p><b>Bản tin thị trường</b>Tỷ giá, giá vàng.</p></div>
-   <div><i>📱</i><p><b>Dễ dùng, chi phí thấp</b>Mở bằng link, mọi thiết bị.</p></div>
-   <div><i>🎨</i><p><b>Thiết kế riêng</b>Triển khai nhanh.</p></div>
-  </div></div>
-  <div><h3>Các xã đã có website <span id="adpCnt" style="color:#7a6a9f;font-weight:700"></span></h3><div class="adp-sites" id="adpSites"></div></div>
-  <div><h3>Tính năng khác</h3><div class="adp-chips"><span>📊 Tổng quan nhanh</span><span>🏛 Chi tiết chi bộ</span><span>✍ Nhập dữ liệu, CSV</span><span>🔌 API Google Sheets</span><span>📡 API giá vàng, tỷ giá</span></div></div>
-  <div class="adp-src"><i>🗄</i><p><b>Nguồn:</b> dữ liệu gốc gqtthc.dcs.vn; tin từ báo chính thống.</p></div>
+ <div class="adp-body pro">
+  <nav class="adp-nav" role="tablist" aria-label="Nội dung giới thiệu">
+   <button type="button" role="tab" class="adp-tab on" data-t="ov"><i>🎯</i>Tổng quan</button>
+   <button type="button" role="tab" class="adp-tab" data-t="ad"><i>⭐</i>Ưu điểm</button>
+   <button type="button" role="tab" class="adp-tab" data-t="ft"><i>🧩</i>Tính năng</button>
+   <button type="button" role="tab" class="adp-tab" data-t="tc"><i>🛰</i>Dữ liệu &amp; công nghệ</button>
+   <button type="button" role="tab" class="adp-tab" data-t="ws"><i>🌐</i>Website đã làm</button>
+  </nav>
+  <div class="adp-panels">
+   <section class="adp-pn on" data-p="ov" role="tabpanel">
+    <div class="adp-stats"><div><b>Toàn quốc</b><span>Phạm vi thiết kế</span></div><div><b id="adpStatN">5</b><span>Website xã đã triển khai</span></div><div><b>1 nút</b><span>Xuất báo cáo Word, Excel, PDF</span></div></div>
+    <div class="adp-scope"><i>🇻🇳</i><p><b>Phạm vi thiết kế: toàn bộ xã, phường trong cả nước.</b> Mỗi đơn vị một website riêng, cùng một chuẩn giao diện và số liệu.</p></div>
+    <h3>Ý nghĩa</h3>
+    <div class="adp-mn">
+     <div><b>Chuyển đổi số</b><p>Theo dõi thu nộp đảng phí trên môi trường điện tử; số liệu tự tổng hợp, thay cho báo cáo giấy và bảng tính rời rạc.</p></div>
+     <div><b>Minh bạch</b><p>Kết quả từng chi bộ cập nhật và hiển thị rõ ràng để cấp ủy, đảng viên cùng theo dõi.</p></div>
+     <div><b>Thi đua</b><p>Xếp hạng, biểu dương đơn vị hoàn thành tốt; nhắc đơn vị còn chậm nộp đúng hạn.</p></div>
+     <div><b>Chỉ đạo</b><p>Cấp ủy nắm nhanh tiến độ toàn đảng bộ để đôn đốc, điều hành kịp thời.</p></div>
+    </div>
+   </section>
+   <section class="adp-pn" data-p="ad" role="tabpanel" hidden>
+    <h3>Ưu điểm nổi bật</h3>
+    <div class="adp-feat">
+     <div><i>⏱</i><p><b>Tiết kiệm thời gian</b>Số liệu tự đồng bộ, không phải tổng hợp tay.</p></div>
+     <div><i>🔴</i><p><b>Dữ liệu sống</b>Cập nhật trực tuyến, luôn mới nhất và chính xác.</p></div>
+     <div><i>🤖</i><p><b>Báo cáo tích hợp AI</b>Soạn nhanh, chính xác; xuất Word, Excel, PDF.</p></div>
+     <div><i>📅</i><p><b>Lũy kế tháng, năm</b>Xem theo tháng, có lũy kế cả năm, đối chiếu giữa các tháng.</p></div>
+     <div><i>📰</i><p><b>Tin địa phương</b>Lấy từ báo chính thống viết về đơn vị, có dẫn nguồn.</p></div>
+     <div><i>💹</i><p><b>Bản tin thị trường</b>Tỷ giá USD, giá vàng ngay trên trang.</p></div>
+     <div><i>📱</i><p><b>Dễ dùng, chi phí thấp</b>Mở bằng link, mọi thiết bị, không cần máy chủ.</p></div>
+     <div><i>🎨</i><p><b>Thiết kế riêng</b>Mang nhận diện của xã, triển khai nhanh từ mẫu có sẵn.</p></div>
+    </div>
+   </section>
+   <section class="adp-pn" data-p="ft" role="tabpanel" hidden>
+    <h3>Tính năng theo nhóm</h3>
+    <div class="adp-groups">
+     <div><h4>📊 Theo dõi</h4><ul><li>Tổng quan nhanh các chỉ số chính</li><li>Tình hình thu, tỷ lệ hoàn thành</li><li>Chi tiết từng chi bộ</li><li>Lũy kế theo tháng, theo năm</li><li>Xếp hạng, biểu dương</li></ul></div>
+     <div><h4>✍ Dữ liệu</h4><ul><li>Nhập dữ liệu trên web</li><li>Đồng bộ Google Sheet</li><li>Xuất CSV</li><li>Đếm lượt truy cập</li></ul></div>
+     <div><h4>🤖 Báo cáo &amp; AI</h4><ul><li>Tổng hợp báo cáo tích hợp AI</li><li>Xuất Word, Excel, PDF</li><li>Trợ lý AI tra cứu nhanh số liệu</li></ul></div>
+     <div><h4>📰 Thông tin</h4><ul><li>Bản tin thị trường: tỷ giá, giá vàng</li><li>Tin địa phương từ báo chính thống</li><li>Thông báo, biểu dương tự động</li></ul></div>
+    </div>
+   </section>
+   <section class="adp-pn" data-p="tc" role="tabpanel" hidden>
+    <h3>Luồng dữ liệu</h3>
+    <div class="adp-flow">
+     <div><i>🗄</i><b>gqtthc.dcs.vn</b><small>Dữ liệu gốc</small></div>
+     <span aria-hidden="true">➜</span>
+     <div><i>📑</i><b>Google Sheets</b><small>Đồng bộ, lưu trữ</small></div>
+     <span aria-hidden="true">➜</span>
+     <div><i>🔌</i><b>API Apps Script</b><small>Đọc, ghi có kiểm soát</small></div>
+     <span aria-hidden="true">➜</span>
+     <div><i>🌐</i><b>Website xã</b><small>Hiển thị, báo cáo AI</small></div>
+    </div>
+    <h3>Nguồn dữ liệu kèm theo</h3>
+    <div class="adp-api">
+     <div><b>Giá vàng</b><span>API Vang.today</span></div>
+     <div><b>Tỷ giá USD</b><span>API Frankfurter</span></div>
+     <div><b>Tin địa phương</b><span>RSS các báo chính thống</span></div>
+     <div><b>Lượt truy cập</b><span>Firebase thời gian thực</span></div>
+    </div>
+   </section>
+   <section class="adp-pn" data-p="ws" role="tabpanel" hidden>
+    <h3>Các xã đã có website <span id="adpCnt" style="color:#7a6a9f;font-weight:700"></span></h3>
+    <div class="adp-sites" id="adpSites"></div>
+   </section>
+  </div>
  </div>
- <footer class="adp-foot"><span id="adpContact"><b>Người thiết kế: Mr. Dũng</b> · ĐT/Zalo: <a href="tel:0826066007">0826.066.007</a></span><a class="adp-btn" href="https://zalo.me/0826066007" target="_blank" rel="noopener noreferrer">💬 Zalo</a><a class="adp-btn pri" href="tel:0826066007">📞 Gọi 0826.066.007</a><button type="button" class="adp-btn" data-adp-close>Đóng</button></footer>
+ <footer class="adp-foot"><span id="adpContact"><b>Liên hệ: Mr. Dũng</b> · ĐT/Zalo: <a href="tel:0826066007">0826.066.007</a></span><a class="adp-btn" href="https://zalo.me/0826066007" target="_blank" rel="noopener noreferrer">💬 Zalo</a><a class="adp-btn pri" href="tel:0826066007">📞 Gọi 0826.066.007</a><button type="button" class="adp-btn" data-adp-close>Đóng</button></footer>
 </section></div>
 <script id="ad-strip-script">
 (()=>{const tb=document.querySelector('.topbar');if(!tb)return;
@@ -5873,11 +5950,14 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  function build(){const m=el.querySelector('#adMsg');m.textContent='';slides=lines().map(h=>{const d=document.createElement('div');d.className='ad-slide';d.innerHTML='<span>'+h+'</span>';m.append(d);return d});i=0;go(0)}
  function go(k){if(!slides.length)return;i=(k+slides.length)%slides.length;slides.forEach((n,j)=>n.classList.toggle('on',j===i))}
  function restart(){clearInterval(timer);if(slides.length>1)timer=setInterval(()=>{if(!document.hidden)go(i+1)},5000)}
- function fillPopup(){const l=units(),box=document.getElementById('adpSites');box.textContent='';document.getElementById('adpCnt').textContent=l.length?'('+l.length+')':'';
+ function fillPopup(){const l=units(),box=document.getElementById('adpSites'),sn=document.getElementById('adpStatN');if(sn)sn.textContent=l.length;box.textContent='';document.getElementById('adpCnt').textContent=l.length?'('+l.length+')':'';
   if(!l.length){box.innerHTML='<div style="color:#7a6a9f;font-size:13.5px">Chưa có website nào được liệt kê.</div>';return}
   l.forEach(u=>{const a=document.createElement('a');a.className='adp-site';a.href=u.url;a.target='_blank';a.rel='noopener noreferrer';a.title='Mở '+u.name+' (tab mới)';a.innerHTML='<i>🏛</i><div style="min-width:0"><b>'+esc(u.name)+'</b><small>'+esc(u.url.replace(/^https?:\/\//,'').replace(/\/$/,''))+'</small></div><em>Mở ↗</em>';box.append(a)})}
  let lastFocus=null;
- function openP(){lastFocus=document.activeElement;fillPopup();ov.classList.add('on');document.documentElement.style.overflow='hidden';setTimeout(()=>{const f=ov.querySelector('button[data-adp-close]');f&&f.focus()},30)}
+ function tab(k){ov.querySelectorAll('.adp-tab').forEach(t=>{const on=t.dataset.t===k;t.classList.toggle('on',on);t.setAttribute('aria-selected',on)});ov.querySelectorAll('.adp-pn').forEach(p=>{const on=p.dataset.p===k;p.hidden=!on;p.classList.toggle('on',on)});const pn=ov.querySelector('.adp-panels');if(pn)pn.scrollTop=0}
+ ov.querySelector('.adp-nav').addEventListener('click',e=>{const t=e.target.closest('.adp-tab');if(t)tab(t.dataset.t)});
+ ov.querySelector('.adp-nav').addEventListener('keydown',e=>{const k=['ArrowDown','ArrowRight'].includes(e.key)?1:['ArrowUp','ArrowLeft'].includes(e.key)?-1:0;if(!k)return;e.preventDefault();const ts=[...ov.querySelectorAll('.adp-tab')],i=ts.findIndex(t=>t.classList.contains('on')),n=ts[(i+k+ts.length)%ts.length];tab(n.dataset.t);n.focus()});
+ function openP(){lastFocus=document.activeElement;fillPopup();tab('ov');ov.classList.add('on');document.documentElement.style.overflow='hidden';setTimeout(()=>{const f=ov.querySelector('button[data-adp-close]');f&&f.focus()},30)}
  function closeP(){ov.classList.remove('on');document.documentElement.style.overflow='';try{lastFocus&&lastFocus.focus()}catch(_){}}
  el.addEventListener('click',openP);
  el.addEventListener('keydown',e=>{if(e.target===el&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openP()}});
