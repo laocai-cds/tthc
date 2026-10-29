@@ -3273,20 +3273,32 @@ body.dp-lock{overflow:hidden}
   function dpBookmarklet(API) {
     (async () => {
       const box = document.createElement('div');
-      box.style.cssText = 'position:fixed;z-index:2147483647;top:14px;right:14px;max-width:360px;padding:12px 16px;border-radius:12px;background:#12315f;color:#fff;font:600 14px/1.45 system-ui,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.35)';
-      const say = (m, bad) => { box.textContent = m; box.style.background = bad ? '#a50d26' : '#12315f'; if (!box.parentNode) document.body.appendChild(box); };
+      box.style.cssText = 'position:fixed;z-index:2147483647;top:14px;right:14px;max-width:360px;padding:12px 16px;border-radius:12px;background:#12315f;color:#fff;font:600 14px/1.45 system-ui,sans-serif;white-space:pre-line;box-shadow:0 8px 28px rgba(0,0,0,.35)';
+      const T0 = performance.now();
+      let curMsg = '', curBad = false, tick = null;
+      const f1 = ms => (ms / 1000).toFixed(1).replace('.', ',') + 's';
+      const paint = () => { box.textContent = curMsg + (tick ? '   ⏱ ' + f1(performance.now() - T0) : ''); box.style.background = curBad ? '#a50d26' : '#12315f'; if (!box.parentNode) document.body.appendChild(box); };
+      /* run=true: đồng hồ giây chạy liên tục; run=false: dừng đồng hồ và hiện kết quả */
+      const say = (m, bad, run) => { curMsg = m; curBad = !!bad; if (run) { if (!tick) tick = setInterval(paint, 100); } else if (tick) { clearInterval(tick); tick = null; } paint(); };
       try {
         if (!/gqtthc\.dcs\.vn$/.test(location.hostname)) { alert('Hãy bấm dấu trang này khi đang mở trang gqtthc.dcs.vn (đã đăng nhập).'); return; }
         const tk = localStorage.getItem('token');
         if (!tk) { alert('Chưa đăng nhập gqtthc.dcs.vn.'); return; }
         let pw = localStorage.getItem('dangphi.token') || '';
         if (!pw) { pw = (prompt('Mật khẩu đồng bộ đảng phí:') || '').trim(); if (!pw) return; }
-        say('Đang lấy số liệu từ API…');
+        if (navigator.onLine === false) throw new Error('Máy đang mất kết nối mạng. Kiểm tra mạng rồi bấm lại.');
+        say('Đang lấy số liệu từ API…', false, true);
+        const tA = performance.now();
         const d = new Date(), p2 = n => String(n).padStart(2, '0'), mm = p2(d.getMonth() + 1), yy = d.getFullYear();
         const body = { kyNopStart: '01/' + mm + '/' + yy, kyNopEnd: new Date(yy, d.getMonth() + 1, 0).getDate() + '/' + mm + '/' + yy, parentId: 2122408, hasChildren: true, page: 1, size: 500 };
-        const r = await fetch('https://gateway-gqtthc.dcs.vn/report/dashboard/danh-sach-theo-doi-dang-phi', { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
+        const ac = new AbortController(), to = setTimeout(() => ac.abort(), 30000);
+        const r = await fetch('https://gateway-gqtthc.dcs.vn/report/dashboard/danh-sach-theo-doi-dang-phi', { signal: ac.signal, method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
+        clearTimeout(to);
+        const tB = performance.now();
         if (!r.ok) throw new Error('API trả lỗi ' + r.status + (r.status === 401 ? ' — hãy đăng nhập lại.' : ''));
-        const j = await r.json();
+        const raw = await r.text();
+        const tC = performance.now();
+        const j = JSON.parse(raw);
         const list = j.data || [];
         if (!list.length) throw new Error('API không trả đơn vị nào.');
         const num = x => Number(x) || 0;
@@ -3296,10 +3308,13 @@ body.dp-lock{overflow:hidden}
         const syncId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
         const payload = { token: pw, syncId, fileName: 'API gqtthc ' + p2(d.getDate()) + '/' + mm + '/' + yy + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes()), month: yy + '-' + mm,
           totals: { units: rows.length, members: sum(2), paidProfiles: sum(9), declared, paid, rate: declared > 0 ? Math.round(paid / declared * 10000) / 100 : 0 }, rows };
-        say('Đang gửi ' + rows.length + ' đơn vị lên Google Sheet…');
+        say('Đang gửi ' + rows.length + ' đơn vị lên Google Sheet…', false, true);
+        const tD = performance.now();
         await fetch(API, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify(payload) }) });
+        const tE = performance.now();
+        say('Đang xác nhận kết quả trên Google Sheet…', false, true);
         let ok = null;
-        for (let k = 0; k < 8 && !ok; k++) {
+        for (let k = 0; k < 12 && !ok; k++) {
           ok = await new Promise(res => {
             const cb = '__dpbm' + Date.now() + k, s = document.createElement('script');
             const t = setTimeout(() => { delete window[cb]; s.remove(); res(null); }, 9000);
@@ -3309,14 +3324,18 @@ body.dp-lock{overflow:hidden}
             document.head.appendChild(s);
           });
           if (ok && ok.lastError && ok.lastError.syncId === syncId) throw new Error(ok.lastError.error);
-          if (!(ok && ok.last && ok.last.syncId === syncId)) { ok = null; await new Promise(r2 => setTimeout(r2, 2000)); }
+          if (!(ok && ok.last && ok.last.syncId === syncId)) { ok = null; await new Promise(r2 => setTimeout(r2, 1000)); }
         }
+        const tF = performance.now();
         try { localStorage.setItem('dangphi.token', pw); } catch (e) {}
-        say(ok ? '✓ Đã đồng bộ ' + ok.last.rowCount + ' đơn vị lúc ' + ok.last.updatedAtText + '.' : '✓ Đã gửi ' + rows.length + ' đơn vị. Chưa xác nhận được kết quả — hãy mở lại trang Đảng phí để xem “Lần đồng bộ gần nhất”.');
-        setTimeout(() => box.remove(), 12000);
+        const apiT = tC - tA, nc = navigator.connection || {};
+        const speed = apiT < 2500 ? '🟢 Nhanh' : apiT < 6000 ? '🟡 Bình thường' : '🔴 Chậm';
+        const detail = '\n⏱ Tổng ' + f1(tF - T0) + ' · Kết nối ' + speed + '\nAPI ' + f1(apiT) + ' (chờ ' + f1(tB - tA) + ', tải ' + Math.max(1, Math.round(raw.length / 1024)) + ' KB) · Gửi Sheet ' + f1(tE - tD) + ' · Xác nhận ' + f1(tF - tE) + (nc.effectiveType ? '\nMạng ' + nc.effectiveType + (nc.rtt ? ' · RTT ' + nc.rtt + 'ms' : '') : '');
+        say((ok ? '✓ Đã đồng bộ ' + ok.last.rowCount + ' đơn vị lúc ' + ok.last.updatedAtText + '.' : '✓ Đã gửi ' + rows.length + ' đơn vị. Chưa xác nhận được kết quả — hãy mở lại trang Đảng phí để xem “Lần đồng bộ gần nhất”.') + detail);
+        setTimeout(() => box.remove(), 25000);
       } catch (e) {
         if (/mật khẩu|token|không hợp lệ/i.test(String(e.message))) { try { localStorage.removeItem('dangphi.token'); } catch (x) {} }
-        say('✕ ' + e.message, true);
+        say('✕ ' + (e && e.name === 'AbortError' ? 'API phản hồi quá chậm (quá 30 giây). Kiểm tra mạng rồi bấm lại.' : e.message) + '   (sau ' + f1(performance.now() - T0) + ')', true);
         setTimeout(() => box.remove(), 15000);
       }
     })();
