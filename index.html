@@ -5360,7 +5360,7 @@ $('umSave').onclick=async()=>{const pass=$('umPass').value;if(!API){say('Chưa c
  const list=clean(draft),btn=$('umSave');btn.disabled=true;say('Đang lưu lên Google Sheets…');
  try{localStorage.setItem(LS,JSON.stringify(list))}catch(_){}
  units=list;renderMenu();
- let resp=null;const body=new URLSearchParams({payload:JSON.stringify({action:'units',accessCode:pass.trim(),units:list})});
+ let resp=null;let idt='';try{idt=(window.AUTH&&await AUTH.fresh())||''}catch(_){}const body=new URLSearchParams({payload:JSON.stringify({action:'units',accessCode:pass.trim(),idToken:idt,units:list})});
  try{const r=await fetch(API,{method:'POST',body});resp=await r.json()}catch(_){resp=null;try{await fetch(API,{method:'POST',mode:'no-cors',body})}catch(_2){}}
  if(resp&&resp.ok===false){btn.disabled=false;$('umPass').value='';say((resp.error||'Lưu không thành công.')+(/Mã truy cập/.test(resp.error||'')?' Hãy nhập lại đúng mã truy cập chung (không có khoảng trắng thừa).':''),'err');return}
  let ok=false,reached=false;
