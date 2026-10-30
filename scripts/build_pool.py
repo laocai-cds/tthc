@@ -60,12 +60,12 @@ ALLOWED_PUBLISHERS = [
 # Tin tiêu cực (vi phạm pháp luật, tai nạn, thiên tai, tội phạm...) bị gắn bad=true
 # để các site ẩn đi (cờ RSS_PRAISE_ONLY).
 BAD_RE = re.compile(
-    r"(khởi tố|bắt giữ|bắt tạm giam|tạm giữ|truy tố|xét xử|tuyên án|án tù|vi phạm|xử phạt|ma túy|ma tuý|"
+    r"(?<!\w)(khởi tố|bắt giữ|bắt tạm giam|tạm giữ|truy tố|xét xử|tuyên án|án tù|vi phạm|xử phạt|ma túy|ma tuý|"
     r"đánh bạc|cờ bạc|lừa đảo|lừa gạt|chiếm đoạt|trộm cắp|cướp|giết|sát hại|hiếp dâm|xâm hại|bạo hành|"
     r"đâm|chém|ẩu đả|đánh nhau|ném đá|tai nạn|va chạm giao thông|tử vong|thiệt mạng|đuối nước|"
     r"cháy|nổ|sập|sạt lở|lũ quét|lũ lụt|ngập lụt|thiệt hại|thiên tai|bão|động đất|rét hại|"
-    r"dịch bệnh|ngộ độc|tham nhũng|tiêu cực|sai phạm|kỷ luật|bị bắt|đối tượng|hung thủ|nghi phạm|"
-    r"khai quật tử thi|mất tích|tự tử|tự sát|buôn lậu|hàng giả|hàng lậu|phá rừng|khai thác trái phép)",
+    r"dịch bệnh|ngộ độc|tham nhũng|tiêu cực|sai phạm|kỷ luật|bị bắt|hung thủ|nghi phạm|"
+    r"khai quật tử thi|mất tích|tự tử|tự sát|buôn lậu|hàng giả|hàng lậu|phá rừng|khai thác trái phép)(?!\w)",
     re.IGNORECASE,
 )
 
@@ -243,6 +243,118 @@ def norm_key(s):
     return re.sub(r"[^\w]+", " ", (s or "").lower()).strip()
 
 
+# ---------- Ảnh nhỏ đầu tin ----------
+ENRICH_PER_RUN = 120      # số bài xử lý mỗi lần chạy (các bài còn lại để lần sau)
+ENRICH_DAYS = 14          # chỉ lấy ảnh cho bài trong 14 ngày gần đây
+GN_API = "https://news.google.com/_/DotsSplashUi/data/batchexecute"
+
+
+def gnews_real_url(url):
+    """Giải mã liên kết news.google.com/rss/articles/<id> về địa chỉ bài gốc. Trả về '' nếu không được."""
+    import base64
+    m = re.search(r"news\.google\.com/(?:rss/)?articles/([^?/#]+)", url)
+    if not m:
+        return ""
+    aid = m.group(1)
+    try:
+        raw = base64.urlsafe_b64decode(aid + "=" * (-len(aid) % 4))
+        if raw.startswith(b"\x08\x13\x22"):
+            raw = raw[3:]
+        if raw.endswith(b"\xd2\x01\x00"):
+            raw = raw[:-3]
+        n = raw[0]
+        body = raw[2:n + 1] if n >= 0x80 else raw[1:n + 1]
+        s = body.decode("utf-8", errors="ignore")
+        if s.startswith("http"):
+            return s
+    except Exception:
+        pass
+    try:  # định dạng mới: hỏi máy chủ Google News
+        page = http_get("https://news.google.com/rss/articles/" + aid, "text/html")
+        sg = re.search(r'data-n-a-sg="([^"]+)"', page)
+        ts = re.search(r'data-n-a-ts="([^"]+)"', page)
+        if not (sg and ts):
+            return ""
+        inner = json.dumps(["garturlreq", [["X", "X", ["X", "X"], None, None, 1, 1, "US:en", None, 1, None, None, None,
+                                              None, None, 0, 1], "X", "X", 1, [1, 1, 1], 1, 1, None, 0, 0, None, 0],
+                            aid, int(ts.group(1)), sg.group(1)], separators=(",", ":"))
+        freq = json.dumps([[["Fbv4je", inner, None, "generic"]]], separators=(",", ":"))
+        data = urllib.parse.urlencode({"f.req": freq}).encode()
+        req = urllib.request.Request(GN_API, data=data, headers={
+            "User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"})
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+            resp = r.read().decode("utf-8", errors="replace")
+        part = json.loads(resp.split("\n\n")[1])
+        real = json.loads(part[0][2])[1]
+        return real if isinstance(real, str) and real.startswith("http") else ""
+    except Exception as e:
+        print(f"  ! giải mã Google News lỗi: {e}", file=sys.stderr)
+        return ""
+
+
+def og_image(page, base):
+    """Lấy ảnh đại diện (og:image / twitter:image) từ HTML; chỉ nhận https."""
+    for pat in (r'<meta[^>]+(?:property|name)=["\']og:image(?::secure_url)?["\'][^>]*>',
+                r'<meta[^>]+(?:property|name)=["\']twitter:image(?::src)?["\'][^>]*>',
+                r'<link[^>]+rel=["\']image_src["\'][^>]*>'):
+        for m in re.finditer(pat, page, re.I):
+            c = re.search(r'(?:content|href)=["\']([^"\']+)["\']', m.group(0), re.I)
+            if not c:
+                continue
+            u = urllib.parse.urljoin(base, html.unescape(c.group(1)).strip())
+            if u.startswith("http://"):
+                u = "https://" + u[len("http://"):]
+            if u.startswith("https://") and len(u) < 600:
+                return u
+    return ""
+
+
+def fetch_page_head(url):
+    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html,*/*", "Accept-Language": "vi"})
+    with urllib.request.urlopen(req, timeout=12) as r:
+        raw = r.read(300_000)
+        final = r.geturl()
+        enc = r.headers.get_content_charset() or "utf-8"
+    return raw.decode(enc, errors="replace"), final
+
+
+def enrich_one(item):
+    """Bổ sung ảnh (và địa chỉ bài gốc nếu là liên kết Google News). Sửa trực tiếp item."""
+    url = item["url"]
+    if "news.google.com" in url:
+        real = gnews_real_url(url)
+        if real:
+            item["url"] = url = real
+    if "news.google.com" in url:
+        item["ni"] = True if not item.get("img") else item.get("ni")
+        return
+    try:
+        page, final = fetch_page_head(url)
+        img = og_image(page, final)
+    except Exception as e:
+        print(f"  ! ảnh {url[:70]}: {e}", file=sys.stderr)
+        img = ""
+    if img:
+        item["img"] = img
+        item.pop("ni", None)
+    else:
+        item["ni"] = True
+
+
+def enrich(items, now):
+    from concurrent.futures import ThreadPoolExecutor
+    horizon = now - timedelta(days=ENRICH_DAYS)
+    todo = [i for i in items
+            if not i.get("img") and not i.get("ni") and not i.get("bad") and i["published"] >= horizon]
+    todo = todo[:ENRICH_PER_RUN]
+    if not todo:
+        return
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        list(ex.map(enrich_one, todo))
+    got = sum(1 for i in todo if i.get("img"))
+    print(f"  + Ảnh: lấy được {got}/{len(todo)} bài")
+
+
 def main():
     now = datetime.now(timezone.utc)
     print("Gom tin trực tiếp từ các báo…")
@@ -282,6 +394,23 @@ def main():
     merged.sort(key=lambda x: x["published"], reverse=True)
     merged = merged[:MAX_ITEMS]
 
+    for i in merged:  # gắn cờ tiêu cực trước để khỏi mất công lấy ảnh cho bài sẽ bị ẩn
+        if BAD_RE.search(i["title"] + " " + (i.get("desc") or "")[:220]):
+            i["bad"] = True
+        else:
+            i.pop("bad", None)  # tính lại cho cả bài cũ, phòng khi bộ lọc đã được sửa
+    print("Lấy ảnh nhỏ đầu tin…")
+    enrich(merged, now)
+    # Sau khi giải mã liên kết Google News, bài có thể trùng bài của báo gốc: lọc trùng lần nữa.
+    seen_u, final = set(), []
+    for i in merged:
+        ku = re.sub(r"[#?].*$", "", i["url"]).rstrip("/").lower()
+        if ku in seen_u:
+            continue
+        seen_u.add(ku)
+        final.append(i)
+    merged = final
+
     items = []
     for i in merged:
         o = {
@@ -293,8 +422,10 @@ def main():
         }
         if (i.get("img") or "").startswith("https://"):
             o["img"] = i["img"]
-        if BAD_RE.search(i["title"] + " " + (i.get("desc") or "")[:220]) or i.get("bad"):
+        if i.get("bad"):
             o["bad"] = True
+        if i.get("ni") and "img" not in o:
+            o["ni"] = True  # đã thử lấy ảnh nhưng bài không có ảnh: lần sau khỏi thử lại
         items.append(o)
 
     if not direct and not gn and not old:
