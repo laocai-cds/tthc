@@ -255,7 +255,7 @@ def norm_key(s):
 
 
 # ---------- Ảnh nhỏ đầu tin ----------
-ENRICH_PER_RUN = 400      # số bài xử lý mỗi lần chạy (các bài còn lại để lần sau)
+ENRICH_PER_RUN = int(os.environ.get("ENRICH_PER_RUN") or 400)      # số bài xử lý mỗi lần chạy (các bài còn lại để lần sau)
 ENRICH_DAYS = 365         # lấy ảnh cho cả bài cũ trong năm (mỗi lần chạy xử lý dần, bài mới trước)
 GN_API = "https://news.google.com/_/DotsSplashUi/data/batchexecute"
 
@@ -360,7 +360,7 @@ def enrich(items, now):
     todo = todo[:ENRICH_PER_RUN]
     if not todo:
         return
-    with ThreadPoolExecutor(max_workers=8) as ex:
+    with ThreadPoolExecutor(max_workers=int(os.environ.get("ENRICH_WORKERS") or 8)) as ex:
         list(ex.map(enrich_one, todo))
     got = sum(1 for i in todo if i.get("img"))
     print(f"  + Ảnh: lấy được {got}/{len(todo)} bài")
@@ -368,10 +368,19 @@ def enrich(items, now):
 
 def main():
     now = datetime.now(timezone.utc)
-    print("Gom tin trực tiếp từ các báo…")
-    direct, d_failed = fetch_direct()
-    print("Gom tin qua Google News…")
-    gn, g_failed, g_total = fetch_gnews()
+    only_images = os.environ.get("ENRICH_ONLY") == "1"  # chỉ lấy ảnh cho bài đã có, không gom tin mới
+    prev_partial = False
+    try:
+        prev_partial = bool(json.load(open(OUT, encoding="utf-8")).get("partial"))
+    except Exception:
+        pass
+    if only_images:
+        direct, d_failed, gn, g_failed, g_total = [], 0, [], 0, 0
+    else:
+        print("Gom tin trực tiếp từ các báo…")
+        direct, d_failed = fetch_direct()
+        print("Gom tin qua Google News…")
+        gn, g_failed, g_total = fetch_gnews()
 
     # Giữ bài cũ trong KEEP_DAYS ngày để dữ liệu không bị hụt khi một nguồn tạm lỗi.
     old = []
@@ -443,7 +452,7 @@ def main():
         print("Không lấy được bài nào và chưa có dữ liệu cũ; giữ nguyên file.", file=sys.stderr)
         return 1
 
-    partial = d_failed > 0 or g_failed > g_total * 0.2
+    partial = prev_partial if only_images else (d_failed > 0 or g_failed > g_total * 0.2)
     pool = {"updatedAt": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "partial": partial, "items": items}
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     tmp = OUT + ".tmp"
