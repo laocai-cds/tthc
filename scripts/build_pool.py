@@ -244,8 +244,7 @@ def allowed(source):
 def fetch_gnews():
     """Truy vấn Google News RSS cho tỉnh và từng xã, phường; giữ lại bài của báo chính thống."""
     queries = ['"Lào Cai" when:7d',
-               'site:trangtraiviet.danviet.vn "Lào Cai" when:365d',  # Trang trại Việt (phòng khi chưa có RSS trực tiếp)
-               'site:trangtraiviet.danviet.vn when:30d']
+               'site:trangtraiviet.danviet.vn "Lào Cai" when:365d']  # Trang trại Việt (phòng khi chưa có RSS trực tiếp)
     for u in UNITS:
         bare = re.sub(r"^(xã|phường)\s+", "", u, flags=re.I)
         queries += [
@@ -278,6 +277,10 @@ def fetch_gnews():
         time.sleep(0.5)
     print(f"  + Google News: {len(items)} bài hợp lệ, {failed}/{len(queries)} truy vấn lỗi")
     return items, failed, len(queries)
+
+
+# Báo chuyên ngành toàn quốc: nguồn trực tiếp lấy cả tin không liên quan Lào Cai, nên luôn lọc theo nội dung.
+BROAD_SOURCES = {"trang trại việt", "trang trại việt (dân việt)", "báo dân việt", "dân việt"}
 
 
 def local_source(source):
@@ -485,7 +488,8 @@ def main():
             dropped[i.get("source") or "?"] += 1
             continue
         # Bài có mô tả (lấy trực tiếp từ RSS toàn quốc) mà không nhắc Lào Cai/xã/phường thì bỏ.
-        if i.get("desc") and not local_source(i.get("source")) and not relevant(i):
+        if (i.get("desc") or norm_name(i.get("source")) in BROAD_SOURCES) \
+                and not local_source(i.get("source")) and not relevant(i):
             dropped["(không liên quan Lào Cai)"] += 1
             continue
         d = i["published"]
