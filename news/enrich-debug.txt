@@ -1,28 +1,24 @@
-Lấy được 380/400 bài
+Lấy được 378/400 bài
 == THỐNG KÊ THEO BÁO ==
-  296  baolaocai.vn  có ảnh
-   55  trangtraiviet.danviet.vn  có ảnh
-    9  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    9  vtvgo.vn  có ảnh
+  298  baolaocai.vn  có ảnh
+   56  trangtraiviet.danviet.vn  có ảnh
+   10  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    8  vtvgo.vn  có ảnh
     5  www.laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
+    3  danviet.vn  lỗi HTTP Error 403: Forbidden
     3  baophapluat.vn  có ảnh
     3  nhandan.vn  có ảnh
-    3  www.vietnamplus.vn  có ảnh
-    2  danviet.vn  lỗi HTTP Error 403: Forbidden
+    2  www.qdnd.vn  có ảnh
+    2  www.vietnamplus.vn  có ảnh
     2  laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
     1  vtv.vn  có ảnh
-    1  www.qdnd.vn  có ảnh
     1  www.vtvgo.vn  có ảnh
     1  vietnam.vnanet.vn  có ảnh
-    1  amp.doisongphapluat.com.vn  có ảnh
+    1  dantocmiennui.baotintuc.vn  có ảnh
     1  tienphong.vn  có ảnh
-    1  phapluatplus.baophapluat.vn  có ảnh
     1  vov.vn  lỗi HTTP Error 403: Forbidden
     1  tuoitre.vn  có ảnh
-    1  baovephapluat.vn  có ảnh
-    1  dantri.com.vn  có ảnh
     1  vietnam.vnanet.vn  không có ảnh
-    1  videophapluat.baophapluat.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
 vietnam.vnanet.vn: <link rel="icon" href="" type="image/x-icon" />
 == VÍ DỤ LỖI ==
@@ -33,16 +29,18 @@ LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/trao-sinh-ke-giup
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/chuyen-binh-dang-gioi-o-gia-hoi-d838619.html
 LỖI <urlopen error [Errno 101] Network is unreachable> https://laocai.gov.vn/thong-tin-chi-dao-dieu-hanh/thanh-lap-hoi-dong-xet-tang-danh-hieu-nghe-nhan-trong-linh-vuc-di-san-van-hoa-phi-vat-the-tinh-l-1624887
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nam-chay-trien-khai-chinh-sach-giam-ngheo-theo-chuan-moi-d838448.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/lanh-dao-hoi-nong-dan-lao-cai-va-cac-so-nganh-doi-thoai-cung-nong-dan-thao-go-nhieu-van-de-d1470402.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/giai-nut-that-lien-ket-san-xuat-che-lao-cai-d838391.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nam-chay-phat-trien-nong-nghiep-hang-hoa-giup-dan-thoat-ngheo-d838432.html
 LỖI HTTP Error 403: Forbidden https://danviet.vn/che-bien-cu-dong-rieng-nang-tam-len-san-pham-ocop-nguoi-dan-quy-mong-lam-giau-xay-dung-nong-thon-moi-d1469905.html
 LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/chuyen-doi-so-o-lao-cai-giup-nguoi-dan-giam-giay-to-bot-di-lai-post1344309.vov
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nhieu-mo-hinh-san-xuat-o-ta-phin-dat-doanh-thu-12--14-ty-dong-ha-d837915.html
 LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/thong-tin-nganh-dia-phuong/yen-binh-no-luc-hoan-thanh-vuot-kh-trong-rung-nam-2026-1624572
-LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/tin-trong-tinh/lao-cai-phan-dau-tuyen-chon-goi-2-791-cong-dan-nhap-ngu-nam-2027-1624171
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/yen-binh-thu-hut-dau-tu-vao-ho-thac-ba-d838036.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-to-chuc-hoi-nghi-xuc-tien-dau-tu-nong-nghiep-d831807.html
+LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/tin-trong-tinh/lao-cai-phan-dau-tuyen-chon-goi-2-791-cong-dan-nhap-ngu-nam-2027-1624171
 LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/tin-thoi-su/tap-trung-cao-do-thao-go-kho-khan-day-nhanh-tien-do-mo-rong-cao-toc-noi-bai-lao-cai-doan-yen-bai-1624215
 LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/thong-tin-nganh-dia-phuong/cong-an-xa-phong-hai-tan-tinh-ho-tro-nguoi-dan-lam-can-cuoc-dang-ky-tai-khoan-dinh-danh-dien-tu-1624366
-LỖI <urlopen error [Errno 101] Network is unreachable> https://laocai.gov.vn/diem-bao/diem-tin-ve-lao-cai-ngay-26-10-2026-1624261
 KHÔNG CÓ ẢNH (11208 byte) https://vietnam.vnanet.vn/vietnamese/printlr/bo-doi-bien-phong-lao-cai-dong-hanh-cung-nguoi-dan-chuyen-doi-so-473694.html
+LỖI <urlopen error [Errno 101] Network is unreachable> https://laocai.gov.vn/diem-bao/diem-tin-ve-lao-cai-ngay-26-10-2026-1624261
 LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/thong-tin-nganh-dia-phuong/phuong-cau-thia-dua-dich-vu-hanh-chinh-cong-den-tan-to-dan-pho-lay-su-hai-long-cua-nguoi-dan-lam-1624537
