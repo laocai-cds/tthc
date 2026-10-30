@@ -24,8 +24,8 @@ OUT = os.path.join(ROOT, "news", "pool.json")
 UNITS = json.load(open(os.path.join(ROOT, "scripts", "units.json"), encoding="utf-8"))
 
 UA = "Mozilla/5.0 (compatible; LaoCaiNewsPool/1.0; +https://laocai-cds.github.io/tthc/)"
-KEEP_DAYS = 180
-MAX_ITEMS = 3000
+KEEP_DAYS = 365
+MAX_ITEMS = 6000
 TIMEOUT = 20
 
 # Nguồn RSS trực tiếp: (tên hiển thị, [feed thử lần lượt], trang chủ để tự dò link RSS)
@@ -219,9 +219,9 @@ def fetch_gnews():
     for u in UNITS:
         bare = re.sub(r"^(xã|phường)\s+", "", u, flags=re.I)
         queries += [
-            f'"{u}" "Lào Cai" when:180d',              # đúng tên đơn vị (xã/phường + tên)
-            f'"{bare}" "Lào Cai" when:180d',           # chỉ tên riêng, tiêu đề hay bỏ chữ xã/phường
-            f'"{bare}" site:baolaocai.vn when:180d',   # riêng Báo Lào Cai, nguồn nhiều tin xã nhất
+            f'"{u}" "Lào Cai" when:365d',              # đúng tên đơn vị (xã/phường + tên)
+            f'"{bare}" "Lào Cai" when:365d',           # chỉ tên riêng, tiêu đề hay bỏ chữ xã/phường
+            f'"{bare}" site:baolaocai.vn when:365d',   # riêng Báo Lào Cai, nguồn nhiều tin xã nhất
         ]
     items, failed = [], 0
     for q in queries:
@@ -255,8 +255,8 @@ def norm_key(s):
 
 
 # ---------- Ảnh nhỏ đầu tin ----------
-ENRICH_PER_RUN = 200      # số bài xử lý mỗi lần chạy (các bài còn lại để lần sau)
-ENRICH_DAYS = 30          # chỉ lấy ảnh cho bài trong 30 ngày gần đây
+ENRICH_PER_RUN = 400      # số bài xử lý mỗi lần chạy (các bài còn lại để lần sau)
+ENRICH_DAYS = 365         # lấy ảnh cho cả bài cũ trong năm (mỗi lần chạy xử lý dần, bài mới trước)
 GN_API = "https://news.google.com/_/DotsSplashUi/data/batchexecute"
 
 
@@ -360,7 +360,7 @@ def enrich(items, now):
     todo = todo[:ENRICH_PER_RUN]
     if not todo:
         return
-    with ThreadPoolExecutor(max_workers=6) as ex:
+    with ThreadPoolExecutor(max_workers=8) as ex:
         list(ex.map(enrich_one, todo))
     got = sum(1 for i in todo if i.get("img"))
     print(f"  + Ảnh: lấy được {got}/{len(todo)} bài")
