@@ -451,6 +451,102 @@ def enrich(items, now):
         pass
 
 
+# ---------- File tin riêng cho từng xã, phường (tải nhanh) ----------
+UNIT_DIR = os.path.join(ROOT, "news", "units")
+UNIT_KEEP = 100  # số bài mới nhất giữ cho mỗi đơn vị (site chỉ hiện 30 bài đầu)
+
+
+def slug(name):
+    import unicodedata
+    t = unicodedata.normalize("NFD", name or "")
+    t = "".join(c for c in t if not unicodedata.combining(c)).replace("đ", "d").replace("Đ", "D").lower()
+    return re.sub(r"^-|-$", "", re.sub(r"[^a-z0-9]+", "-", t))
+
+
+def _keep(t):
+    import unicodedata
+    t = unicodedata.normalize("NFC", str(t or "")).lower()
+    return " " + re.sub(r"[^\w]+", " ", t).strip() + " "
+
+
+def _plain(t):
+    import unicodedata
+    t = unicodedata.normalize("NFD", str(t or ""))
+    t = "".join(c for c in t if not unicodedata.combining(c)).replace("đ", "d").replace("Đ", "D")
+    return _keep(t)
+
+
+def _has_marks(t):
+    import unicodedata
+    n = unicodedata.normalize("NFD", str(t or ""))
+    return bool(re.search(r"[\u0300-\u036f]|[ăâêôơưđ]", n, re.I))
+
+
+def _mentions(t, ph):
+    return (_keep(ph) in _keep(t)) or (not _has_marks(t) and _plain(ph) in _plain(t))
+
+
+def _head_mention(title, bare):
+    import unicodedata
+    s = unicodedata.normalize("NFC", str(title or "")).lower()
+    s = re.sub(r"^[\s\"'“”‘’\[\(]+", "", s)
+    h = unicodedata.normalize("NFC", bare or "").lower()
+    if not h:
+        return False
+    if s.startswith(h) and re.match(r"^\s*[:\-–—]", s[len(h):]):
+        return True
+    return bool(re.search(r"(^|[^\w])(xã|phường|đảng bộ|đảng ủy|ubnd|hđnd)\s+" + re.escape(h) + r"(?!\w)", s))
+
+
+def _first_text(i):
+    d = i.get("desc") or ""
+    first = re.split(r"(?<=[.!?…])\s+", d)[0][:220] if d else ""
+    return (i.get("title") or "") + " " + first
+
+
+def write_unit_files(items, updated_at, partial):
+    """Ghi news/units/<xã>.json: tin đã lọc sẵn cho từng xã/phường và cho Tỉnh Lào Cai (khớp quy tắc ở site)."""
+    os.makedirs(UNIT_DIR, exist_ok=True)
+    shown = [i for i in items if not i.get("bad")]
+    shown.sort(key=lambda x: x["published"], reverse=True)
+    sources = len({i.get("source") for i in shown})
+    texts = [_first_text(i) for i in shown]
+
+    def in_prov(k):
+        t = texts[k]
+        return bool(re.search(r"Lào Cai|Yên Bái", t, re.I)) or any(_mentions(t, u) for u in UNITS)
+
+    groups = {"Tỉnh Lào Cai": [k for k in range(len(shown)) if in_prov(k)]}
+    for u in UNITS:
+        bare = re.sub(r"^(xã|phường)\s+", "", u, flags=re.I)
+        groups[u] = [k for k, i in enumerate(shown)
+                     if u in (i.get("us") or []) or _mentions(texts[k], u) or _head_mention(i.get("title"), bare)]
+    written = 0
+    for name, idx in groups.items():
+        payload = {"partial": partial, "provTotal": len(shown), "provSources": sources,
+                   "matchedTotal": len(idx), "items": [shown[k] for k in idx[:UNIT_KEEP]]}
+        # dữ liệu ghi ra có ngày dạng chuỗi
+        out_items = []
+        for i in payload["items"]:
+            o = {k: v for k, v in i.items() if k not in ("ni", "nf")}
+            o["published"] = i["published"].strftime("%Y-%m-%dT%H:%M:%SZ")
+            out_items.append(o)
+        payload["items"] = out_items
+        path = os.path.join(UNIT_DIR, slug(name) + ".json")
+        try:  # chỉ ghi khi nội dung đổi, tránh mỗi 15 phút sửa cả trăm file
+            old = json.load(open(path, encoding="utf-8"))
+            old_cmp = {k: v for k, v in old.items() if k != "updatedAt"}
+            if old_cmp == payload:
+                continue
+        except Exception:
+            pass
+        payload["updatedAt"] = updated_at
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+        written += 1
+    print(f"  + File theo xã: {len(groups)} đơn vị, ghi mới {written} file")
+
+
 def main():
     now = datetime.now(timezone.utc)
     only_images = os.environ.get("ENRICH_ONLY") == "1"  # chỉ lấy ảnh cho bài đã có, không gom tin mới
@@ -490,6 +586,8 @@ def main():
         if (i.get("desc") or norm_name(i.get("source")) in BROAD_SOURCES) \
                 and not local_source(i.get("source")) and not relevant(i):
             dropped["(không liên quan Lào Cai)"] += 1
+            continue
+        if re.match(r"^\s*từ khóa\s*:", i.get("title") or "", re.I):  # trang thẻ (tag) của báo, không phải bài viết
             continue
         d = i["published"]
         if d < horizon or d > limit:
@@ -556,6 +654,7 @@ def main():
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(pool, f, ensure_ascii=False, separators=(",", ":"))
     os.replace(tmp, OUT)
+    write_unit_files(merged, pool["updatedAt"], partial)
     print(f"Đã ghi {len(items)} bài ({sum(1 for x in items if x.get('bad'))} bài bị gắn bad) → {OUT}")
     return 0
 
