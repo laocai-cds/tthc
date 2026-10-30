@@ -5382,7 +5382,7 @@ document.addEventListener('DOMContentLoaded',addMenuItem);
 loadCloud();
 })();
 </script>
-<script>window.RSS_PRAISE_ONLY=true;window.RSS_UNIT='Tỉnh Lào Cai';window.RSS_POOL='https://laocai-cds.github.io/mau/news/pool.json';</script>
+<script>window.RSS_PRAISE_ONLY=true;window.RSS_UNIT='Tỉnh Lào Cai';window.RSS_POOL='https://laocai-cds.github.io/tthc/news/pool.json';</script>
 <style>
 #unit-news{--son:#c51620;--sans:"Segoe UI",Arial,sans-serif;--giay:#fff;--giay-2:#f4f6fa;--ink-2:#3a4a60;--vang-bg:#fbf1d3;--r:14px;--r-s:7px;--sh:none;--rule:#e5eaf2;--rule-2:#eef1f6;--muted:#728198}
 #unit-news-pop #unit-news{margin:0;border:0;border-radius:0}
@@ -5489,7 +5489,7 @@ body.unp-lock{overflow:hidden}
   const anchor={insertAdjacentElement:(_,b)=>host.querySelector('.unp-scroll').append(b)};
   if(document.querySelector('#unit-news'))return;
   /* Dữ liệu tin do GitHub Actions gom mỗi 30 phút (news/pool.json). Trang con có thể đặt
-     window.RSS_POOL='https://laocai-cds.github.io/mau/news/pool.json' để dùng chung; window.RSS_UNIT để ghi đè tên đơn vị. */
+     window.RSS_POOL='https://laocai-cds.github.io/tthc/news/pool.json' để dùng chung; window.RSS_UNIT để ghi đè tên đơn vị. */
   const POOL_URL=window.RSS_POOL||'news/pool.json';
   /* So khớp có dấu để "Võ Lao" không trùng "vỏ lao động"; chỉ khi văn bản hoàn toàn không dấu mới so không dấu. */
   const keep=t=>' '+String(t||'').normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()+' ';
