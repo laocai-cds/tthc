@@ -8,6 +8,7 @@
 Chỉ dùng thư viện chuẩn của Python. Chạy bằng GitHub Actions mỗi 30 phút.
 """
 import html
+from collections import Counter
 import json
 import os
 import re
@@ -50,17 +51,28 @@ DIRECT = [
      "https://trangtraiviet.danviet.vn/"),
 ]
 
-# Tên báo (khớp một phần, không phân biệt hoa thường) được nhận từ Google News RSS.
-# Chỉ gồm báo, đài, cổng thông tin chính thống có giấy phép của nhà nước.
-ALLOWED_PUBLISHERS = [
-    "báo lào cai", "lào cai", "báo yên bái", "yên bái", "nhân dân", "vov", "đài tiếng nói việt nam",
-    "vietnamplus", "vietnam+", "ttxvn", "thông tấn xã", "báo tin tức", "tin tức tv", "quân đội nhân dân",
-    "báo chính phủ", "chính phủ", "dân tộc và miền núi", "tuổi trẻ", "thanh niên", "dân trí", "vnexpress",
-    "dân việt", "nông thôn ngày nay", "trang trại việt", "lao động", "tiền phong", "pháp luật", "người lao động", "kinh tế & đô thị", "kinh tế và đô thị",
-    "nông nghiệp", "tạp chí cộng sản", "đại biểu nhân dân", "đảng cộng sản việt nam", "vtv", "vtc",
-    "truyền hình nhân dân", "công an nhân dân", "báo xây dựng", "báo công thương", "báo tài nguyên",
-    "báo giáo dục", "giáo dục và thời đại", "sức khỏe & đời sống", "quốc hội",
-]
+# Báo, đài, cổng thông tin chính thống có giấy phép của nhà nước. Khớp ĐÚNG tên (không phân biệt hoa thường),
+# không khớp một phần, để tránh lọt trang không phải cơ quan báo chí. Nguồn RSS trực tiếp ở DIRECT tự được tính.
+ALLOWED_NAMES = {
+    "báo lào cai", "báo lào cai điện tử", "cổng thông tin điện tử tỉnh lào cai", "báo yên bái", "báo yên bái điện tử",
+    "báo nhân dân", "báo nhân dân điện tử", "nhân dân", "vov", "vov.vn", "vov giao thông", "vov1", "vov2", "vov3",
+    "cổng thông tin đài tiếng nói việt nam", "đài tiếng nói việt nam",
+    "vietnamplus", "vietnam+ (vietnamplus)", "vietnam+", "thông tấn xã việt nam", "ttxvn", "báo tin tức",
+    "báo tin tức và dân tộc", "báo ảnh dân tộc và miền núi", "báo dân tộc và miền núi", "báo chính phủ",
+    "báo quân đội nhân dân", "quân đội nhân dân", "công an nhân dân", "báo công an nhân dân",
+    "tuổi trẻ", "báo tuổi trẻ", "thanh niên", "báo thanh niên", "dân trí", "báo dân trí", "vnexpress", "báo vnexpress",
+    "lao động", "báo lao động", "tiền phong", "báo tiền phong", "báo pháp luật việt nam", "pháp luật việt nam",
+    "báo nông nghiệp và môi trường", "nông nghiệp và môi trường", "báo xây dựng", "báo công thương",
+    "báo sức khỏe & đời sống", "sức khỏe & đời sống", "báo đại biểu nhân dân", "đại biểu nhân dân",
+    "báo bảo vệ pháp luật", "vtv.vn", "vtvgo", "vtv", "vtc news", "báo giáo dục và thời đại", "giáo dục và thời đại",
+    "dân việt", "báo dân việt", "báo nông thôn ngày nay", "báo nông thôn ngày nay/dân việt", "trang trại việt",
+    "tạp chí cộng sản", "báo điện tử đảng cộng sản việt nam", "kinh tế & đô thị", "báo kinh tế và đô thị",
+}
+
+
+def norm_name(s):
+    return re.sub(r"\s+", " ", (s or "").strip().lower())
+
 
 # Tin tiêu cực (vi phạm pháp luật, tai nạn, thiên tai, tội phạm...) bị gắn bad=true
 # để các site ẩn đi (cờ RSS_PRAISE_ONLY).
@@ -70,7 +82,7 @@ BAD_RE = re.compile(
     r"đâm|chém|ẩu đả|đánh nhau|ném đá|tai nạn|va chạm giao thông|tử vong|thiệt mạng|đuối nước|"
     r"cháy|nổ|sập|sạt lở|lũ quét|lũ lụt|ngập lụt|thiệt hại|thiên tai|bão|động đất|rét hại|"
     r"dịch bệnh|ngộ độc|tham nhũng|tiêu cực|sai phạm|kỷ luật|bị bắt|hung thủ|nghi phạm|"
-    r"khai quật tử thi|mất tích|tự tử|tự sát|buôn lậu|hàng giả|hàng lậu|phá rừng|khai thác trái phép)(?!\w)",
+    r"khai quật tử thi|mất tích|tự tử|tự sát|buôn lậu|hàng giả|hàng lậu|phá rừng|mưa đá|dông lốc|lốc xoáy|mất trắng|đánh bạn|vào cuộc điều tra|công an vào cuộc|bị thương|thương vong|sụt lún|đứt gãy|sương muối|băng giá|hạn hán|ô nhiễm|dịch tả|sốt xuất huyết|ngập úng|vỡ đập|cứu hộ|cứu nạn|bạo lực|quấy rối|khiếu kiện|biểu tình|bức xúc|đình chỉ|xuống cấp|hư hỏng|ùn tắc|kẹt xe|thất thoát|nợ đọng|chậm tiến độ|tín dụng đen|cho vay nặng lãi|mại dâm|tàng trữ|lạm quyền|trộm|khai thác trái phép)(?!\w)",
     re.IGNORECASE,
 )
 
@@ -225,8 +237,8 @@ def gnews_url(q):
 
 
 def allowed(source):
-    s = (source or "").lower()
-    return any(k in s for k in ALLOWED_PUBLISHERS)
+    n = norm_name(source)
+    return n in ALLOWED_NAMES or n in {norm_name(d[0]) for d in DIRECT}
 
 
 def fetch_gnews():
@@ -455,7 +467,11 @@ def main():
     horizon = now - timedelta(days=KEEP_DAYS)
     limit = now + timedelta(days=1)
     # Bài mới được ưu tiên trước bài cũ khi trùng (bài mới có thể có ảnh, mô tả tốt hơn).
+    dropped = Counter()
     for i in direct + gn + old:
+        if not allowed(i.get("source")):
+            dropped[i.get("source") or "?"] += 1
+            continue
         d = i["published"]
         if d < horizon or d > limit:
             continue
@@ -469,6 +485,8 @@ def main():
         seen_t.add(kt)
         merged.append(i)
 
+    if dropped:
+        print("  Bỏ vì không thuộc danh sách báo chính thống:", dict(dropped.most_common(12)))
     merged.sort(key=lambda x: x["published"], reverse=True)
     merged = merged[:MAX_ITEMS]
 
