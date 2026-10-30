@@ -1,31 +1,26 @@
-Lấy được 96/105 bài
+Lấy được 47/55 bài
 == THỐNG KÊ THEO BÁO ==
-   69  baolaocai.vn  có ảnh
-   10  dantri.com.vn  có ảnh
-    4  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    4  danviet.vn  lỗi HTTP Error 403: Forbidden
-    3  vnexpress.net  có ảnh
-    2  nhandan.vn  có ảnh
-    2  baophapluat.vn  có ảnh
-    1  www.vietnamplus.vn  có ảnh
-    1  congthuong.vn  có ảnh
+   33  baolaocai.vn  có ảnh
+    4  baophapluat.vn  có ảnh
+    3  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    3  dantri.com.vn  có ảnh
+    2  vov.vn  lỗi HTTP Error 403: Forbidden
+    2  trangtraiviet.danviet.vn  có ảnh
+    1  baovephapluat.vn  có ảnh
+    1  vnexpress.net  có ảnh
+    1  www.qdnd.vn  có ảnh
+    1  danviet.vn  lỗi HTTP Error 403: Forbidden
     1  tienphong.vn  có ảnh
-    1  tuoitre.vn  có ảnh
-    1  vovgiaothong.vn  có ảnh
     1  baotintuc.vn  có ảnh
-    1  trangtraiviet.danviet.vn  có ảnh
-    1  thanhnien.vn  có ảnh
-    1  vtv.vn  có ảnh
-    1  baoxaydung.vn  có ảnh
-    1  dantri.com.vn  lỗi HTTP Error 429: Too Many Requests
+    1  www.vietnamplus.vn  lỗi The read operation timed out
+    1  www.laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/ron-rang-gia-banh-day-dang-le-gio-tuong-quan-ha-chuong-d838973.html
+LỖI HTTP Error 403: Forbidden https://vov.vn/kinh-te/lao-cai-dung-thu-3-ca-nuoc-ve-ty-le-giai-ngan-dau-tu-cong-post1345885.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/lao-cai-cat-boc-3-mo-liet-si-chua-xac-dinh-duoc-danh-tinh-tai-phuong-au-lau-post1346089.vov
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/xem-ban-no-o-phong-du-ha-d829682.html
 LỖI HTTP Error 403: Forbidden https://danviet.vn/lua-choi-la-lua-gi-ma-nong-dan-o-lao-cai-co-thu-nhap-kep-d1443806.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/quy-thien-tam-ho-tro-von-dong-hanh-hop-tac-xa-thoat-ngheo-d796139.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cay-khoai-so-thap-sang-vung-dat-4-mua-may-phu-d785933.html
-LỖI HTTP Error 403: Forbidden https://danviet.vn/xa-tran-yen-tinh-lao-cai-dia-phan-tinh-yen-bai-truoc-day-tuyen-truyen-phap-luat-nang-cao-nhan-thuc-hoi-vien-d1379907.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/trong-lua-huu-co-giam-phat-thai-o-xa-vung-cao-ban-xeo-d784547.html
-LỖI HTTP Error 403: Forbidden https://danviet.vn/cay-gi-la-to-bu-moc-tot-ngun-ngut-o-lao-cai-moi-huyen-tram-tau-truoc-day-nho-khe-bat-len-thu-cu-ngon-bo-duong-d1379029.html
-LỖI HTTP Error 403: Forbidden https://danviet.vn/o-may-lang-nay-cua-lao-cai-dan-rang-gia-thu-qua-gi-ma-thom-khap-xom-dat-sao-ocop-den-mua-la-co-tien-d1378069.html
-LỖI HTTP Error 429: Too Many Requests https://dantri.com.vn/tam-long-nhan-ai/ba-noi-gan-80-tuoi-gong-ganh-3-chau-nho-mo-coi-cha-me-bo-di-20251110143946254.htm
+LỖI The read operation timed out https://www.vietnamplus.vn/mo-huong-di-cho-nghe-truyen-thong-trong-nhip-phat-trien-moi-o-lao-cai-post1135907.vnp
+LỖI <urlopen error [Errno 101] Network is unreachable> http://www.laocai.gov.vn/uy-ban-nhan-dan-tinh/quy-che-lam-viec-cua-uy-ban-nhan-dan-tinh-lao-cai-nhiem-ky-2026-2031-1587325
