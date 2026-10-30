@@ -481,9 +481,8 @@ def main():
     seen_u, seen_t, merged = set(), set(), []
     horizon = now - timedelta(days=KEEP_DAYS)
     limit = now + timedelta(days=1)
-    # Bài mới được ưu tiên trước bài cũ khi trùng (bài mới có thể có ảnh, mô tả tốt hơn).
     dropped = Counter()
-    for i in direct + gn + old:
+    for i in old + direct + gn:  # bài cũ đứng trước để giữ ảnh/đánh dấu đã lấy được, tránh bản mới (chưa có ảnh) đè lên
         if not allowed(i.get("source")):
             dropped[i.get("source") or "?"] += 1
             continue
