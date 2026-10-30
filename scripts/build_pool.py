@@ -322,6 +322,9 @@ def og_image(page, base):
 
 BROWSER_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
               "Chrome/124.0 Safari/537.36")
+from collections import Counter
+STATS = Counter()
+META_SAMPLES = {}
 DEBUG = []  # lý do lấy ảnh thất bại, ghi ra news/enrich-debug.txt để dễ chẩn đoán
 
 
@@ -349,13 +352,18 @@ def enrich_one(item):
     try:
         page, final = fetch_page_head(url)
         img = og_image(page, final)
+        dom = urllib.parse.urlparse(url).netloc
         if not img:
+            STATS[(dom, "không có ảnh")] += 1
             DEBUG.append(f"KHÔNG CÓ ẢNH ({len(page)} byte) {url}")
-            if len(DEBUG) <= 6:  # vài mẫu thẻ meta/ảnh để chẩn đoán
+            if dom not in META_SAMPLES:  # mỗi báo một mẫu thẻ meta để chẩn đoán
                 tags = re.findall(r"<(?:meta|link)[^>]*(?:image|og:)[^>]*>", page, re.I)[:6]
-                DEBUG.append("  META: " + " ".join(t[:260] for t in tags) if tags else
-                             "  META: (không có thẻ nào) ĐẦU TRANG: " + re.sub(r"\s+", " ", page[:400]))
+                META_SAMPLES[dom] = (" ".join(t[:260] for t in tags) if tags else
+                                     "(không có thẻ nào) ĐẦU TRANG: " + re.sub(r"\s+", " ", page[:400]))
+        else:
+            STATS[(dom, "có ảnh")] += 1
     except Exception as e:
+        STATS[(urllib.parse.urlparse(url).netloc, "lỗi " + re.sub(r"\s+", " ", str(e))[:50])] += 1
         # Lỗi mạng/bị chặn: thử lại ở các lần chạy sau (tối đa 3 lần), chưa kết luận bài không có ảnh.
         DEBUG.append(f"LỖI {e} {url}")
         item["nf"] = int(item.get("nf") or 0) + 1
@@ -384,7 +392,11 @@ def enrich(items, now):
     print(f"  + Ảnh: lấy được {got}/{len(todo)} bài")
     try:
         with open(os.path.join(ROOT, "news", "enrich-debug.txt"), "w", encoding="utf-8") as f:
-            f.write(f"Lấy được {got}/{len(todo)} bài\n" + "\n".join(DEBUG[:60]) + "\n")
+            lines = [f"Lấy được {got}/{len(todo)} bài", "== THỐNG KÊ THEO BÁO =="]
+            lines += [f"{n:5d}  {d}  {k}" for (d, k), n in STATS.most_common(60)]
+            lines += ["== MẪU THẺ META (mỗi báo một mẫu) =="] + [f"{d}: {m}" for d, m in META_SAMPLES.items()]
+            lines += ["== VÍ DỤ LỖI =="] + DEBUG[:30]
+            f.write("\n".join(lines) + "\n")
     except Exception:
         pass
 
