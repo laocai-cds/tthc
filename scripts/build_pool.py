@@ -351,6 +351,10 @@ def enrich_one(item):
         img = og_image(page, final)
         if not img:
             DEBUG.append(f"KHÔNG CÓ ẢNH ({len(page)} byte) {url}")
+            if len(DEBUG) <= 6:  # vài mẫu thẻ meta/ảnh để chẩn đoán
+                tags = re.findall(r"<(?:meta|link)[^>]*(?:image|og:)[^>]*>", page, re.I)[:6]
+                DEBUG.append("  META: " + " ".join(t[:260] for t in tags) if tags else
+                             "  META: (không có thẻ nào) ĐẦU TRANG: " + re.sub(r"\s+", " ", page[:400]))
     except Exception as e:
         # Lỗi mạng/bị chặn: thử lại ở các lần chạy sau (tối đa 3 lần), chưa kết luận bài không có ảnh.
         DEBUG.append(f"LỖI {e} {url}")
