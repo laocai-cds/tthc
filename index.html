@@ -5880,6 +5880,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 .adp-flow i{font-style:normal;font-size:24px}.adp-flow b{font-size:13px;color:#4c1d95;line-height:1.3}.adp-flow small{font-size:11.5px;color:#7a6a9f;line-height:1.35}
 .adp-flow>span{flex:none;align-self:center;color:#7c3aed;font-size:18px;font-weight:900}
 .adp-flow>div:first-child{border-color:#f5b5b5;background:#fff4f4}.adp-flow>div:first-child b{color:#b4151f}
+.adp-groups>div.wide{grid-column:1/-1}.adp-groups>div.wide ul{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 18px}@media(max-width:640px){.adp-groups>div.wide ul{grid-template-columns:1fr}}
 .adp-api{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 .adp-api>div{display:flex;flex-direction:column;gap:1px;padding:10px 13px;border:1px solid #e4dcfb;border-radius:12px;background:#fff}
 .adp-api b{font-size:13.5px;color:#4c1d95}.adp-api span{font-size:12.5px;color:#5d6f88}
@@ -5919,6 +5920,8 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
      <div><i>💹</i><p><b>Bản tin thị trường</b>Tỷ giá USD, giá vàng ngay trên trang.</p></div>
      <div><i>📱</i><p><b>Dễ dùng, chi phí thấp</b>Mở bằng link, mọi thiết bị, không cần máy chủ.</p></div>
      <div><i>🎨</i><p><b>Thiết kế riêng</b>Mang nhận diện của xã, triển khai nhanh từ mẫu có sẵn.</p></div>
+     <div><i>🔐</i><p><b>An toàn thông tin</b>Quản trị bằng tài khoản Google; không lưu mật khẩu trên website.</p></div>
+     <div><i>👤</i><p><b>Phân quyền rõ ràng</b>Ai cũng xem được số liệu, chỉ tài khoản được cấp quyền mới nhập, đồng bộ, chỉnh sửa.</p></div>
     </div>
    </section>
    <section class="adp-pn" data-p="ft" role="tabpanel" hidden>
@@ -5928,6 +5931,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
      <div><h4>✍ Dữ liệu</h4><ul><li>Nhập dữ liệu trên web</li><li>Đồng bộ Google Sheet</li><li>Xuất CSV</li><li>Đếm lượt truy cập</li></ul></div>
      <div><h4>🤖 Báo cáo &amp; AI</h4><ul><li>Tổng hợp báo cáo tích hợp AI</li><li>Xuất Word, Excel, PDF</li><li>Trợ lý AI tra cứu nhanh số liệu</li></ul></div>
      <div><h4>📰 Thông tin</h4><ul><li>Bản tin thị trường: tỷ giá, giá vàng</li><li>Tin địa phương từ báo chính thống</li><li>Thông báo, biểu dương tự động</li></ul></div>
+     <div class="wide"><h4>🔐 Quản trị &amp; bảo mật</h4><ul><li>Đăng nhập quản trị bằng tài khoản Google (Gmail)</li><li>Chỉ tài khoản được cấp quyền mới vào mục Quản trị</li><li>Xem số liệu công khai; ghi dữ liệu bắt buộc qua quản trị</li><li>Thêm, thu hồi tài khoản quản trị ngay trên trang</li><li>Máy chủ kiểm tra lại tài khoản Google trước khi ghi dữ liệu</li><li>Nhật ký đồng bộ, thao tác để đối soát</li></ul></div>
     </div>
    </section>
    <section class="adp-pn" data-p="tc" role="tabpanel" hidden>
@@ -5947,6 +5951,8 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
      <div><b>Tỷ giá USD</b><span>API Frankfurter</span></div>
      <div><b>Tin địa phương</b><span>RSS các báo chính thống</span></div>
      <div><b>Lượt truy cập</b><span>Firebase thời gian thực</span></div>
+     <div><b>Đăng nhập quản trị</b><span>Tài khoản Google (Firebase Authentication)</span></div>
+     <div><b>Phân quyền</b><span>Danh sách quản trị kiểm tra tại Apps Script</span></div>
     </div>
    </section>
    <section class="adp-pn" data-p="ws" role="tabpanel" hidden>
