@@ -1,56 +1,67 @@
-Lấy được 1364/1500 bài
+Lấy được 833/1071 bài
 == THỐNG KÊ THEO BÁO ==
- 1298  baolaocai.vn  có ảnh
-   54  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-   34  vov.vn  lỗi HTTP Error 403: Forbidden
-   26  nhandan.vn  có ảnh
-   17  www.laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
-   12  www.vietnamplus.vn  có ảnh
-   11  laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
-    9  dantri.com.vn  có ảnh
-    8  tienphong.vn  có ảnh
-    8  suckhoedoisong.vn  không có ảnh
-    7  www.qdnd.vn  có ảnh
+  757  baolaocai.vn  có ảnh
+   80  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+   58  vov.vn  lỗi HTTP Error 403: Forbidden
+   22  dantri.com.vn  lỗi <urlopen error timed out>
+   21  dantri.com.vn  lỗi HTTP Error 429: Too Many Requests
+   20  www.laocai.gov.vn  không có ảnh
+   17  nhandan.vn  có ảnh
+   14  www.qdnd.vn  có ảnh
+   13  laocai.gov.vn  không có ảnh
+   11  suckhoedoisong.vn  không có ảnh
+    8  dantri.com.vn  có ảnh
+    7  thanhnien.vn  có ảnh
+    6  nongsanviet.nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    6  tienphong.vn  có ảnh
+    6  tuoitre.vn  có ảnh
+    4  baophapluat.vn  có ảnh
     3  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
-    2  nongsanviet.nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    2  dantocmiennui.baotintuc.vn  có ảnh
+    3  nvsk.vnanet.vn  có ảnh
+    3  vnexpress.net  có ảnh
     2  baotintuc.vn  có ảnh
-    2  vtv.gov.vn  không có ảnh
-    2  quochoi.vn  không có ảnh
-    2  dantri.com.vn  lỗi HTTP Error 429: Too Many Requests
     1  mae.gov.vn  lỗi HTTP Error 500: Internal Server Error
+    1  vtcnews.vn  có ảnh
+    1  vovgiaothong.vn  có ảnh
+    1  baovephapluat.vn  có ảnh
+    1  vtv.vn  có ảnh
+    1  dantri.com.vn  lỗi Remote end closed connection without response
+    1  baoxaydung.vn  có ảnh
+    1  vnexpress.net  lỗi The read operation timed out
+    1  laodongthudo.vn  lỗi The read operation timed out
+    1  suckhoedoisong.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
-vtv.gov.vn: (không có thẻ nào) ĐẦU TRANG: <!DOCTYPE html> <html lang="vi"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Thông báo hệ thống</title> <style> * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; } body { min-height: 100vh; display: 
-quochoi.vn: (không có thẻ nào) ĐẦU TRANG: <html><body><script>document.cookie="D1N=1a4791b93f0de2ac36f86eeb2a3a0f65"+"; expires=Fri, 31 Dec 2099 23:59:59 GMT; path=/";window.location.reload(true);</script></body></html>
-suckhoedoisong.vn: <meta property=og:title content="Xử lý Tiktoker ‘Cường Tày’ phát ngôn sai sự thật về việc ủng hộ thông qua Mặt trận Tổ quốc Việt Nam"> <meta property=og:description content="SKĐS - Tiktoker “Cường Tày” đã phát ngôn sai sự thật, không có căn cứ, gây ảnh hưởng đến uy tín của Mặt trận Tổ quốc Việt Nam, tạo dư luận xấu trong xã hội."> <meta property=og:type content=article> <meta property=og:url content=https://suckhoedoisong.vn/xu-ly-tiktoker-cuong-tay-phat-ngon-sai-su-that-ve-viec-ung-ho-thong-qua-mat-tran-to-quoc-viet-nam-169260731151648216.htm> <meta property=og:image content=https://suckhoedoisong.qltns.mediacdn.vn/zoom/1200_630/324455921873985536/2026/7/31/mat-tran-to-quoc-viet-nam-1785485681711446894083-0-151-1126-1953-crop-1785485688166673007269.jpg> <meta property=og:image:type content=image/jpeg>
+www.laocai.gov.vn: (không có thẻ nào) ĐẦU TRANG: <html><head><title>Request Rejected</title></head><body>The requested URL was rejected. Please consult with your administrator.<br><br>Your support ID is: 17602483051622084725<br><br><a href='javascript:history.back();'>[Go Back]</a></body></html>
+laocai.gov.vn: (không có thẻ nào) ĐẦU TRANG: <html><head><title>Request Rejected</title></head><body>The requested URL was rejected. Please consult with your administrator.<br><br>Your support ID is: 17602483051617463910<br><br><a href='javascript:history.back();'>[Go Back]</a></body></html>
+suckhoedoisong.vn: <meta property=og:title content="4 người bị thương, hàng trăm nhà bị hỏng do mưa đá to như cái chén ở Lào Cai"> <meta property=og:description content="SKĐS - Trận mưa đá rạng sáng nay ở Bắc Hà (Lào Cai) đã khiến 4 công nhân ngủ trong lán trại bị thương phải cấp cứu, hơn 300 ngôi nhà bị thiệt hại, gần 500ha cây trồng bị ảnh hưởng."> <meta property=og:type content=article> <meta property=og:url content=https://suckhoedoisong.vn/4-nguoi-bi-thuong-hang-tram-nha-bi-hong-do-mua-da-to-nhu-cai-chen-o-lao-cai-16926041610102227.htm> <meta property=og:image content=https://suckhoedoisong.qltns.mediacdn.vn/zoom/1200_630/324455921873985536/2026/4/16/67266737012860158269571784087441143389134368n-17763089080601219456948-412-0-862-720-crop-1776308995601931577099.jpg> <meta property=og:image:type content=image/jpeg>
 == VÍ DỤ LỖI ==
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nam-chay-trien-khai-chinh-sach-giam-ngheo-theo-chuan-moi-d838448.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/chuyen-binh-dang-gioi-o-gia-hoi-d838619.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/muc-tieu-ty-do-cua-nganh-que-lao-cai-d838519.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/giai-nut-that-lien-ket-san-xuat-che-lao-cai-d838391.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nam-chay-phat-trien-nong-nghiep-hang-hoa-giup-dan-thoat-ngheo-d838432.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/trao-sinh-ke-giup-dong-bao-mong-o-ta-xi-lang-vuon-len-thoat-ngheo-d838632.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/muc-tieu-ty-do-cua-nganh-que-lao-cai-d838519.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nam-chay-phat-trien-nong-nghiep-hang-hoa-giup-dan-thoat-ngheo-d838432.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/chuyen-binh-dang-gioi-o-gia-hoi-d838619.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thanh-thieu-nien-cam-ket-phong-chong-tao-hon-va-hon-nhan-can-huyet-d838803.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nhieu-mo-hinh-san-xuat-o-ta-phin-dat-doanh-thu-12--14-ty-dong-ha-d837915.html
 LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/chuyen-doi-so-o-lao-cai-giup-nguoi-dan-giam-giay-to-bot-di-lai-post1344309.vov
-LỖI <urlopen error [Errno 101] Network is unreachable> https://laocai.gov.vn/thong-tin-chi-dao-dieu-hanh/thanh-lap-hoi-dong-xet-tang-danh-hieu-nghe-nhan-trong-linh-vuc-di-san-van-hoa-phi-vat-the-tinh-l-1624887
-LỖI <urlopen error [Errno 101] Network is unreachable> https://laocai.gov.vn/tin-thoi-su/lao-cai-tap-trung-hoan-thien-cong-tac-chuan-bi-hoi-cho-kinh-te-thuong-mai-va-du-lich-bien-gioi-v-1624593
-LỖI <urlopen error [Errno 101] Network is unreachable> https://laocai.gov.vn/tin-thoi-su/doan-dai-bieu-quoc-hoi-tinh-lao-cai-tham-gia-gop-y-du-an-luat-to-chuc-co-quan-dieu-tra-hinh-su-s-1624590
-LỖI <urlopen error [Errno 101] Network is unreachable> https://laocai.gov.vn/tin-thoi-su/lao-cai-bieu-duong-ton-vinh-50-dien-hinh-tien-tien-nguoi-co-uy-tin-trong-dong-bao-dan-toc-thieu--1624694
+KHÔNG CÓ ẢNH (247 byte) https://www.laocai.gov.vn/tin-thoi-su/ke-hoach-to-chuc-ky-niem-cac-ngay-le-lon-va-su-kien-lich-su-quan-trong-giai-doan-2026-2030-tren--1624329
+KHÔNG CÓ ẢNH (247 byte) https://www.laocai.gov.vn/thong-tin-nganh-dia-phuong/yen-binh-no-luc-hoan-thanh-vuot-kh-trong-rung-nam-2026-1624572
+KHÔNG CÓ ẢNH (247 byte) https://www.laocai.gov.vn/tin-trong-tinh/lao-cai-phan-dau-tuyen-chon-goi-2-791-cong-dan-nhap-ngu-nam-2027-1624171
+KHÔNG CÓ ẢNH (247 byte) https://www.laocai.gov.vn/thong-tin-nganh-dia-phuong/cong-an-xa-phong-hai-tan-tinh-ho-tro-nguoi-dan-lam-can-cuoc-dang-ky-tai-khoan-dinh-danh-dien-tu-1624366
+KHÔNG CÓ ẢNH (247 byte) https://www.laocai.gov.vn/tin-thoi-su/tap-trung-cao-do-thao-go-kho-khan-day-nhanh-tien-do-mo-rong-cao-toc-noi-bai-lao-cai-doan-yen-bai-1624215
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/yen-binh-thu-hut-dau-tu-vao-ho-thac-ba-d838036.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-to-chuc-hoi-nghi-xuc-tien-dau-tu-nong-nghiep-d831807.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/yen-binh-go-vuong-cho-cac-thon-sau-sap-nhap-d837950.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/che-shan-tuyet--cay-mui-nhon-cua-gia-hoi-d837756.html
-LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/tin-trong-tinh/lao-cai-phan-dau-tuyen-chon-goi-2-791-cong-dan-nhap-ngu-nam-2027-1624171
-LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/thong-tin-nganh-dia-phuong/cong-an-xa-phong-hai-tan-tinh-ho-tro-nguoi-dan-lam-can-cuoc-dang-ky-tai-khoan-dinh-danh-dien-tu-1624366
-LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/tin-thoi-su/ke-hoach-to-chuc-ky-niem-cac-ngay-le-lon-va-su-kien-lich-su-quan-trong-giai-doan-2026-2030-tren--1624329
-LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/tin-thoi-su/tap-trung-cao-do-thao-go-kho-khan-day-nhanh-tien-do-mo-rong-cao-toc-noi-bai-lao-cai-doan-yen-bai-1624215
-LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/thong-tin-nganh-dia-phuong/yen-binh-no-luc-hoan-thanh-vuot-kh-trong-rung-nam-2026-1624572
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nuoi-ca-tam-trong-ao-lot-bat-mo-huong-phat-trien-kinh-te-o-nam-chay-d837349.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/yen-binh-go-vuong-cho-cac-thon-sau-sap-nhap-d837950.html
+KHÔNG CÓ ẢNH (247 byte) https://laocai.gov.vn/thong-tin-chi-dao-dieu-hanh/thanh-lap-hoi-dong-xet-tang-danh-hieu-nghe-nhan-trong-linh-vuc-di-san-van-hoa-phi-vat-the-tinh-l-1624887
+KHÔNG CÓ ẢNH (247 byte) https://laocai.gov.vn/tin-thoi-su/lao-cai-tap-trung-hoan-thien-cong-tac-chuan-bi-hoi-cho-kinh-te-thuong-mai-va-du-lich-bien-gioi-v-1624593
+KHÔNG CÓ ẢNH (247 byte) https://laocai.gov.vn/tin-thoi-su/doan-dai-bieu-quoc-hoi-tinh-lao-cai-tham-gia-gop-y-du-an-luat-to-chuc-co-quan-dieu-tra-hinh-su-s-1624590
+KHÔNG CÓ ẢNH (247 byte) https://laocai.gov.vn/tin-thoi-su/lao-cai-bieu-duong-ton-vinh-50-dien-hinh-tien-tien-nguoi-co-uy-tin-trong-dong-bao-dan-toc-thieu--1624694
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/video/du-lich-trai-nghiem-nam-co-tv837601.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nuoi-ca-tam-trong-ao-lot-bat-mo-huong-phat-trien-kinh-te-o-nam-chay-d837349.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/sac-cham-lao-chai-d837120.html
-LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/tim-thay-cu-ba-79-tuoi-di-lac-gan-4-ngay-trong-rung-o-tuyen-quang-post1343699.vov
-LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/tin-thoi-su/doan-dai-bieu-quoc-hoi-tinh-lao-cai-gop-y-hoan-thien-cac-quy-dinh-ve-bao-dam-an-ninh-an-toan-va--1624326
-LỖI HTTP Error 403: Forbidden https://vov.vn/van-hoa/lao-cai-dac-sac-le-hoi-com-moi-den-dong-cuong-nam-2026-post1343065.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/van-hoa/sac-cham-lao-chai-lan-toa-gia-tri-van-hoa-va-thuc-day-sinh-ke-post1342667.vov
+KHÔNG CÓ ẢNH (247 byte) https://www.laocai.gov.vn/tin-thoi-su/doan-dai-bieu-quoc-hoi-tinh-lao-cai-gop-y-hoan-thien-cac-quy-dinh-ve-bao-dam-an-ninh-an-toan-va--1624326
+KHÔNG CÓ ẢNH (247 byte) https://laocai.gov.vn/diem-bao/diem-tin-ve-lao-cai-ngay-26-10-2026-1624261
+KHÔNG CÓ ẢNH (247 byte) https://www.laocai.gov.vn/thong-tin-nganh-dia-phuong/phuong-cau-thia-dua-dich-vu-hanh-chinh-cong-den-tan-to-dan-pho-lay-su-hai-long-cua-nguoi-dan-lam-1624537
+KHÔNG CÓ ẢNH (247 byte) https://www.laocai.gov.vn/thong-tin-nganh-dia-phuong/tang-cuong-quan-ly-dieu-hanh-gia-nhung-thang-cuoi-nam-2026-1624119
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/video/tri-thuc-ban-dia-nang-gia-tri-com-tu-le-tv836654.html
