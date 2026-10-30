@@ -43,6 +43,11 @@ DIRECT = [
     ("Thanh Niên", ["https://thanhnien.vn/rss/home.rss"], None),
     ("Dân trí", ["https://dantri.com.vn/rss/home.rss"], None),
     ("Báo Lao Động", ["https://laodong.vn/rss/home.rss"], None),
+    # Trang trại Việt: chuyên trang của Báo Nông thôn Ngày nay/Dân Việt (Trung ương Hội Nông dân Việt Nam).
+    # Chưa biết chắc địa chỉ RSS nên thử vài địa chỉ thường gặp rồi tự dò từ trang chủ.
+    ("Trang trại Việt (Dân Việt)", ["https://trangtraiviet.danviet.vn/rss/home.rss",
+                                    "https://trangtraiviet.danviet.vn/rss/trang-trai-viet.rss"],
+     "https://trangtraiviet.danviet.vn/"),
 ]
 
 # Tên báo (khớp một phần, không phân biệt hoa thường) được nhận từ Google News RSS.
@@ -51,7 +56,7 @@ ALLOWED_PUBLISHERS = [
     "báo lào cai", "lào cai", "báo yên bái", "yên bái", "nhân dân", "vov", "đài tiếng nói việt nam",
     "vietnamplus", "vietnam+", "ttxvn", "thông tấn xã", "báo tin tức", "tin tức tv", "quân đội nhân dân",
     "báo chính phủ", "chính phủ", "dân tộc và miền núi", "tuổi trẻ", "thanh niên", "dân trí", "vnexpress",
-    "lao động", "tiền phong", "pháp luật", "người lao động", "kinh tế & đô thị", "kinh tế và đô thị",
+    "dân việt", "nông thôn ngày nay", "trang trại việt", "lao động", "tiền phong", "pháp luật", "người lao động", "kinh tế & đô thị", "kinh tế và đô thị",
     "nông nghiệp", "tạp chí cộng sản", "đại biểu nhân dân", "đảng cộng sản việt nam", "vtv", "vtc",
     "truyền hình nhân dân", "công an nhân dân", "báo xây dựng", "báo công thương", "báo tài nguyên",
     "báo giáo dục", "giáo dục và thời đại", "sức khỏe & đời sống", "quốc hội",
@@ -226,7 +231,9 @@ def allowed(source):
 
 def fetch_gnews():
     """Truy vấn Google News RSS cho tỉnh và từng xã, phường; giữ lại bài của báo chính thống."""
-    queries = ['"Lào Cai" when:7d']
+    queries = ['"Lào Cai" when:7d',
+               'site:trangtraiviet.danviet.vn "Lào Cai" when:365d',  # Trang trại Việt (phòng khi chưa có RSS trực tiếp)
+               'site:trangtraiviet.danviet.vn when:30d']
     for u in UNITS:
         bare = re.sub(r"^(xã|phường)\s+", "", u, flags=re.I)
         queries += [
