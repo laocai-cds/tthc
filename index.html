@@ -6135,7 +6135,7 @@ AUTH.init();
 </script>
 <style id="topbarUnified">
 .topbar .top-actions #adminBtn,.topbar .top-actions #loginBtn,.topbar .top-actions #editAnnouncement,.topbar .top-actions #goldBtn,.topbar .top-actions #qaTopBtn,.topbar .top-actions #exportBtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;height:38px;padding:0 15px;border-radius:11px;font:700 11.5px "Segoe UI",Arial,sans-serif;line-height:1;white-space:nowrap;cursor:pointer;text-decoration:none;color:#172c4a;background:#fff;border:1px solid #dbe2ee;box-shadow:0 3px 10px rgba(23,44,74,.07);filter:none}
-.topbar .top-actions #adminBtn[style*="display:none"],.topbar .top-actions #editAnnouncement[style*="display:none"],.topbar .top-actions #adminBtn[style*="display: none"],.topbar .top-actions #editAnnouncement[style*="display: none"]{display:none!important}
+html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .top-actions #editAnnouncement{display:none!important}
 .topbar .top-actions #adminBtn:hover,.topbar .top-actions #loginBtn:hover,.topbar .top-actions #editAnnouncement:hover,.topbar .top-actions #goldBtn:hover,.topbar .top-actions #qaTopBtn:hover,.topbar .top-actions #exportBtn:hover{background:#fff;color:#172c4a;border-color:#e7c778;filter:none;box-shadow:0 0 0 3px rgba(242,202,99,.25),0 8px 18px rgba(23,44,74,.12)}
 .topbar .top-actions #loginBtn svg,.topbar .top-actions #goldBtn svg,.topbar .top-actions #qaTopBtn svg,.topbar .top-actions #exportBtn svg{flex:none;width:16px;height:16px;color:#c51620;stroke:currentColor}
 .topbar .top-actions #exportBtn .chev{margin-left:2px}
