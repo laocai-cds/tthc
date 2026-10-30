@@ -4367,7 +4367,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
  const HOW={
   update:['Cập nhật tiến độ đơn vị',`<ol><li>Chọn thủ tục ở menu bên trái (hoặc bộ lọc trên bảng).</li><li>Tìm đơn vị, bấm <b>Sửa</b> ở cuối dòng.</li><li>Nhập số liệu, bấm <b>Lưu cập nhật</b>, nhập <b>mã truy cập chung</b>.</li><li>Hệ thống ghi lên Google Sheets và xác nhận lại trước khi báo thành công.</li></ol>`],
   excel:['Nhập dữ liệu từ Excel',`<ol><li>Mở <b>Tác vụ → ↑ Nhập Excel</b>.</li><li>Chọn một hoặc nhiều bảng (.xlsx): tiến độ 03 thủ tục, thu nộp đảng phí, tài khoản quản trị.</li><li>Bấm <b>Nhập và cập nhật</b>, nhập mã truy cập để đồng bộ lên Google Sheets.</li></ol><p>Với file đảng phí trong kỳ: <b>Tác vụ → ₫ Đảng phí</b>, kéo thả file, kiểm tra rồi bấm <b>Đồng bộ</b>.</p>`],
-  report:['Tạo báo cáo',`<ul><li><b>Tạo báo cáo</b> (Quản trị → Chức năng): xem trước, In/Lưu PDF, xuất Excel hoặc Word.</li><li><b>Tác vụ</b>: xuất CSV từng thủ tục, báo cáo Word/Excel nhanh, xuất/nhập JSON sao lưu.</li><li><b>Bảng tiến độ tổng</b> (khung Top 03): xuất Excel/CSV, In bảng xếp hạng.</li></ul>`],
+  report:['Tạo báo cáo',`<ul><li><b>Tạo báo cáo</b> (Quản trị → Chức năng): xem trước, In/Lưu PDF, xuất Excel hoặc Word.</li><li><b>Tác vụ</b>: xuất CSV từng thủ tục. Báo cáo Word/Excel và xuất/nhập JSON nằm trong Quản trị → Chức năng.</li><li><b>Bảng tiến độ tổng</b> (khung Top 03): xuất Excel/CSV, In bảng xếp hạng.</li></ul>`],
   sync:['Đồng bộ dữ liệu',`<p>Trang tự đồng bộ Google Sheets khi mở và mỗi phút. Muốn tải ngay: bấm <b>Đồng bộ Sheets</b> trên thanh "Bảng dữ liệu". Trạng thái đồng bộ hiển thị ngay cạnh nút.</p>`],
   map:['Bản đồ tiến độ',`<p>Khung <b>Bản đồ tiến độ</b> tô màu 99 xã/phường theo mức triển khai; 4 khối tỉnh ở góc phải. Chọn thủ tục để đổi lớp màu, bấm chú giải để lọc, rê chuột xem số liệu, bấm vùng để xem chi tiết. <b>⤢ Phóng to</b> để xem toàn màn hình, zoom bằng nút ＋/− hoặc Ctrl + lăn chuột.</p>`],
   notice:['Cập nhật thông báo',`<p><b>Tác vụ → ✎ Thông báo</b>: chọn lời chúc từ các bảng Top 03 (hoặc gộp cả 3 bảng), mẫu nhắc nhở/đôn đốc, chèn icon, chọn màu/cỡ chữ rồi nhập mật khẩu để lưu.</p><p><b>🔁 Thông báo tự động</b>: bật công tắc, tick các lĩnh vực (đảng phí, thu tiền, thủ tục, nhắc đơn vị chưa thu/dưới 20%…) để thanh thông báo tự lấy số liệu từ bảng và xoay vòng ngẫu nhiên; cấu hình được lưu cùng nút Lưu thông báo.</p>`]
@@ -6105,7 +6105,7 @@ window.AUTH=(function(){
     g('adminBtn').onclick=()=>{g('admOv').classList.add('on');window.__admShowTab&&__admShowTab((document.querySelector('.admtabs [aria-selected=true]')||{dataset:{g:'tq'}}).dataset.g)};
     g('admClose').onclick=()=>g('admOv').classList.remove('on');
     g('admOv').addEventListener('click',e=>{if(e.target.id==='admOv')g('admOv').classList.remove('on')});
-    const TOOLS=[['#openImport','↑ Nhập Excel'],['#exportJson','↓ Xuất JSON'],['#importJson','↑ Nhập JSON'],['#editAnnouncement','✎ Sửa thông báo'],['#duesDetailOpen','📋 Chi tiết thu đảng phí'],['#dpMenuAction','₫ Đảng phí'],['#unitsMenuAction','🔗 Trang web đơn vị'],['#buildReport','📄 Tạo báo cáo']];
+    const TOOLS=[['#openImport','↑ Nhập Excel'],['#exportJson','↓ Xuất JSON'],['#importJson','↑ Nhập JSON'],['#editAnnouncement','✎ Sửa thông báo'],['#duesDetailOpen','📋 Chi tiết thu đảng phí'],['#dpMenuAction','₫ Đảng phí'],['#unitsMenuAction','🔗 Trang web đơn vị'],['#buildReport','📄 Tạo báo cáo'],['#rptMenuDocx','⬇ Báo cáo Word (.docx)'],['#rptMenuXlsx','⬇ Báo cáo Excel (.xlsx)']];
     g('admTools').innerHTML=TOOLS.map((t,i)=>'<button type="button" class="btn" data-tool="'+i+'">'+t[1]+'</button>').join('');
     g('admTools').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(!b||role!=='admin')return;
       const el=document.querySelector(TOOLS[+b.dataset.tool][0]);if(!el){say('Chức năng này chưa tải xong, thử lại sau giây lát.');return}
@@ -6124,7 +6124,7 @@ window.AUTH=(function(){
     g('admBody').addEventListener('click',e=>{const x=e.target.closest('[data-del]');if(x&&confirm('Xóa quyền quản trị của '+x.dataset.del+'?'))admApply('admin_remove',x.dataset.del)});
     /* chặn thao tác quản trị nếu chưa đăng nhập (kể cả khi bị bỏ ẩn bằng DevTools) */
     document.addEventListener('click',e=>{if(role==='admin')return;
-      if(e.target.closest('#openImport,#exportJson,#importJson,#announcementMenuAction,#dpMenuAction,#unitsMenuAction,#editAnnouncement,#anbEdit')){e.stopImmediatePropagation();e.preventDefault();say('Chức năng này cần đăng nhập quản trị.')}},true);
+      if(e.target.closest('#openImport,#exportJson,#importJson,#buildReport,#rptMenuDocx,#rptMenuXlsx,#announcementMenuAction,#dpMenuAction,#unitsMenuAction,#editAnnouncement,#anbEdit')){e.stopImmediatePropagation();e.preventDefault();say('Chức năng này cần đăng nhập quản trị.')}},true);
     let hint=false;try{hint=localStorage.getItem('tt_adm')==='1'}catch(_){}
     if(hint){const go=()=>ensure().catch(()=>{});if('requestIdleCallback' in window)requestIdleCallback(go,{timeout:4000});else setTimeout(go,2000)}
     setInterval(()=>{if(user&&!document.hidden)fresh()},10*60*1000);
@@ -6139,6 +6139,7 @@ AUTH.init();
 .topbar .top-actions #adminBtn:hover,.topbar .top-actions #loginBtn:hover,.topbar .top-actions #editAnnouncement:hover,.topbar .top-actions #goldBtn:hover,.topbar .top-actions #qaTopBtn:hover,.topbar .top-actions #exportBtn:hover{background:#fff;color:#172c4a;border-color:#e7c778;filter:none;box-shadow:0 0 0 3px rgba(242,202,99,.25),0 8px 18px rgba(23,44,74,.12)}
 .topbar .top-actions #loginBtn svg,.topbar .top-actions #goldBtn svg,.topbar .top-actions #qaTopBtn svg,.topbar .top-actions #exportBtn svg{flex:none;width:16px;height:16px;color:#c51620;stroke:currentColor}
 .topbar .top-actions #exportBtn .chev{margin-left:2px}
+#rptMenuDocx,#rptMenuXlsx{display:none!important}
 @media(min-width:761px){.topbar .top-actions #goldBtn,.topbar .top-actions #qaTopBtn,.topbar .top-actions .export-wrap{width:auto;min-width:0}.topbar .top-actions .export-wrap #exportBtn{width:100%}}
 @media(max-width:760px){.topbar .top-actions #adminBtn,.topbar .top-actions #loginBtn,.topbar .top-actions #editAnnouncement,.topbar .top-actions #goldBtn,.topbar .top-actions #qaTopBtn,.topbar .top-actions #exportBtn{height:32px;padding:0 9px;font-size:10px;gap:5px}}
 </style>
