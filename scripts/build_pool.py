@@ -320,9 +320,16 @@ def og_image(page, base):
     return ""
 
 
+BROWSER_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+              "Chrome/124.0 Safari/537.36")
+DEBUG = []  # lý do lấy ảnh thất bại, ghi ra news/enrich-debug.txt để dễ chẩn đoán
+
+
 def fetch_page_head(url):
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html,*/*", "Accept-Language": "vi"})
-    with urllib.request.urlopen(req, timeout=12) as r:
+    req = urllib.request.Request(url, headers={
+        "User-Agent": BROWSER_UA, "Accept": "text/html,application/xhtml+xml,*/*;q=0.8",
+        "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.5", "Referer": "https://www.google.com/"})
+    with urllib.request.urlopen(req, timeout=15) as r:
         raw = r.read(300_000)
         final = r.geturl()
         enc = r.headers.get_content_charset() or "utf-8"
@@ -342,12 +349,19 @@ def enrich_one(item):
     try:
         page, final = fetch_page_head(url)
         img = og_image(page, final)
+        if not img:
+            DEBUG.append(f"KHÔNG CÓ ẢNH ({len(page)} byte) {url}")
     except Exception as e:
-        print(f"  ! ảnh {url[:70]}: {e}", file=sys.stderr)
-        img = ""
+        # Lỗi mạng/bị chặn: thử lại ở các lần chạy sau (tối đa 3 lần), chưa kết luận bài không có ảnh.
+        DEBUG.append(f"LỖI {e} {url}")
+        item["nf"] = int(item.get("nf") or 0) + 1
+        if item["nf"] >= 3:
+            item["ni"] = True
+        return
     if img:
         item["img"] = img
         item.pop("ni", None)
+        item.pop("nf", None)
     else:
         item["ni"] = True
 
@@ -364,6 +378,11 @@ def enrich(items, now):
         list(ex.map(enrich_one, todo))
     got = sum(1 for i in todo if i.get("img"))
     print(f"  + Ảnh: lấy được {got}/{len(todo)} bài")
+    try:
+        with open(os.path.join(ROOT, "news", "enrich-debug.txt"), "w", encoding="utf-8") as f:
+            f.write(f"Lấy được {got}/{len(todo)} bài\n" + "\n".join(DEBUG[:60]) + "\n")
+    except Exception:
+        pass
 
 
 def main():
@@ -446,6 +465,8 @@ def main():
             o["bad"] = True
         if i.get("ni") and "img" not in o:
             o["ni"] = True  # đã thử lấy ảnh nhưng bài không có ảnh: lần sau khỏi thử lại
+        if i.get("nf") and "img" not in o:
+            o["nf"] = i["nf"]
         items.append(o)
 
     if not direct and not gn and not old:
