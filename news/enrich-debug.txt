@@ -1,59 +1,44 @@
-Lấy được 156/347 bài
+Lấy được 8/134 bài
 == THỐNG KÊ THEO BÁO ==
-  112  baolaocai.vn  có ảnh
-   56  danviet.vn  lỗi HTTP Error 403: Forbidden
-   49  vov.vn  lỗi HTTP Error 403: Forbidden
-   48  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-   13  dantri.com.vn  lỗi HTTP Error 428: Too Many Requests via Varnish
-   11  www.vietnamplus.vn  có ảnh
-   11  dantri.com.vn  lỗi HTTP Error 429: Too Many Requests
+   42  danviet.vn  lỗi HTTP Error 403: Forbidden
+   32  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+   25  vov.vn  lỗi HTTP Error 403: Forbidden
+   10  dantri.com.vn  lỗi HTTP Error 429: Too Many Requests
     8  dantri.com.vn  có ảnh
-    6  nhandan.vn  có ảnh
-    6  baophapluat.vn  có ảnh
-    5  nongsanviet.nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    6  dantri.com.vn  lỗi HTTP Error 428: Too Many Requests via Varnish
+    4  nongsanviet.nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
     4  www.laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
-    3  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
-    2  vnexpress.net  có ảnh
-    2  trangtraiviet.danviet.vn  có ảnh
-    2  vtv.vn  có ảnh
-    2  www.qdnd.vn  có ảnh
-    1  vtcnews.vn  có ảnh
+    2  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
     1  laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
-    1  congthuong.vn  có ảnh
-    1  nvsk.vnanet.vn  có ảnh
-    1  etime.danviet.vn  có ảnh
-    1  suckhoedoisong.vn  không có ảnh
-    1  thanhnien.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
-suckhoedoisong.vn: <meta property=og:title content="Tìm thấy cụ bà 86 tuổi đi lạc trong rừng sâu sau 2 ngày tìm kiếm"> <meta property=og:description content="SKĐS - Chiều 6/11, lãnh đạo Công an xã Phong Dụ Hạ (Lào Cai) cho biết, cụ bà đi lạc trong rừng sâu nhiều ngày đã được Công an xã cùng các lực lượng tìm thấy và đưa về nhà an toàn."> <meta property=og:type content=article> <meta property=og:url content=https://suckhoedoisong.vn/tim-thay-cu-ba-86-tuoi-di-lac-trong-rung-sau-sau-2-ngay-tim-kiem-169251106174445123.htm> <meta property=og:image content=https://suckhoedoisong.qltns.mediacdn.vn/zoom/1200_630/324455921873985536/2025/11/6/11-1762425850551558108246-0-0-1368-2187-crop-1762425935905229668833.jpg> <meta property=og:image:type content=image/jpeg>
 == VÍ DỤ LỖI ==
-LỖI HTTP Error 403: Forbidden https://danviet.vn/can-canh-ngoi-truong-noi-tru-lien-cap-o-lao-cai-la-diem-cau-trung-tam-le-khai-giang-nam-hoc-moi-2026-2027-d1456850.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/tieng-dan-tinh-nhip-then-mai-ngan-vang-trong-ban-lang-luong-thinh-d829644.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/bao-nhai-va-hanh-trinh-nguoc-song-chay-d829710.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/mach-mon-xanh-muot-nui-doi-d826639.html
-LỖI HTTP Error 403: Forbidden https://danviet.vn/hien-dat-lam-duong-nguoi-dan-xa-hanh-phuc-xay-dung-que-huong-thanh-mien-que-hanh-phuc-d1455240.html
-LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/kip-thoi-cuu-nam-thanh-nien-gap-nan-duoi-vuc-sau-o-van-ban-post1330555.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/kinh-te/trong-sa-nhan-tim-huong-thoat-ngheo-cua-dong-bao-vung-cao-tram-tau-post1331507.vov
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/len-bao-nhai-nghe-mam-com-ke-chuyen-que-minh-d828600.html
-LỖI HTTP Error 403: Forbidden https://vov.vn/van-hoa/khai-hoi-den-bao-ha-nam-2026-ron-rang-ngay-hoi-di-san-quoc-gia-dip-nghi-le-29-post1328591.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/phap-luat/xuat-hien-tren-mang-xa-hoi-voi-hinh-anh-boc-dau-nhom-thanh-nien-bi-xu-ly-post1328926.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/van-hoa/lao-cai-ron-rang-ngay-hoi-van-hoa-cac-dan-toc-xa-lam-thuong-post1328819.vov
-LỖI HTTP Error 403: Forbidden https://danviet.vn/cong-an-xuat-hien-tai-biet-thu-cua-hai-sapa-tv-trong-dem-tai-phuong-lao-cai-tinh-lao-cai-d1453327.html
-LỖI HTTP Error 403: Forbidden https://danviet.vn/giang-lao-pa--anh-hung-tieu-phi-cua-si-ma-cai-nguoi-lao-cai-dau-tien-duoc-phong-anh-hung-luc-luong-vu-trang--la-ai-d1452963.html
-LỖI HTTP Error 403: Forbidden https://danviet.vn/mot-trang-trai-o-lao-cai-dia-phan-yen-bai-cu-trai-ngot-noi-mua-dan-co-tien-nhieu-hon-nho-cach-lam-moi-nay-d1451386.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-tang-toc-tro-thanh-trung-tam-logistics-hang-dau-d825489.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/le-hoi-mua-thu-sa-pa-dua-thu-ve-mien-di-san-d827025.html
-LỖI HTTP Error 403: Forbidden https://danviet.vn/day-la-cac-loai-cay-trong-moi-dang-tai-sinh-dat-doc-o-bac-ha-lao-cai-co-thu-cay-thap-te-trai-ra-qua-troi-d1450132.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cua-de-danh-cua-nguoi-dao-d829376.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/quyet-sach-vi-dan-cua-lao-cai-thong-diep-moi-tu-lang-nu-d825645.html
-LỖI HTTP Error 403: Forbidden https://vov.vn/van-hoa/lao-cai-lam-thuong-to-chuc-le-hoi-van-hoa-cac-dan-toc-nam-2026-post1327841.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/phap-luat/dang-tai-thong-tin-bia-dat-ve-mua-lu-de-cau-view-bi-phat-125-trieu-dong-post1326441.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/van-hoa/lam-thuong-ron-rang-cac-hoat-dong-mo-dau-le-hoi-van-hoa-cac-dan-toc-post1328629.vov
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/quyet-sach-vi-dan-cua-lao-cai-chia-se-noi-lo-pom-khen-d825171.html
-LỖI HTTP Error 403: Forbidden https://nongsanviet.nongnghiepmoitruong.vn/lao-cai-nang-tam-san-pham-ocop-d825231.html
-LỖI HTTP Error 403: Forbidden https://vov.vn/van-hoa/say-dam-le-hoi-mua-vang-xa-sin-cheng-lan-thu-nhat-nam-2026-tai-lao-cai-post1324460.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/tin-24h/truong-chinh-tri-tinh-lao-cai-dat-chuan-muc-2-moc-son-dau-tien-cua-ca-nuoc-post1323844.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/dieu-tra-nhom-3-doi-tuong-su-dung-sung-tu-che-san-ban-chim-trai-phep-o-lao-cai-post1321117.vov
-LỖI HTTP Error 403: Forbidden https://danviet.vn/trong-chanh-giong-gi-ma-trai-qua-troi-mot-nong-dan-xa-thac-ba-tinh-lao-cai-giau-han-len-dia-phan-yen-bai-cu-d1446568.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-tru-so-200-ty-dong-cho-phuong-an-su-dung-d822510.html
-LỖI HTTP Error 403: Forbidden https://danviet.vn/can-go-vuong-thu-tuc-phap-ly-de-but-pha-du-lich-lao-cai-tu-nguon-khoang-nong-hanh-phuc-d1445024.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/kho-canh-di-mot-nuoc-khe-nuoc-suoi-o-xa-pha-long-tinh-lao-cai-dia-phan-huyen-muong-khuong-cu-o-cai-thoi-nang-nong-d1428619.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/vung-trong-que-xa-tan-hop-tinh-lao-cai-co-gi-ma-hap-dan-doanh-nghiep-den-dau-tu-d1431572.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/phuong-lao-cai-tinh-lao-cai-moi-sau-sap-nhap-thanh-cong-tinh-yen-bai-sap-xep-129-to-dan-pho-se-giam-con-bao-nhieu-d1432137.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/le-tai-nung-muong-khuong-cay-thap-te-trai-nhu-qua-troi-dan-noi-nay-cua-lao-cai-them-kha-gia-d1430387.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/phuong-sa-pa-tinh-lao-cai-mot-can-bo-trong-ca-chua-kieu-qua-treo-tu-goc-len-ngon-3-qua-du-1kg-thu-tien-ty-d1429623.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/sap-nhap-thon-to-dan-pho-moi-nhat-tu-tinh-lao-cai-xa-bao-thang-tu-49-thon-giam-xuong-con-29-thon-d1429505.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/sap-nhap-thon-to-dan-pho-moi-nhat-tu-tinh-lao-cai-gom-yen-bai-cu-xa-nao-dan-100-gio-tay-dong-y-nhat-tri-cao-d1430192.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/hiem-hoa-moi-truong-tu-nhung-dong-song-khong-chay-bai-3-nup-bong-thuy-dien-de-tan-thu-va-khai-thac-khoang-san-d806845.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/moi-nguoi-dan-la-mot-chien-si-bao-ve-moi-truong-d814989.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/doc-binh-kieu-don-nhan-danh-hieu-xa-an-toan-khu-thoi-ky-khang-chien-d813067.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/tri-thuc-nong-dan/giam-ngheo-tinh-than-cho-dan-bai-3-mot-dem-say-dieu-mua-chuong-d809412.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/sap-nhap-thon-to-dan-pho-moi-nhat-xa-phuong-dau-tien-cua-tinh-lao-cai-dang-khan-truong-thuc-hien-d1429109.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/dau-hieu-khai-thac-cat-ngoai-moc-gioi-o-song-chay-khu-vuc-giap-ranh-tinh-phu-tho-va-lao-cai-d1418622.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/di-tim-mo-hinh-xa-phuong-xa-hoi-chu-nghia-kinh-nghiem-chon-dia-ban-thi-diem-o-lao-cai-bai-2-d1425035.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/bi-thu-lao-cai-chi-dao-loat-du-an-trong-diem-o-sa-pa-d812337.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-bo-nhiem-giam-doc-trung-tam-phat-trien-quy-dat-d810701.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/sap-xep-thon-sap-nhap-to-dan-pho-2026-noi-lo-noi-dai-cung-duong-di-chuyen-cua-dan-thon-kho-vang-tinh-lao-cai-d1420573.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/xa-moi-nay-o-lao-cai-ca-lang-trong-dua-gai-thom-tu-dong-thom-ve-thon-xom-thu-129-ty-vu-d1420255.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/trong-mac-ca-xen-canh-o-yen-bai-nay-la-lao-cai-dan-mo-nhanh-canh-cua-kieu-lam-giau-kep-tren-cac-doi-che-d1416768.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/nhuom-cham-cua-nguoi-mong-o-lao-cai-dieu-gi-khien-gioi-tre-me-man-gin-giu-d1417671.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/mot-nong-dan-lao-cai-nuoi-ga-mia-ga-lai-ho-dung-dem-lot-sinh-hoc-giam-mui-hoi-ga-khoe-ban-nhanh-giau-la-dung-roi-d1415102.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-siet-chat-quan-li-nuoi-trong-thuy-san-tren-song-ho-d806095.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/doi-ten-to-dan-pho-o-phuong-yen-bai-tinh-lao-cai-can-bo-nguoi-dan-tung-noi-loi-trach-nhiem-tam-huyet-nay-d1414904.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/day-thu-cay-tu-re-den-la-chua-day-tinh-dau-thom-nong-o-lao-cai-gom-yen-bai-mua-boc-vo-cu-len-doi-la-cam-tien-ve-d1414795.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/mot-khu-bao-ton-thien-nhien-o-lao-cai-duoc-chinh-thuc-nang-hang-thanh-vuon-quoc-gia-d1412876.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/khanh-hoa-cang-minh-chong-giac-lua-giua-cao-diem-mua-kho-d802588.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/gia-que-giong-tang-gan-gap-doi-d802066.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/phuong-yen-bai-tinh-lao-cai-dia-phan-tinh-yen-bai-truoc-day-vua-cong-bo-mot-quyet-dinh-quan-trong-ve-cong-tac-can-bo-d1412143.html
+LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/con-duong-nang-bui-mua-lay-o-phuong-trung-tam-tinh-lao-cai-post1282016.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/phap-luat/bien-phong-lao-cai-pha-an-ket-hon-ao-ban-nguoi-that-post1282710.vov
