@@ -24,8 +24,8 @@ OUT = os.path.join(ROOT, "news", "pool.json")
 UNITS = json.load(open(os.path.join(ROOT, "scripts", "units.json"), encoding="utf-8"))
 
 UA = "Mozilla/5.0 (compatible; LaoCaiNewsPool/1.0; +https://laocai-cds.github.io/tthc/)"
-KEEP_DAYS = 30
-MAX_ITEMS = 1500
+KEEP_DAYS = 180
+MAX_ITEMS = 3000
 TIMEOUT = 20
 
 # Nguồn RSS trực tiếp: (tên hiển thị, [feed thử lần lượt], trang chủ để tự dò link RSS)
@@ -215,15 +215,26 @@ def allowed(source):
 
 def fetch_gnews():
     """Truy vấn Google News RSS cho tỉnh và từng xã, phường; giữ lại bài của báo chính thống."""
-    queries = ['"Lào Cai" when:7d'] + [f'"{u}" "Lào Cai" when:30d' for u in UNITS]
+    queries = ['"Lào Cai" when:7d']
+    for u in UNITS:
+        bare = re.sub(r"^(xã|phường)\s+", "", u, flags=re.I)
+        queries += [
+            f'"{u}" "Lào Cai" when:180d',              # đúng tên đơn vị (xã/phường + tên)
+            f'"{bare}" "Lào Cai" when:180d',           # chỉ tên riêng, tiêu đề hay bỏ chữ xã/phường
+            f'"{bare}" site:baolaocai.vn when:180d',   # riêng Báo Lào Cai, nguồn nhiều tin xã nhất
+        ]
     items, failed = [], 0
     for q in queries:
-        try:
-            got = parse_feed(http_get(gnews_url(q), "application/rss+xml,*/*"), "Google News")
-        except Exception as e:
+        got = None
+        for attempt in range(2):
+            try:
+                got = parse_feed(http_get(gnews_url(q), "application/rss+xml,*/*"), "Google News")
+                break
+            except Exception as e:
+                print(f"  ! gnews {q}: {e}", file=sys.stderr)
+                time.sleep(3.0)
+        if got is None:
             failed += 1
-            print(f"  ! gnews {q}: {e}", file=sys.stderr)
-            time.sleep(1.0)
             continue
         for g in got:
             # Tiêu đề Google News có dạng "Tiêu đề - Tên báo": bỏ phần đuôi.
@@ -234,7 +245,7 @@ def fetch_gnews():
             g["img"] = ""
             if allowed(g["source"]):
                 items.append(g)
-        time.sleep(0.4)
+        time.sleep(0.5)
     print(f"  + Google News: {len(items)} bài hợp lệ, {failed}/{len(queries)} truy vấn lỗi")
     return items, failed, len(queries)
 
@@ -244,8 +255,8 @@ def norm_key(s):
 
 
 # ---------- Ảnh nhỏ đầu tin ----------
-ENRICH_PER_RUN = 120      # số bài xử lý mỗi lần chạy (các bài còn lại để lần sau)
-ENRICH_DAYS = 14          # chỉ lấy ảnh cho bài trong 14 ngày gần đây
+ENRICH_PER_RUN = 200      # số bài xử lý mỗi lần chạy (các bài còn lại để lần sau)
+ENRICH_DAYS = 30          # chỉ lấy ảnh cho bài trong 30 ngày gần đây
 GN_API = "https://news.google.com/_/DotsSplashUi/data/batchexecute"
 
 
