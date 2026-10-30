@@ -30,7 +30,7 @@ jobs:
         env:
           ENRICH_ONLY: ${{ inputs.images_only && '1' || '0' }}
           ENRICH_PER_RUN: ${{ inputs.images_only && '1500' || '400' }}
-          ENRICH_WORKERS: ${{ inputs.images_only && '16' || '8' }}
+          ENRICH_WORKERS: ${{ inputs.images_only && '10' || '8' }}
         run: python scripts/build_pool.py
       - name: Ghi lại nếu có thay đổi
         run: |

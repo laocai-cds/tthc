@@ -81,6 +81,17 @@ def http_get(url, accept="*/*"):
     with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
         raw = r.read()
         enc = r.headers.get_content_charset() or "utf-8"
+    return decode_body(raw, enc)
+
+
+def decode_body(raw, enc="utf-8"):
+    """Giải nén gzip (nhiều báo tự nén dù không được yêu cầu) rồi đổi sang chữ."""
+    import zlib
+    if raw[:2] == b"\x1f\x8b":
+        try:
+            raw = zlib.decompressobj(16 + zlib.MAX_WBITS).decompress(raw)
+        except Exception:
+            pass
     try:
         return raw.decode(enc, errors="replace")
     except LookupError:
@@ -305,7 +316,7 @@ def gnews_real_url(url):
 
 def og_image(page, base):
     """Lấy ảnh đại diện (og:image / twitter:image) từ HTML; chỉ nhận https."""
-    for pat in (r'<meta[^>]+(?:property|name)=["\']og:image(?::secure_url)?["\'][^>]*>',
+    for pat in (r'<meta[^>]+(?:property|name)=["\']og:image(?::secure_url|:url)?["\'][^>]*>',
                 r'<meta[^>]+(?:property|name)=["\']twitter:image(?::src)?["\'][^>]*>',
                 r'<link[^>]+rel=["\']image_src["\'][^>]*>'):
         for m in re.finditer(pat, page, re.I):
@@ -329,14 +340,19 @@ DEBUG = []  # lý do lấy ảnh thất bại, ghi ra news/enrich-debug.txt đ�
 
 
 def fetch_page_head(url):
+    import http.cookiejar
+    op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
     req = urllib.request.Request(url, headers={
         "User-Agent": BROWSER_UA, "Accept": "text/html,application/xhtml+xml,*/*;q=0.8",
-        "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.5", "Referer": "https://www.google.com/"})
-    with urllib.request.urlopen(req, timeout=15) as r:
+        "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.5", "Accept-Encoding": "gzip", "Referer": "https://www.google.com/"})
+    with op.open(req, timeout=15) as r:
+        ctype = r.headers.get("Content-Type", "")
+        if ctype and not re.search(r"html|xml", ctype, re.I):
+            raise ValueError("không phải HTML: " + ctype[:30])
         raw = r.read(300_000)
         final = r.geturl()
         enc = r.headers.get_content_charset() or "utf-8"
-    return raw.decode(enc, errors="replace"), final
+    return decode_body(raw, enc), final
 
 
 def enrich_one(item):
