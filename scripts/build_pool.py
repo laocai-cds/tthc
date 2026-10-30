@@ -280,6 +280,18 @@ def fetch_gnews():
     return items, failed, len(queries)
 
 
+def local_source(source):
+    n = norm_name(source)
+    return "lào cai" in n or "yên bái" in n
+
+
+def relevant(i):
+    """Bài từ báo ngoài tỉnh chỉ giữ khi nhắc Lào Cai hoặc tên xã, phường (tiêu đề hoặc đầu mô tả)."""
+    t = (i.get("title") or "") + " " + (i.get("desc") or "")[:400]
+    t = " " + re.sub(r"\s+", " ", t.lower()) + " "
+    return "lào cai" in t or any(" " + u.lower() + " " in t.replace(",", " ").replace(".", " ") for u in UNITS)
+
+
 def norm_key(s):
     return re.sub(r"[^\w]+", " ", (s or "").lower()).strip()
 
@@ -471,6 +483,10 @@ def main():
     for i in direct + gn + old:
         if not allowed(i.get("source")):
             dropped[i.get("source") or "?"] += 1
+            continue
+        # Bài có mô tả (lấy trực tiếp từ RSS toàn quốc) mà không nhắc Lào Cai/xã/phường thì bỏ.
+        if i.get("desc") and not local_source(i.get("source")) and not relevant(i):
+            dropped["(không liên quan Lào Cai)"] += 1
             continue
         d = i["published"]
         if d < horizon or d > limit:
