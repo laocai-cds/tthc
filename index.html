@@ -6023,6 +6023,18 @@ html:not(.is-admin) #adminBtn{display:none!important}
 #openImport,#exportJson,#importJson,#announcementMenuAction,#dpMenuAction,#unitsMenuAction,#editAnnouncement,#anbEdit{display:none!important}
 #admTools{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:0 0 14px}
 #admTools button{text-align:left;padding:10px 12px}
+#admTools{display:block}
+#admTools .admgrp{margin:0 0 14px;padding:10px 12px 12px;border-radius:14px;border:1px solid var(--gb);background:var(--gbg)}
+#admTools .admgrp h4{margin:0 0 8px;font:800 11px "Segoe UI",Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:var(--gc)}
+#admTools .admgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+#admTools .admgrp button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:10px 12px;background:#fff;border:1px solid var(--gb);border-left:4px solid var(--gc);border-radius:10px;color:#172c4a}
+#admTools .admgrp button b{font:700 12.5px "Segoe UI",Arial,sans-serif}
+#admTools .admgrp button small{font:500 10.5px "Segoe UI",Arial,sans-serif;color:#6b7a90}
+#admTools .admgrp button:hover{background:var(--gbg);box-shadow:0 4px 12px rgba(23,44,74,.12)}
+#admTools .c-blue{--gc:#2563c9;--gb:#c9dafa;--gbg:#f0f5ff}
+#admTools .c-red{--gc:#c51620;--gb:#f5c9cc;--gbg:#fff3f3}
+#admTools .c-green{--gc:#12875f;--gb:#bfe6d6;--gbg:#effaf5}
+#admTools .c-amber{--gc:#b7791f;--gb:#f0dcae;--gbg:#fff8e8}
 #admBox h4{margin:14px 0 4px;font-size:14px}
 .admtabs{display:flex;gap:6px;margin:6px 0 14px;padding:5px;border:1px solid #d7dee8;border-radius:11px;background:#f6f8fb}
 .admtabs button{flex:1;border:0;background:transparent;padding:9px 10px;border-radius:8px;font:600 13px system-ui,sans-serif;color:#51607a;cursor:pointer}
@@ -6106,7 +6118,11 @@ window.AUTH=(function(){
     g('admClose').onclick=()=>g('admOv').classList.remove('on');
     g('admOv').addEventListener('click',e=>{if(e.target.id==='admOv')g('admOv').classList.remove('on')});
     const TOOLS=[['#openImport','↑ Nhập Excel'],['#exportJson','↓ Xuất JSON'],['#importJson','↑ Nhập JSON'],['#editAnnouncement','✎ Sửa thông báo'],['#duesDetailOpen','📋 Chi tiết thu đảng phí'],['#dpMenuAction','₫ Đảng phí'],['#unitsMenuAction','🔗 Trang web đơn vị'],['#buildReport','📄 Tạo báo cáo'],['#rptMenuDocx','⬇ Báo cáo Word (.docx)'],['#rptMenuXlsx','⬇ Báo cáo Excel (.xlsx)']];
-    g('admTools').innerHTML=TOOLS.map((t,i)=>'<button type="button" class="btn" data-tool="'+i+'">'+t[1]+'</button>').join('');
+    const GROUPS=[['Báo cáo','c-blue',[['#buildReport','Xem trước, in / lưu PDF'],['#rptMenuDocx','Tải file Word'],['#rptMenuXlsx','Tải file Excel']]],
+      ['Thu đảng phí','c-red',[['#duesDetailOpen','Xem từng đơn vị'],['#dpMenuAction','Cập nhật số thu']]],
+      ['Dữ liệu','c-green',[['#openImport','Nhập từ file Excel'],['#exportJson','Sao lưu ra JSON'],['#importJson','Khôi phục từ JSON']]],
+      ['Nội dung & đơn vị','c-amber',[['#editAnnouncement','Sửa dòng thông báo'],['#unitsMenuAction','Liên kết site đơn vị']]]];
+    g('admTools').innerHTML=GROUPS.map(gr=>'<section class="admgrp '+gr[1]+'"><h4>'+gr[0]+'</h4><div class="admgrid">'+gr[2].map(x=>{const i=TOOLS.findIndex(t=>t[0]===x[0]);return i<0?'':'<button type="button" class="btn" data-tool="'+i+'"><b>'+TOOLS[i][1]+'</b><small>'+x[1]+'</small></button>'}).join('')+'</div></section>').join('');
     g('admTools').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(!b||role!=='admin')return;
       const el=document.querySelector(TOOLS[+b.dataset.tool][0]);if(!el){say('Chức năng này chưa tải xong, thử lại sau giây lát.');return}
       g('admOv').classList.remove('on');setTimeout(()=>el.click(),50)});
