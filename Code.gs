@@ -11,6 +11,10 @@
  *    và chỉ hiện các tháng có dữ liệu. 12 tab Thang1…Thang12 có thể tạo sẵn; tab thiếu sẽ tự tạo khi cần.
  *  - Tab các tháng trước không bị đụng tới nữa.
  *
+ * Phiên bản 5: nút API (dấu trang trên gqtthc.dcs.vn, gửi source = 'api-month') được chọn tháng:
+ *  - ghi vào tab của tháng đã chọn (tháng hiện tại hoặc các tháng trước, không nhận tháng tương lai);
+ *  - đồng bộ Excel vẫn chỉ ghi vào tháng hiện tại như phiên bản 4.
+ *
  * Cài đặt:
  *  1. Dán toàn bộ file này vào Code.gs (thay thế code cũ).
  *  2. Thuộc tính tập lệnh SYNC_TOKEN (hoặc MAT_KHAU) giữ nguyên.
@@ -25,7 +29,7 @@ const REGISTRY_SHEET_NAME = 'DANH MUC THANG'; // THANG yyyy-MM | TEN TAB | CAP N
 const BASE_YEAR = 2026;                      // "Thang10" = tháng 10/2026; năm khác → "Thang10_2027"
 const HEADER_ROWS = 2;                       // 2 dòng tiêu đề giữ nguyên
 const COLS = 14;                             // STT, Tên đơn vị, (1)…(9), tiền khai báo, tiền đã nộp, tỷ lệ
-const VERSION = 4;
+const VERSION = 5;
 const TZ = 'Asia/Ho_Chi_Minh';
 
 /** Định dạng số chỉ để cho đẹp: nếu ô thuộc "bảng"/cột có kiểu dữ liệu cố định thì Sheets từ chối → bỏ qua, không làm hỏng đồng bộ. */
@@ -120,7 +124,12 @@ function write_(payload) {
   if (String(payload.token || '') !== token) throw new Error('Mật khẩu đồng bộ không đúng.');
 
   const nowKey = monthKey_();
-  if (payload.month && String(payload.month) !== nowKey) {
+  let key = nowKey;                                // tháng sẽ ghi
+  if (payload.source === 'api-month') {            // nút API chọn tháng: nhận tháng hiện tại hoặc tháng trước
+    const pk = String(payload.month || '');
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(pk) || pk > nowKey) throw new Error('Tháng không hợp lệ: ' + pk + ' (chỉ nhận đến tháng hiện tại ' + nowKey + ').');
+    key = pk;
+  } else if (payload.month && String(payload.month) !== nowKey) {
     throw new Error('Chỉ được đồng bộ vào tháng hiện tại (' + nowKey + '), trang đang mở là tháng ' + String(payload.month) + '. Hãy tải lại trang rồi đồng bộ lại.');
   }
 
@@ -139,7 +148,7 @@ function write_(payload) {
   lock.waitLock(30000);
   try {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sh = monthSheet_(ss, nowKey);            // tab Thang{M} của tháng hiện tại (tự tạo nếu là tháng mới)
+    const sh = monthSheet_(ss, key);               // tab Thang{M} của tháng cần ghi (tự tạo nếu chưa có)
 
     const last = sh.getLastRow();
     if (last > HEADER_ROWS) sh.getRange(HEADER_ROWS + 1, 1, last - HEADER_ROWS, COLS).clearContent();
@@ -160,12 +169,12 @@ function write_(payload) {
     log.insertRowAfter(1);
     log.getRange(2, 1, 1, 9).setValues([[when, payload.fileName || '', data.length, t.members || 0, t.paidProfiles || 0, t.declared || 0, t.paid || 0, t.rate || 0, payload.syncId || '']]);
 
-    updateRegistry_(ss, nowKey, when);
+    updateRegistry_(ss, key, when);
     SpreadsheetApp.flush();
 
-    const info = { syncId: String(payload.syncId || ''), updatedAtText: when, rowCount: data.length, fileName: payload.fileName || '', spreadsheetId: SPREADSHEET_ID, month: nowKey, tab: sh.getName() };
+    const info = { syncId: String(payload.syncId || ''), updatedAtText: when, rowCount: data.length, fileName: payload.fileName || '', spreadsheetId: SPREADSHEET_ID, month: key, tab: sh.getName() };
     PropertiesService.getScriptProperties().setProperty('LAST_SYNC', JSON.stringify(info));
-    return { ok: true, syncId: payload.syncId, rowCount: data.length, updatedAtText: when, spreadsheetId: SPREADSHEET_ID, month: nowKey, tab: sh.getName() };
+    return { ok: true, syncId: payload.syncId, rowCount: data.length, updatedAtText: when, spreadsheetId: SPREADSHEET_ID, month: key, tab: sh.getName() };
   } finally {
     lock.releaseLock();
   }
@@ -184,7 +193,7 @@ function monthSheet_(ss, key) {
   sh.setName(name);
   const last = sh.getLastRow();
   if (last > HEADER_ROWS) sh.getRange(HEADER_ROWS + 1, 1, last - HEADER_ROWS, COLS).clearContent();   // giữ 2 dòng tiêu đề
-  try { ss.setActiveSheet(sh); ss.moveActiveSheet(1); } catch (_) {}                                   // tab tháng mới nhất đứng đầu
+  if (key === monthKey_()) { try { ss.setActiveSheet(sh); ss.moveActiveSheet(1); } catch (_) {} }     // tab tháng hiện tại đứng đầu; tab tháng cũ (nút API) giữ ở cuối
   return sh;
 }
 
