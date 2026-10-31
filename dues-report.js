@@ -55,11 +55,12 @@
   const cache = new Map();                     // tab → Promise<rows>; tháng hiện tại luôn tải lại
   function monthRows(k) {
     const dm = DM();
-    if (!dm || !dm.hasData(k)) return Promise.resolve(null);
-    const tab = dm.sourceFor(k).spec.tab;
-    if (!tab) return Promise.resolve(null);
+    if (!dm) return Promise.resolve(null);
+    const y = +k.slice(0, 4), m = +k.slice(5);
+    // Danh mục có thể cũ (trang mở trước khi đồng bộ tháng đó) → không có trong danh mục thì đọc thẳng tab theo tên
+    const tab = (dm.hasData(k) && dm.sourceFor(k).spec.tab) || ('Thang' + m + (y === 2026 ? '' : '_' + y));
     if (k !== dm.currentKey() && cache.has(tab)) return cache.get(tab);
-    const pr = fetchTab(tab).then(parseRows).catch(() => null);
+    const pr = fetchTab(tab).then(parseRows).then(r => (r && r.length ? r : null)).catch(() => null);
     if (k !== dm.currentKey()) cache.set(tab, pr);
     return pr;
   }
@@ -191,7 +192,7 @@
       let h = '';
       for (let m = 12; m >= 1; m--) {
         const k = keyOf(y, m); if (k > cur) continue;
-        h += '<option value="' + k + '"' + (k === sel0 ? ' selected' : '') + '>Tháng ' + m + '/' + y + (k === cur ? ' (hiện tại)' : '') + (dm.hasData(k) ? '' : ' · chưa có số liệu') + '</option>';
+        h += '<option value="' + k + '"' + (k === sel0 ? ' selected' : '') + '>Tháng ' + m + '/' + y + (k === cur ? ' (hiện tại)' : '') + '</option>';
       }
       $k.innerHTML = h + '<option value="' + y + '">Cả năm ' + y + ' (tổng hợp các tháng)</option>';
     };
