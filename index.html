@@ -1844,11 +1844,11 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
 .dd-ib:hover{background:rgba(255,255,255,.22)}
 .dd-ib.dd-xl{background:linear-gradient(110deg,#0d8a62,#1fae78);border-color:transparent}
 #ddClose{width:32px;padding:0;font-size:15px}
-.dd-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px 18px 0}
+.dd-kpis{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding:10px 18px 0}
 .dd-kpi{display:flex;flex-direction:column-reverse;padding:7px 12px;border-radius:10px;background:#fff;border:1px solid #e7ebf2;border-left:3px solid #1d4380}
 .dd-kpi span{font-size:9.5px;font-weight:700;color:#6b7a90;text-transform:uppercase;letter-spacing:.3px}
 .dd-kpi b{font-size:16px;color:#172c4a}
-.dd-kpi:nth-child(2){border-left-color:#d49a10}.dd-kpi:nth-child(4){border-left-color:#c51620}.dd-kpi:nth-child(4) b{color:#c51620}
+.dd-kpi:nth-child(1){border-left-color:#7a3fb0}.dd-kpi:nth-child(1) b{color:#5b2a8a}.dd-kpi:nth-child(3){border-left-color:#d49a10}.dd-kpi:nth-child(5){border-left-color:#c51620}.dd-kpi:nth-child(5) b{color:#c51620}
 .dd-kpi.dd-kpi-paid{background:#fff;border-color:#e7ebf2;border-left-color:#0f9d6e;box-shadow:none}
 .dd-kpi.dd-kpi-paid b{color:#0b7a55}.dd-kpi.dd-kpi-paid span{color:#6b7a90}
 .dd-warn{margin:8px 18px 0}
@@ -2026,7 +2026,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   $('ddFoot').innerHTML=rows.length?`<tr><td></td><td class="nm">Tổng cộng (${rows.length} đơn vị)</td><td>${fmt(tot.t)}</td><td>${fmt(mden)}</td><td>${fmt(tot.dn)}</td><td>${fmt(tot.chua)}</td><td>${fmt(tot.kb)}</td><td class="dd-paid"><span>${fmt(tot.nop)}</span></td><td class="c-rate"><span class="dd-rt dd-${band(mr)}">${pct(mr)}%</span></td></tr>`:'';
   const A=k=>DATA.reduce((s,d)=>s+d[k],0);
   $('ddCount').textContent=DATA.length||103;
-  $('ddKpis').innerHTML=[[fmt(A('dn')),'ĐV đã duyệt, đã nộp'],[fmt(A('kb'))+' ₫','Tiền theo hồ sơ khai báo'],[fmt(A('nop'))+' ₫','Tiền đã nộp'],[pct((x=>x>0?A('dn')/x*100:0)(A('ct')+A('tt')-A('chuyen')-A('mien')))+'%','Tỷ lệ ĐV đã nộp chung']]
+  $('ddKpis').innerHTML=[[fmt(A('t')),'Tổng đảng viên toàn tỉnh'],[fmt(A('dn')),'ĐV đã duyệt, đã nộp'],[fmt(A('kb'))+' ₫','Tiền theo hồ sơ khai báo'],[fmt(A('nop'))+' ₫','Tiền đã nộp'],[pct((x=>x>0?A('dn')/x*100:0)(A('ct')+A('tt')-A('chuyen')-A('mien')))+'%','Tỷ lệ ĐV đã nộp chung']]
    .map(([v,l])=>`<div class="dd-kpi${l==='Tiền đã nộp'?' dd-kpi-paid':''}"><b title="${v}">${v}</b><span>${l}</span></div>`).join('');
   ov.querySelectorAll('th[data-k]').forEach(th=>{th.classList.toggle('s-asc',th.dataset.k===sortKey&&sortDir===1);th.classList.toggle('s-desc',th.dataset.k===sortKey&&sortDir===-1)});
  }
@@ -2074,7 +2074,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   put(fill('BẢNG TỔNG HỢP THU NỘP ĐẢNG PHÍ TRÊN MÔI TRƯỜNG ĐIỆN TỬ – '+DuesMonth.fullLabel().toUpperCase(),1),36);merges.push(`A1:${L}1`);
   put(fill(`Xuất lúc ${stamp}  •  Dữ liệu Google Sheets đồng bộ lúc ${syncT}  •  ${rows.length}/${DATA.length} đơn vị`,2),22);merges.push(`A2:${L}2`);
   const T={};COLS.forEach(k=>T[k]=rows.reduce((s,d)=>s+d[k],0));const need=T.ct+T.tt-T.chuyen-T.mien,mr=need>0?T.dn/need:0;
-  const kp=[['ĐV phải nộp',need,4],['ĐV đã duyệt, đã nộp',T.dn,4],['Tiền theo hồ sơ khai báo (đ)',T.kb,4],['Tiền đã nộp (đ)',T.nop,4],['Tỷ lệ ĐV đã nộp chung',mr,5]],sp=[[0,1],[2,3],[4,5],[6,7],[8,8]];
+  const kp=[['Tổng đảng viên toàn tỉnh',T.t,4],['ĐV phải nộp',need,4],['ĐV đã duyệt, đã nộp',T.dn,4],['Tiền theo hồ sơ khai báo (đ)',T.kb,4],['Tiền đã nộp (đ)',T.nop,4],['Tỷ lệ ĐV đã nộp chung',mr,5]],sp=[[0,1],[2,2],[3,4],[5,6],[7,7],[8,8]];
   const a3=[],a4=[];kp.forEach((k,i)=>{const[x,y]=sp[i];for(let j=x;j<=y;j++){a3.push(c(j,j===x?k[0]:'',3));a4.push(c(j,j===x?k[1]:'',k[2]))}if(y>x)merges.push(`${C(x)}3:${C(y)}3`,`${C(x)}4:${C(y)}4`)});
   put(a3,20);put(a4,30);put([],8);
   const head=['Hạng','Tên đơn vị','Tổng đảng viên (1)','ĐV phải nộp (2)+(3)−(4)−(5)','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền theo hồ sơ khai báo (đ)','Tiền đã nộp (đ)','Tỷ lệ ĐV đã nộp'];
