@@ -1,21 +1,28 @@
-Lấy được 60/69 bài
+Lấy được 56/67 bài
 == THỐNG KÊ THEO BÁO ==
-   58  baolaocai.vn  có ảnh
-    3  danviet.vn  lỗi HTTP Error 403: Forbidden
+   46  baolaocai.vn  có ảnh
+    4  danviet.vn  lỗi HTTP Error 403: Forbidden
+    3  www.vietnamplus.vn  có ảnh
+    3  nhandan.vn  có ảnh
     2  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
     2  vov.vn  lỗi HTTP Error 403: Forbidden
-    1  vtvgo.vn  có ảnh
-    1  baophapluat.vn  có ảnh
+    2  www.qdnd.vn  có ảnh
     1  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    1  dantri.com.vn  có ảnh
+    1  suckhoedoisong.vn  không có ảnh
+    1  vnexpress.net  có ảnh
     1  www.laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
 == MẪU THẺ META (mỗi báo một mẫu) ==
+suckhoedoisong.vn: <meta property=og:title content="Tiêu hủy quả bom M117 sức công phá lớn còn sót lại sau chiến tranh ở Lào Cai"> <meta property=og:description content="SKĐS - Một quả bom M117 còn sót lại sau chiến tranh vừa được lực lượng công binh và quân sự tỉnh Lào Cai xử lý, tiêu hủy an toàn sau khi phát hiện tại khu vực dân cư ở xã Mậu A."> <meta property=og:type content=article> <meta property=og:url content=https://suckhoedoisong.vn/tieu-huy-qua-bom-m117-suc-cong-pha-lon-con-sot-lai-sau-chien-tranh-o-lao-cai-16926052912010426.htm> <meta property=og:image content=https://suckhoedoisong.qltns.mediacdn.vn/zoom/1200_630/324455921873985536/2026/5/29/z787803678763187f072efb999c5f9217a9fd1e23a1c11-1780030813425334646621-206-0-1486-2048-crop-17800309981381892669094.jpg> <meta property=og:image:type content=image/jpeg>
 == VÍ DỤ LỖI ==
-LỖI HTTP Error 403: Forbidden https://danviet.vn/pho-chu-tich-ubnd-tinh-lao-cai-kiem-tra-tinh-trang-khai-thac-kinh-doanh-da-quy-tai-luc-yen-muong-lai-khanh-hoa-d1471405.html
 LỖI HTTP Error 403: Forbidden https://danviet.vn/cuu-pho-chu-tich-lao-cai-bi-xac-dinh-giup-doanh-nghiep-ban-quang-sat-sang-trung-quoc-d1471459.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/pho-chu-tich-ubnd-tinh-lao-cai-kiem-tra-tinh-trang-khai-thac-kinh-doanh-da-quy-tai-luc-yen-muong-lai-khanh-hoa-d1471405.html
 LỖI không phải HTML: application/pdf https://cdn.baolaocai.vn/files/wgpJX2K5PCKCIrhiQuIVuGq6sA6bT-IqJeDfFB63KtU2HcRGAE5uqY8fzlVq8_su/bao-vc-so.pdf
 LỖI không phải HTML: application/pdf https://cdn.baolaocai.vn/files/wgpJX2K5PCKCIrhiQuIVuGmI61QbTJIfua7tyj6Eds0plCV005m3_lZYzS2E5YnuAaBIH7qlDgzZ_DR9uQ-Ikg/12-trang-ct-so-70-sua.pdf
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/phuc-khanh-tap-trung-hoan-thien-cac-tieu-chi-nong-thon-moi-d831613.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/chung-tay-xoa-bo-dinh-kien-phu-nu-vung-bien-lao-cai-thuc-day-binh-dang-gioi-d1468195.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/dinh-vi-thuong-hieu-che-lao-cai-bai-5-nang-gia-tri-mo-thi-truong-d833204.html
 LỖI HTTP Error 403: Forbidden https://danviet.vn/chang-trai-nguoi-mong-10-nam-ru-ba-con-mot-xa-o-lao-cai-trong-trieu-cay-xanh-phu-xanh-nhung-qua-doi-troc-d1456475.html
 LỖI HTTP Error 403: Forbidden https://vov.vn/du-lich/tu-van/du-lich-lao-cai-dinh-vi-lai-tuyen-diem-theo-huong-ben-vung-post1329402.vov
 LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/san-sang-cho-ngay-hoi-khai-truong-lich-su-noi-bien-cuong-muong-khuong-post1325745.vov
+KHÔNG CÓ ẢNH (88675 byte) https://suckhoedoisong.vn/tieu-huy-qua-bom-m117-suc-cong-pha-lon-con-sot-lai-sau-chien-tranh-o-lao-cai-16926052912010426.htm
 LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/thong-bao/cong-an-tinh-lao-cai-thong-bao-thay-doi-dia-diem-tiep-nhan-ho-so-cap-cap-doi-cap-lai-can-cuoc-ca-1559951
