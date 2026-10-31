@@ -1,21 +1,21 @@
-Lấy được 43/50 bài
+Lấy được 60/69 bài
 == THỐNG KÊ THEO BÁO ==
-   38  baolaocai.vn  có ảnh
-    3  vov.vn  lỗi HTTP Error 403: Forbidden
-    2  daibieunhandan.vn  có ảnh
-    1  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
+   58  baolaocai.vn  có ảnh
+    3  danviet.vn  lỗi HTTP Error 403: Forbidden
+    2  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
+    2  vov.vn  lỗi HTTP Error 403: Forbidden
     1  vtvgo.vn  có ảnh
+    1  baophapluat.vn  có ảnh
     1  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    1  www.qdnd.vn  có ảnh
-    1  danviet.vn  lỗi HTTP Error 403: Forbidden
-    1  dantri.com.vn  có ảnh
     1  www.laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
+LỖI HTTP Error 403: Forbidden https://danviet.vn/pho-chu-tich-ubnd-tinh-lao-cai-kiem-tra-tinh-trang-khai-thac-kinh-doanh-da-quy-tai-luc-yen-muong-lai-khanh-hoa-d1471405.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/cuu-pho-chu-tich-lao-cai-bi-xac-dinh-giup-doanh-nghiep-ban-quang-sat-sang-trung-quoc-d1471459.html
 LỖI không phải HTML: application/pdf https://cdn.baolaocai.vn/files/wgpJX2K5PCKCIrhiQuIVuGq6sA6bT-IqJeDfFB63KtU2HcRGAE5uqY8fzlVq8_su/bao-vc-so.pdf
+LỖI không phải HTML: application/pdf https://cdn.baolaocai.vn/files/wgpJX2K5PCKCIrhiQuIVuGmI61QbTJIfua7tyj6Eds0plCV005m3_lZYzS2E5YnuAaBIH7qlDgzZ_DR9uQ-Ikg/12-trang-ct-so-70-sua.pdf
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/phuc-khanh-tap-trung-hoan-thien-cac-tieu-chi-nong-thon-moi-d831613.html
 LỖI HTTP Error 403: Forbidden https://danviet.vn/chang-trai-nguoi-mong-10-nam-ru-ba-con-mot-xa-o-lao-cai-trong-trieu-cay-xanh-phu-xanh-nhung-qua-doi-troc-d1456475.html
 LỖI HTTP Error 403: Forbidden https://vov.vn/du-lich/tu-van/du-lich-lao-cai-dinh-vi-lai-tuyen-diem-theo-huong-ben-vung-post1329402.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/vu-tieu-thuong-bi-xit-nuoc-chay-mau-mat-co-quan-chuc-nang-phu-tho-vao-cuoc-post1308810.vov
 LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/san-sang-cho-ngay-hoi-khai-truong-lich-su-noi-bien-cuong-muong-khuong-post1325745.vov
 LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/thong-bao/cong-an-tinh-lao-cai-thong-bao-thay-doi-dia-diem-tiep-nhan-ho-so-cap-cap-doi-cap-lai-can-cuoc-ca-1559951
