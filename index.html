@@ -1941,6 +1941,12 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
 .du-row b{text-align:right;color:#14344f;font-weight:800}
 .du-note{margin-top:4px;font-size:12px;color:#55657c}
 .du-note b{color:var(--c)}
+.du-mem{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.du-mem>div{padding:8px 10px;border-radius:10px;background:#f8f7f4;min-width:0}
+.du-mem span{display:block;font-size:11px;color:#55657c;font-weight:600;line-height:1.3}
+.du-mem span small{display:block;font-size:10.5px;font-weight:800;color:#8a94a6}
+.du-mem b{display:block;margin-top:3px;font-size:16px;font-weight:850;color:#14344f}
+.du-mem .du-mem-eq{background:#eef4ff;border:1px solid #c9dafc}.du-mem .du-mem-eq b{color:#1d4fb8}
 .du-todo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .du-todo div{padding:9px 11px;border-radius:11px;border:1px solid #f0dcc8;background:#fffaf5}
 .du-todo b{display:block;font-size:17px;font-weight:850;color:#b4400e}
@@ -1960,6 +1966,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
  .du-hero{grid-template-columns:1fr;justify-items:center}.du-kpis{width:100%}
  .du-kpi b{font-size:15px}
  .du-legend{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .du-mem{grid-template-columns:repeat(3,minmax(0,1fr))}
  .du-people{grid-template-columns:repeat(2,minmax(0,1fr))}
  .du-row{grid-template-columns:100px minmax(0,1fr) 56px}
  .du-todo{grid-template-columns:1fr}
@@ -2163,10 +2170,12 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
      <div class="du-kpis">
       <div class="du-kpi du-kpi-paid" style="--a:#12a07a"><span>💰 Tổng tiền đã nộp</span><b>${fmt(d.nop)} ₫</b><em>${fmt(d.dn)} hồ sơ đã duyệt, đã nộp</em></div>
       <div class="du-kpi" style="--a:#2f6df0"><span>Tổng tiền theo hồ sơ khai báo</span><b>${fmt(d.kb)} ₫</b><em>${fmt(d.dn+d.dcn+d.cd)} hồ sơ đã khai báo</em></div>
-      <div class="du-kpi" style="--a:#e0623f"><span>Số tiền còn phải thu</span><b>${fmt(remain)} ₫</b><em>${remain?'Theo hồ sơ chưa nộp':'Đã thu đủ theo khai báo'}</em></div>
+      <div class="du-kpi" style="--a:#e0623f"><span>Số tiền còn phải thu</span><b>${fmt(remain)} ₫</b><em>Tỷ lệ hoàn thành đảng phí thực tế: ${r2(moneyRate)}%</em></div>
       <div class="du-kpi" style="--a:#8a5cf0"><span>So với bình quân toàn tỉnh</span><b>${diff>=0?'+':''}${r2(diff)} điểm %</b><em>Bình quân toàn tỉnh ${r2(prov)}%</em></div>
      </div></div>
-    <section class="du-sec"><h3>Tình hình hồ sơ đảng phí<small>${fmt(segT)} đảng viên</small></h3>
+    <section class="du-sec"><h3>Cơ cấu đảng viên<small>ĐV phải nộp = (2) + (3) − (4) − (5)</small></h3>
+     <div class="du-mem">${[['Tổng số đảng viên','(1)',d.t,''],['Sinh hoạt chính thức','(2)',d.ct,''],['Sinh hoạt tạm thời','(3) +',d.tt,''],['Đã chuyển SH tạm thời','(4) −',d.chuyen,''],['Được miễn giảm ĐP','(5) −',d.mien,''],['ĐV phải nộp','=',den,' du-mem-eq']].map(x=>`<div class="du-mem-c${x[3]}"><span><small>${x[1]}</small>${x[0]}</span><b>${fmt(x[2])}</b></div>`).join('')}</div></section>
+    <section class="du-sec"><h3>Tình hình hồ sơ đảng phí<small>${fmt(segT)} đảng viên theo tình trạng hồ sơ (6)–(9)</small></h3>
      <div class="du-stack" role="img" aria-label="Cơ cấu hồ sơ">${seg.map(x=>`<span style="width:${(x[1]/segT*100).toFixed(2)}%;background:${x[2]}" title="${x[0]}: ${fmt(x[1])}"></span>`).join('')}</div>
      <div class="du-legend">${seg.map(x=>`<div class="du-leg"><div><i style="background:${x[2]}"></i>${x[0]}</div><b>${fmt(x[1])}<small>${r2(x[1]/segT*100)}%</small></b></div>`).join('')}</div></section>
 
