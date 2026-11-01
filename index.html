@@ -3628,7 +3628,7 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
   $('tpDistNote').textContent=st.lv?'Đang lọc – bấm lại để bỏ lọc':'Bấm vào nhóm để lọc';
  }
  function head(){
-  const cols=[['rank','Hạng',''],['unit','Đơn vị','l'],['avg','Tiến độ tổng',''],...P().map((p,i)=>['p'+i,p.short,'']),['diff','So với BQ',''],['status','Trạng thái','']];
+  const cols=[['rank','Hạng',''],['unit','Đơn vị','l'],['avg','Tiến độ tổng',''],...P().map((p,i)=>['p'+i,p.kind==='fee'?p.short+' kỳ hiện tại':p.short,'']),['diff','So với BQ',''],['status','Trạng thái','']];
   $('tpCols').innerHTML='<col class="c-rk"><col class="c-u"><col class="c-tot">'+P().map(()=>'<col class="c-p">').join('')+'<col class="c-df"><col class="c-st">';
   $('tpHead').innerHTML='<tr>'+cols.map(c=>`<th data-k="${c[0]}" class="${c[2]} ${st.sort===c[0]?(st.dir>0?'s-asc':'s-desc'):''}" scope="col">${esc(c[1])}</th>`).join('')+'</tr>';
   $('tpSort').innerHTML=cols.filter(c=>c[0]!=='status').map(c=>`<option value="${c[0]}">Xếp theo: ${esc(c[1])}</option>`).join('');
