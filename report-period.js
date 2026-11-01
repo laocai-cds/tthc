@@ -90,14 +90,26 @@
     return { rows: last.r.map(d => Object.assign({}, d, sum.get(d.name))), months: lists.map(x => x.m) };
   }
 
-  function procsFrom(snap) {
+  /* "Hoàn thành thu trong kỳ" của đảng phí: trang tính lại = tỷ lệ đảng viên đã nộp (8)÷((2)+(3)−(4)−(5)) của tháng
+     (applyFeeRates); ảnh chụp chỉ có giá trị thô trên Sheet nên áp lại theo bảng đảng phí của tháng chứa ngày ảnh chụp. */
+  const normName = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().replace(/\s+/g, ' ').trim().replace(/ tinh lao cai$/, ' tinh');
+  function feeRate(d) { const den = d.ct + d.tt - d.chuyen - d.mien; return (Math.round((den > 0 ? Math.min(100, d.dn / den * 100) : 0) * 100) / 100) + '%'; }
+  function procsFrom(snap, duesList) {
+    const dues = duesList ? new Map(duesList.map(d => [normName(d.name), d])) : null;
     return data.procedures.map(p => {
       const rows = p.kind === 'fee' ? snap.fee : (snap.procedures || {})[p.id], by = new Map((rows || []).map(r => [Number(r.id), r]));
       const blank = p.kind === 'fee' ? { owner: '', guided: 'Chưa', dvccreated: 0, dvctotal: 0, bankcreated: 0, banktotal: 0, paid: '☐', collected: '' }
         : { owner: '', guided: 'Chưa', received: 0, total: 0, processed: 0, need: 0, done: 0, done10: false };
-      return Object.assign({}, p, { units: p.units.map(u => Object.assign({}, u, by.get(Number(u.id)) || blank, { raw: null })) });
+      return Object.assign({}, p, {
+        units: p.units.map(u => {
+          const x = Object.assign({}, u, by.get(Number(u.id)) || blank, { raw: null });
+          if (p.kind === 'fee') { const d = dues && dues.get(normName(u.unit)); x.collected = d ? feeRate(d) : u.collected; }
+          return x;
+        })
+      });
     });
   }
+  const duesAt = date => duesRows(Number(date.slice(0, 4)), Number(date.slice(5, 7)));
   async function context(per) {
     if (per.type === 'all') return null;
     const today = ymd(new Date());
@@ -107,7 +119,8 @@
     if (!live && !h.end) throw new Error('Chưa có số liệu lưu trữ cho ' + per.label + '. ' + (h.first ? 'Hệ thống bắt đầu lưu số liệu hằng ngày từ ngày ' + dmy(h.first) + '.' : 'Hệ thống chưa lưu ảnh chụp số liệu nào (chạy installDailySnapshotOnce() trong Apps Script).'));
     let base = h.base || null;
     if (base && !live && base.date >= h.end.date) base = null;   // đầu kỳ trùng cuối kỳ: không tính được phát sinh
-    return { per, live, endDate: live ? today : h.end.date, endProcs: live ? data.procedures : procsFrom(h.end), base, baseProcs: base ? procsFrom(base) : null, first: h.first || null, dues };
+    const [endDues, baseDues] = await Promise.all([live ? null : duesAt(h.end.date), base ? duesAt(base.date) : null]);
+    return { per, live, endDate: live ? today : h.end.date, endProcs: live ? data.procedures : procsFrom(h.end, endDues), base, baseProcs: base ? procsFrom(base, baseDues) : null, first: h.first || null, dues };
   }
 
   /* ---------- Mô hình báo cáo theo kỳ ---------- */
