@@ -1,20 +1,22 @@
-Lấy được 39/49 bài
+Lấy được 60/70 bài
 == THỐNG KÊ THEO BÁO ==
-   35  baolaocai.vn  có ảnh
-    6  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    3  nhandan.vn  có ảnh
-    3  vov.vn  lỗi HTTP Error 403: Forbidden
-    1  tienphong.vn  có ảnh
+   56  baolaocai.vn  có ảnh
+    7  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    2  vov.vn  lỗi HTTP Error 403: Forbidden
+    1  vnexpress.net  có ảnh
+    1  vietnam.vnanet.vn  có ảnh
+    1  daibieunhandan.vn  có ảnh
     1  danviet.vn  lỗi HTTP Error 403: Forbidden
+    1  baophapluat.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nan-giai-bai-toan-giao-thong-o-nam-co-d839200.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/soi-noi-giai-chay-huong-sac-bien-cuong-lan-thu-nhat-d839195.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/video/giu-gin-ban-sac-van-hoa-dan-toc-o-son-luong-tv839157.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/soi-noi-giai-chay-huong-sac-bien-cuong-lan-thu-nhat-d839195.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nan-giai-bai-toan-giao-thong-o-nam-co-d839200.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/yen-binh-tap-trung-hoan-thanh-cac-chi-tieu-nam-2026-d835423.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/yen-binh-phat-dong-lam-duong-giao-thong-nong-thon-d832357.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/khai-mac-le-hoi-den-nghia-do-d828195.html
-LỖI HTTP Error 403: Forbidden https://vov.vn/kinh-te/go-nut-that-giai-phong-mat-bang-mo-duong-cho-tang-truong-o-lao-cai-post1330940.vov
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cac-co-gai-tay-mang-cup-vo-dich-ve-xu-so-dat-ngoc-d828758.html
 LỖI HTTP Error 403: Forbidden https://vov.vn/kinh-te/nghi-quyet-21-tiep-them-dong-luc-cho-vung-dau-tran-yen-lao-cai-post1328684.vov
 LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/ubnd-xa-tan-dinh-khanh-hoa-thong-tin-ve-cong-trinh-xay-dung-tren-dat-nong-nghiep-post1314005.vov
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nai-ngua-tranh-tai-giai-dua-ngua-truyen-thong-bac-ha-lan-thu-19-d812939.html
 LỖI HTTP Error 403: Forbidden https://danviet.vn/o-xa-nay-tinh-lao-cai-thu-qua-lam-gai-ngot-nuoc-nay-cu-cat-la-ban-duoc-gia-tot-ca-lang-phan-chan-ra-ngo-dung-nha-giau-d1422075.html
