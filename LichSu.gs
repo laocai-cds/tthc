@@ -30,7 +30,7 @@ function installDailySnapshotOnce() {
 
 /* Lấy đúng số liệu trang web đang đọc (doGet ?action=read) để ảnh chụp luôn khớp với trang. */
 function lichSuCurrent_() {
-  const out = doGet({ parameter: { action: 'read', callback: 'lichSuCb' } }).getContent();
+  const out = doGet({ parameter: { action: 'read', callback: 'lichSuCb', fresh: '1' } }).getContent();   // fresh: bỏ qua bộ nhớ đệm đọc
   const body = out.slice(out.indexOf('(') + 1, out.lastIndexOf(')'));
   const p = JSON.parse(body);
   if (!p || !p.ok) throw new Error('Không đọc được số liệu hiện tại: ' + (p && p.error || 'không rõ lỗi'));
