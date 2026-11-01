@@ -1,25 +1,19 @@
-Lấy được 60/69 bài
+Lấy được 49/54 bài
 == THỐNG KÊ THEO BÁO ==
-   54  baolaocai.vn  có ảnh
-    5  danviet.vn  lỗi HTTP Error 403: Forbidden
+   41  baolaocai.vn  có ảnh
+    3  danviet.vn  lỗi HTTP Error 403: Forbidden
     2  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    1  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
-    1  trangtraiviet.danviet.vn  có ảnh
-    1  www.vietnamplus.vn  có ảnh
-    1  nhandan.vn  có ảnh
-    1  www.qdnd.vn  có ảnh
+    2  www.vietnamplus.vn  có ảnh
     1  vietnam.vnanet.vn  có ảnh
-    1  suckhoedoisong.vn  không có ảnh
-    1  dantri.com.vn  có ảnh
+    1  vtv.vn  có ảnh
+    1  nhandan.vn  có ảnh
+    1  baoxaydung.vn  có ảnh
+    1  daibieunhandan.vn  có ảnh
+    1  www.qdnd.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
-suckhoedoisong.vn: <meta property=og:title content="3 ô tô va chạm liên hoàn trên cao tốc Nội Bài – Lào Cai "> <meta property=og:description content="SKĐS - Chiều 20/2 (mùng 4 Tết), một vụ tai nạn giao thông liên hoàn giữa 3 ô tô xảy ra trên tuyến cao tốc Nội Bài – Lào Cai đoạn qua địa bàn tỉnh Lào Cai khiến giao thông ùn ứ cục bộ. "> <meta property=og:type content=article> <meta property=og:url content=https://suckhoedoisong.vn/3-o-to-va-cham-lien-hoan-tren-cao-toc-noi-bai-lao-cai-169260220162413187.htm> <meta property=og:image content=https://suckhoedoisong.qltns.mediacdn.vn/zoom/1200_630/324455921873985536/2026/2/20/1000041973-17715793418971578350740-62-0-445-613-crop-177157937936111553343.jpg> <meta property=og:image:type content=image/jpeg>
 == VÍ DỤ LỖI ==
-LỖI HTTP Error 403: Forbidden https://danviet.vn/pho-chu-tich-ubnd-tinh-lao-cai-kiem-tra-tinh-trang-khai-thac-kinh-doanh-da-quy-tai-luc-yen-muong-lai-khanh-hoa-d1471405.html
-LỖI HTTP Error 403: Forbidden https://danviet.vn/cuu-pho-chu-tich-lao-cai-bi-xac-dinh-giup-doanh-nghiep-ban-quang-sat-sang-trung-quoc-d1471459.html
-LỖI không phải HTML: application/pdf https://cdn.baolaocai.vn/files/wgpJX2K5PCKCIrhiQuIVuGmI61QbTJIfua7tyj6Eds0plCV005m3_lZYzS2E5YnuAaBIH7qlDgzZ_DR9uQ-Ikg/12-trang-ct-so-70-sua.pdf
 LỖI HTTP Error 403: Forbidden https://danviet.vn/chung-tay-xoa-bo-dinh-kien-phu-nu-vung-bien-lao-cai-thuc-day-binh-dang-gioi-d1468195.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/dinh-vi-thuong-hieu-che-lao-cai-bai-5-nang-gia-tri-mo-thi-truong-d833204.html
 LỖI HTTP Error 403: Forbidden https://danviet.vn/ton-vinh-96-nong-dan-lao-cai-xuat-sac-nam-2026-dua-nong-nghiep-vung-cao-cat-canh-bang-tu-duy-doi-moi-d1465969.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/dinh-vi-thuong-hieu-che-lao-cai-bai-5-nang-gia-tri-mo-thi-truong-d833204.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/khai-hoi-den-bao-ha-lan-toa-gia-tri-van-hoa-tin-nguong-tay-bac-d828707.html
 LỖI HTTP Error 403: Forbidden https://danviet.vn/bi-thu-phuong-sa-pa-duoc-dieu-dong-giu-chuc-truong-ban-noi-chinh-tinh-uy-lao-cai-d1423768.html
-KHÔNG CÓ ẢNH (87206 byte) https://suckhoedoisong.vn/3-o-to-va-cham-lien-hoan-tren-cao-toc-noi-bai-lao-cai-169260220162413187.htm
