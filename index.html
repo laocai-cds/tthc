@@ -3447,11 +3447,11 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
 
 <style id="lb-more-style">
 .leaderboard{display:flex;flex-direction:column}
-.lb-more{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px 12px;border:0;border-radius:10px;cursor:pointer;color:#fff;font:800 11.5px "Segoe UI",Arial,sans-serif;background:linear-gradient(110deg,#c51620,#e0432f 55%,#e8a020);box-shadow:0 6px 14px rgba(197,22,32,.28),inset 0 1px 0 rgba(255,255,255,.3);transition:transform .2s,box-shadow .2s,filter .2s}
+.lb-more{margin-top:6px;flex:none;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:5px 10px;border:1px solid #efc98a;border-radius:999px;cursor:pointer;color:#b4400e;font:700 10.5px/1.2 "Segoe UI",Arial,sans-serif;white-space:nowrap;background:linear-gradient(135deg,#fff7e6,#ffe9c2);transition:transform .15s,box-shadow .15s}
 .lb-more span{transition:transform .2s}
-.lb-more:hover{transform:translateY(-1px);filter:brightness(1.08);box-shadow:0 8px 20px rgba(197,22,32,.38),0 0 16px rgba(242,194,75,.5)}
+.lb-more:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(214,120,20,.25);border-color:#e3a84a}
 .lb-more:hover span{transform:translateX(3px)}
-.lb-more:focus-visible{outline:2px solid #f2ca63;outline-offset:2px}
+.lb-more:focus-visible{outline:2px solid #e3a84a;outline-offset:2px}
 </style>
 <style id="tp-style">
 /* Bỏ bảng xếp hạng tổng trên trang – thay bằng popup */
