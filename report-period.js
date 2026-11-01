@@ -26,8 +26,8 @@
   const dmy = s => { const [y, m, d] = String(s).split('-'); return d + '/' + m + '/' + y; };
   function period(type, y, n) {
     y = Number(y); n = Number(n);
-    if (type === 'month') return { type, y, n, from: ymd(new Date(y, n - 1, 1)), to: ymd(new Date(y, n, 0)), months: [n], label: 'tháng ' + n + '/' + y, tag: y + '-T' + String(n).padStart(2, '0') };
-    if (type === 'quarter') return { type, y, n, from: ymd(new Date(y, (n - 1) * 3, 1)), to: ymd(new Date(y, n * 3, 0)), months: [n * 3 - 2, n * 3 - 1, n * 3], label: 'quý ' + ROMAN[n - 1] + '/' + y, tag: y + '-Q' + n };
+    if (type === 'month') return { type, y, n, from: ymd(new Date(y, n - 1, 1)), to: ymd(new Date(y, n, 0)), months: [n], label: 'tháng ' + n + ' năm ' + y, tag: y + '-T' + String(n).padStart(2, '0') };
+    if (type === 'quarter') return { type, y, n, from: ymd(new Date(y, (n - 1) * 3, 1)), to: ymd(new Date(y, n * 3, 0)), months: [n * 3 - 2, n * 3 - 1, n * 3], label: 'quý ' + ROMAN[n - 1] + ' năm ' + y, tag: y + '-Q' + n };
     return { type: 'all', label: 'lũy kế', tag: '' };
   }
 
@@ -168,7 +168,7 @@
     m.asOf = ctx.live ? m.stamp : (ctx.endDate === per.to ? 'hết ngày ' : 'ngày ') + dmy(ctx.endDate);
     if (!ctx.live) m.source = 'Google Sheets, số liệu lưu trữ ngày ' + dmy(ctx.endDate);
     if (m.period.baseDate) m.source += '; số liệu đầu kỳ lưu ngày ' + dmy(m.period.baseDate);
-    if (m.dues) m.dues.month = ctx.dues && ctx.dues.months.length > 1 ? per.label : ctx.dues ? 'tháng ' + ctx.dues.months[0] + '/' + per.y : m.dues.month;
+    if (m.dues) m.dues.month = ctx.dues && ctx.dues.months.length > 1 ? per.label : ctx.dues ? 'tháng ' + ctx.dues.months[0] + ' năm ' + per.y : m.dues.month;
     m.fileStamp = per.tag + '_' + m.fileStamp;
     return m;
   }
@@ -293,8 +293,9 @@
       n.innerHTML = ty === 'quarter' ? [1, 2, 3, 4].map(q => '<option value="' + q + '">Quý ' + ROMAN[q - 1] + '</option>').join('') : Array.from({ length: 12 }, (_, i) => '<option value="' + (i + 1) + '">Tháng ' + (i + 1) + '</option>').join('');
     };
     t.value = per.type; fill(); y.value = String(per.y || Y); n.value = String(per.n || cur(t.value));
-    t.onchange = () => { fill(); n.value = String(cur(t.value)); };
-    go.onclick = () => render(win, period(t.value, y.value, n.value));
+    const apply = () => render(win, period(t.value, y.value, n.value));   // đổi lựa chọn là lập lại ngay
+    t.onchange = () => { fill(); n.value = String(cur(t.value)); apply(); };
+    n.onchange = y.onchange = go.onclick = apply;
   }
   async function render(win, per) {
     let ctx = null;
@@ -320,7 +321,8 @@
       if (!sheetsLastSyncedAt) { try { await syncSheetsFromCloud(false); } catch (e) { console.error(e); } }
     }
     if (win.closed) return;
-    await render(win, period('all'));
+    const now = new Date();
+    await render(win, period('month', now.getFullYear(), now.getMonth() + 1));   // mặc định: báo cáo tháng hiện tại
     win.focus();
   }
   const btn = document.getElementById('buildReport');
