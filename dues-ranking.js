@@ -112,7 +112,7 @@
   btn.type = 'button'; btn.className = 'dr-open'; btn.id = 'duesRankOpen'; btn.setAttribute('aria-haspopup', 'dialog');
   btn.innerHTML = '📊 ' + TITLE + ' <span aria-hidden="true">›</span>';
   const status = document.getElementById('top3DuesStatus');
-  if (status) status.after(btn); else card.appendChild(btn);
+  if (status) status.before(btn); else card.appendChild(btn);   // dòng "Tự động đồng bộ…" nằm dưới nút
 
   const ov = document.createElement('div');
   ov.className = 'dr-ov'; ov.id = 'duesRankOverlay'; ov.setAttribute('aria-hidden', 'true');
