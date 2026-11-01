@@ -110,6 +110,14 @@
     });
   }
   const duesAt = date => duesRows(Number(date.slice(0, 4)), Number(date.slice(5, 7)));
+  /* Số trực tiếp: giữ nguyên, chỉ áp lại tỷ lệ đảng phí của tháng hiện tại (phòng khi bảng đảng phí trên trang chưa tải) */
+  function liveProcs(duesList) {
+    if (!duesList) return data.procedures;
+    const dues = new Map(duesList.map(d => [normName(d.name), d]));
+    return data.procedures.map(p => p.kind !== 'fee' ? p : Object.assign({}, p, {
+      units: p.units.map(u => { const d = dues.get(normName(u.unit)); return d ? Object.assign({}, u, { collected: feeRate(d) }) : u; })
+    }));
+  }
   async function context(per) {
     if (per.type === 'all') return null;
     const today = ymd(new Date());
@@ -119,8 +127,8 @@
     if (!live && !h.end) throw new Error('Chưa có số liệu lưu trữ cho ' + per.label + '. ' + (h.first ? 'Hệ thống bắt đầu lưu số liệu hằng ngày từ ngày ' + dmy(h.first) + '.' : 'Hệ thống chưa lưu ảnh chụp số liệu nào (chạy installDailySnapshotOnce() trong Apps Script).'));
     let base = h.base || null;
     if (base && !live && base.date >= h.end.date) base = null;   // đầu kỳ trùng cuối kỳ: không tính được phát sinh
-    const [endDues, baseDues] = await Promise.all([live ? null : duesAt(h.end.date), base ? duesAt(base.date) : null]);
-    return { per, live, endDate: live ? today : h.end.date, endProcs: live ? data.procedures : procsFrom(h.end, endDues), base, baseProcs: base ? procsFrom(base, baseDues) : null, first: h.first || null, dues };
+    const [endDues, baseDues] = await Promise.all([duesAt(live ? today : h.end.date), base ? duesAt(base.date) : null]);
+    return { per, live, endDate: live ? today : h.end.date, endProcs: live ? liveProcs(endDues) : procsFrom(h.end, endDues), base, baseProcs: base ? procsFrom(base, baseDues) : null, first: h.first || null, dues };
   }
 
   /* ---------- Mô hình báo cáo theo kỳ ---------- */
