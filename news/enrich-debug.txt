@@ -1,15 +1,22 @@
-Lấy được 42/46 bài
+Lấy được 50/56 bài
 == THỐNG KÊ THEO BÁO ==
-   36  baolaocai.vn  có ảnh
-    3  tienphong.vn  có ảnh
+   43  baolaocai.vn  có ảnh
     3  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    1  happyvietnam.vnanet.vn  có ảnh
-    1  vtcnews.vn  có ảnh
+    2  baophapluat.vn  có ảnh
+    1  tuoitre.vn  có ảnh
+    1  suckhoedoisong.vn  không có ảnh
+    1  daibieunhandan.vn  có ảnh
+    1  etime.danviet.vn  có ảnh
     1  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
-    1  vietnam.vnanet.vn  có ảnh
+    1  vov.vn  lỗi HTTP Error 403: Forbidden
+    1  vtv.vn  có ảnh
+    1  trangtraiviet.danviet.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
+suckhoedoisong.vn: <meta property=og:title content="Công an xã giúp sản phụ vượt cạn trên đường đưa đi cấp cứu"> <meta property=og:description content="SKĐS - Thời điểm xảy ra sự việc, sản phụ ở nhà một mình, chồng đang đi làm ăn xa chưa kịp trở về."> <meta property=og:type content=article> <meta property=og:site_name content="Báo Sức khỏe &amp; Đời sống"> <meta property=og:locale content=vi_VN> <meta property=og:url content=https://suckhoedoisong.vn/cong-an-xa-giup-san-phu-vuot-can-tren-duong-dua-di-cap-cuu-16926110217343315.htm>
 == VÍ DỤ LỖI ==
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cac-co-gai-tay-mang-cup-vo-dich-ve-xu-so-dat-ngoc-d828758.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/gian-nan-giam-ngheo-tren-reo-cao-nam-co-d839274.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-gioi-thieu-hon-400-san-pham-nong-nghiep-tai-88-gian-hang-d839396.html
+KHÔNG CÓ ẢNH (89627 byte) https://suckhoedoisong.vn/cong-an-xa-giup-san-phu-vuot-can-tren-duong-dua-di-cap-cuu-16926110217343315.htm
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/chanh-leo-vang-ben-re-dat-bao-nhai-d829630.html
 LỖI không phải HTML: application/pdf https://cdn.baolaocai.vn/files/VNxw3tYqxmLPvyr_JaFI6telv00qlx4NBHkmhs9CLEoZfdH6eAGNfnltOCG-2AvlUiKsqSjV6mYE2mGMoczYLLwbo7LTc4XnAarbBVHtKGA/a38-vbd-tulc-ctr-0109-2026-001-dadongdau.pdf
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nai-ngua-tranh-tai-giai-dua-ngua-truyen-thong-bac-ha-lan-thu-19-d812939.html
+LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/tang-von-bo-sung-doan-yen-vien-gia-lam-vao-tuyen-duong-sat-lao-cai-hai-phong-post1321627.vov
