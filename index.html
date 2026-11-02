@@ -6167,6 +6167,7 @@ window.AUTH=(function(){
       const boxes=(e,p,dis)=>PG.map(x=>'<label class="pg"><input type="checkbox" data-pe="'+esc(e)+'" data-pk="'+x[0]+'"'+(p.indexOf('all')>=0||p.indexOf(x[0])>=0?' checked':'')+(dis?' disabled':'')+'>'+x[1]+'</label>').join('')+'<label class="pg full"><input type="checkbox" data-pe="'+esc(e)+'" data-pk="all"'+(p.indexOf('all')>=0?' checked':'')+(dis?' disabled':'')+'>Toàn quyền</label>';
       box.innerHTML=rows.map(r=>{const p=r.boot?['all']:(pm[r.e]||['all']);return '<tr><td>'+esc(r.e)+'</td><td>'+(r.boot?'Quản trị gốc (toàn quyền)':boxes(r.e,p,false))+'</td><td>'+(r.boot?'':'<button class="btn" type="button" data-del="'+esc(r.e)+'">Xóa</button>')+'</td></tr>'}).join('');
       window.__admPerms=pm;
+      if(d.perms===undefined){box.querySelectorAll('input[data-pe]').forEach(x=>x.disabled=true);g('admMsg').textContent='Máy chủ Apps Script chưa cập nhật phân quyền theo nhóm: các Gmail hiện vẫn có toàn quyền. Hãy triển khai phiên bản mới của dự án "03 thủ tục".'}
       return d}catch(_){msg('Không tải được danh sách (lỗi mạng).');return null}}
   async function admApply(action,email,pl){const m=g('admMsg');m.textContent='Đang cập nhật…';const want=pl?JSON.stringify(pl):'';
     try{await fetch(EP,{method:'POST',mode:'no-cors',body:new URLSearchParams({payload:JSON.stringify({action,email,perms:pl,idToken:await fresh()})})})}
