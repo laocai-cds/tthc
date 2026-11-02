@@ -3,7 +3,7 @@
  *
  * Kỳ = tháng đang chọn ở bộ chọn tháng đảng phí (DuesMonth); kỳ trước = tháng liền trước.
  * Tỷ lệ nộp = (8) ÷ ((2)+(3)−(4)−(5)), cùng công thức thẻ Top 03; "So với kỳ trước" = chênh lệch điểm %.
- * Hạng đồng hạng khi bằng tỷ lệ (1, 1, 3…); tìm kiếm theo tên đơn vị (không dấu) và lọc theo nhóm tỷ lệ.
+ * Hạng liên tục 1, 2, 3…: xếp theo tỷ lệ, cùng tỷ lệ thì số tiền đã nộp nhiều hơn, rồi số đảng viên đã nộp nhiều hơn; tìm kiếm theo tên đơn vị (không dấu) và lọc theo nhóm tỷ lệ.
  */
 (function (root) {
   'use strict';
@@ -67,9 +67,8 @@
     if (!cur) throw new Error('Chưa đọc được số liệu đảng phí ' + monthLabel(k) + '.');
     const before = new Map((prev || []).map(d => [norm(d.name), d]));
     const rows = cur.map(d => { const b = before.get(norm(d.name)); return Object.assign({}, d, { prev: b ? b.rate : null, diff: b ? d.rate - b.rate : null }); })
-      .sort((a, b) => b.rate - a.rate || b.nop - a.nop || a.name.localeCompare(b.name, 'vi'));
-    let rank = 0;
-    rows.forEach((r, i) => { if (i === 0 || Math.round(r.rate * 100) !== Math.round(rows[i - 1].rate * 100)) rank = i + 1; r.rank = rank; r.key = norm(r.name); });
+      .sort((a, b) => Math.round(b.rate * 100) - Math.round(a.rate * 100) || b.nop - a.nop || b.dn - a.dn || a.name.localeCompare(b.name, 'vi'));
+    rows.forEach((r, i) => { r.rank = i + 1; r.key = norm(r.name); });   // hạng liên tục: cùng tỷ lệ thì nhiều tiền hơn, rồi nhiều đảng viên đã nộp hơn
     return { k, pk, rows, hasPrev: !!prev };
   }
 
@@ -120,7 +119,7 @@
     '<header class="dr-head"><div><h2 id="drTitle">🏆 ' + TITLE + ' <span id="drPeriod"></span></h2><div class="dr-sub" id="drSub">Đang tải dữ liệu…</div></div><span class="sp"></span><button type="button" class="dr-x" id="drClose" aria-label="Đóng">✕</button></header>' +
     '<div class="dr-tools"><input class="dr-search" id="drSearch" type="search" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị"><div class="dr-chips" id="drChips" role="group" aria-label="Lọc theo nhóm tỷ lệ nộp"></div></div>' +
     '<div class="dr-body"><table class="dr-tb"><thead><tr><th class="c">Hạng</th><th>Đơn vị</th><th class="r dr-hide-sm">ĐV đã nộp / phải nộp</th><th>Tỷ lệ nộp</th><th class="r" id="drPrevHead">So với kỳ trước</th></tr></thead><tbody id="drRows"><tr><td colspan="5" class="dr-empty">Đang tải…</td></tr></tbody></table></div>' +
-    '<footer class="dr-foot">Tỷ lệ nộp = số đảng viên đã duyệt, đã nộp (8) ÷ số đảng viên phải nộp ((2)+(3)−(4)−(5)). "So với kỳ trước" là chênh lệch điểm % so với tháng liền trước; đơn vị bằng tỷ lệ được xếp đồng hạng.</footer></section>';
+    '<footer class="dr-foot">Tỷ lệ nộp = số đảng viên đã duyệt, đã nộp (8) ÷ số đảng viên phải nộp ((2)+(3)−(4)−(5)). "So với kỳ trước" là chênh lệch điểm % so với tháng liền trước; đơn vị bằng tỷ lệ được xếp theo số tiền đã nộp, rồi theo số đảng viên đã nộp.</footer></section>';
   document.body.appendChild(ov);
 
   const $ = id => document.getElementById(id);
