@@ -162,9 +162,31 @@
       '.dd-ib.dd-rp{background:#fff3d6;color:#8a5a00}';
     document.head.appendChild(st);
   }
+  /* Word không hiểu CSS grid/@page của bản in → đổi sang bảng + khai báo trang A4 để bản Word giống bản PDF */
+  function toWord(html) {
+    const NB = 'border:none;border-collapse:collapse;';
+    let h = html;
+    h = h.replace(/<div class="hd"><div>([\s\S]*?)<\/div><div>([\s\S]*?)<div class="ln"><\/div>([\s\S]*?)<\/div><\/div>/,
+      (m, l, r1, r2) => '<table style="width:100%;' + NB + '"><tr><td style="width:40%;' + NB + 'border:none;text-align:center;vertical-align:top;padding:0">' + l +
+        '</td><td style="' + NB + 'border:none;text-align:center;vertical-align:top;padding:0">' + r1 +
+        '<p style="margin:2pt 60pt 6pt;border-top:1pt solid #000;font-size:3pt;line-height:3pt;mso-line-height-rule:exactly">&nbsp;</p>' + r2 + '</td></tr></table>');
+    h = h.replace(/<div class="sign"><div>([\s\S]*?)<\/div><div class="r">([\s\S]*?)<\/div><\/div>/,
+      (m, l, r) => '<table style="width:100%;margin-top:10pt;' + NB + '"><tr><td style="width:50%;border:none;vertical-align:top;padding:0">' + l +
+        '</td><td style="border:none;text-align:center;vertical-align:top;padding:0">' + r + '</td></tr></table>');
+    const IN = { b14: 'margin:0;text-align:center;font-weight:bold;font-size:14pt', b15: 'margin:0;text-align:center;font-weight:bold;font-size:15pt',
+      t1: 'margin:22pt 0 1pt;text-align:center;font-weight:bold;font-size:15pt', t2: 'margin:0 0 1pt;text-align:center;font-weight:bold',
+      meta: 'margin:0 0 8pt;text-align:center;font-style:italic;font-size:11pt;color:#4a5566' };
+    Object.keys(IN).forEach(k => { h = h.split('<p class="' + k + '">').join('<p style="' + IN[k] + '">'); });
+    h = h.replace(/(<table style="width:100%;[^"]*"><tr>[\s\S]*?<\/tr><\/table>)/, t => t.replace(/<p>/g, '<p style="margin:0;text-align:center">').replace(/<p><i>/g, '<p style="margin:0;text-align:center"><i>'));
+    h = h.replace(/<table( class="sm")?>/g, (m, c) => '<table border="1" cellspacing="0" cellpadding="3" style="width:100%;border-collapse:collapse;border:.5pt solid #b8c0cc;font-size:' + (c ? '8' : '10') + 'pt">');
+    h = h.replace('<html lang="vi">', '<html lang="vi" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">');
+    h = h.replace('<style>', '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]--><style>@page Section1{size:21cm 29.7cm;margin:2cm 2cm 2cm 3cm;mso-page-orientation:portrait}div.Section1{page:Section1}');
+    h = h.replace('<body>', '<body><div class="Section1">').replace('</body>', '</div></body>');
+    return h;
+  }
   function download(name, html) {
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob(['﻿', html], { type: 'application/msword' }));
+    a.href = URL.createObjectURL(new Blob(['﻿', toWord(html)], { type: 'application/msword' }));
     a.download = name + '.doc'; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   }
@@ -228,6 +250,6 @@
   }
   function init() { let n = 0; (function t() { if (!mountButton() && n++ < 60) setTimeout(t, 500); })(); }
 
-  root.DuesReport = { open, monthReport, yearReport };
+  root.DuesReport = { open, monthReport, yearReport, toWord };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })(window);
