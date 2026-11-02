@@ -10,8 +10,8 @@
  *
  * Quy tắc:
  *  - Chỉ tháng hiện tại được tự làm mới mỗi phút; tháng đã chốt chỉ tải một lần.
- *  - Lũy kế đến tháng K = cộng dồn hai cột tiền (khai báo, đã nộp) của các tháng từ đầu năm đến K;
- *    các cột còn lại (số đảng viên, hồ sơ, tỷ lệ) lấy theo tháng K.
+ *  - Lũy kế đến tháng K = cộng dồn các cột tiền (khai báo, đã nộp, phải nộp cấp trên, đã nộp cấp trên) của các tháng từ đầu năm đến K;
+ *    các cột còn lại (số đảng viên, hồ sơ, tỷ lệ, còn nợ cấp trên cuối kỳ) lấy theo tháng K.
  */
 (function (root) {
   'use strict';
@@ -20,7 +20,7 @@
   const LIVE_GID = '193289320';
   const REGISTRY_TAB = 'DANH MUC THANG';
   const SS_KEY = 'dues.month.v1';
-  const MONEY_COLS = [11, 12];           // Tổng tiền khai báo, Tổng tiền đã nộp
+  const MONEY_COLS = [11, 12, 14, 15];   // Tổng tiền khai báo, tiền đã nộp, phải nộp cấp trên (O), đã nộp cấp trên (P); cột Q (còn nợ cuối kỳ) lấy theo tháng K
   const REGISTRY_REFRESH_MS = 5 * 60 * 1000;
 
   /* ---------- Thời gian (giờ Việt Nam, UTC+7) ---------- */

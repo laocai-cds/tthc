@@ -640,12 +640,12 @@ function rptPctD(v){return (Math.round(Number(v||0)*10000)/100).toLocaleString('
 function rptDuesModel(now){
  const D=(window.__duesDetailData||[]).filter(d=>d.t>0);if(!D.length)return null;
  const den=d=>Math.max(0,d.ct+d.tt-d.chuyen-d.mien);
- const rows=D.map(d=>({name:d.name,t:d.t,need:den(d),dn:d.dn,chua:d.chua,kb:d.kb,nop:d.nop,r:den(d)>0?Math.min(1,d.dn/den(d)):0})).sort((a,b)=>b.r-a.r||b.nop-a.nop||a.name.localeCompare(b.name,'vi'));
+ const rows=D.map(d=>({name:d.name,t:d.t,need:den(d),dn:d.dn,chua:d.chua,kb:d.kb,nop:d.nop,pn:d.pn||0,dc:d.dc||0,no:d.no||0,r:den(d)>0?Math.min(1,d.dn/den(d)):0})).sort((a,b)=>b.r-a.r||b.nop-a.nop||a.name.localeCompare(b.name,'vi'));
  const S=k=>rows.reduce((s,x)=>s+x[k],0),need=S('need'),dn=S('dn');
  const band=(lo,hi)=>rows.filter(x=>x.r>=lo&&x.r<hi);
  let honor=rows.filter(x=>x.r>=RPT_HONOR),honorNote='từ 95% trở lên';
  if(!honor.length){honor=rows.filter(x=>x.r>0).slice(0,5);honorNote='cao nhất'}
- return{month:'tháng '+(now.getMonth()+1)+'/'+now.getFullYear(),rows,units:rows.length,t:S('t'),need,dn,rate:need>0?dn/need:0,kb:S('kb'),nop:S('nop'),chua:S('chua'),
+ return{month:'tháng '+(now.getMonth()+1)+'/'+now.getFullYear(),rows,units:rows.length,t:S('t'),need,dn,rate:need>0?dn/need:0,kb:S('kb'),nop:S('nop'),chua:S('chua'),pn:S('pn'),dc:S('dc'),no:S('no'),
   honor,honorNote,good:band(.8,RPT_HONOR),mid:band(.5,.8),low:band(.2,.5),weak:band(1e-9,.2),zero:rows.filter(x=>x.r<=0)}}
 function rptShortName(n){return String(n).replace(/^Đảng bộ (xã |phường )/,'')}
 function rptNameList(list,max){const n=list.map(x=>rptShortName(x.name));return n.length>max?n.slice(0,max).join(', ')+' … và '+(n.length-max)+' đơn vị khác':n.join(', ')}
@@ -692,7 +692,7 @@ function rptHTML(m){
   return `<section class="page land">${H(`Phụ lục 0${i+1}. ${x.p.short} — tiến độ bình quân ${rptPct(x.t.average)}`)}${fee?T(['TT','Đơn vị','Cán bộ phụ trách','Hướng dẫn','TK DVC đã tạo/phải tạo','TK ngân hàng đã tạo/phải tạo','Đã nộp','Hoàn thành thu trong kỳ','Tiến độ','Trạng thái'],x.rows.map(({u,v,st},k)=>[k+1,u.unit,String(u.owner||'').replace(/\n+/g,', ')||'—',u.guided,fmt(u.dvccreated)+'/'+fmt(u.dvctotal),fmt(u.bankcreated)+'/'+fmt(u.banktotal),u.paid==='☑'?'Đã nộp':'Chưa',collectedLabel(u.collected),rptPct(v),st]),[600,3400,2500,1000,1500,1600,900,1300,900,1436],[0,3,4,5,6,7,8,9],{full:1})
    :T(['TT','Đơn vị','Cán bộ phụ trách','Hướng dẫn','Tiếp nhận/tổng HS','Đã xử lý/phải xử lý','Hoàn thành','Đủ 10 HS','Tiến độ','Trạng thái'],x.rows.map(({u,v,st},k)=>[k+1,u.unit,String(u.owner||'').replace(/\n+/g,', ')||'—',u.guided,fmt(u.received)+'/'+fmt(u.total),fmt(u.processed)+'/'+fmt(u.need),fmt(u.done),isChecked(u.done10)?'Có':'—',rptPct(v),st]),[600,3700,2700,1000,1400,1500,1100,1000,1000,1136],[0,3,4,5,6,7,8,9],{full:1})}</section>`}).join('');
  apx+=`<section class="page land">${H(`Phụ lục 05. Bảng xếp hạng tiến độ tổng hợp (${fmt(m.ranking.length)} đơn vị)`)}${T(rkH,rkR(m.ranking,0),[900,4636,1700,1900,1900,1900,2200],[0,2,3,4,5,6],{full:1})}</section>`;
- if(D)apx+=`<section class="page land">${H(`Phụ lục 06. Thu nộp đảng phí ${D.month} — tỷ lệ đảng viên đã nộp ${rptPctD(D.rate)}`)}${T(['TT','Đơn vị','Tổng ĐV (1)','ĐV phải nộp','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền khai báo (đ)','Tiền đã nộp (đ)','Tỷ lệ ĐV đã nộp'],[...D.rows.map((x,i)=>[i+1,x.name,fmt(x.t),fmt(x.need),fmt(x.dn),fmt(x.chua),fmt(x.kb),fmt(x.nop),rptPctD(x.r)]),['',`Tổng cộng (${fmt(D.units)} đơn vị)`,fmt(D.t),fmt(D.need),fmt(D.dn),fmt(D.chua),fmt(D.kb),fmt(D.nop),rptPctD(D.rate)]],[600,4436,1300,1300,1500,1400,1700,1700,1200],[0,2,3,4,5,6,7,8],{full:1})}</section>`;
+ if(D)apx+=`<section class="page land">${H(`Phụ lục 06. Thu nộp đảng phí ${D.month} — tỷ lệ đảng viên đã nộp ${rptPctD(D.rate)}`)}${T(['TT','Đơn vị','Tổng ĐV (1)','ĐV phải nộp','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền khai báo (đ)','Tiền đã nộp (đ)','Phải nộp cấp trên (đ)','Đã nộp cấp trên (đ)','Còn nợ cấp trên (đ)','Tỷ lệ ĐV đã nộp'],[...D.rows.map((x,i)=>[i+1,x.name,fmt(x.t),fmt(x.need),fmt(x.dn),fmt(x.chua),fmt(x.kb),fmt(x.nop),fmt(x.pn),fmt(x.dc),fmt(x.no),rptPctD(x.r)]),['',`Tổng cộng (${fmt(D.units)} đơn vị)`,fmt(D.t),fmt(D.need),fmt(D.dn),fmt(D.chua),fmt(D.kb),fmt(D.nop),fmt(D.pn),fmt(D.dc),fmt(D.no),rptPctD(D.rate)]],[500,3000,950,950,1100,1000,1300,1300,1300,1300,1300,1100],[0,2,3,4,5,6,7,8,9,10,11],{full:1})}</section>`;
  return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Báo cáo tiến độ 04 thủ tục hành chính - ${m.fileStamp}</title><style>
 *{box-sizing:border-box}html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 body{margin:0;background:#e9edf3;color:#000;font:13pt/1.32 "Times New Roman",Times,serif}
@@ -783,9 +783,9 @@ function exportReportXlsx(m,w){
  sheets.push(sheet('PL05 Xếp hạng',`Phụ lục 05. Bảng xếp hạng tiến độ tổng hợp (${m.ranking.length} đơn vị)`,['Hạng','Đơn vị','Tiến độ tổng',...m.procs.map(x=>x.p.short)],
   m.ranking.map((r,i)=>[N(i+1),T(r.unit),{v:r.average,s:9},...r.values.map(v=>v===null?T('—'):P(v))]),[7,40,13,...m.procs.map(()=>20)]));
  if(m.dues){const D=m.dues;
-  sheets.push(sheet('PL06 Thu đảng phí',`Phụ lục 06. Thu nộp đảng phí ${D.month} — tỷ lệ đảng viên đã nộp ${rptPctD(D.rate)}`,['TT','Đơn vị','Tổng ĐV (1)','ĐV phải nộp','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền khai báo (đ)','Tiền đã nộp (đ)','Tỷ lệ ĐV đã nộp','Tuyên dương'],
-   D.rows.map((x,i)=>[N(i+1),T(x.name),N(x.t),N(x.need),N(x.dn),N(x.chua),N(x.kb),N(x.nop),P(x.r),T(x.r>=RPT_HONOR?'Tuyên dương':'')]),[6,40,11,12,13,13,16,16,13,13],
-   [[{v:'Tổng cộng',s:7},'',N(D.t),N(D.need),N(D.dn),N(D.chua),N(D.kb),N(D.nop),{v:D.rate,s:9}],[],...rptDuesText(D).map(t=>[{v:t,s:8}]),[{v:rptDuesPraise(D),s:8}]]));
+  sheets.push(sheet('PL06 Thu đảng phí',`Phụ lục 06. Thu nộp đảng phí ${D.month} — tỷ lệ đảng viên đã nộp ${rptPctD(D.rate)}`,['TT','Đơn vị','Tổng ĐV (1)','ĐV phải nộp','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền khai báo (đ)','Tiền đã nộp (đ)','Phải nộp cấp trên (đ)','Đã nộp cấp trên (đ)','Còn nợ cấp trên (đ)','Tỷ lệ ĐV đã nộp','Tuyên dương'],
+   D.rows.map((x,i)=>[N(i+1),T(x.name),N(x.t),N(x.need),N(x.dn),N(x.chua),N(x.kb),N(x.nop),N(x.pn),N(x.dc),N(x.no),P(x.r),T(x.r>=RPT_HONOR?'Tuyên dương':'')]),[6,40,11,12,13,13,16,16,16,16,16,13,13],
+   [[{v:'Tổng cộng',s:7},'',N(D.t),N(D.need),N(D.dn),N(D.chua),N(D.kb),N(D.nop),N(D.pn),N(D.dc),N(D.no),{v:D.rate,s:9}],[],...rptDuesText(D).map(t=>[{v:t,s:8}]),[{v:rptDuesPraise(D),s:8}]]));
   const Z=D.rows.filter(x=>(+x.nop||0)<=0).sort((a,b)=>a.name.localeCompare(b.name,'vi'));
   sheets.push(sheet('PL07 Chua thu DP',`Phụ lục 07. Danh sách đơn vị chưa thu được tiền đảng phí ${D.month} (${Z.length}/${D.rows.length} đơn vị)`,['TT','Đơn vị','Tổng số đảng viên','ĐV phải nộp','Số tiền đã nộp (đ)'],
    Z.map((x,i)=>[N(i+1),T(x.name),N(x.t),N(x.need),N(0)]),[6,46,16,14,18]))}
@@ -981,9 +981,9 @@ function exportReportDocx(m,w){
   body+=para('',{sect:landscape})});
  body+=h(`Phụ lục 05. Bảng xếp hạng tiến độ tổng hợp (${fmt(m.ranking.length)} đơn vị)`)+table(rkH,rkR(m.ranking,0),[900,4636,1700,1900,1900,1900,2200],[0,2,3,4,5,6]);
  if(D){body+=para('',{sect:landscape});
-  body+=h(`Phụ lục 06. Thu nộp đảng phí ${D.month} — tỷ lệ đảng viên đã nộp ${rptPctD(D.rate)}`)+table(['TT','Đơn vị','Tổng ĐV (1)','ĐV phải nộp','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền khai báo (đ)','Tiền đã nộp (đ)','Tỷ lệ ĐV đã nộp'],
-   [...D.rows.map((x,i)=>[i+1,x.name,fmt(x.t),fmt(x.need),fmt(x.dn),fmt(x.chua),fmt(x.kb),fmt(x.nop),rptPctD(x.r)]),['',`Tổng cộng (${fmt(D.units)} đơn vị)`,fmt(D.t),fmt(D.need),fmt(D.dn),fmt(D.chua),fmt(D.kb),fmt(D.nop),rptPctD(D.rate)]],
-   [600,4436,1300,1300,1500,1400,1700,1700,1200],[0,2,3,4,5,6,7,8])}
+  body+=h(`Phụ lục 06. Thu nộp đảng phí ${D.month} — tỷ lệ đảng viên đã nộp ${rptPctD(D.rate)}`)+table(['TT','Đơn vị','Tổng ĐV (1)','ĐV phải nộp','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền khai báo (đ)','Tiền đã nộp (đ)','Phải nộp cấp trên (đ)','Đã nộp cấp trên (đ)','Còn nợ cấp trên (đ)','Tỷ lệ ĐV đã nộp'],
+   [...D.rows.map((x,i)=>[i+1,x.name,fmt(x.t),fmt(x.need),fmt(x.dn),fmt(x.chua),fmt(x.kb),fmt(x.nop),fmt(x.pn),fmt(x.dc),fmt(x.no),rptPctD(x.r)]),['',`Tổng cộng (${fmt(D.units)} đơn vị)`,fmt(D.t),fmt(D.need),fmt(D.dn),fmt(D.chua),fmt(D.kb),fmt(D.nop),fmt(D.pn),fmt(D.dc),fmt(D.no),rptPctD(D.rate)]],
+   [500,3000,950,950,1100,1000,1300,1300,1300,1300,1300,1100],[0,2,3,4,5,6,7,8,9,10,11])}
  const doc=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${body}${landscape}</w:body></w:document>`;
  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:eastAsia="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="26"/><w:lang w:val="vi-VN"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="60" w:line="317" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>`;
  const settingsXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:zoom w:percent="100"/><w:defaultTabStop w:val="720"/><w:characterSpacingControl w:val="doNotCompress"/><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>';
@@ -1805,7 +1805,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
 .dd-tw th[data-k]{cursor:pointer;user-select:none}
 .dd-tw th[data-k]:hover{filter:brightness(.97)}
 .dd-tw th.s-asc::after{content:" ▲";font-size:9px}.dd-tw th.s-desc::after{content:" ▼";font-size:9px}
-.dd-tw .g-hs{background:#eef5ff;color:#24507a}.dd-tw .g-tien{background:#eaf8f0;color:#1d6b46}
+.dd-tw .g-hs{background:#eef5ff;color:#24507a}.dd-tw .g-tien{background:#eaf8f0;color:#1d6b46}.dd-tw thead th.g-cap{background:#e8eefb;color:#1d3f7a}
 .dd-tw td.stt{text-align:center;color:#8a94a6}
 .dd-tw td.nm,.dd-tw th.nm{text-align:left;position:sticky;left:0;z-index:1;background:#fff;min-width:240px;white-space:normal;font-weight:700;color:#14344f}
 .dd-tw thead th.nm{z-index:3;background:#fdf3e1}
@@ -1844,7 +1844,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
 .dd-ib:hover{background:rgba(255,255,255,.22)}
 .dd-ib.dd-xl{background:linear-gradient(110deg,#0d8a62,#1fae78);border-color:transparent}
 #ddClose{width:32px;padding:0;font-size:15px}
-.dd-kpis{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding:10px 18px 0}
+.dd-kpis{grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding:10px 18px 0}
 .dd-kpi{display:flex;flex-direction:column-reverse;padding:7px 12px;border-radius:10px;background:#fff;border:1px solid #e7ebf2;border-left:3px solid #1d4380}
 .dd-kpi span{font-size:9.5px;font-weight:700;color:#6b7a90;text-transform:uppercase;letter-spacing:.3px}
 .dd-kpi b{font-size:16px;color:#172c4a}
@@ -1988,7 +1988,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
  const card=document.getElementById('top3Dues');if(!card)return;
  const SHEET_ID='1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-M1AGkWO4g',GID='193289320';
  const SOURCE_URL='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/edit?gid='+GID+'#gid='+GID;
- const COLS=['t','ct','tt','chuyen','mien','cd','dcn','dn','chua','kb','nop'];
+ const COLS=['t','ct','tt','chuyen','mien','cd','dcn','dn','chua','kb','nop','pn','dc','no'];
  const fmt=n=>Math.round(Number(n)||0).toLocaleString('vi-VN');
  const pct=n=>(Number(n)||0).toFixed(2).replace('.',',');
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2012,9 +2012,9 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   <div class="dd-warn" id="ddWarn"></div>
   <div class="dd-tools"><input type="search" id="ddQ" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị">
    <button type="button" class="dd-chip on" data-f="all">Tất cả</button><button type="button" class="dd-chip" data-f="g">≥ 80%</button><button type="button" class="dd-chip" data-f="y">50 – 80%</button><button type="button" class="dd-chip" data-f="o">20 – 50%</button><button type="button" class="dd-chip" data-f="r">&lt; 20%</button><button type="button" class="dd-chip" data-f="z">0%</button></div>
-  <div class="dd-tw"><table><colgroup><col style="width:50px"><col><col style="width:96px"><col style="width:104px"><col style="width:104px"><col style="width:92px"><col style="width:118px"><col style="width:124px"><col style="width:150px"></colgroup><thead>
-   <tr><th data-k="stt" class="c-stt">HẠNG</th><th class="nm" data-k="name">Tên đơn vị</th><th data-k="t">Tổng đảng viên<br><small>(1)</small></th><th data-k="need">ĐV phải nộp<br><small>(2)+(3)−(4)−(5)</small></th><th data-k="dn">Đã duyệt, đã nộp<br><small>(8)</small></th><th data-k="chua">Chưa có hồ sơ<br><small>(9)</small></th><th data-k="kb">Tiền theo hồ sơ<br>khai báo (đ)</th><th data-k="nop" class="g-tien dd-paid-h">💰 Tiền đã nộp (đ)</th><th data-k="mrate" class="c-rate">Tỷ lệ ĐV đã nộp<br><small>(8) ÷ ĐV phải nộp</small></th></tr>
-  </thead><tbody id="ddBody"><tr><td colspan="9" class="dd-empty">Đang tải dữ liệu…</td></tr></tbody><tfoot id="ddFoot"></tfoot></table></div>
+  <div class="dd-tw"><table><colgroup><col style="width:50px"><col><col style="width:96px"><col style="width:104px"><col style="width:104px"><col style="width:92px"><col style="width:118px"><col style="width:124px"><col style="width:118px"><col style="width:118px"><col style="width:118px"><col style="width:150px"></colgroup><thead>
+   <tr><th data-k="stt" class="c-stt">HẠNG</th><th class="nm" data-k="name">Tên đơn vị</th><th data-k="t">Tổng đảng viên<br><small>(1)</small></th><th data-k="need">ĐV phải nộp<br><small>(2)+(3)−(4)−(5)</small></th><th data-k="dn">Đã duyệt, đã nộp<br><small>(8)</small></th><th data-k="chua">Chưa có hồ sơ<br><small>(9)</small></th><th data-k="kb">Tiền theo hồ sơ<br>khai báo (đ)</th><th data-k="nop" class="g-tien dd-paid-h">💰 Tiền đã nộp (đ)</th><th data-k="pn" class="g-cap">Phải nộp cấp trên (đ)<br><small>sổ S02</small></th><th data-k="dc" class="g-cap">Đã nộp cấp trên (đ)<br><small>sổ S02</small></th><th data-k="no" class="g-cap">Còn nợ cấp trên (đ)<br><small>cuối kỳ</small></th><th data-k="mrate" class="c-rate">Tỷ lệ ĐV đã nộp<br><small>(8) ÷ ĐV phải nộp</small></th></tr>
+  </thead><tbody id="ddBody"><tr><td colspan="12" class="dd-empty">Đang tải dữ liệu…</td></tr></tbody><tfoot id="ddFoot"></tfoot></table></div>
  </section>`;
  document.body.appendChild(ov);
  const $=id=>document.getElementById(id);
@@ -2026,14 +2026,14 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const qn=query.trim().toLowerCase();
   const rows=DATA.filter(d=>(filter==='all'||band(d.mrate)===filter)&&(!qn||d.name.toLowerCase().includes(qn)));
   rows.sort((a,b)=>{const x=a[sortKey],y=b[sortKey];return(typeof x==='string'?x.localeCompare(y,'vi'):x-y)*sortDir||(sortKey==='rate'||sortKey==='mrate'?b.nop-a.nop:0)||a.stt-b.stt});lastRows=rows;const RK=new Map([...DATA].sort((a,b)=>b.mrate-a.mrate||b.nop-a.nop||a.stt-b.stt).map((d,i)=>[d.stt,i+1]));
-  $('ddBody').innerHTML=rows.map(d=>{const rk=RK.get(d.stt);return`<tr data-i="${d.stt}" tabindex="0" title="Bấm để xem thông tin ${esc(d.name)}"><td class="stt"><span class="dd-rank${rk<=3?' r'+rk:''}" title="Hạng ${rk}">${rk}</span></td><td class="nm"><span class="dd-link">${esc(d.name)}</span></td><td>${fmt(d.t)}</td><td>${fmt(d.need)}</td><td class="b">${fmt(d.dn)}</td><td class="${d.chua?'w':'mut'}">${fmt(d.chua)}</td><td class="mut">${fmt(d.kb)}</td><td class="dd-paid"><span>${fmt(d.nop)}</span></td><td class="c-rate"><div class="dd-rb"><span class="dd-rt dd-${band(d.mrate)}">${pct(d.mrate)}%</span><i><b class="dd-${band(d.mrate)}" style="width:${Math.min(100,d.mrate).toFixed(1)}%"></b></i></div></td></tr>`}).join('')
-   ||`<tr><td colspan="9" class="dd-empty">${DATA.length?'Không có đơn vị phù hợp':(loading?'Đang tải dữ liệu…':'Chưa có dữ liệu')}</td></tr>`;
+  $('ddBody').innerHTML=rows.map(d=>{const rk=RK.get(d.stt);return`<tr data-i="${d.stt}" tabindex="0" title="Bấm để xem thông tin ${esc(d.name)}"><td class="stt"><span class="dd-rank${rk<=3?' r'+rk:''}" title="Hạng ${rk}">${rk}</span></td><td class="nm"><span class="dd-link">${esc(d.name)}</span></td><td>${fmt(d.t)}</td><td>${fmt(d.need)}</td><td class="b">${fmt(d.dn)}</td><td class="${d.chua?'w':'mut'}">${fmt(d.chua)}</td><td class="mut">${fmt(d.kb)}</td><td class="dd-paid"><span>${fmt(d.nop)}</span></td><td class="mut">${fmt(d.pn)}</td><td class="mut">${fmt(d.dc)}</td><td class="${d.no?'w':'mut'}">${fmt(d.no)}</td><td class="c-rate"><div class="dd-rb"><span class="dd-rt dd-${band(d.mrate)}">${pct(d.mrate)}%</span><i><b class="dd-${band(d.mrate)}" style="width:${Math.min(100,d.mrate).toFixed(1)}%"></b></i></div></td></tr>`}).join('')
+   ||`<tr><td colspan="12" class="dd-empty">${DATA.length?'Không có đơn vị phù hợp':(loading?'Đang tải dữ liệu…':'Chưa có dữ liệu')}</td></tr>`;
   const tot={};COLS.forEach(k=>tot[k]=rows.reduce((s,d)=>s+d[k],0));
   const r=tot.kb>0?tot.nop/tot.kb*100:0,mden=tot.ct+tot.tt-tot.chuyen-tot.mien,mr=mden>0?tot.dn/mden*100:0;
-  $('ddFoot').innerHTML=rows.length?`<tr><td></td><td class="nm">Tổng cộng (${rows.length} đơn vị)</td><td>${fmt(tot.t)}</td><td>${fmt(mden)}</td><td>${fmt(tot.dn)}</td><td>${fmt(tot.chua)}</td><td>${fmt(tot.kb)}</td><td class="dd-paid"><span>${fmt(tot.nop)}</span></td><td class="c-rate"><span class="dd-rt dd-${band(mr)}">${pct(mr)}%</span></td></tr>`:'';
+  $('ddFoot').innerHTML=rows.length?`<tr><td></td><td class="nm">Tổng cộng (${rows.length} đơn vị)</td><td>${fmt(tot.t)}</td><td>${fmt(mden)}</td><td>${fmt(tot.dn)}</td><td>${fmt(tot.chua)}</td><td>${fmt(tot.kb)}</td><td class="dd-paid"><span>${fmt(tot.nop)}</span></td><td>${fmt(tot.pn)}</td><td>${fmt(tot.dc)}</td><td>${fmt(tot.no)}</td><td class="c-rate"><span class="dd-rt dd-${band(mr)}">${pct(mr)}%</span></td></tr>`:'';
   const A=k=>DATA.reduce((s,d)=>s+d[k],0);
   $('ddCount').textContent=DATA.length||103;
-  $('ddKpis').innerHTML=[[fmt(A('t')),'Tổng đảng viên toàn tỉnh'],[fmt(A('dn')),'ĐV đã duyệt, đã nộp'],[fmt(A('kb'))+' ₫','Tiền theo hồ sơ khai báo'],[fmt(A('nop'))+' ₫','Tiền đã nộp'],[pct((x=>x>0?A('dn')/x*100:0)(A('ct')+A('tt')-A('chuyen')-A('mien')))+'%','Tỷ lệ ĐV đã nộp chung']]
+  $('ddKpis').innerHTML=[[fmt(A('t')),'Tổng đảng viên toàn tỉnh'],[fmt(A('dn')),'ĐV đã duyệt, đã nộp'],[fmt(A('kb'))+' ₫','Tiền theo hồ sơ khai báo'],[fmt(A('nop'))+' ₫','Tiền đã nộp'],[fmt(A('no'))+' ₫','Còn nợ cấp trên'],[pct((x=>x>0?A('dn')/x*100:0)(A('ct')+A('tt')-A('chuyen')-A('mien')))+'%','Tỷ lệ ĐV đã nộp chung']]
    .map(([v,l])=>`<div class="dd-kpi${l==='Tiền đã nộp'?' dd-kpi-paid':''}"><b title="${v}">${v}</b><span>${l}</span></div>`).join('');
   ov.querySelectorAll('th[data-k]').forEach(th=>{th.classList.toggle('s-asc',th.dataset.k===sortKey&&sortDir===1);th.classList.toggle('s-desc',th.dataset.k===sortKey&&sortDir===-1)});
  }
@@ -2051,7 +2051,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
    if(err){setStatus(false,'Không đọc được Google Sheets. Hãy kiểm tra quyền “Bất kỳ ai có đường liên kết đều xem được” rồi bấm Đồng bộ.');render();return}
    try{
     const rows=(payload?.table?.rows||[]).map(r=>r.c||[]).filter(c=>/^\d+$/.test(String(c[0]?.f??c[0]?.v??'').trim())&&String(c[1]?.v??c[1]?.f??'').trim());
-    const list=rows.map(c=>({stt:num(c[0]),name:String(c[1]?.v??c[1]?.f).trim(),t:num(c[2]),ct:num(c[3]),tt:num(c[4]),chuyen:num(c[5]),mien:num(c[6]),cd:num(c[7]),dcn:num(c[8]),dn:num(c[9]),chua:num(c[10]),kb:num(c[11]),nop:num(c[12])}))
+    const list=rows.map(c=>({stt:num(c[0]),name:String(c[1]?.v??c[1]?.f).trim(),t:num(c[2]),ct:num(c[3]),tt:num(c[4]),chuyen:num(c[5]),mien:num(c[6]),cd:num(c[7]),dcn:num(c[8]),dn:num(c[9]),chua:num(c[10]),kb:num(c[11]),nop:num(c[12]),pn:num(c[14]),dc:num(c[15]),no:num(c[16])}))
      .filter(d=>d.t>0).map(d=>({...d,need:Math.max(0,d.ct+d.tt-d.chuyen-d.mien),rate:rateOf(d),mrate:mrateOf(d)}));
     if(!list.length){if(!DuesMonth.hasData(DuesMonth.state.month)&&!DuesMonth.state.stale){DATA=[];lastSync=new Date();setStatus(true,'');$('ddSub').textContent=DuesMonth.fullLabel()+' · chưa có số liệu của kỳ này';render();return}throw new Error('empty')}
     DATA=list;lastSync=new Date();const __curView=DuesMonth.isCurrent()&&DuesMonth.state.mode==='month';if(__curView)window.__duesDetailData=DATA;setStatus(true);render();if(__curView)applyFeeRates();
@@ -2072,7 +2072,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const rows=lastRows.length?lastRows:DATA,now=new Date(),p2=n=>String(n).padStart(2,'0');
   const X=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
   const C=n=>{let s='';n++;while(n){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26)}return s};
-  const NC=9,L=C(NC-1),stamp=`${p2(now.getHours())}:${p2(now.getMinutes())}:${p2(now.getSeconds())} ngày ${p2(now.getDate())}/${p2(now.getMonth()+1)}/${now.getFullYear()}`;
+  const NC=12,L=C(NC-1),stamp=`${p2(now.getHours())}:${p2(now.getMinutes())}:${p2(now.getSeconds())} ngày ${p2(now.getDate())}/${p2(now.getMonth()+1)}/${now.getFullYear()}`;
   const syncT=lastSync?`${p2(lastSync.getHours())}:${p2(lastSync.getMinutes())} ${p2(lastSync.getDate())}/${p2(lastSync.getMonth()+1)}/${lastSync.getFullYear()}`:'—';
   const RK=new Map([...DATA].sort((a,b)=>b.mrate-a.mrate||b.nop-a.nop||a.stt-b.stt).map((d,i)=>[d.stt,i+1]));
   const bi={g:0,y:1,o:2,r:3,z:4};
@@ -2081,19 +2081,19 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   put(fill('BẢNG TỔNG HỢP THU NỘP ĐẢNG PHÍ TRÊN MÔI TRƯỜNG ĐIỆN TỬ – '+DuesMonth.fullLabel().toUpperCase(),1),36);merges.push(`A1:${L}1`);
   put(fill(`Xuất lúc ${stamp}  •  Dữ liệu Google Sheets đồng bộ lúc ${syncT}  •  ${rows.length}/${DATA.length} đơn vị`,2),22);merges.push(`A2:${L}2`);
   const T={};COLS.forEach(k=>T[k]=rows.reduce((s,d)=>s+d[k],0));const need=T.ct+T.tt-T.chuyen-T.mien,mr=need>0?T.dn/need:0;
-  const kp=[['Tổng đảng viên toàn tỉnh',T.t,4],['ĐV phải nộp',need,4],['ĐV đã duyệt, đã nộp',T.dn,4],['Tiền theo hồ sơ khai báo (đ)',T.kb,4],['Tiền đã nộp (đ)',T.nop,4],['Tỷ lệ ĐV đã nộp chung',mr,5]],sp=[[0,1],[2,2],[3,4],[5,6],[7,7],[8,8]];
+  const kp=[['Tổng đảng viên toàn tỉnh',T.t,4],['ĐV phải nộp',need,4],['ĐV đã duyệt, đã nộp',T.dn,4],['Tiền theo hồ sơ khai báo (đ)',T.kb,4],['Tiền đã nộp (đ)',T.nop,4],['Tỷ lệ ĐV đã nộp chung',mr,5],['Còn nợ cấp trên (đ)',T.no,4]],sp=[[0,1],[2,2],[3,4],[5,6],[7,7],[8,8],[9,11]];
   const a3=[],a4=[];kp.forEach((k,i)=>{const[x,y]=sp[i];for(let j=x;j<=y;j++){a3.push(c(j,j===x?k[0]:'',3));a4.push(c(j,j===x?k[1]:'',k[2]))}if(y>x)merges.push(`${C(x)}3:${C(y)}3`,`${C(x)}4:${C(y)}4`)});
   put(a3,20);put(a4,30);put([],8);
-  const head=['Hạng','Tên đơn vị','Tổng đảng viên (1)','ĐV phải nộp (2)+(3)−(4)−(5)','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền theo hồ sơ khai báo (đ)','Tiền đã nộp (đ)','Tỷ lệ ĐV đã nộp'];
+  const head=['Hạng','Tên đơn vị','Tổng đảng viên (1)','ĐV phải nộp (2)+(3)−(4)−(5)','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền theo hồ sơ khai báo (đ)','Tiền đã nộp (đ)','Phải nộp cấp trên (đ)','Đã nộp cấp trên (đ)','Còn nợ cấp trên cuối kỳ (đ)','Tỷ lệ ĐV đã nộp'];
   const hr=put(head.map((h,i)=>c(i,h,6)),44);
-  rows.forEach(d=>{const k=RK.get(d.stt);put([c(0,k,k===1?8:k===2?9:k===3?10:7),c(1,d.name,11),c(2,d.t,12),c(3,d.need,12),c(4,d.dn,13),c(5,d.chua,d.chua?14:12),c(6,d.kb,12),c(7,d.nop,15),c(8,d.mrate/100,16+bi[band(d.mrate)])],21)});
+  rows.forEach(d=>{const k=RK.get(d.stt);put([c(0,k,k===1?8:k===2?9:k===3?10:7),c(1,d.name,11),c(2,d.t,12),c(3,d.need,12),c(4,d.dn,13),c(5,d.chua,d.chua?14:12),c(6,d.kb,12),c(7,d.nop,15),c(8,d.pn,12),c(9,d.dc,12),c(10,d.no,d.no?14:12),c(11,d.mrate/100,16+bi[band(d.mrate)])],21)});
   const last=r;
-  put([c(0,'',21),c(1,`Tổng cộng (${rows.length} đơn vị)`,21),c(2,T.t,22),c(3,need,22),c(4,T.dn,22),c(5,T.chua,22),c(6,T.kb,22),c(7,T.nop,23),c(8,mr,24)],26);
+  put([c(0,'',21),c(1,`Tổng cộng (${rows.length} đơn vị)`,21),c(2,T.t,22),c(3,need,22),c(4,T.dn,22),c(5,T.chua,22),c(6,T.kb,22),c(7,T.nop,23),c(8,T.pn,22),c(9,T.dc,22),c(10,T.no,22),c(11,mr,24)],26);
   put([],10);
   const lg=['≥ 80%','50% – dưới 80%','20% – dưới 50%','Dưới 20%','0% (chưa có ĐV nộp)'];
   const lr=put([c(0,'Mức tỷ lệ:',25),c(1,'',25),...lg.map((t,i)=>c(2+i,t,26+i))],28);merges.push(`A${lr}:B${lr}`);
-  const nr=put(fill('Ghi chú: Tỷ lệ ĐV đã nộp = (8) ÷ ((2)+(3)−(4)−(5)). Hạng xếp theo tỷ lệ ĐV đã nộp giảm dần, cùng tỷ lệ thì xét số tiền đã nộp. Bảng xuất theo bộ lọc, sắp xếp đang chọn trên hệ thống.',31),34);merges.push(`A${nr}:${L}${nr}`);
-  const cols=[7,40,13,15,14,13,18,18,15];
+  const nr=put(fill('Ghi chú: Tỷ lệ ĐV đã nộp = (8) ÷ ((2)+(3)−(4)−(5)). Ba cột phải nộp, đã nộp và còn nợ cấp trên lấy từ sổ tổng hợp S02 trên gqtthc.dcs.vn. Hạng xếp theo tỷ lệ ĐV đã nộp giảm dần, cùng tỷ lệ thì xét số tiền đã nộp. Bảng xuất theo bộ lọc, sắp xếp đang chọn trên hệ thống.',31),34);merges.push(`A${nr}:${L}${nr}`);
+  const cols=[7,40,13,15,14,13,18,18,17,17,19,15];
   const sd=out.map(({r,cells})=>`<row r="${r}"${H[r]?` ht="${H[r]}" customHeight="1"`:''}>`+cells.map(x=>{const ref=C(x.i)+r;return typeof x.v==='number'&&isFinite(x.v)?`<c r="${ref}" s="${x.st}"><v>${x.v}</v></c>`:x.v===''?`<c r="${ref}" s="${x.st}"/>`:`<c r="${ref}" s="${x.st}" t="inlineStr"><is><t xml:space="preserve">${X(x.v)}</t></is></c>`}).join('')+'</row>').join('');
   const SN='Thu đảng phí';
   const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetPr><tabColor rgb="FF0F9D6E"/><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="${hr}" topLeftCell="A${hr+1}" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="18"/><cols>${cols.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>${sd}</sheetData><autoFilter ref="A${hr}:${L}${last}"/><mergeCells count="${merges.length}">${merges.map(m=>`<mergeCell ref="${m}"/>`).join('')}</mergeCells><printOptions horizontalCentered="1"/><pageMargins left="0.4" right="0.4" top="0.5" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/><headerFooter><oddFooter>&amp;L&amp;8Xuất lúc ${X(stamp)}&amp;R&amp;8Trang &amp;P/&amp;N</oddFooter></headerFooter></worksheet>`;
@@ -3332,6 +3332,19 @@ body.dp-lock{overflow:hidden}
         if (!list.length) throw new Error('API không trả đơn vị nào.');
         const num = x => Number(x) || 0;
         const rows = list.map((x, i) => [i + 1, x.tenDonVi, num(x.tongSoLuongDangVien), num(x.soLuongDangVienChinhThuc), num(x.soLuongDangVienTamThoi), num(x.soLuongChuyenTamThoi), num(x.soLuongDangVienMienGiam), num(x.tongSoHoSoChuaDuyet), num(x.tongSoHoSoDaDuyetChuaNop), num(x.tongSoHoSoDaDuyetDaNop), num(x.soLuongHoSoChuaKhaiBao), num(x.tongSoTienDaKhaiBao), num(x.tongSoTienDaNop), num(x.mucDoThucHien)]);
+        /* Sổ S02 (report/s02/danh-sach): phải nộp cấp trên, đã nộp cấp trên, còn nợ cấp trên cuối kỳ → 3 cột O:Q. Lỗi S02 không làm hỏng đồng bộ chính. */
+        let s02Msg = '';
+        try {
+          say('Đang lấy sổ S02 (nộp cấp trên)…', false, true);
+          const r2 = await fetch('https://gateway-gqtthc.dcs.vn/report/s02/danh-sach', { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ page: 1, size: 500, donViId: null, fromDate: body.kyNopStart, toDate: body.kyNopEnd }) });
+          if (!r2.ok) throw new Error('HTTP ' + r2.status);
+          const j2 = await r2.json(), l2 = j2.data || [];
+          const nm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+          const kr = o => num(o && o.kyBaoCao), mp = new Map(l2.map(x => [nm(x.tenToChucDang), x]));
+          let hit = 0;
+          rows.forEach(r => { const x = mp.get(nm(r[1])); if (x) { hit++; r.push(kr(x.dangPhiPhaiNopCapTren), kr(x.dangPhiDaNopCapTren), num(x.dangPhiChuaNopCapTrenCuoiKyBaoCao)); } else r.push(0, 0, 0); });
+          s02Msg = '\nSổ S02: khớp ' + hit + '/' + rows.length + ' đơn vị';
+        } catch (e2) { rows.forEach(r => { r.length = 14; }); s02Msg = '\n⚠ Chưa lấy được sổ S02 (' + (e2 && e2.message || e2) + ') — các cột nộp cấp trên giữ nguyên.'; }
         const sum = k => rows.reduce((a, r) => a + r[k], 0);
         const declared = sum(11), paid = sum(12);
         const syncId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -3359,7 +3372,7 @@ body.dp-lock{overflow:hidden}
         try { localStorage.setItem('dangphi.token', pw); } catch (e) {}
         const apiT = tC - tA, nc = navigator.connection || {};
         const speed = apiT < 2500 ? '🟢 Nhanh' : apiT < 6000 ? '🟡 Bình thường' : '🔴 Chậm';
-        const detail = '\n⏱ Tổng ' + f1(tF - T0) + ' · Kết nối ' + speed + '\nAPI ' + f1(apiT) + ' (chờ ' + f1(tB - tA) + ', tải ' + Math.max(1, Math.round(raw.length / 1024)) + ' KB) · Gửi Sheet ' + f1(tE - tD) + ' · Xác nhận ' + f1(tF - tE) + (nc.effectiveType ? '\nMạng ' + nc.effectiveType + (nc.rtt ? ' · RTT ' + nc.rtt + 'ms' : '') : '');
+        const detail = s02Msg + '\n⏱ Tổng ' + f1(tF - T0) + ' · Kết nối ' + speed + '\nAPI ' + f1(apiT) + ' (chờ ' + f1(tB - tA) + ', tải ' + Math.max(1, Math.round(raw.length / 1024)) + ' KB) · Gửi Sheet ' + f1(tE - tD) + ' · Xác nhận ' + f1(tF - tE) + (nc.effectiveType ? '\nMạng ' + nc.effectiveType + (nc.rtt ? ' · RTT ' + nc.rtt + 'ms' : '') : '');
         say((ok ? '✅ HOÀN THÀNH — đã đồng bộ ' + ok.last.rowCount + ' đơn vị kỳ tháng ' + SM + '/' + cy + (ok.last.tab ? ' (tab ' + ok.last.tab + ')' : '') + ' lúc ' + ok.last.updatedAtText + '.' : '✓ Đã gửi ' + rows.length + ' đơn vị. Chưa xác nhận được kết quả — hãy mở lại trang Đảng phí để xem “Lần đồng bộ gần nhất”.') + detail, false, false, !!ok);
         setTimeout(() => box.remove(), 25000);
       } catch (e) {

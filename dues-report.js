@@ -46,7 +46,7 @@
     return ((p && p.table && p.table.rows) || []).map(r => r.c || [])
       .filter(c => /^\d+$/.test(cellText(c[0]).replace(/\.0$/, '')) && cellText(c[1]))
       .map(c => {
-        const d = { name: cellText(c[1]), t: cellNum(c[2]), ct: cellNum(c[3]), tt: cellNum(c[4]), chuyen: cellNum(c[5]), mien: cellNum(c[6]), dn: cellNum(c[9]), chua: cellNum(c[10]), kb: cellNum(c[11]), nop: cellNum(c[12]) };
+        const d = { name: cellText(c[1]), t: cellNum(c[2]), ct: cellNum(c[3]), tt: cellNum(c[4]), chuyen: cellNum(c[5]), mien: cellNum(c[6]), dn: cellNum(c[9]), chua: cellNum(c[10]), kb: cellNum(c[11]), nop: cellNum(c[12]), pn: cellNum(c[14]), dc: cellNum(c[15]), no: cellNum(c[16]) };
         d.need = Math.max(0, d.ct + d.tt - d.chuyen - d.mien);
         d.r = d.need > 0 ? Math.min(1, d.dn / d.need) : 0;
         return d;
@@ -66,7 +66,7 @@
   }
   function totals(rows) {
     const S = f => rows.reduce((a, x) => a + x[f], 0), need = S('need'), dn = S('dn');
-    return { units: rows.length, t: S('t'), need, dn, chua: S('chua'), kb: S('kb'), nop: S('nop'), rate: need > 0 ? dn / need : 0 };
+    return { units: rows.length, t: S('t'), need, dn, chua: S('chua'), kb: S('kb'), nop: S('nop'), pn: S('pn'), dc: S('dc'), no: S('no'), rate: need > 0 ? dn / need : 0 };
   }
 
   /* ---------- Khung báo cáo (giống báo cáo TTHC) ---------- */
@@ -79,14 +79,14 @@
       'h2{margin:10pt 0 4pt;font-size:13.5pt;color:#8f0b12;break-after:avoid;page-break-after:avoid}p.i{margin:0 0 4pt;text-indent:1cm;text-align:justify}' +
       '.cap{margin:6pt 0 3pt;font-weight:700;font-size:12pt;break-after:avoid;page-break-after:avoid}b.g{color:#8a5a00}b.w{color:#8a3b12}' +
       'table{border-collapse:collapse;width:100%;font-size:10pt;line-height:1.25;margin-bottom:8pt}th{background:#8f0b12;color:#fff;padding:2pt 3pt;border:.5pt solid #b8c0cc;font-size:9.5pt}' +
-      'td{padding:1.5pt 3pt;border:.5pt solid #b8c0cc}tbody tr:nth-child(even) td{background:#f4f6fa}td.c{text-align:center}td.n{text-align:right}tr.tot td{font-weight:700;background:#fff4d6}tr{page-break-inside:avoid}thead{display:table-header-group}' +
+      'td{padding:1.5pt 3pt;border:.5pt solid #b8c0cc}tbody tr:nth-child(even) td{background:#f4f6fa}td.c{text-align:center}td.n{text-align:right}tr.tot td{font-weight:700;background:#fff4d6}tr{page-break-inside:avoid}thead{display:table-header-group}table.sm{font-size:8pt}table.sm th{font-size:7.5pt}table.sm td{padding:1.5pt 2pt}' +
       '.sign{display:grid;grid-template-columns:1fr 1fr;margin-top:10pt;page-break-inside:avoid}.sign u{font-size:14pt}.sign span{font-size:11pt}.sign .r{text-align:center}' +
       '</style></head><body>' +
       '<div class="hd"><div><p class="b14">TỈNH ỦY LÀO CAI</p><p>HỆ THỐNG THEO DÕI TTHC</p><p>*</p></div><div><p class="b15">ĐẢNG CỘNG SẢN VIỆT NAM</p><div class="ln"></div><p><i>' + esc(dateLine) + '</i></p></div></div>' +
       '<p class="t1">BÁO CÁO</p><p class="t2">' + esc(title) + '</p><p class="t2">-----</p><p class="meta">' + esc(meta) + '</p>' + body +
       '<div class="sign"><div><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- Các đảng bộ, chi bộ trực thuộc;<br>- Lưu.</span></div><div class="r"><b>NGƯỜI LẬP BÁO CÁO</b></div></div></body></html>';
   }
-  const tbl = (head, rows, cls) => '<table><thead><tr>' + head.map(h => '<th>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' +
+  const tbl = (head, rows, cls, small) => '<table' + (small ? ' class="sm"' : '') + '><thead><tr>' + head.map(h => '<th>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' +
     rows.map(r => '<tr' + (r.tot ? ' class="tot"' : '') + '>' + r.map((v, i) => '<td' + (cls[i] ? ' class="' + cls[i] + '"' : '') + '>' + esc(v) + '</td>').join('') + '</tr>').join('') + '</tbody></table>';
 
   /* ---------- Báo cáo tháng ---------- */
@@ -105,6 +105,7 @@
       '<p class="i">Theo số liệu đồng bộ từ hệ thống quản lý đảng phí (kỳ nộp tháng ' + m + '/' + y + '), ' + fm(T.units) + ' đảng bộ, chi bộ trực thuộc có tổng số ' + fm(T.t) +
       ' đảng viên; số đảng viên thuộc diện phải nộp đảng phí [(2)+(3)−(4)−(5)] là ' + fm(T.need) + ' đồng chí. Có ' + fm(T.dn) + ' đảng viên đã được duyệt hồ sơ và đã nộp đảng phí, đạt ' + pc(T.rate) +
       '; số tiền đã nộp trong kỳ ' + fm(T.nop) + ' đồng/' + fm(T.kb) + ' đồng theo hồ sơ đã khai báo; còn ' + fm(T.chua) + ' đảng viên chưa có hồ sơ.</p>' +
+      (T.pn || T.dc || T.no ? '<p class="i">Theo sổ tổng hợp thu, nộp đảng phí (mẫu S02), đảng phí phải nộp cấp trên trong kỳ là ' + fm(T.pn) + ' đồng, đã nộp cấp trên ' + fm(T.dc) + ' đồng; còn nợ chưa nộp cấp trên cuối kỳ ' + fm(T.no) + ' đồng.</p>' : '') +
       '<p class="i">Lũy kế từ tháng 1 đến hết tháng ' + m + '/' + y + ', tổng số tiền đảng phí đã nộp là <b>' + fm(cum) + ' đồng</b>.</p>' +
       '<p class="i">Phân theo tỷ lệ đảng viên đã nộp: ' + fm(honor.length) + ' đơn vị đạt từ 95% trở lên; ' + fm(band(.8, HONOR).length) + ' đơn vị từ 80% đến dưới 95%; ' + fm(band(.5, .8).length) +
       ' đơn vị từ 50% đến dưới 80%; ' + fm(band(.2, .5).length) + ' đơn vị từ 20% đến dưới 50%; ' + fm(weak.length) + ' đơn vị dưới 20% và ' + fm(zero.length) + ' đơn vị chưa có đảng viên nộp.</p>';
@@ -112,10 +113,11 @@
       '<p class="i"><b class="g">Biểu dương: </b>' + esc(honor.length ? fm(honor.length) + ' đơn vị đạt từ 95% trở lên: ' + honor.map(x => shortName(x.name) + ' (' + pc(x.r) + ')').join('; ') + '.' : 'chưa có đơn vị đạt từ 95% trở lên.') + '</p>' +
       ((weak.length + zero.length) ? '<p class="i"><b class="w">Cần đôn đốc: </b>' + esc(fm(weak.length + zero.length) + ' đơn vị có tỷ lệ dưới 20%' + (zero.length ? ', trong đó ' + fm(zero.length) + ' đơn vị chưa có đảng viên nộp: ' + zero.map(x => shortName(x.name)).join(', ') : '') + '.') + '</p>' : '');
     body += '<p class="cap">Phụ lục. Kết quả thu nộp đảng phí kỳ tháng ' + m + '/' + y + ' theo đơn vị</p>' +
-      tbl(['TT', 'Đơn vị', 'Tổng ĐV', 'ĐV phải nộp', 'ĐV đã nộp', 'Chưa có HS', 'Tiền khai báo (đ)', 'Tiền đã nộp (đ)', 'Tỷ lệ'],
-        sorted.map((x, i) => [i + 1, x.name, fm(x.t), fm(x.need), fm(x.dn), fm(x.chua), fm(x.kb), fm(x.nop), pc(x.r)])
-          .concat([Object.assign(['', 'Tổng cộng (' + fm(T.units) + ' đơn vị)', fm(T.t), fm(T.need), fm(T.dn), fm(T.chua), fm(T.kb), fm(T.nop), pc(T.rate)], { tot: 1 })]),
-        ['c', '', 'n', 'n', 'n', 'n', 'n', 'n', 'c']);
+      tbl(['TT', 'Đơn vị', 'Tổng ĐV', 'ĐV phải nộp', 'ĐV đã nộp', 'Chưa có HS', 'Tiền khai báo (đ)', 'Tiền đã nộp (đ)', 'Phải nộp cấp trên (đ)', 'Đã nộp cấp trên (đ)', 'Còn nợ cấp trên (đ)', 'Tỷ lệ'],
+        sorted.map((x, i) => [i + 1, x.name, fm(x.t), fm(x.need), fm(x.dn), fm(x.chua), fm(x.kb), fm(x.nop), fm(x.pn), fm(x.dc), fm(x.no), pc(x.r)])
+          .concat([Object.assign(['', 'Tổng cộng (' + fm(T.units) + ' đơn vị)', fm(T.t), fm(T.need), fm(T.dn), fm(T.chua), fm(T.kb), fm(T.nop), fm(T.pn), fm(T.dc), fm(T.no), pc(T.rate)], { tot: 1 })]),
+        ['c', '', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'c'], true) +
+      '<p class="meta">Ba cột “phải nộp, đã nộp, còn nợ cấp trên” lấy từ sổ tổng hợp thu, nộp đảng phí (mẫu S02) trên gqtthc.dcs.vn.</p>';
     return { html: shell('tình hình thu nộp đảng phí trên môi trường điện tử tháng ' + m + '/' + y, 'Nguồn số liệu: Google Sheet đảng phí, tab ' + DM().sourceFor(k).spec.tab + ' (kỳ nộp 01/' + String(m).padStart(2, '0') + '/' + y + ' – cuối tháng)', body), name: 'bao-cao-dang-phi-tinh-' + k };
   }
 
@@ -128,18 +130,19 @@
     const H = M.filter(x => x.T);
     if (!H.length) throw new Error('Năm ' + y + ' chưa có số liệu đảng phí.');
     let cum = 0;
-    const r1 = M.map(x => { if (!x.T) return ['Tháng ' + x.m, '—', '—', '—', '—', '—', '—']; cum += x.T.nop; return ['Tháng ' + x.m, fm(x.T.need), fm(x.T.dn), pc(x.T.rate), fm(x.T.kb), fm(x.T.nop), fm(cum)]; });
+    const r1 = M.map(x => { if (!x.T) return ['Tháng ' + x.m, '—', '—', '—', '—', '—', '—', '—', '—']; cum += x.T.nop; return ['Tháng ' + x.m, fm(x.T.need), fm(x.T.dn), pc(x.T.rate), fm(x.T.kb), fm(x.T.nop), fm(cum), fm(x.T.dc), fm(x.T.no)]; });
+    const sumDc = H.reduce((a, x) => a + x.T.dc, 0), sumPn = H.reduce((a, x) => a + x.T.pn, 0), lastNo = H[H.length - 1].T.no;
     const total = cum, best = H.slice().sort((a, b) => b.T.nop - a.T.nop)[0], lastM = H[H.length - 1].m;
     const U = new Map();
-    H.forEach(x => x.rows.forEach(d => { const k = d.name.toLowerCase(); const o = U.get(k) || { name: d.name, nop: 0, months: 0, done: 0, rs: 0 }; o.nop += d.nop; o.months++; o.rs += d.r; if (d.need > 0 && d.r >= 1) o.done++; U.set(k, o); }));
+    H.forEach(x => x.rows.forEach(d => { const k = d.name.toLowerCase(); const o = U.get(k) || { name: d.name, nop: 0, months: 0, done: 0, rs: 0, pn: 0, dc: 0, no: 0 }; o.nop += d.nop; o.pn += d.pn; o.dc += d.dc; o.no = d.no; o.months++; o.rs += d.r; if (d.need > 0 && d.r >= 1) o.done++; U.set(k, o); }));
     const UL = [...U.values()].sort((a, b) => b.nop - a.nop || a.name.localeCompare(b.name, 'vi'));
     let body = '<h2>I. TÌNH HÌNH CHUNG</h2><p class="i">Năm ' + y + ', hệ thống đã ghi nhận số liệu thu nộp đảng phí của ' + fm(H.length) + ' tháng (' + H.map(x => 'T' + x.m).join(', ') +
       '). Tổng số tiền đảng phí đã nộp từ đầu năm đến hết tháng ' + lastM + ' là <b>' + fm(total) + ' đồng</b>' + (H.length > 1 ? '; tháng ' + best.m + ' thu cao nhất với ' + fm(best.T.nop) + ' đồng' : '') + '.</p>';
     body += '<p class="cap">Bảng 1. Thu nộp đảng phí theo tháng năm ' + y + '</p>' +
-      tbl(['Tháng', 'ĐV phải nộp', 'ĐV đã nộp', 'Tỷ lệ', 'Tiền khai báo (đ)', 'Đã nộp trong kỳ (đ)', 'Lũy kế (đ)'], r1.concat([Object.assign(['Cả năm', '', '', '', '', fm(total), ''], { tot: 1 })]), ['c', 'n', 'n', 'c', 'n', 'n', 'n']);
+      tbl(['Tháng', 'ĐV phải nộp', 'ĐV đã nộp', 'Tỷ lệ', 'Tiền khai báo (đ)', 'Đã nộp trong kỳ (đ)', 'Lũy kế (đ)', 'Đã nộp cấp trên (đ)', 'Còn nợ cấp trên cuối kỳ (đ)'], r1.concat([Object.assign(['Cả năm', '', '', '', '', fm(total), '', fm(sumDc), fm(lastNo)], { tot: 1 })]), ['c', 'n', 'n', 'c', 'n', 'n', 'n', 'n', 'n'], true);
     body += '<h2>II. KẾT QUẢ THEO ĐƠN VỊ</h2><p class="i">Tổng hợp ' + fm(UL.length) + ' đơn vị theo tổng số tiền đảng phí đã nộp trong năm; “Tháng đạt 100%” là số tháng đơn vị có toàn bộ đảng viên phải nộp đã nộp trên số tháng có số liệu.</p>' +
       '<p class="cap">Bảng 2. Kết quả thu nộp đảng phí theo đơn vị năm ' + y + '</p>' +
-      tbl(['TT', 'Đơn vị', 'Tháng đạt 100%', 'Tỷ lệ bình quân', 'Tiền đã nộp (đ)'], UL.map((o, i) => [i + 1, o.name, o.done + '/' + o.months, pc(o.rs / o.months), fm(o.nop)]), ['c', '', 'c', 'c', 'n']);
+      tbl(['TT', 'Đơn vị', 'Tháng đạt 100%', 'Tỷ lệ bình quân', 'Tiền đã nộp (đ)', 'Phải nộp cấp trên (đ)', 'Đã nộp cấp trên (đ)', 'Còn nợ cấp trên cuối kỳ (đ)'], UL.map((o, i) => [i + 1, o.name, o.done + '/' + o.months, pc(o.rs / o.months), fm(o.nop), fm(o.pn), fm(o.dc), fm(o.no)]), ['c', '', 'c', 'c', 'n', 'n', 'n', 'n'], true);
     return { html: shell('tình hình thu nộp đảng phí trên môi trường điện tử năm ' + y, 'Nguồn số liệu: Google Sheet đảng phí, các tab tháng năm ' + y + ' (từ tháng 1 đến hết tháng ' + lastM + ')', body), name: 'bao-cao-dang-phi-tinh-nam-' + y };
   }
 

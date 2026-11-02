@@ -15,6 +15,10 @@
  *  - ghi vào tab của tháng đã chọn (tháng hiện tại hoặc các tháng trước, không nhận tháng tương lai);
  *  - đồng bộ Excel vẫn chỉ ghi vào tháng hiện tại như phiên bản 4.
  *
+ * Phiên bản 6: thêm 3 cột sổ S02 (gqtthc: report/s02/danh-sach) vào mỗi tab tháng, cột O, P, Q:
+ *  - O = Đảng phí phải nộp cấp trên (kỳ báo cáo), P = Đảng phí đã nộp cấp trên (kỳ báo cáo), Q = Còn nợ cấp trên cuối kỳ.
+ *  - Mỗi dòng gửi lên có 17 phần tử (14 cột cũ + 3 cột S02). Gói cũ chỉ có 14 phần tử vẫn nhận được, khi đó không đụng tới cột O:Q.
+ *
  * Cài đặt:
  *  1. Dán toàn bộ file này vào Code.gs (thay thế code cũ).
  *  2. Thuộc tính tập lệnh SYNC_TOKEN (hoặc MAT_KHAU) giữ nguyên.
@@ -29,7 +33,9 @@ const REGISTRY_SHEET_NAME = 'DANH MUC THANG'; // THANG yyyy-MM | TEN TAB | CAP N
 const BASE_YEAR = 2026;                      // "Thang10" = tháng 10/2026; năm khác → "Thang10_2027"
 const HEADER_ROWS = 2;                       // 2 dòng tiêu đề giữ nguyên
 const COLS = 14;                             // STT, Tên đơn vị, (1)…(9), tiền khai báo, tiền đã nộp, tỷ lệ
-const VERSION = 5;
+const COLS_S02 = 17;                         // 14 cột trên + 3 cột sổ S02 (O, P, Q)
+const S02_HEADERS = ['Phải nộp cấp trên (đ)', 'Đã nộp cấp trên (đ)', 'Còn nợ cấp trên cuối kỳ (đ)'];
+const VERSION = 6;
 const TZ = 'Asia/Ho_Chi_Minh';
 
 /** Định dạng số chỉ để cho đẹp: nếu ô thuộc "bảng"/cột có kiểu dữ liệu cố định thì Sheets từ chối → bỏ qua, không làm hỏng đồng bộ. */
@@ -136,11 +142,14 @@ function write_(payload) {
   const rows = Array.isArray(payload.rows) ? payload.rows : [];
   if (!rows.length) throw new Error('Không có dòng dữ liệu.');
 
+  const hasS02 = rows.every(r => Array.isArray(r) && r.length >= COLS_S02);   // gói mới có đủ 3 cột S02
+  const width = hasS02 ? COLS_S02 : COLS;
   const data = rows.map(r => {
     if (!Array.isArray(r) || r.length < COLS) throw new Error('Dòng dữ liệu thiếu cột.');
     const row = [Number(r[0]) || '', String(r[1]).trim()];
     for (let c = 2; c < 13; c++) row.push(Number(r[c]) || 0);
     row.push((Number(r[13]) || 0) / 100);          // tỷ lệ % → phân số, định dạng 0,00%
+    if (hasS02) for (let c = 14; c < COLS_S02; c++) row.push(Number(r[c]) || 0);
     return row;
   });
 
@@ -150,12 +159,17 @@ function write_(payload) {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sh = monthSheet_(ss, key);               // tab Thang{M} của tháng cần ghi (tự tạo nếu chưa có)
 
+    ensureCols_(sh);
     const last = sh.getLastRow();
-    if (last > HEADER_ROWS) sh.getRange(HEADER_ROWS + 1, 1, last - HEADER_ROWS, COLS).clearContent();
-    const rg = sh.getRange(HEADER_ROWS + 1, 1, data.length, COLS);
+    if (last > HEADER_ROWS) sh.getRange(HEADER_ROWS + 1, 1, last - HEADER_ROWS, width).clearContent();
+    const rg = sh.getRange(HEADER_ROWS + 1, 1, data.length, width);
     rg.setValues(data);
     fmt_(sh.getRange(HEADER_ROWS + 1, 3, data.length, 11), '#,##0');
     fmt_(sh.getRange(HEADER_ROWS + 1, 14, data.length, 1), '0.00%');
+    if (hasS02) {
+      fmt_(sh.getRange(HEADER_ROWS + 1, 15, data.length, 3), '#,##0');
+      s02Headers_(sh);
+    }
 
     const now = new Date();
     const when = Utilities.formatDate(now, TZ, 'dd/MM/yyyy HH:mm:ss');
@@ -180,6 +194,21 @@ function write_(payload) {
   }
 }
 
+/** Bảo đảm tab có ít nhất 17 cột (tab cũ có thể chỉ có 14 cột). */
+function ensureCols_(sh) {
+  const need = COLS_S02 - sh.getMaxColumns();
+  if (need > 0) sh.insertColumnsAfter(sh.getMaxColumns(), need);
+}
+
+/** Ghi tiêu đề 3 cột S02 (O:Q) ở dòng 1 (tên cột) và dòng 2 (ký hiệu), để tab cũ và tab mới tạo đều có. */
+function s02Headers_(sh) {
+  try {
+    sh.getRange(1, 15, 1, 3).setValues([S02_HEADERS]).setFontWeight('bold').setHorizontalAlignment('center').setWrap(true);
+    sh.getRange(2, 15, 1, 3).setValues([['S02', 'S02', 'S02']]).setHorizontalAlignment('center');
+    sh.setColumnWidths(15, 3, 130);
+  } catch (e) { /* chỉ là định dạng, bỏ qua */ }
+}
+
 /* ---------- Tab theo tháng ---------- */
 
 /** Tab của tháng `key`; chưa có thì tạo từ tab tháng gần nhất để giữ nguyên tiêu đề, ô gộp, độ rộng cột. */
@@ -191,8 +220,9 @@ function monthSheet_(ss, key) {
   if (!src) throw new Error('Không tìm thấy tab mẫu (Thang10 / gid ' + DATA_SHEET_GID + ') để tạo tab ' + name + '.');
   sh = src.copyTo(ss);
   sh.setName(name);
+  ensureCols_(sh);
   const last = sh.getLastRow();
-  if (last > HEADER_ROWS) sh.getRange(HEADER_ROWS + 1, 1, last - HEADER_ROWS, COLS).clearContent();   // giữ 2 dòng tiêu đề
+  if (last > HEADER_ROWS) sh.getRange(HEADER_ROWS + 1, 1, last - HEADER_ROWS, COLS_S02).clearContent();   // giữ 2 dòng tiêu đề
   if (key === monthKey_()) { try { ss.setActiveSheet(sh); ss.moveActiveSheet(1); } catch (_) {} }     // tab tháng hiện tại đứng đầu; tab tháng cũ (nút API) giữ ở cuối
   return sh;
 }
