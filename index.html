@@ -6099,7 +6099,7 @@ html.is-admin #adminBtn{display:inline-flex!important}
 #admBox h3{margin:0 0 4px;font-size:18px}#admBox .hint{color:#728198;font-size:12.5px;margin:0 0 12px}
 #admBox table{width:100%;border-collapse:collapse;margin:8px 0}#admBox td,#admBox th{border:1px solid #d7dee8;padding:6px 8px;text-align:left;font-size:13px}
 #admBox .row{display:flex;gap:8px;margin:10px 0}#admBox input{flex:1;padding:8px 10px;border:1px solid #cdd6e2;border-radius:8px;font:inherit}
-#admBox .x{float:right}#admMsg{min-height:18px;color:#12a486;font-size:13px}
+#admBox .pg{display:inline-flex;align-items:center;gap:4px;margin:2px 10px 2px 0;font-size:12.5px;white-space:nowrap}#admBox .pg input{flex:none;padding:0;width:auto}#admBox .pg.full{font-weight:700;color:#8f0b12}#admBox .pgrow{font-size:12.5px;color:#4a5566;margin:2px 0 6px}#admBox [hidden],.admtabs [hidden]{display:none!important}#admBox .x{float:right}#admMsg{min-height:18px;color:#12a486;font-size:13px}
 </style><div id="admOv" role="dialog" aria-modal="true" aria-labelledby="admTtl"><div id="admBox">
 <button type="button" class="btn x" id="admClose">Đóng</button>
 <h3 id="admTtl">🛡 Quản trị hệ thống</h3>
@@ -6110,12 +6110,15 @@ html.is-admin #adminBtn{display:inline-flex!important}
 <div class="admpane" data-grp="dl"><div id="admSheetHost"></div><p class="hint">Bảng dữ liệu Google Sheets và nút đồng bộ (đã chuyển từ trang chính vào Quản trị hệ thống). Trang vẫn tự đồng bộ khi mở và mỗi phút.</p></div>
 <div class="admpane" data-grp="pq"><table><thead><tr><th>Gmail</th><th>Quyền</th><th></th></tr></thead><tbody id="admBody"><tr><td colspan="3">Đang tải…</td></tr></tbody></table>
 <div class="row"><input id="admEmail" type="email" placeholder="Thêm Gmail quản trị" autocomplete="off"><button type="button" class="btn" id="admAdd">Thêm</button><button type="button" class="btn" id="admReload">Tải lại</button></div>
+<div id="admNewPerm" class="pgrow"><span>Quyền khi thêm:</span><label class="pg"><input type="checkbox" data-nk="bc" checked>Báo cáo</label><label class="pg"><input type="checkbox" data-nk="dp" checked>Thu đảng phí</label><label class="pg"><input type="checkbox" data-nk="dl">Dữ liệu</label><label class="pg"><input type="checkbox" data-nk="nd" checked>Nội dung & đơn vị</label><label class="pg full"><input type="checkbox" data-nk="all">Toàn quyền</label></div>
 <div id="admMsg"></div></div></div></div><script id="sheetBarToAdmin">(function(){var h=document.getElementById('admSheetHost'),b=document.querySelector('.sheet-bar');if(h&&b)h.appendChild(b)})();</script><script id="authJs">
 window.AUTH=(function(){
   const CFG={apiKey:"AIzaSyCZ9gzT18b1QovsS0y4-SgmUFqtyMvkR0A",authDomain:"laocai-tthc.firebaseapp.com",projectId:"laocai-tthc",appId:"1:836624022047:web:7ee3c80e5e44b8ed3d732a"};
   const V='https://www.gstatic.com/firebasejs/10.12.2/',EP=GS_ENDPOINT_URL;
   const H=document.documentElement,g=id=>document.getElementById(id);
-  let auth=null,user=null,tok='',loading=null,role=null,gen=0;
+  let auth=null,user=null,tok='',loading=null,role=null,gen=0,perms=[];
+  const PG=[['bc','Báo cáo'],['dp','Thu đảng phí'],['dl','Dữ liệu'],['nd','Nội dung & đơn vị']];
+  const can=k=>role==='admin'&&(perms.indexOf('all')>=0||perms.indexOf(k)>=0),isFull=()=>role==='admin'&&perms.indexOf('all')>=0;
   const say=t=>{try{toast(t)}catch(_){alert(t)}};
   const load=u=>new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=no;document.head.appendChild(s)});
   const jp=(q,ms)=>new Promise((res,rej)=>{const cb='__auth_'+Date.now()+Math.random().toString(36).slice(2,6),s=document.createElement('script');
@@ -6124,7 +6127,12 @@ window.AUTH=(function(){
   function paint(){const l=g('loginLbl'),b=g('loginBtn');if(!l||!b)return;
     l.textContent=role==='admin'?'Đăng xuất':'Đăng nhập';
     b.title=role==='admin'?'Đã đăng nhập: '+((user&&user.email)||'')+'. Bấm để đăng xuất':'Đăng nhập quản trị bằng Gmail'}
-  function setRole(r){role=r;H.classList.toggle('is-admin',r==='admin');paint();
+  function paintPerms(){const q=(s)=>document.querySelectorAll(s);
+    q('#admTools [data-pg]').forEach(el=>{el.hidden=!can(el.dataset.pg)});
+    const vis={tq:role==='admin',cn:PG.some(x=>can(x[0])),dl:can('dl'),pq:isFull()};
+    q('.admtabs button').forEach(b=>{b.hidden=!vis[b.dataset.g]});
+    const cur=document.querySelector('.admtabs [aria-selected=true]');if(cur&&cur.hidden&&window.__admShowTab)window.__admShowTab('tq')}
+  function setRole(r){role=r;if(r!=='admin')perms=[];H.classList.toggle('is-admin',r==='admin');paint();try{paintPerms()}catch(_){}
     try{r==='admin'?localStorage.setItem('tt_adm','1'):localStorage.removeItem('tt_adm')}catch(_){}
     if(r!=='admin')g('admOv')&&g('admOv').classList.remove('on')}
   async function onTok(u){user=u;const my=++gen;
@@ -6132,7 +6140,7 @@ window.AUTH=(function(){
     try{tok=await u.getIdToken()}catch(_){tok=''}
     try{const d=await jp('action=whoami&idToken='+encodeURIComponent(tok));
       if(my!==gen)return;
-      if(d&&d.ok&&d.role==='admin'){if(role!=='admin')say('Đã đăng nhập quản trị: '+(d.email||''));setRole('admin')}
+      if(d&&d.ok&&d.role==='admin'){perms=Array.isArray(d.perms)&&d.perms.length?d.perms:['all'];if(role!=='admin')say('Đã đăng nhập quản trị: '+(d.email||''));setRole('admin')}
       else if(d&&d.ok){setRole(null);say('Tài khoản '+(d.email||u.email||'')+' chưa được cấp quyền quản trị.');try{await auth.signOut()}catch(_){}}
       else{setRole(null);say('Chưa kiểm tra được quyền quản trị. Hãy cập nhật Apps Script có phần đăng nhập rồi thử lại.')}
     }catch(_){if(my===gen){setRole(null);say('Không kết nối được máy chủ để kiểm tra quyền. Hãy thử lại.')}}}
@@ -6155,14 +6163,16 @@ window.AUTH=(function(){
     const msg=t=>{box.innerHTML='<tr><td colspan="3">'+esc(t)+'</td></tr>'};
     try{const d=await jp('action=admins&idToken='+encodeURIComponent(await fresh()),10000);
       if(!d||!d.ok){msg('Chưa đọc được danh sách.');return null}
-      const rows=[...(d.boot||[]).map(e=>({e,boot:1})),...(d.admins||[]).map(e=>({e}))];
-      box.innerHTML=rows.map(r=>'<tr><td>'+esc(r.e)+'</td><td>'+(r.boot?'Quản trị gốc':'Quản trị viên')+'</td><td>'+(r.boot?'':'<button class="btn" type="button" data-del="'+esc(r.e)+'">Xóa</button>')+'</td></tr>').join('');
+      const rows=[...(d.boot||[]).map(e=>({e,boot:1})),...(d.admins||[]).map(e=>({e}))],pm=d.perms||{};
+      const boxes=(e,p,dis)=>PG.map(x=>'<label class="pg"><input type="checkbox" data-pe="'+esc(e)+'" data-pk="'+x[0]+'"'+(p.indexOf('all')>=0||p.indexOf(x[0])>=0?' checked':'')+(dis?' disabled':'')+'>'+x[1]+'</label>').join('')+'<label class="pg full"><input type="checkbox" data-pe="'+esc(e)+'" data-pk="all"'+(p.indexOf('all')>=0?' checked':'')+(dis?' disabled':'')+'>Toàn quyền</label>';
+      box.innerHTML=rows.map(r=>{const p=r.boot?['all']:(pm[r.e]||['all']);return '<tr><td>'+esc(r.e)+'</td><td>'+(r.boot?'Quản trị gốc (toàn quyền)':boxes(r.e,p,false))+'</td><td>'+(r.boot?'':'<button class="btn" type="button" data-del="'+esc(r.e)+'">Xóa</button>')+'</td></tr>'}).join('');
+      window.__admPerms=pm;
       return d}catch(_){msg('Không tải được danh sách (lỗi mạng).');return null}}
-  async function admApply(action,email){const m=g('admMsg');m.textContent='Đang cập nhật…';
-    try{await fetch(EP,{method:'POST',mode:'no-cors',body:new URLSearchParams({payload:JSON.stringify({action,email,idToken:await fresh()})})})}
+  async function admApply(action,email,pl){const m=g('admMsg');m.textContent='Đang cập nhật…';const want=pl?JSON.stringify(pl):'';
+    try{await fetch(EP,{method:'POST',mode:'no-cors',body:new URLSearchParams({payload:JSON.stringify({action,email,perms:pl,idToken:await fresh()})})})}
     catch(_){m.textContent='Không gửi được yêu cầu.';return}
     for(let i=0;i<6;i++){await new Promise(r=>setTimeout(r,1200));const d=await admLoad();
-      if(d&&((action==='admin_add')===(d.admins||[]).includes(email))){m.textContent=action==='admin_add'?'Đã thêm '+email+'.':'Đã xóa '+email+'.';return}}
+      if(d&&((action==='admin_add')===(d.admins||[]).includes(email))&&(!want||JSON.stringify((d.perms||{})[email]||[])===want)){m.textContent=action==='admin_add'?(want?'Đã lưu quyền của ':'Đã thêm ')+email+'.':'Đã xóa '+email+'.';return}}
     m.textContent='Chưa thấy thay đổi. Bấm “Tải lại”; nếu vẫn chưa được, kiểm tra Apps Script đã triển khai bản mới.'}
   function init(){
     const b=g('loginBtn');if(b)b.onclick=()=>role==='admin'?logout():login();
@@ -6174,7 +6184,7 @@ window.AUTH=(function(){
       ['Thu đảng phí','c-red',[['#duesDetailOpen','Xem từng đơn vị'],['#dpMenuAction','Cập nhật số thu']]],
       ['Dữ liệu','c-green',[['#openImport','Nhập từ file Excel'],['#exportJson','Sao lưu ra JSON'],['#importJson','Khôi phục từ JSON']]],
       ['Nội dung & đơn vị','c-amber',[['#editAnnouncement','Sửa dòng thông báo'],['#unitsMenuAction','Liên kết site đơn vị']]]];
-    g('admTools').innerHTML=GROUPS.map(gr=>'<section class="admgrp '+gr[1]+'"><h4>'+gr[0]+'</h4><div class="admgrid">'+gr[2].map(x=>{const i=TOOLS.findIndex(t=>t[0]===x[0]);return i<0?'':'<button type="button" class="btn" data-tool="'+i+'"><b>'+TOOLS[i][1]+'</b><small>'+x[1]+'</small></button>'}).join('')+'</div></section>').join('');
+    g('admTools').innerHTML=GROUPS.map(gr=>'<section class="admgrp '+gr[1]+'" data-pg="'+({'Báo cáo':'bc','Thu đảng phí':'dp','Dữ liệu':'dl','Nội dung & đơn vị':'nd'}[gr[0]])+'"><h4>'+gr[0]+'</h4><div class="admgrid">'+gr[2].map(x=>{const i=TOOLS.findIndex(t=>t[0]===x[0]);return i<0?'':'<button type="button" class="btn" data-tool="'+i+'"><b>'+TOOLS[i][1]+'</b><small>'+x[1]+'</small></button>'}).join('')+'</div></section>').join('');
     g('admTools').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(!b||role!=='admin')return;
       const el=document.querySelector(TOOLS[+b.dataset.tool][0]);if(!el){say('Chức năng này chưa tải xong, thử lại sau giây lát.');return}
       g('admOv').classList.remove('on');setTimeout(()=>el.click(),50)});
@@ -6188,16 +6198,27 @@ window.AUTH=(function(){
     window.__admShowTab=showTab;
     g('admReload').onclick=admLoad;
     g('admAdd').onclick=()=>{const i=g('admEmail'),e=i.value.trim().toLowerCase();
-      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){g('admMsg').textContent='Gmail chưa đúng định dạng.';return}i.value='';admApply('admin_add',e)};
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){g('admMsg').textContent='Gmail chưa đúng định dạng.';return}
+      const ck=[...document.querySelectorAll('#admNewPerm [data-nk]:checked')].map(x=>x.dataset.nk),pl=ck.indexOf('all')>=0?['all']:['bc','dp','dl','nd'].filter(k=>ck.indexOf(k)>=0);
+      if(!pl.length){g('admMsg').textContent='Hãy tích ít nhất một nhóm quyền.';return}
+      i.value='';admApply('admin_add',e,pl)};
+    g('admBody').addEventListener('change',e=>{const c=e.target.closest('input[data-pe]');if(!c)return;const em=c.dataset.pe,row=c.closest('tr');
+      const ck=[...row.querySelectorAll('input[data-pk]:checked')].map(x=>x.dataset.pk);
+      const pl=(c.dataset.pk==='all'&&c.checked)||ck.indexOf('all')>=0&&c.dataset.pk==='all'?['all']:['bc','dp','dl','nd'].filter(k=>ck.indexOf(k)>=0);
+      if(c.dataset.pk==='all'&&!c.checked){admLoad();g('admMsg').textContent='Bỏ "Toàn quyền" thì tích lại các nhóm cần cấp.';return}
+      if(!pl.length){g('admMsg').textContent='Mỗi tài khoản cần ít nhất một nhóm quyền (hoặc bấm Xóa).';admLoad();return}
+      admApply('admin_add',em,pl)});
     g('admBody').addEventListener('click',e=>{const x=e.target.closest('[data-del]');if(x&&confirm('Xóa quyền quản trị của '+x.dataset.del+'?'))admApply('admin_remove',x.dataset.del)});
     /* chặn thao tác quản trị nếu chưa đăng nhập (kể cả khi bị bỏ ẩn bằng DevTools) */
     document.addEventListener('click',e=>{if(role==='admin')return;
       if(e.target.closest('#openImport,#exportJson,#importJson,#buildReport,#rptMenuDocx,#rptMenuXlsx,#announcementMenuAction,#dpMenuAction,#unitsMenuAction,#editAnnouncement,#anbEdit')){e.stopImmediatePropagation();e.preventDefault();say('Chức năng này cần đăng nhập quản trị.')}},true);
+    const GUARD=[['bc','#buildReport,#rptMenuDocx,#rptMenuXlsx'],['dp','#dpMenuAction,#duesDetailOpen'],['dl','#openImport,#exportJson,#importJson'],['nd','#editAnnouncement,#announcementMenuAction,#unitsMenuAction,#anbEdit']];
+    document.addEventListener('click',e=>{if(role!=='admin')return;for(const [k,sel] of GUARD){if(e.target.closest(sel)&&!can(k)){e.stopImmediatePropagation();e.preventDefault();say('Tài khoản của bạn chưa được cấp quyền cho chức năng này.');return}}},true);
     let hint=false;try{hint=localStorage.getItem('tt_adm')==='1'}catch(_){}
     if(hint){const go=()=>ensure().catch(()=>{});if('requestIdleCallback' in window)requestIdleCallback(go,{timeout:4000});else setTimeout(go,2000)}
     setInterval(()=>{if(user&&!document.hidden)fresh()},10*60*1000);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)fresh()})}
-  return{init,fresh,t:()=>tok,isAdmin:()=>role==='admin'};
+  return{init,fresh,t:()=>tok,isAdmin:()=>role==='admin',can,isFull};
 })();
 AUTH.init();
 </script>
