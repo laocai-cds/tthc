@@ -187,5 +187,9 @@
   $('drSearch').addEventListener('input', e => { ui.q = e.target.value; renderRows(); });
   $('drChips').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (!b) return; ui.group = b.dataset.g; renderChips(); renderRows(); });
   root.addEventListener('dues-month-change', () => { ui.month = null; if (ov.classList.contains('open')) refresh(); });
-  root.DuesRanking = { open, refresh };
+  async function rates(k) {
+    const rows = parse(await fetchTab(tabFor(k)));
+    return rows ? new Map(rows.map(r => [norm(r.name), Math.round(r.rate * 100) / 100])) : null;
+  }
+  root.DuesRanking = { open, refresh, rates };
 })(window);

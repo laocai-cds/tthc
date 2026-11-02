@@ -1706,7 +1706,7 @@ tbody tr:hover{filter:brightness(1.04);background:linear-gradient(90deg,#fff1ee,
 @media(hover:none){.panel:hover,.card:hover,.leaderboard:hover,.mini:hover{transform:none}}
 </style>
 
-<script src="dues-month.js?v=20261102a"></script><script src="dues-report.js?v=20261102a" defer></script><script src="report-period.js?v=20261101e" defer></script><script src="dues-ranking.js?v=20261102c" defer></script>
+<script src="dues-month.js?v=20261102a"></script><script src="dues-report.js?v=20261102a" defer></script><script src="report-period.js?v=20261101e" defer></script><script src="dues-ranking.js?v=20261102d" defer></script>
 <script id="top3-dues-script">
 (function(){const sheetId='1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-M1AGkWO4g',gid='193289320',list=document.getElementById('top3DuesList'),status=document.getElementById('top3DuesStatus'),button=document.getElementById('top3DuesRefresh');const number=value=>{if(typeof value==='number')return value;const parsed=Number(String(value??'').replace(/[^0-9,.-]/g,'').replace(/\.(?=\d{3}(?:\D|$))/g,'').replace(',','.'));return Number.isFinite(parsed)?parsed:0};function sync(){if(button)button.disabled=true;status.classList.remove('error');status.textContent='Đang tải dữ liệu mới nhất từ Google Sheets…';const callback='__top3Dues_'+Date.now()+'_'+Math.random().toString(36).slice(2),script=document.createElement('script');let finished=false;const timer=setTimeout(()=>finish(new Error('Google Sheets không phản hồi.')),20000);function finish(error,payload){if(finished)return;finished=true;clearTimeout(timer);delete window[callback];script.remove();if(button)button.disabled=false;if(error){status.classList.add('error');status.textContent='Chưa tải được dữ liệu Google Sheets. Hãy kiểm tra quyền xem của bảng rồi đồng bộ lại.';return}try{const rows=payload?.table?.rows||[],records=rows.map(row=>{const cells=row.c||[],unit=String(cells[1]?.f??cells[1]?.v??'').trim(),rawRate=cells[13]?.f??cells[13]?.v;let rate=number(rawRate);return{unit,rate,hasRate:rawRate!==undefined&&rawRate!==null&&rawRate!==''}}).filter(r=>r.unit&&r.hasRate&&Number.isFinite(r.rate)&&!/^(tổng|cộng|grand total)$/i.test(r.unit));records.sort((a,b)=>b.rate-a.rate||a.unit.localeCompare(b.unit,'vi'));const top=records.slice(0,3);list.replaceChildren();if(!top.length){status.textContent='Google Sheets chưa có đơn vị có dữ liệu ở cột “Tỉ lệ”.';return}top.forEach((record,index)=>{const item=document.createElement('div'),medal=document.createElement('span'),copy=document.createElement('div'),name=document.createElement('span'),score=document.createElement('span');item.className='top3-dues-item';medal.className='top3-dues-medal';medal.textContent=String(index+1).padStart(2,'0');copy.className='top3-dues-copy';name.className='top3-dues-name';name.textContent=record.unit;name.title=record.unit;score.className='top3-dues-score';score.textContent=record.rate.toLocaleString('vi-VN',{maximumFractionDigits:2})+'% hoàn thành';copy.append(name,score);item.append(medal,copy);list.appendChild(item)});status.textContent='Cập nhật lúc '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})+' · Nguồn: Google Sheets'}catch(error){status.classList.add('error');status.textContent='Dữ liệu Google Sheets chưa đúng định dạng dự kiến.'}}window[callback]=payload=>finish(null,payload);script.onerror=()=>finish(new Error('Không tải được Google Sheets.'));DuesMonth.attach(script,callback);script.async=true;document.head.appendChild(script)}button?.addEventListener('click',sync)})();
 </script><script id="top3-dues-sheet-loader">
@@ -3602,7 +3602,7 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
    <div class="tp-dist"><div class="tp-dist-h"><span>Phân bố đơn vị theo mức tiến độ tổng</span><span id="tpDistNote"></span></div><div class="tp-stack" id="tpStack"></div><div class="tp-leg" id="tpLeg"></div></div>
    <div class="tp-tools">
     <input type="search" class="tp-q" id="tpQ" placeholder="Tìm đơn vị…  (phím /)" aria-label="Tìm đơn vị">
-    <select class="tp-sel" id="tpSort" aria-label="Xếp theo"></select>
+    <select class="tp-sel" id="tpMonth" aria-label="Chọn tháng thu nộp đảng phí" title="Chọn tháng cho cột Thu nộp đảng phí"></select><select class="tp-sel" id="tpSort" aria-label="Xếp theo"></select>
     <div class="tp-seg" id="tpType" role="group" aria-label="Loại đơn vị"><button type="button" class="on" data-t="all">Tất cả</button><button type="button" data-t="xa">Xã</button><button type="button" data-t="phuong">Phường</button><button type="button" data-t="khoi">Khối tỉnh</button></div>
     <button type="button" class="tp-tog" id="tpTog" title="Ẩn/hiện phần tổng quan để xem được nhiều đơn vị hơn">▴ Thu gọn tổng quan</button><span class="tp-count" id="tpCount"></span>
    </div>
@@ -3618,10 +3618,21 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
  const lvOf=v=>LV.find(l=>v>=l.min);
  const typeOf=u=>/^Đảng bộ xã /.test(u)?'xa':/^Đảng bộ phường /.test(u)?'phuong':'khoi';
  const P=()=>data.procedures;
- let st={q:'',lv:'',type:'all',sort:'avg',dir:-1},rows=[],view=[],rankMap=new Map(),avgAll=0,lastFocus=null;
+ let st={q:'',lv:'',type:'all',sort:'avg',dir:-1,month:'',rates:null},rows=[],view=[],rankMap=new Map(),avgAll=0,lastFocus=null;
 
+ function rowsFor(){
+  const rs=getOverallRankingRows();if(!st.rates)return rs;
+  const NF=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const pi=data.procedures.findIndex(p=>p.kind==='fee');if(pi<0)return rs;const fp=data.procedures[pi],um=new Map(fp.units.map(u=>[String(u.unit||'').trim(),u]));
+  rs.forEach(r=>{const u=um.get(r.unit);if(!u||r.values[pi]==null)return;const rt=st.rates.get(NF(r.unit));const v=progress(fp,{...u,collected:(rt==null?0:rt)+'%'});r.sum+=v-r.values[pi];r.values[pi]=v;r.average=r.count?r.sum/r.count:0});
+  return rs.sort((a,b)=>b.average-a.average||a.unit.localeCompare(b.unit,'vi'));
+ }
+ function monthOpts(){
+  const dm=window.DuesMonth,cur=dm?dm.currentKey():'',keys=(dm&&dm.available?dm.available():[cur]).filter(k=>k<=cur).sort().reverse();
+  $('tpMonth').innerHTML=keys.map(k=>`<option value="${k===cur?'':k}">Tháng ${+k.slice(5)}/${k.slice(0,4)}${k===cur?' (hiện tại)':''}</option>`).join('');$('tpMonth').value=st.month;
+ }
  function build(){
-  rows=getOverallRankingRows().map((r,i)=>{const done=r.values.filter(v=>v!=null&&v>=.999).length,run=r.values.filter(v=>v!=null&&v>0&&v<.999).length;return{...r,rank:i+1,done,run,type:typeOf(r.unit)}});
+  rows=rowsFor().map((r,i)=>{const done=r.values.filter(v=>v!=null&&v>=.999).length,run=r.values.filter(v=>v!=null&&v>0&&v<.999).length;return{...r,rank:i+1,done,run,type:typeOf(r.unit)}});
   rankMap=new Map(rows.map(r=>[r.unit,r.rank]));
   avgAll=rows.length?rows.reduce((t,r)=>t+r.average,0)/rows.length:0;
  }
@@ -3641,7 +3652,7 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
   $('tpDistNote').textContent=st.lv?'Đang lọc – bấm lại để bỏ lọc':'Bấm vào nhóm để lọc';
  }
  function head(){
-  const cols=[['rank','Hạng',''],['unit','Đơn vị','l'],['avg','Tiến độ tổng',''],...P().map((p,i)=>['p'+i,p.kind==='fee'?p.short+' kỳ hiện tại':p.short,'']),['diff','So với BQ',''],['status','Trạng thái','']];
+  const cols=[['rank','Hạng',''],['unit','Đơn vị','l'],['avg','Tiến độ tổng',''],...P().map((p,i)=>['p'+i,p.kind==='fee'?p.short+(st.month?' T'+(+st.month.slice(5))+'/'+st.month.slice(0,4):' kỳ hiện tại'):p.short,'']),['diff','So với BQ',''],['status','Trạng thái','']];
   $('tpCols').innerHTML='<col class="c-rk"><col class="c-u"><col class="c-tot">'+P().map(()=>'<col class="c-p">').join('')+'<col class="c-df"><col class="c-st">';
   $('tpHead').innerHTML='<tr>'+cols.map(c=>`<th data-k="${c[0]}" class="${c[2]} ${st.sort===c[0]?(st.dir>0?'s-asc':'s-desc'):''}" scope="col">${esc(c[1])}</th>`).join('')+'</tr>';
   $('tpSort').innerHTML=cols.filter(c=>c[0]!=='status').map(c=>`<option value="${c[0]}">Xếp theo: ${esc(c[1])}</option>`).join('');
@@ -3663,7 +3674,7 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
   $('tpSrc').textContent='Nguồn: Google Sheets'+(s?' · đồng bộ lúc '+s:'');
  }
  function refresh(){build();kpis();render()}
- function open(){lastFocus=document.activeElement;refresh();ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.documentElement.style.overflow='hidden';setTimeout(()=>$('tpQ').focus(),40)}
+ function open(){lastFocus=document.activeElement;monthOpts();refresh();ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.documentElement.style.overflow='hidden';setTimeout(()=>$('tpQ').focus(),40)}
  function close(){ov.classList.remove('open');ov.setAttribute('aria-hidden','true');document.documentElement.style.overflow='';try{lastFocus&&lastFocus.focus({preventScroll:true})}catch(e){}}
  const isOpen=()=>ov.classList.contains('open');
  function exportRows(kind){
@@ -3680,6 +3691,7 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
  $('tpClose').onclick=close;
  {const dlg=ov.querySelector('.tp-dlg'),tg=$('tpTog');const setT=c=>{dlg.classList.toggle('cmp',c);tg.textContent=c?'▾ Hiện tổng quan':'▴ Thu gọn tổng quan';try{localStorage.setItem('tpCmp',c?'1':'0')}catch(e){}};let c0=false;try{c0=localStorage.getItem('tpCmp')==='1'}catch(e){}setT(c0);tg.onclick=()=>setT(!dlg.classList.contains('cmp'))}
  ov.addEventListener('mousedown',e=>{if(e.target===ov)close()});
+ $('tpMonth').addEventListener('change',async e=>{const k=e.target.value;if(!k){st.month='';st.rates=null;refresh();return}$('tpCount').textContent='Đang tải số liệu tháng '+(+k.slice(5))+'/'+k.slice(0,4)+'…';let r=null;try{r=await window.DuesRanking.rates(k)}catch(_){}if(!r){st.month='';st.rates=null;monthOpts();refresh();try{toast('Chưa đọc được số liệu đảng phí tháng '+(+k.slice(5))+'/'+k.slice(0,4))}catch(_){}return}st.month=k;st.rates=r;refresh()});
  $('tpQ').addEventListener('input',e=>{st.q=e.target.value;render()});
  $('tpSort').addEventListener('change',e=>{st.sort=e.target.value;st.dir=(st.sort==='unit'||st.sort==='rank')?1:-1;render()});
  $('tpHead').addEventListener('click',e=>{const th=e.target.closest('th[data-k]');if(!th)return;const k=th.dataset.k==='status'?'avg':th.dataset.k;if(st.sort===k)st.dir=-st.dir;else{st.sort=k;st.dir=(k==='unit'||k==='rank')?1:-1}render()});
