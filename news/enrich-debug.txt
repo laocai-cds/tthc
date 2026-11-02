@@ -1,14 +1,15 @@
-Lấy được 36/40 bài
+Lấy được 42/46 bài
 == THỐNG KÊ THEO BÁO ==
-   32  baolaocai.vn  có ảnh
-    4  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    1  nhandan.vn  có ảnh
-    1  baophapluat.vn  có ảnh
-    1  tienphong.vn  có ảnh
-    1  vtv.vn  có ảnh
+   36  baolaocai.vn  có ảnh
+    3  tienphong.vn  có ảnh
+    3  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    1  happyvietnam.vnanet.vn  có ảnh
+    1  vtcnews.vn  có ảnh
+    1  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
+    1  vietnam.vnanet.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/video/giu-gin-ban-sac-van-hoa-dan-toc-o-son-luong-tv839157.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/yen-binh-phat-dong-lam-duong-giao-thong-nong-thon-d832357.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cac-co-gai-tay-mang-cup-vo-dich-ve-xu-so-dat-ngoc-d828758.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/chanh-leo-vang-ben-re-dat-bao-nhai-d829630.html
+LỖI không phải HTML: application/pdf https://cdn.baolaocai.vn/files/VNxw3tYqxmLPvyr_JaFI6telv00qlx4NBHkmhs9CLEoZfdH6eAGNfnltOCG-2AvlUiKsqSjV6mYE2mGMoczYLLwbo7LTc4XnAarbBVHtKGA/a38-vbd-tulc-ctr-0109-2026-001-dadongdau.pdf
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nai-ngua-tranh-tai-giai-dua-ngua-truyen-thong-bac-ha-lan-thu-19-d812939.html
