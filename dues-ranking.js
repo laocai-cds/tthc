@@ -117,13 +117,13 @@
   ov.className = 'dr-ov'; ov.id = 'duesRankOverlay'; ov.setAttribute('aria-hidden', 'true');
   ov.innerHTML = '<section class="dr-panel" role="dialog" aria-modal="true" aria-labelledby="drTitle">' +
     '<header class="dr-head"><div><h2 id="drTitle">🏆 ' + TITLE + ' <span id="drPeriod"></span></h2><div class="dr-sub" id="drSub">Đang tải dữ liệu…</div></div><span class="sp"></span><button type="button" class="dr-x" id="drClose" aria-label="Đóng">✕</button></header>' +
-    '<div class="dr-tools"><input class="dr-search" id="drSearch" type="search" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị"><div class="dr-chips" id="drChips" role="group" aria-label="Lọc theo nhóm tỷ lệ nộp"></div></div>' +
+    '<div class="dr-tools"><select class="dr-search" id="drMonth" aria-label="Chọn tháng" style="flex:0 0 auto;width:auto;min-width:130px"></select><input class="dr-search" id="drSearch" type="search" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị"><div class="dr-chips" id="drChips" role="group" aria-label="Lọc theo nhóm tỷ lệ nộp"></div></div>' +
     '<div class="dr-body"><table class="dr-tb"><thead><tr><th class="c">Hạng</th><th>Đơn vị</th><th class="r dr-hide-sm">ĐV đã nộp / phải nộp</th><th>Tỷ lệ nộp</th><th class="r" id="drPrevHead">So với kỳ trước</th></tr></thead><tbody id="drRows"><tr><td colspan="5" class="dr-empty">Đang tải…</td></tr></tbody></table></div>' +
     '<footer class="dr-foot">Tỷ lệ nộp = số đảng viên đã duyệt, đã nộp (8) ÷ số đảng viên phải nộp ((2)+(3)−(4)−(5)). "So với kỳ trước" là chênh lệch điểm % so với tháng liền trước; đơn vị bằng tỷ lệ được xếp theo số tiền đã nộp, rồi theo số đảng viên đã nộp.</footer></section>';
   document.body.appendChild(ov);
 
   const $ = id => document.getElementById(id);
-  const ui = { data: null, group: 'all', q: '', seq: 0 };
+  const ui = { data: null, group: 'all', q: '', seq: 0, month: null };
 
   function renderChips() {
     const rows = ui.data ? ui.data.rows : [];
@@ -144,8 +144,16 @@
         '<td><div class="dr-rate ' + gr.cls + '"><b>' + pct(r.rate) + '</b><span class="dr-bar"><i style="width:' + Math.min(100, r.rate).toFixed(2) + '%"></i></span></div></td><td class="r">' + diff + '</td></tr>';
     }).join('');
   }
+  function fillMonths(k) {
+    const dm = root.DuesMonth, y = +k.slice(0, 4), sel = $('drMonth');
+    const has = m => { const key = keyOf(y, m); try { return !dm || !dm.hasData || dm.hasData(key) || key === (dm.currentKey && dm.currentKey()); } catch (_) { return true; } };
+    let h = '';
+    for (let m = 1; m <= 12; m++) { const key = keyOf(y, m); h += '<option value="' + key + '"' + (key === k ? ' selected' : '') + '>Tháng ' + m + '/' + y + (has(m) ? '' : ' (chưa có)') + '</option>'; }
+    sel.innerHTML = h;
+  }
   async function refresh() {
-    const dm = root.DuesMonth, k = (dm && dm.state && dm.state.month) || keyOf(new Date().getFullYear(), new Date().getMonth() + 1), my = ++ui.seq;
+    const dm = root.DuesMonth, k = ui.month || (dm && dm.state && dm.state.month) || keyOf(new Date().getFullYear(), new Date().getMonth() + 1), my = ++ui.seq;
+    fillMonths(k);
     $('drPeriod').textContent = '– ' + monthLabel(k).replace(/^t/, 'T');
     $('drSub').textContent = 'Đang tải số liệu ' + monthLabel(k) + ' và ' + monthLabel(prevKey(k)) + ' từ Google Sheets…';
     try {
@@ -166,11 +174,12 @@
   function close() { ov.classList.remove('open'); ov.setAttribute('aria-hidden', 'true'); document.removeEventListener('keydown', onKey); btn.focus(); }
   function onKey(e) { if (e.key === 'Escape') close(); }
 
-  btn.addEventListener('click', open);
+  btn.addEventListener('click', () => { ui.month = null; open(); });
+  $('drMonth').addEventListener('change', e => { ui.month = e.target.value; refresh(); });
   $('drClose').addEventListener('click', close);
   ov.addEventListener('click', e => { if (e.target === ov) close(); });
   $('drSearch').addEventListener('input', e => { ui.q = e.target.value; renderRows(); });
   $('drChips').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (!b) return; ui.group = b.dataset.g; renderChips(); renderRows(); });
-  root.addEventListener('dues-month-change', () => { if (ov.classList.contains('open')) refresh(); });
+  root.addEventListener('dues-month-change', () => { ui.month = null; if (ov.classList.contains('open')) refresh(); });
   root.DuesRanking = { open, refresh };
 })(window);
