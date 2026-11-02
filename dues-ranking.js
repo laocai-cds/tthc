@@ -145,10 +145,16 @@
     }).join('');
   }
   function fillMonths(k) {
-    const dm = root.DuesMonth, y = +k.slice(0, 4), sel = $('drMonth');
-    const has = m => { const key = keyOf(y, m); try { return !dm || !dm.hasData || dm.hasData(key) || key === (dm.currentKey && dm.currentKey()); } catch (_) { return true; } };
+    const dm = root.DuesMonth, sel = $('drMonth'), cy = new Date().getFullYear();
+    const ys = new Set([+k.slice(0, 4), cy]);
+    try { (dm && dm.available ? dm.available() : []).forEach(x => ys.add(+x.slice(0, 4))); } catch (_) {}
+    const has = key => { try { return !dm || !dm.hasData || dm.hasData(key) || key === (dm.currentKey && dm.currentKey()); } catch (_) { return true; } };
     let h = '';
-    for (let m = 1; m <= 12; m++) { const key = keyOf(y, m); h += '<option value="' + key + '"' + (key === k ? ' selected' : '') + '>Tháng ' + m + '/' + y + (has(m) ? '' : ' (chưa có)') + '</option>'; }
+    [...ys].sort((a, b) => b - a).forEach(y => {
+      h += '<optgroup label="Năm ' + y + '">';
+      for (let m = 12; m >= 1; m--) { const key = keyOf(y, m); h += '<option value="' + key + '"' + (key === k ? ' selected' : '') + '>Tháng ' + m + '/' + y + (has(key) ? '' : ' (chưa có)') + '</option>'; }
+      h += '</optgroup>';
+    });
     sel.innerHTML = h;
   }
   async function refresh() {
