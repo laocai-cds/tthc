@@ -1869,7 +1869,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
 .dd-tw td{border-bottom:1px solid #eef1f5;color:#2b3a52}
 .dd-tw tbody tr:nth-child(even) td{background:#fafbfd}
 .dd-tw tbody tr:hover td{background:#eef4ff}
-.dd-tw td.nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
+.dd-tw td.nm{min-width:0;white-space:normal;overflow:visible;line-height:1.25;font-size:12.5px}.dd-tw table{min-width:1500px}.dd-tw th.nm{width:320px}
 .dd-tw td.b{font-weight:700;color:#172c4a}.dd-tw td.mut{color:#7a879a}.dd-tw td.w{color:#b4232d;font-weight:700}
 .dd-tw td.dd-paid,.dd-tw tbody tr:nth-child(even) td.dd-paid{background:#f2fbf6}
 .dd-tw td.dd-paid span{padding:1px 7px;font-size:12px;box-shadow:none}
@@ -2012,7 +2012,7 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   <div class="dd-warn" id="ddWarn"></div>
   <div class="dd-tools"><input type="search" id="ddQ" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị">
    <button type="button" class="dd-chip on" data-f="all">Tất cả</button><button type="button" class="dd-chip" data-f="g">≥ 80%</button><button type="button" class="dd-chip" data-f="y">50 – 80%</button><button type="button" class="dd-chip" data-f="o">20 – 50%</button><button type="button" class="dd-chip" data-f="r">&lt; 20%</button><button type="button" class="dd-chip" data-f="z">0%</button></div>
-  <div class="dd-tw"><table><colgroup><col style="width:50px"><col><col style="width:96px"><col style="width:104px"><col style="width:104px"><col style="width:92px"><col style="width:118px"><col style="width:124px"><col style="width:118px"><col style="width:118px"><col style="width:118px"><col style="width:150px"></colgroup><thead>
+  <div class="dd-tw"><table><colgroup><col style="width:50px"><col style="width:320px"><col style="width:96px"><col style="width:104px"><col style="width:104px"><col style="width:92px"><col style="width:118px"><col style="width:124px"><col style="width:118px"><col style="width:118px"><col style="width:118px"><col style="width:150px"></colgroup><thead>
    <tr><th data-k="stt" class="c-stt">HẠNG</th><th class="nm" data-k="name">Tên đơn vị</th><th data-k="t">Tổng đảng viên<br><small>(1)</small></th><th data-k="need">ĐV phải nộp<br><small>(2)+(3)−(4)−(5)</small></th><th data-k="dn">Đã duyệt, đã nộp<br><small>(8)</small></th><th data-k="chua">Chưa có hồ sơ<br><small>(9)</small></th><th data-k="kb">Tiền theo hồ sơ<br>khai báo (đ)</th><th data-k="nop" class="g-tien dd-paid-h">💰 Tiền đã nộp (đ)</th><th data-k="pn" class="g-cap">Phải nộp cấp trên (đ)<br><small>sổ S02</small></th><th data-k="dc" class="g-cap">Đã nộp cấp trên (đ)<br><small>sổ S02</small></th><th data-k="no" class="g-cap">Còn nợ cấp trên (đ)<br><small>cuối kỳ</small></th><th data-k="mrate" class="c-rate">Tỷ lệ ĐV đã nộp<br><small>(8) ÷ ĐV phải nộp</small></th></tr>
   </thead><tbody id="ddBody"><tr><td colspan="12" class="dd-empty">Đang tải dữ liệu…</td></tr></tbody><tfoot id="ddFoot"></tfoot></table></div>
  </section>`;
