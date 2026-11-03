@@ -6182,8 +6182,8 @@ window.AUTH=(function(){
     g('admOv').addEventListener('click',e=>{if(e.target.id==='admOv')g('admOv').classList.remove('on')});
     const TOOLS=[['#openImport','↑ Nhập Excel'],['#exportJson','↓ Xuất JSON'],['#importJson','↑ Nhập JSON'],['#editAnnouncement','✎ Sửa thông báo'],['#duesDetailOpen','📋 Chi tiết thu đảng phí'],['#dpMenuAction','₫ Đảng phí'],['#unitsMenuAction','🔗 Trang web đơn vị'],['#buildReport','📄 Tạo báo cáo'],['#rptMenuDocx','⬇ Báo cáo Word (.docx)'],['#rptMenuXlsx','⬇ Báo cáo Excel (.xlsx)']];
     const GROUPS=[['Báo cáo','c-blue',[['#buildReport','Xem trước, in / lưu PDF'],['#rptMenuDocx','Tải file Word'],['#rptMenuXlsx','Tải file Excel']]],
-      ['Thu đảng phí','c-red',[['#duesDetailOpen','Xem từng đơn vị'],['#dpMenuAction','Cập nhật số thu']]],
-      ['Dữ liệu','c-green',[['#openImport','Nhập từ file Excel'],['#exportJson','Sao lưu ra JSON'],['#importJson','Khôi phục từ JSON']]],
+      ['Thu đảng phí','c-red',[['#duesDetailOpen','Xem từng đơn vị']]],
+      ['Dữ liệu','c-green',[['#openImport','Nhập từ file Excel'],['#dpMenuAction','Cập nhật số thu'],['#exportJson','Sao lưu ra JSON'],['#importJson','Khôi phục từ JSON']]],
       ['Nội dung & đơn vị','c-amber',[['#editAnnouncement','Sửa dòng thông báo'],['#unitsMenuAction','Liên kết site đơn vị']]]];
     g('admTools').innerHTML=GROUPS.map(gr=>'<section class="admgrp '+gr[1]+'" data-pg="'+({'Báo cáo':'bc','Thu đảng phí':'dp','Dữ liệu':'dl','Nội dung & đơn vị':'nd'}[gr[0]])+'"><h4>'+gr[0]+'</h4><div class="admgrid">'+gr[2].map(x=>{const i=TOOLS.findIndex(t=>t[0]===x[0]);return i<0?'':'<button type="button" class="btn" data-tool="'+i+'"><b>'+TOOLS[i][1]+'</b><small>'+x[1]+'</small></button>'}).join('')+'</div></section>').join('');
     g('admTools').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(!b||role!=='admin')return;
@@ -6213,7 +6213,7 @@ window.AUTH=(function(){
     /* chặn thao tác quản trị nếu chưa đăng nhập (kể cả khi bị bỏ ẩn bằng DevTools) */
     document.addEventListener('click',e=>{if(role==='admin')return;
       if(e.target.closest('#openImport,#exportJson,#importJson,#buildReport,#rptMenuDocx,#rptMenuXlsx,#announcementMenuAction,#dpMenuAction,#unitsMenuAction,#editAnnouncement,#anbEdit')){e.stopImmediatePropagation();e.preventDefault();say('Chức năng này cần đăng nhập quản trị.')}},true);
-    const GUARD=[['bc','#buildReport,#rptMenuDocx,#rptMenuXlsx'],['dp','#dpMenuAction,#duesDetailOpen'],['dl','#openImport,#exportJson,#importJson'],['nd','#editAnnouncement,#announcementMenuAction,#unitsMenuAction,#anbEdit']];
+    const GUARD=[['bc','#buildReport,#rptMenuDocx,#rptMenuXlsx'],['dp','#duesDetailOpen'],['dl','#openImport,#dpMenuAction,#exportJson,#importJson'],['nd','#editAnnouncement,#announcementMenuAction,#unitsMenuAction,#anbEdit']];
     document.addEventListener('click',e=>{if(role!=='admin')return;for(const [k,sel] of GUARD){if(e.target.closest(sel)&&!can(k)){e.stopImmediatePropagation();e.preventDefault();say('Tài khoản của bạn chưa được cấp quyền cho chức năng này.');return}}},true);
     let hint=false;try{hint=localStorage.getItem('tt_adm')==='1'}catch(_){}
     if(hint){const go=()=>ensure().catch(()=>{});if('requestIdleCallback' in window)requestIdleCallback(go,{timeout:4000});else setTimeout(go,2000)}
