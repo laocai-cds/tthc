@@ -1,24 +1,29 @@
-Lấy được 39/50 bài
+Lấy được 39/53 bài
 == THỐNG KÊ THEO BÁO ==
-   35  baolaocai.vn  có ảnh
-    7  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    2  baophapluat.vn  có ảnh
+   31  baolaocai.vn  có ảnh
+   11  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    2  trangtraiviet.danviet.vn  có ảnh
     2  vov.vn  lỗi HTTP Error 403: Forbidden
-    1  vov.vn  có ảnh
-    1  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
-    1  suckhoedoisong.vn  không có ảnh
+    1  vtcnews.vn  có ảnh
+    1  baophapluat.vn  có ảnh
+    1  tienphong.vn  có ảnh
+    1  baoxaydung.vn  có ảnh
     1  dantri.com.vn  có ảnh
+    1  www.qdnd.vn  có ảnh
+    1  danviet.vn  lỗi HTTP Error 403: Forbidden
 == MẪU THẺ META (mỗi báo một mẫu) ==
-suckhoedoisong.vn: <meta property=og:title content="Lũ ống cuốn theo hàng trăm tấn đất đá tràn vào khu dân cư ở Lào Cai"> <meta property=og:description content="SKĐS - Mưa lớn trong đêm 15 và rạng sáng 16/7 đã gây ra lũ ống tại xã Minh Lương, tỉnh Lào Cai. Dòng nước dữ cuốn theo hàng trăm tấn đất đá tràn vào khu dân cư, vùi lấp hơn 100m mặt đường, gây ảnh hưởng đến việc đi lại củ <meta property=og:type content=article> <meta property=og:site_name content="Báo Sức khỏe &amp; Đời sống"> <meta property=og:locale content=vi_VN> <meta property=og:url content=https://suckhoedoisong.vn/lu-ong-cuon-theo-hang-tram-tan-dat-da-tran-vao-khu-dan-cu-o-lao-cai-169260716201929571.htm>
 == VÍ DỤ LỖI ==
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cam-duong-chung-tay-bao-ve-nguon-nuoc-d839392.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-to-chuc-le-chao-co-va-sinh-hoat-tu-tuong-duoi-co-thang-11-d839421.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-gioi-thieu-hon-400-san-pham-nong-nghiep-tai-88-gian-hang-d839396.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-thu-hut-dau-tu-phat-trien-nong-nghiep-hang-hoa-d838613.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-to-chuc-le-chao-co-va-sinh-hoat-tu-tuong-duoi-co-thang-11-d839421.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/gian-nan-giam-ngheo-tren-reo-cao-nam-co-d839274.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cam-duong-chung-tay-bao-ve-nguon-nuoc-d839392.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-san-sang-cho-hoi-nghi-ket-noi-dau-tu-thuong-mai-nong-nghiep-i839151.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/chanh-leo-vang-ben-re-dat-bao-nhai-d829630.html
-LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/tang-von-bo-sung-doan-yen-vien-gia-lam-vao-tuyen-duong-sat-lao-cai-hai-phong-post1321627.vov
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/14-18-doanh-nghiep-o-lao-cai-da-hoan-thanh-kiem-ke-khi-nha-kinh-d839198.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cay-mang-mo-sinh-ke-o-nam-chay-d834541.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thuoc-bvtv-3-khong-bay-ban-nhan-nhan-giua-cho-d826787.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/khanh-hoa-khai-mac-trien-lam-nhiep-anh-hai-trinh-tu-vinh-d826793.html
 LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/quoc-hoi-chot-du-an-duong-sat-lao-cai-ha-noi-hai-phong-von-289339-ty-dong-post1326810.vov
-LỖI không phải HTML: application/pdf https://cdn.baolaocai.vn/files/VNxw3tYqxmLPvyr_JaFI6telv00qlx4NBHkmhs9CLEoZfdH6eAGNfnltOCG-2AvlUiKsqSjV6mYE2mGMoczYLLwbo7LTc4XnAarbBVHtKGA/a38-vbd-tulc-ctr-0109-2026-001-dadongdau.pdf
-KHÔNG CÓ ẢNH (88580 byte) https://suckhoedoisong.vn/lu-ong-cuon-theo-hang-tram-tan-dat-da-tran-vao-khu-dan-cu-o-lao-cai-169260716201929571.htm
+LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/tang-von-bo-sung-doan-yen-vien-gia-lam-vao-tuyen-duong-sat-lao-cai-hai-phong-post1321627.vov
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/tam-nha-to-nguoi-dan-thoat-ngheo-d813219.html
+LỖI HTTP Error 403: Forbidden https://danviet.vn/nong-dan-xa-yen-binh-tinh-lao-cai-thang-than-doi-thoai-hien-ke-phat-trien-nong-nghiep-ben-vung-d1438564.html
