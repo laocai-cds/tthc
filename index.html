@@ -6181,7 +6181,7 @@ window.AUTH=(function(){
     g('admClose').onclick=()=>g('admOv').classList.remove('on');
     g('admOv').addEventListener('click',e=>{if(e.target.id==='admOv')g('admOv').classList.remove('on')});
     const TOOLS=[['#openImport','↑ Nhập Excel'],['#exportJson','↓ Xuất JSON'],['#importJson','↑ Nhập JSON'],['#editAnnouncement','✎ Sửa thông báo'],['#duesDetailOpen','📋 Chi tiết thu đảng phí'],['#dpMenuAction','₫ Đảng phí'],['#unitsMenuAction','🔗 Trang web đơn vị'],['#buildReport','📄 Tạo báo cáo'],['#rptMenuDocx','⬇ Báo cáo Word (.docx)'],['#rptMenuXlsx','⬇ Báo cáo Excel (.xlsx)']];
-    const GROUPS=[['Báo cáo','c-blue',[['#buildReport','Xem trước, in / lưu PDF'],['#rptMenuDocx','Tải file Word'],['#rptMenuXlsx','Tải file Excel']]],
+    const GROUPS=[['Báo cáo','c-blue',[['#buildReport','Xem trước, in / lưu PDF']]],
       ['Thu đảng phí','c-red',[['#duesDetailOpen','Xem từng đơn vị']]],
       ['Dữ liệu','c-green',[['#openImport','Nhập từ file Excel'],['#dpMenuAction','Cập nhật số thu'],['#exportJson','Sao lưu ra JSON'],['#importJson','Khôi phục từ JSON']]],
       ['Nội dung & đơn vị','c-amber',[['#editAnnouncement','Sửa dòng thông báo'],['#unitsMenuAction','Liên kết site đơn vị']]]];
