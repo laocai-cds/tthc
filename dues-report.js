@@ -210,7 +210,7 @@
     ov.innerHTML = '<div class="drp-box" role="dialog" aria-label="Báo cáo đảng phí"><h3>📄 Báo cáo thu nộp đảng phí</h3>' +
       '<label for="drpY">Năm</label><select id="drpY">' + years.map(y => '<option value="' + y + '"' + (y === +sel0.slice(0, 4) ? ' selected' : '') + '>Năm ' + y + '</option>').join('') + '</select>' +
       '<label for="drpK">Kỳ báo cáo</label><select id="drpK"></select>' +
-      '<div class="drp-act"><button type="button" class="drp-pdf" data-f="pdf">Xem / In PDF</button><button type="button" class="drp-doc" data-f="doc">Tải Word</button><button type="button" class="drp-x" data-f="x">Đóng</button></div><div class="drp-msg"></div></div>';
+      '<div class="drp-act"><button type="button" class="drp-pdf" data-f="pdf">Xem / In PDF</button><button type="button" class="drp-x" data-f="x">Đóng</button></div><div class="drp-msg"></div></div>';
     document.body.appendChild(ov);
     const $y = ov.querySelector('#drpY'), $k = ov.querySelector('#drpK'), msg = ov.querySelector('.drp-msg');
     const fill = y => {
