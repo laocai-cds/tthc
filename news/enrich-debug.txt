@@ -1,29 +1,31 @@
-Lấy được 39/53 bài
+Lấy được 40/54 bài
 == THỐNG KÊ THEO BÁO ==
    31  baolaocai.vn  có ảnh
-   11  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    2  trangtraiviet.danviet.vn  có ảnh
-    2  vov.vn  lỗi HTTP Error 403: Forbidden
-    1  vtcnews.vn  có ảnh
-    1  baophapluat.vn  có ảnh
+   10  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    3  vov.vn  lỗi HTTP Error 403: Forbidden
     1  tienphong.vn  có ảnh
-    1  baoxaydung.vn  có ảnh
+    1  baophapluat.vn  có ảnh
     1  dantri.com.vn  có ảnh
+    1  vtcnews.vn  có ảnh
     1  www.qdnd.vn  có ảnh
+    1  www.vietnamplus.vn  có ảnh
+    1  congthuong.vn  có ảnh
+    1  vovgiaothong.vn  có ảnh
     1  danviet.vn  lỗi HTTP Error 403: Forbidden
+    1  vnexpress.net  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cam-duong-chung-tay-bao-ve-nguon-nuoc-d839392.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-to-chuc-le-chao-co-va-sinh-hoat-tu-tuong-duoi-co-thang-11-d839421.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-gioi-thieu-hon-400-san-pham-nong-nghiep-tai-88-gian-hang-d839396.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cam-duong-chung-tay-bao-ve-nguon-nuoc-d839392.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thanh-cong-cua-nha-dau-tu-chinh-la-thanh-cong-cua-tinh-lao-cai-d839260.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-thu-hut-dau-tu-phat-trien-nong-nghiep-hang-hoa-d838613.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/gian-nan-giam-ngheo-tren-reo-cao-nam-co-d839274.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/lao-cai-san-sang-cho-hoi-nghi-ket-noi-dau-tu-thuong-mai-nong-nghiep-i839151.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/14-18-doanh-nghiep-o-lao-cai-da-hoan-thanh-kiem-ke-khi-nha-kinh-d839198.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cay-mang-mo-sinh-ke-o-nam-chay-d834541.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thuoc-bvtv-3-khong-bay-ban-nhan-nhan-giua-cho-d826787.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/khanh-hoa-khai-mac-trien-lam-nhiep-anh-hai-trinh-tu-vinh-d826793.html
 LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/quoc-hoi-chot-du-an-duong-sat-lao-cai-ha-noi-hai-phong-von-289339-ty-dong-post1326810.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/tang-von-bo-sung-doan-yen-vien-gia-lam-vao-tuyen-duong-sat-lao-cai-hai-phong-post1321627.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/cong-nghe/chuyen-doi-so/nghi-quyet-57-dua-cong-nghe-ve-vung-cao-son-la-nha-nong-thoi-50-post1337554.vov
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/khanh-hoa-khai-mac-trien-lam-nhiep-anh-hai-trinh-tu-vinh-d826793.html
+LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/cong-an-xa-o-lao-cai-giup-nguoi-dan-tim-lai-than-nhan-sau-48-nam-that-lac-post1320867.vov
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/tam-nha-to-nguoi-dan-thoat-ngheo-d813219.html
 LỖI HTTP Error 403: Forbidden https://danviet.vn/nong-dan-xa-yen-binh-tinh-lao-cai-thang-than-doi-thoai-hien-ke-phat-trien-nong-nghiep-ben-vung-d1438564.html
