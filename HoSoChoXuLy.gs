@@ -96,7 +96,7 @@ function hsWrite_(data) {
     sh.getRange(1, 1, 1, header.length).setValues([header]).setFontWeight('bold').setBackground('#f3e6e6');
     if (values.length) {
       const rg = sh.getRange(2, 1, values.length, header.length);
-      rg.setNumberFormat('@');            // giữ nguyên chữ, tránh Sheet tự đổi ngày/giờ
+      try { rg.setNumberFormat('@'); } catch (fmtErr) { /* cột đã định kiểu trong Bảng: giữ nguyên chữ sẵn, bỏ qua */ }
       rg.setValues(values);
     }
     sh.setFrozenRows(1);
