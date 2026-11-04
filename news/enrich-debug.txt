@@ -1,24 +1,24 @@
-Lấy được 36/48 bài
+Lấy được 35/44 bài
 == THỐNG KÊ THEO BÁO ==
-   32  baolaocai.vn  có ảnh
-    9  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+   28  baolaocai.vn  có ảnh
+    6  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
     2  vov.vn  lỗi HTTP Error 403: Forbidden
-    1  nhandan.vn  có ảnh
-    1  trangtraiviet.danviet.vn  có ảnh
-    1  vtvgo.vn  có ảnh
-    1  danviet.vn  lỗi HTTP Error 403: Forbidden
+    1  tienphong.vn  có ảnh
+    1  dantri.com.vn  có ảnh
+    1  vtv.vn  có ảnh
     1  baophapluat.vn  có ảnh
+    1  vietnam.vnanet.vn  có ảnh
+    1  www.qdnd.vn  có ảnh
+    1  nhandan.vn  có ảnh
+    1  www.laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thanh-cong-cua-nha-dau-tu-chinh-la-thanh-cong-cua-tinh-lao-cai-d839260.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/son-luong-dua-ban-sac-van-hoa-vao-truong-hoc-d839461.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/14-18-doanh-nghiep-o-lao-cai-da-hoan-thanh-kiem-ke-khi-nha-kinh-d839198.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cay-mang-mo-sinh-ke-o-nam-chay-d834541.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thanh-cong-cua-nha-dau-tu-chinh-la-thanh-cong-cua-tinh-lao-cai-d839260.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nam-chay-bao-ton-van-hoa-dan-toc-d839574.html
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/hung-khanh-mo-rong-trong-bi-dao-xanh-d835223.html
 LỖI HTTP Error 403: Forbidden https://vov.vn/cong-nghe/chuyen-doi-so/nghi-quyet-57-dua-cong-nghe-ve-vung-cao-son-la-nha-nong-thoi-50-post1337554.vov
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/chinh-sach-ho-tro-phat-trien-tre-mang-bat-do-o-xa-cam-nhan-d831715.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thuoc-bvtv-3-khong-bay-ban-nhan-nhan-giua-cho-d826787.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/khoi-cong-hai-khu-cong-nghiep-xanh-hon-5400-ty-dong-d828161.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/khanh-hoa-khai-mac-trien-lam-nhiep-anh-hai-trinh-tu-vinh-d826793.html
 LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/cong-an-xa-o-lao-cai-giup-nguoi-dan-tim-lai-than-nhan-sau-48-nam-that-lac-post1320867.vov
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/tam-nha-to-nguoi-dan-thoat-ngheo-d813219.html
-LỖI HTTP Error 403: Forbidden https://danviet.vn/nong-dan-xa-yen-binh-tinh-lao-cai-thang-than-doi-thoai-hien-ke-phat-trien-nong-nghiep-ben-vung-d1438564.html
+LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/tin-trong-tinh/lao-cai-ban-hanh-gia-nuoc-sach-sinh-hoat-cua-cac-cong-trinh-cap-nuoc-tap-trung-nong-thon-1622526
