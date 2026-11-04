@@ -1,0 +1,23 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "deploy.bat",
+      "**/.*",
+      "**/node_modules/**",
+      "*.gs",
+      "*.user.js",
+      "*.patch",
+      "*.txt",
+      "README.md",
+      "scripts/**",
+      "news/units/**"
+    ],
+    "cleanUrls": true,
+    "headers": [
+      { "source": "**/*.html", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
+    ]
+  }
+}
