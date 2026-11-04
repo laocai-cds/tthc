@@ -1,0 +1,31 @@
+name: Deploy len Firebase Hosting
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "news/**"
+      - "scripts/**"
+      - "**.gs"
+      - "**.user.js"
+      - "README.md"
+      - "setup-*.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: firebase-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: laocai-tthc
+          channelId: live
