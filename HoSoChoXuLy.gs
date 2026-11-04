@@ -92,14 +92,16 @@ function hsWrite_(data) {
   lock.waitLock(20000);
   try {
     const sh = hsSheet_();
+    if (values.length) {
+      // Đặt định dạng văn bản trước và ép ghi ngay. Nếu sheet là "Bảng" (cột đã định kiểu), Sheets báo lỗi tại đây
+      // và BỎ CẢ LÔ thao tác đang chờ, nên mọi bước ghi dữ liệu phải làm sau khối này.
+      try { sh.getRange(2, 1, values.length, header.length).setNumberFormat('@'); SpreadsheetApp.flush(); } catch (fmtErr) { /* bỏ qua */ }
+    }
     sh.clearContents();
     sh.getRange(1, 1, 1, header.length).setValues([header]).setFontWeight('bold').setBackground('#f3e6e6');
-    if (values.length) {
-      const rg = sh.getRange(2, 1, values.length, header.length);
-      try { rg.setNumberFormat('@'); } catch (fmtErr) { /* cột đã định kiểu trong Bảng: giữ nguyên chữ sẵn, bỏ qua */ }
-      rg.setValues(values);
-    }
-    try { sh.setFrozenRows(1); } catch (frzErr) { /* sheet đã là Bảng: hàng tiêu đề đã cố định sẵn, bỏ qua */ }
+    if (values.length) sh.getRange(2, 1, values.length, header.length).setValues(values);
+    SpreadsheetApp.flush(); // ghi xong dữ liệu trước khi làm việc khác
+    try { sh.setFrozenRows(1); SpreadsheetApp.flush(); } catch (frzErr) { /* sheet đã là Bảng: hàng tiêu đề đã cố định sẵn, bỏ qua */ }
     const nowText = Utilities.formatDate(new Date(), HS.TZ, 'dd/MM/yyyy HH:mm:ss');
     props.setProperty('LAST', JSON.stringify({ syncId: String(data.syncId || ''), rowCount: values.length, updatedAtText: nowText }));
     props.deleteProperty('LAST_ERROR');
