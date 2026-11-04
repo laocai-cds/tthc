@@ -99,7 +99,7 @@ function hsWrite_(data) {
       try { rg.setNumberFormat('@'); } catch (fmtErr) { /* cột đã định kiểu trong Bảng: giữ nguyên chữ sẵn, bỏ qua */ }
       rg.setValues(values);
     }
-    sh.setFrozenRows(1);
+    try { sh.setFrozenRows(1); } catch (frzErr) { /* sheet đã là Bảng: hàng tiêu đề đã cố định sẵn, bỏ qua */ }
     const nowText = Utilities.formatDate(new Date(), HS.TZ, 'dd/MM/yyyy HH:mm:ss');
     props.setProperty('LAST', JSON.stringify({ syncId: String(data.syncId || ''), rowCount: values.length, updatedAtText: nowText }));
     props.deleteProperty('LAST_ERROR');
