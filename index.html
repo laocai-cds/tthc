@@ -6180,10 +6180,10 @@ window.AUTH=(function(){
     g('adminBtn').onclick=()=>{g('admOv').classList.add('on');window.__admShowTab&&__admShowTab((document.querySelector('.admtabs [aria-selected=true]')||{dataset:{g:'tq'}}).dataset.g)};
     g('admClose').onclick=()=>g('admOv').classList.remove('on');
     g('admOv').addEventListener('click',e=>{if(e.target.id==='admOv')g('admOv').classList.remove('on')});
-    const TOOLS=[['#openImport','↑ Nhập Excel'],['#exportJson','↓ Xuất JSON'],['#importJson','↑ Nhập JSON'],['#editAnnouncement','✎ Sửa thông báo'],['#duesDetailOpen','📋 Chi tiết thu đảng phí'],['#dpMenuAction','₫ Đảng phí'],['#unitsMenuAction','🔗 Trang web đơn vị'],['#buildReport','📄 Tạo báo cáo'],['#rptMenuDocx','⬇ Báo cáo Word (.docx)'],['#rptMenuXlsx','⬇ Báo cáo Excel (.xlsx)']];
+    const TOOLS=[['#hscxOpen','📥 Hồ sơ chờ xử lý'],['#openImport','↑ Nhập Excel'],['#exportJson','↓ Xuất JSON'],['#importJson','↑ Nhập JSON'],['#editAnnouncement','✎ Sửa thông báo'],['#duesDetailOpen','📋 Chi tiết thu đảng phí'],['#dpMenuAction','₫ Đảng phí'],['#unitsMenuAction','🔗 Trang web đơn vị'],['#buildReport','📄 Tạo báo cáo'],['#rptMenuDocx','⬇ Báo cáo Word (.docx)'],['#rptMenuXlsx','⬇ Báo cáo Excel (.xlsx)']];
     const GROUPS=[['Báo cáo','c-blue',[['#buildReport','Xem trước, in / lưu PDF']]],
       ['Thu đảng phí','c-red',[['#duesDetailOpen','Xem từng đơn vị']]],
-      ['Dữ liệu','c-green',[['#openImport','Nhập từ file Excel'],['#dpMenuAction','Cập nhật số thu'],['#exportJson','Sao lưu ra JSON'],['#importJson','Khôi phục từ JSON']]],
+      ['Dữ liệu','c-green',[['#hscxOpen','Hồ sơ chờ xử lý từ gqtthc'],['#openImport','Nhập từ file Excel'],['#dpMenuAction','Cập nhật số thu'],['#exportJson','Sao lưu ra JSON'],['#importJson','Khôi phục từ JSON']]],
       ['Nội dung & đơn vị','c-amber',[['#editAnnouncement','Sửa dòng thông báo'],['#unitsMenuAction','Liên kết site đơn vị']]]];
     g('admTools').innerHTML=GROUPS.map(gr=>'<section class="admgrp '+gr[1]+'" data-pg="'+({'Báo cáo':'bc','Thu đảng phí':'dp','Dữ liệu':'dl','Nội dung & đơn vị':'nd'}[gr[0]])+'"><h4>'+gr[0]+'</h4><div class="admgrid">'+gr[2].map(x=>{const i=TOOLS.findIndex(t=>t[0]===x[0]);return i<0?'':'<button type="button" class="btn" data-tool="'+i+'"><b>'+TOOLS[i][1]+'</b><small>'+x[1]+'</small></button>'}).join('')+'</div></section>').join('');
     g('admTools').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(!b||role!=='admin')return;
@@ -6212,8 +6212,8 @@ window.AUTH=(function(){
     g('admBody').addEventListener('click',e=>{const x=e.target.closest('[data-del]');if(x&&confirm('Xóa quyền quản trị của '+x.dataset.del+'?'))admApply('admin_remove',x.dataset.del)});
     /* chặn thao tác quản trị nếu chưa đăng nhập (kể cả khi bị bỏ ẩn bằng DevTools) */
     document.addEventListener('click',e=>{if(role==='admin')return;
-      if(e.target.closest('#openImport,#exportJson,#importJson,#buildReport,#rptMenuDocx,#rptMenuXlsx,#announcementMenuAction,#dpMenuAction,#unitsMenuAction,#editAnnouncement,#anbEdit')){e.stopImmediatePropagation();e.preventDefault();say('Chức năng này cần đăng nhập quản trị.')}},true);
-    const GUARD=[['bc','#buildReport,#rptMenuDocx,#rptMenuXlsx'],['dp','#duesDetailOpen'],['dl','#openImport,#dpMenuAction,#exportJson,#importJson'],['nd','#editAnnouncement,#announcementMenuAction,#unitsMenuAction,#anbEdit']];
+      if(e.target.closest('#hscxOpen,#openImport,#exportJson,#importJson,#buildReport,#rptMenuDocx,#rptMenuXlsx,#announcementMenuAction,#dpMenuAction,#unitsMenuAction,#editAnnouncement,#anbEdit')){e.stopImmediatePropagation();e.preventDefault();say('Chức năng này cần đăng nhập quản trị.')}},true);
+    const GUARD=[['bc','#buildReport,#rptMenuDocx,#rptMenuXlsx'],['dp','#duesDetailOpen'],['dl','#hscxOpen,#openImport,#dpMenuAction,#exportJson,#importJson'],['nd','#editAnnouncement,#announcementMenuAction,#unitsMenuAction,#anbEdit']];
     document.addEventListener('click',e=>{if(role!=='admin')return;for(const [k,sel] of GUARD){if(e.target.closest(sel)&&!can(k)){e.stopImmediatePropagation();e.preventDefault();say('Tài khoản của bạn chưa được cấp quyền cho chức năng này.');return}}},true);
     let hint=false;try{hint=localStorage.getItem('tt_adm')==='1'}catch(_){}
     if(hint){const go=()=>ensure().catch(()=>{});if('requestIdleCallback' in window)requestIdleCallback(go,{timeout:4000});else setTimeout(go,2000)}
@@ -6233,6 +6233,296 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
 @media(min-width:761px){.topbar .top-actions #goldBtn,.topbar .top-actions #qaTopBtn,.topbar .top-actions .export-wrap{width:auto;min-width:0}.topbar .top-actions .export-wrap #exportBtn{width:100%}}
 @media(max-width:760px){.topbar .top-actions #adminBtn,.topbar .top-actions #loginBtn,.topbar .top-actions #editAnnouncement,.topbar .top-actions #goldBtn,.topbar .top-actions #qaTopBtn,.topbar .top-actions #exportBtn{height:32px;padding:0 9px;font-size:10px;gap:5px}}
 </style>
+<style id="hscxCss">
+#hscxOpen{display:none!important}
+#hscxOv{position:fixed;inset:0;z-index:99999;background:rgba(15,25,40,.5);display:none;align-items:center;justify-content:center;padding:16px}
+#hscxOv.on{display:flex}
+#hscxBox{background:#fff;color:#182b44;border-radius:14px;width:min(1120px,100%);max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);font:14px/1.5 "Segoe UI",system-ui,sans-serif;overflow:hidden}
+#hscxBox .hx-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px 10px;border-bottom:1px solid #e3e9f2}
+#hscxBox h3{margin:0;font-size:18px}
+#hscxBox .hx-sub{margin:2px 0 0;color:#728198;font-size:12.5px}
+#hscxBox .hx-act{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+#hscxBox .hx-body{padding:14px 18px 18px;overflow:auto}
+#hscxBox .hx-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+#hscxBox .hx-kpi div{border:1px solid #dbe2ee;border-radius:10px;padding:8px 12px;background:#f8fafd}
+#hscxBox .hx-kpi b{display:block;font-size:22px;line-height:1.2}
+#hscxBox .hx-kpi small{color:#5d6b82;font-size:12px}
+#hscxBox .hx-kpi .bad b{color:#a3231b}#hscxBox .hx-kpi .warn b{color:#8a5a00}
+#hscxBox .hx-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+#hscxBox .hx-bar input,#hscxBox .hx-bar select,#hscxBox .hx-cfg input{padding:8px 10px;border:1px solid #cdd6e2;border-radius:8px;font:inherit;color:#182b44;background:#fff;min-width:0}
+#hscxBox .hx-bar input{flex:1 1 220px}
+#hscxBox .hx-tbl{overflow-x:auto;border:1px solid #dbe2ee;border-radius:10px}
+#hscxBox table{width:100%;border-collapse:collapse;min-width:820px}
+#hscxBox th,#hscxBox td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6ebf3;font-size:13px;vertical-align:top}
+#hscxBox th{font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:#5d6b82;background:#f3f6fb;white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0}
+#hscxBox tbody tr:hover{background:#fff6f6}
+#hscxBox .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+#hscxBox .bdg{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+#hscxBox .bdg.ok{background:#e3f4e9;color:#1b7a3d}#hscxBox .bdg.warn{background:#fff1d6;color:#8a5a00}#hscxBox .bdg.bad{background:#fde6e4;color:#a3231b}
+#hscxBox .hx-msg{padding:22px;text-align:center;color:#5d6b82}
+#hscxBox .hx-msg.err{color:#a3231b}
+#hscxBox details{margin-top:14px;border:1px solid #dbe2ee;border-radius:10px;background:#f8fafd}
+#hscxBox summary{cursor:pointer;padding:10px 12px;font-weight:700}
+#hscxBox .hx-sync{padding:0 14px 14px;font-size:13px}
+#hscxBox .hx-sync ol{margin:6px 0 10px;padding-left:20px}
+#hscxBox .hx-cfg{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+#hscxBox .hx-cfg input{flex:1 1 280px}
+#hscxBox .hx-note{color:#5d6b82;font-size:12.5px;margin:6px 0 0}
+#hscxBox a.btn{text-decoration:none;display:inline-flex;align-items:center}
+@media(max-width:760px){#hscxOv{padding:0}#hscxBox{max-height:100vh;height:100%;border-radius:0}}
+</style>
+<button type="button" id="hscxOpen" hidden>Hồ sơ chờ xử lý</button>
+<div id="hscxOv" role="dialog" aria-modal="true" aria-labelledby="hscxTtl"><div id="hscxBox">
+<div class="hx-head"><div><h3 id="hscxTtl">📥 Hồ sơ chờ xử lý</h3><p class="hx-sub" id="hscxSub">Nguồn: gqtthc.dcs.vn · chỉ hiển thị thông tin hồ sơ, không có họ tên hay thông tin đảng viên.</p></div>
+<div class="hx-act"><button type="button" class="btn" id="hscxCsv">⬇ CSV</button><button type="button" class="btn" id="hscxReload">↻ Tải lại</button><button type="button" class="btn" id="hscxClose">Đóng</button></div></div>
+<div class="hx-body">
+<div class="hx-kpi" id="hscxKpi"></div>
+<div class="hx-bar"><input type="search" id="hscxQ" placeholder="Tìm theo mã hồ sơ, TTHC, cơ quan…" autocomplete="off"><select id="hscxFh" aria-label="Lọc theo hạn xử lý"><option value="">Tất cả hạn xử lý</option><option value="bad">Quá hạn</option><option value="warn">Sắp đến hạn (≤ 7 ngày)</option><option value="ok">Còn hạn</option></select><select id="hscxFt" aria-label="Lọc theo thủ tục"><option value="">Tất cả thủ tục</option></select></div>
+<div class="hx-tbl"><table><thead><tr id="hscxHead"></tr></thead><tbody id="hscxBody"></tbody></table><div class="hx-msg" id="hscxMsg" hidden></div></div>
+<details id="hscxSync"><summary>⚡ Đồng bộ từ gqtthc.dcs.vn</summary><div class="hx-sync">
+<div class="hx-cfg"><input id="hscxApi" type="url" placeholder="Dán URL Apps Script (…/exec) của dự án Hồ sơ chờ xử lý" autocomplete="off"><button type="button" class="btn" id="hscxApiSave">Lưu</button></div>
+<ol>
+<li>Kéo nút <a class="btn" id="hscxBm" href="#" title="Kéo lên thanh dấu trang">📥 Hồ sơ chờ xử lý</a> lên thanh dấu trang (đừng bấm tại đây). Cách khác: <button type="button" class="btn" id="hscxCopyJs">Sao chép mã Console</button>, mở gqtthc.dcs.vn, bấm F12, thẻ Console, dán rồi Enter (nếu Chrome báo, gõ <code>allow pasting</code> trước).</li>
+<li>Mở <b>gqtthc.dcs.vn</b> (đã đăng nhập) rồi bấm dấu trang đó. Lần đầu nhập mật khẩu đồng bộ (<code>SYNC_TOKEN</code>), máy nhớ cho lần sau.</li>
+<li>Quay lại đây, bấm <b>↻ Tải lại</b>.</li>
+</ol>
+<p class="hx-note">Chỉ lấy: mã hồ sơ, TTHC, lĩnh vực, cơ quan, ngày nộp, hạn xử lý, ngày hẹn trả, trạng thái, bước xử lý, hình thức tiếp nhận, cần bổ sung. Không lấy họ tên người nộp, số định danh, tờ khai, file thành phần hay tên cán bộ. Xem cách tạo Apps Script trong đầu file <code>HoSoChoXuLy.gs</code>.</p>
+</div></details>
+</div></div></div>
+<script id="hscxJs">
+(function(){
+  'use strict';
+  var g=function(id){return document.getElementById(id)};
+  var LSK='hscx.api',DAY=86400000;
+  var rows=[],stamp='',sortKey='han',sortDir=1,loading=false;
+  var COLS=[['ma','Mã hồ sơ'],['tthc','Thủ tục'],['coQuan','Cơ quan thực hiện'],['ngayNop','Ngày nộp'],['han','Hạn xử lý'],['left','Còn lại'],['buoc','Trạng thái / bước']];
+
+  /* Hàm chạy trên gqtthc.dcs.vn (dấu trang / Console). Phải tự đủ, không dùng biến bên ngoài. */
+  async function hscxRun(API) {
+  var box = document.createElement('div');
+  box.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:2147483647;max-width:340px;background:#12315f;color:#fff;padding:12px 14px;border-radius:12px;font:13px/1.45 system-ui,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.35);white-space:pre-wrap';
+  document.body.appendChild(box);
+  var say = function (t, bad) { box.style.background = bad ? '#a3231b' : '#12315f'; box.textContent = t; };
+  try {
+    if (location.hostname.indexOf('gqtthc.dcs.vn') < 0) throw new Error('Hãy mở trang gqtthc.dcs.vn (đã đăng nhập) rồi bấm lại.');
+    if (!API) throw new Error('Chưa cấu hình địa chỉ Apps Script.');
+    var tk = localStorage.getItem('token');
+    if (!tk) throw new Error('Chưa đăng nhập gqtthc.dcs.vn.');
+    var pw = localStorage.getItem('hscx.token') || '';
+    if (!pw) {
+      pw = (prompt('Mật khẩu đồng bộ hồ sơ chờ xử lý:') || '').trim();
+      if (!pw) { box.remove(); return; }
+    }
+    say('Đang lấy danh sách hồ sơ chờ xử lý…');
+    var rows = [], page = 1, total = Infinity, SIZE = 200;
+    while (rows.length < total && page <= 50) {
+      var r = await fetch('https://gateway-gqtthc.dcs.vn/xulytthc/v1/ho-so/ho-so-xu-ly', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ page: page, size: SIZE, textSearch: '', dvcId: null, linhVucId: null, thuTucId: null, tinhId: null, xaId: null, tiepNhanTuNgay: null, tiepNhanDenNgay: null, thoiHan: null, trangThai: '4', hinhThucTiepNhan: null })
+      });
+      if (r.status === 401 || r.status === 403) throw new Error('Phiên gqtthc đã hết hạn, hãy đăng nhập lại rồi bấm lại.');
+      if (!r.ok) throw new Error('API gqtthc trả về HTTP ' + r.status);
+      var j = await r.json(), d = j.data || [];
+      total = j.total != null ? j.total : (j.totalElements != null ? j.totalElements : d.length);
+      d.forEach(function (x) {
+        rows.push({
+          ma: x.maHoSo, tthc: x.thuTuc, linhVuc: x.linhVuc, coQuan: x.coQuanThucHien,
+          ngayNop: x.ngayNop || x.ngayTiepNhan, han: x.hanXuLyToanQuyTrinh, hen: x.ngayHenTra,
+          tt: x.trangThai, buoc: x.trangThaiBuocXuLy, ht: x.hinhThucTiepNhan, bs: x.boSungHoSo ? 1 : 0
+        });
+      });
+      if (!d.length) break;
+      page++;
+    }
+    var syncId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    say('Đang gửi ' + rows.length + ' hồ sơ lên Google Sheet…');
+    await fetch(API, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify({ type: 'hoso', token: pw, syncId: syncId, rows: rows }) }) });
+    var ok = null;
+    for (var k = 0; k < 12 && !ok; k++) {
+      ok = await new Promise(function (res) {
+        var cb = '__hscx' + Date.now() + k, s = document.createElement('script');
+        var t = setTimeout(function () { delete window[cb]; s.remove(); res(null); }, 9000);
+        window[cb] = function (v) { clearTimeout(t); delete window[cb]; s.remove(); res(v); };
+        s.onerror = function () { clearTimeout(t); res(null); };
+        s.src = API + '?action=hoso_status&callback=' + cb + '&_=' + Date.now();
+        document.head.appendChild(s);
+      });
+      if (ok && ok.lastError && ok.lastError.syncId === syncId) throw new Error(ok.lastError.error);
+      if (!(ok && ok.last && ok.last.syncId === syncId)) { ok = null; await new Promise(function (r2) { setTimeout(r2, 1000); }); }
+    }
+    try { localStorage.setItem('hscx.token', pw); } catch (e) {}
+    say(ok ? '✅ Đã đồng bộ ' + ok.last.rowCount + ' hồ sơ chờ xử lý lúc ' + ok.last.updatedAtText + '.'
+           : '✓ Đã gửi ' + rows.length + ' hồ sơ. Chưa xác nhận được kết quả, hãy mở lại cửa sổ Hồ sơ chờ xử lý trên trang quản trị để kiểm tra.');
+    setTimeout(function () { box.remove(); }, 20000);
+  } catch (e) {
+    if (/mật khẩu|token|không hợp lệ/i.test(String(e && e.message))) { try { localStorage.removeItem('hscx.token'); } catch (x) {} }
+    say('✕ ' + (e && e.message || e), true);
+    setTimeout(function () { box.remove(); }, 15000);
+  }
+}
+
+  var getApi=function(){try{return (localStorage.getItem(LSK)||'').trim()}catch(_){return ''}};
+  function normApi(v){
+    v=(v||'').trim();
+    var m=v.match(/https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec/);
+    if(m)return m[0];
+    return /^[\w-]{20,}$/.test(v)?'https://script.google.com/macros/s/'+v+'/exec':'';
+  }
+  function bmSrc(){return '('+hscxRun.toString()+')('+JSON.stringify(getApi())+');void 0'}
+  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+  function say(t){try{toast(t)}catch(_){alert(t)}}
+
+  function pd(v){
+    if(v==null||v==='')return null;
+    if(typeof v==='number')return v;
+    var s=String(v).trim(),m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+    if(m)return new Date(+m[3],+m[2]-1,+m[1],+(m[4]||0),+(m[5]||0),+(m[6]||0)).getTime();
+    var t=Date.parse(s);return isNaN(t)?null:t;
+  }
+  function p2(n){return n<10?'0'+n:''+n}
+  function fmt(v){var t=pd(v);if(t==null)return v?String(v):'—';var x=new Date(t);return p2(x.getDate())+'/'+p2(x.getMonth()+1)+'/'+x.getFullYear()+' '+p2(x.getHours())+':'+p2(x.getMinutes())}
+  function level(r){var t=pd(r.han);if(t==null)return 'ok';var d=t-Date.now();return d<0?'bad':(d<=7*DAY?'warn':'ok')}
+  function leftText(r){var t=pd(r.han);if(t==null)return '—';var d=Math.round((t-Date.now())/DAY);return d<0?'Quá '+(-d)+' ngày':d+' ngày'}
+  function sv(r,k){
+    if(k==='left'||k==='han'||k==='ngayNop'){var t=pd(k==='left'?r.han:r[k]);return t==null?Infinity:t}
+    return (r[k]==null?'':String(r[k])).toLowerCase();
+  }
+
+  function setMsg(t,err){var m=g('hscxMsg');m.hidden=!t;m.textContent=t||'';m.className='hx-msg'+(err?' err':'')}
+
+  function head(){
+    var tr=g('hscxHead');tr.textContent='';
+    var th0=el('th',null,'STT');th0.style.cursor='default';tr.appendChild(th0);
+    COLS.forEach(function(c){
+      var th=el('th',null,c[1]+(sortKey===c[0]?(sortDir>0?' ▲':' ▼'):''));
+      th.onclick=function(){if(sortKey===c[0])sortDir=-sortDir;else{sortKey=c[0];sortDir=1}render()};
+      tr.appendChild(th);
+    });
+  }
+
+  function filtered(){
+    var q=g('hscxQ').value.trim().toLowerCase(),fh=g('hscxFh').value,ft=g('hscxFt').value;
+    return rows.filter(function(r){
+      if(fh&&level(r)!==fh)return false;
+      if(ft&&r.tthc!==ft)return false;
+      if(!q)return true;
+      return ((r.ma||'')+' '+(r.tthc||'')+' '+(r.coQuan||'')+' '+(r.buoc||'')).toLowerCase().indexOf(q)>=0;
+    }).sort(function(a,b){var x=sv(a,sortKey),y=sv(b,sortKey);return (x<y?-1:x>y?1:0)*sortDir});
+  }
+
+  function fillTthc(){
+    var s=g('hscxFt'),cur=s.value,set={};
+    rows.forEach(function(r){if(r.tthc)set[r.tthc]=1});
+    s.length=1;
+    Object.keys(set).sort().forEach(function(k){var o=el('option',null,k);o.value=k;s.appendChild(o)});
+    s.value=set[cur]?cur:'';
+  }
+
+  function render(){
+    head();
+    var kp=g('hscxKpi');kp.textContent='';
+    var bad=0,warn=0,bs=0;
+    rows.forEach(function(r){var l=level(r);if(l==='bad')bad++;else if(l==='warn')warn++;if(r.bs)bs++});
+    [['Tổng hồ sơ',rows.length,''],['Quá hạn',bad,'bad'],['Sắp đến hạn',warn,'warn'],['Cần bổ sung',bs,'']].forEach(function(k){
+      var d=el('div',k[2]);d.appendChild(el('b',null,k[1]));d.appendChild(el('small',null,k[0]));kp.appendChild(d);
+    });
+    g('hscxSub').textContent='Nguồn: gqtthc.dcs.vn'+(stamp?' · đồng bộ lúc '+stamp:'')+' · chỉ hiển thị thông tin hồ sơ, không có họ tên hay thông tin đảng viên.';
+    var tb=g('hscxBody');tb.textContent='';
+    var list=filtered();
+    if(!loading)setMsg(list.length?'':(rows.length?'Không có hồ sơ phù hợp bộ lọc.':'Chưa có dữ liệu. Mở mục “Đồng bộ” bên dưới để lấy hồ sơ từ gqtthc.dcs.vn.'));
+    list.forEach(function(r,i){
+      var tr=el('tr');
+      tr.appendChild(el('td',null,i+1));
+      tr.appendChild(el('td','mono',r.ma||'—'));
+      tr.appendChild(el('td',null,r.tthc||'—'));
+      tr.appendChild(el('td',null,r.coQuan||'—'));
+      tr.appendChild(el('td',null,fmt(r.ngayNop)));
+      tr.appendChild(el('td',null,fmt(r.han)));
+      var tl=el('td');tl.appendChild(el('span','bdg '+level(r),leftText(r)));tr.appendChild(tl);
+      var tx=el('td',null,r.buoc||r.tt||'—');
+      if(r.bs){tx.appendChild(document.createElement('br'));tx.appendChild(el('span','bdg warn','Cần bổ sung'))}
+      tr.appendChild(tx);
+      tb.appendChild(tr);
+    });
+  }
+
+  function jp(url,ms){return new Promise(function(res,rej){
+    var cb='__hscxjp'+Date.now()+Math.random().toString(36).slice(2,6),s=document.createElement('script');
+    var done=function(){clearTimeout(t);delete window[cb];s.remove()};
+    var t=setTimeout(function(){done();rej(new Error('timeout'))},ms||20000);
+    window[cb]=function(d){done();res(d)};
+    s.onerror=function(){done();rej(new Error('net'))};
+    s.src=url+(url.indexOf('?')<0?'?':'&')+'callback='+cb;
+    document.head.appendChild(s);
+  })}
+
+  async function load(){
+    if(loading)return;
+    var api=getApi();
+    if(!api){rows=[];render();setMsg('Chưa cấu hình địa chỉ Apps Script. Dán URL …/exec vào mục “Đồng bộ” bên dưới.');g('hscxSync').open=true;return}
+    loading=true;setMsg('Đang tải…');
+    try{
+      var tk=await AUTH.fresh();
+      if(!tk){setMsg('Phiên đăng nhập đã hết hạn, hãy đăng nhập lại.',true);return}
+      var d=await jp(api+'?action=hoso&idToken='+encodeURIComponent(tk),25000);
+      if(!d||!d.ok){
+        rows=[];render();
+        setMsg(d&&d.error==='forbidden'?'Tài khoản chưa đủ quyền xem (cần nhóm “Dữ liệu” hoặc Toàn quyền, và Apps Script phải kiểm tra được quyền).':'Máy chủ báo lỗi: '+((d&&d.error)||'không rõ'),true);
+        return;
+      }
+      rows=d.rows||[];stamp=d.updatedAtText||'';fillTthc();loading=false;render();
+    }catch(e){
+      rows=[];render();
+      setMsg('Không kết nối được Apps Script. Kiểm tra URL và quyền truy cập “Bất kỳ ai” khi triển khai.',true);
+    }finally{loading=false}
+  }
+
+  function csv(){
+    var list=filtered();
+    if(!list.length){say('Không có dữ liệu để xuất.');return}
+    var q=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'};
+    var out=[['STT','Mã hồ sơ','Thủ tục','Lĩnh vực','Cơ quan thực hiện','Ngày nộp','Hạn xử lý','Còn lại','Trạng thái','Bước xử lý','Cần bổ sung']];
+    list.forEach(function(r,i){out.push([i+1,r.ma,r.tthc,r.linhVuc,r.coQuan,fmt(r.ngayNop),fmt(r.han),leftText(r),r.tt,r.buoc,r.bs?'Có':'Không'])});
+    var blob=new Blob(['\ufeff'+out.map(function(r){return r.map(q).join(',')}).join('\r\n')],{type:'text/csv;charset=utf-8'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ho-so-cho-xu-ly.csv';document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);
+  }
+
+  function refreshBm(){
+    var a=g('hscxBm'),api=getApi();
+    a.href=api?'javascript:'+encodeURIComponent(bmSrc()):'#';
+    a.title=api?'Kéo lên thanh dấu trang':'Cần lưu địa chỉ Apps Script trước';
+  }
+
+  function open(){
+    g('hscxOv').classList.add('on');
+    g('hscxApi').value=getApi();refreshBm();render();load();
+  }
+  function close(){g('hscxOv').classList.remove('on')}
+
+  g('hscxOpen').onclick=open;
+  g('hscxClose').onclick=close;
+  g('hscxOv').addEventListener('click',function(e){if(e.target.id==='hscxOv')close()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&g('hscxOv').classList.contains('on'))close()});
+  g('hscxReload').onclick=load;
+  g('hscxCsv').onclick=csv;
+  g('hscxQ').oninput=render;g('hscxFh').onchange=render;g('hscxFt').onchange=render;
+  g('hscxApiSave').onclick=function(){
+    var u=normApi(g('hscxApi').value);
+    if(!u){say('Địa chỉ chưa đúng: cần URL Ứng dụng web kết thúc bằng /exec.');return}
+    try{localStorage.setItem(LSK,u)}catch(_){}
+    g('hscxApi').value=u;refreshBm();say('Đã lưu địa chỉ Apps Script.');load();
+  };
+  g('hscxBm').addEventListener('click',function(e){e.preventDefault();say('Hãy kéo nút này lên thanh dấu trang (đừng bấm tại đây).')});
+  g('hscxCopyJs').onclick=async function(){
+    if(!getApi()){say('Cần lưu địa chỉ Apps Script trước.');return}
+    try{await navigator.clipboard.writeText(bmSrc());say('Đã sao chép. Mở gqtthc.dcs.vn, bấm F12, thẻ Console, dán rồi Enter.')}
+    catch(_){say('Không sao chép được.')}
+  };
+})();
+</script>
+
 </body></html>
 
 
