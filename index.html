@@ -6277,7 +6277,7 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
 <div class="hx-act"><button type="button" class="btn" id="hscxCsv">⬇ CSV</button><button type="button" class="btn" id="hscxReload">↻ Tải lại</button><button type="button" class="btn" id="hscxClose">Đóng</button></div></div>
 <div class="hx-body">
 <div class="hx-kpi" id="hscxKpi"></div>
-<div class="hx-bar"><input type="search" id="hscxQ" placeholder="Tìm theo mã hồ sơ, TTHC, cơ quan…" autocomplete="off"><select id="hscxFh" aria-label="Lọc theo hạn xử lý"><option value="">Tất cả hạn xử lý</option><option value="bad">Quá hạn</option><option value="warn">Sắp đến hạn (≤ 7 ngày)</option><option value="ok">Còn hạn</option></select><select id="hscxFt" aria-label="Lọc theo thủ tục"><option value="">Tất cả thủ tục</option></select></div>
+<div class="hx-bar"><input type="search" id="hscxQ" placeholder="Tìm theo mã hồ sơ, TTHC, đảng bộ xã, phường…" autocomplete="off"><select id="hscxFh" aria-label="Lọc theo hạn xử lý"><option value="">Tất cả hạn xử lý</option><option value="bad">Quá hạn</option><option value="warn">Sắp đến hạn (≤ 7 ngày)</option><option value="ok">Còn hạn</option></select><select id="hscxFt" aria-label="Lọc theo thủ tục"><option value="">Tất cả thủ tục</option></select></div>
 <div class="hx-tbl"><table><thead><tr id="hscxHead"></tr></thead><tbody id="hscxBody"></tbody></table><div class="hx-msg" id="hscxMsg" hidden></div></div>
 <details id="hscxSync"><summary>⚡ Đồng bộ từ gqtthc.dcs.vn</summary><div class="hx-sync">
 <div class="hx-cfg"><input id="hscxApi" type="url" placeholder="Dán URL Apps Script (…/exec) của dự án Hồ sơ chờ xử lý" autocomplete="off"><button type="button" class="btn" id="hscxApiSave">Lưu</button></div>
@@ -6286,7 +6286,7 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
 <li>Mở <b>gqtthc.dcs.vn</b> (đã đăng nhập) rồi bấm dấu trang đó. Lần đầu nhập mật khẩu đồng bộ (<code>SYNC_TOKEN</code>), máy nhớ cho lần sau.</li>
 <li>Quay lại đây, bấm <b>↻ Tải lại</b>.</li>
 </ol>
-<p class="hx-note">Chỉ lấy: mã hồ sơ, TTHC, lĩnh vực, cơ quan, ngày nộp, hạn xử lý, ngày hẹn trả, trạng thái, bước xử lý, hình thức tiếp nhận, cần bổ sung. Không lấy họ tên người nộp, số định danh, tờ khai, file thành phần hay tên cán bộ. Xem cách tạo Apps Script trong đầu file <code>HoSoChoXuLy.gs</code>.</p>
+<p class="hx-note">Chỉ lấy: mã hồ sơ, TTHC, lĩnh vực, tên đảng bộ xã, phường (nơi chuyển đi), ngày nộp, hạn xử lý, ngày hẹn trả, trạng thái, bước xử lý, hình thức tiếp nhận, cần bổ sung. Không lấy họ tên người nộp, số định danh, tờ khai, file thành phần hay tên cán bộ. Xem cách tạo Apps Script trong đầu file <code>HoSoChoXuLy.gs</code>.</p>
 </div></details>
 </div></div></div>
 <script id="hscxJs">
@@ -6295,7 +6295,7 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
   var g=function(id){return document.getElementById(id)};
   var LSK='hscx.api',DAY=86400000;
   var rows=[],stamp='',sortKey='han',sortDir=1,loading=false;
-  var COLS=[['ma','Mã hồ sơ'],['tthc','Thủ tục'],['coQuan','Cơ quan thực hiện'],['ngayNop','Ngày nộp'],['han','Hạn xử lý'],['left','Còn lại'],['buoc','Trạng thái / bước']];
+  var COLS=[['ma','Mã hồ sơ'],['tthc','Thủ tục'],['coQuan','Đảng bộ xã, phường xử lý'],['ngayNop','Ngày nộp'],['han','Hạn xử lý'],['left','Còn lại'],['buoc','Trạng thái / bước']];
 
   /* Hàm chạy trên gqtthc.dcs.vn (dấu trang / Console). Phải tự đủ, không dùng biến bên ngoài. */
   async function hscxRun(API) {
@@ -6314,7 +6314,7 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
       if (!pw) { box.remove(); return; }
     }
     say('Đang lấy danh sách hồ sơ chờ xử lý…');
-    var rows = [], page = 1, total = Infinity, SIZE = 200;
+    var rows = [], ids = [], page = 1, total = Infinity, SIZE = 200;
     while (rows.length < total && page <= 50) {
       var r = await fetch('https://gateway-gqtthc.dcs.vn/xulytthc/v1/ho-so/ho-so-xu-ly', {
         method: 'POST',
@@ -6326,8 +6326,9 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
       var j = await r.json(), d = j.data || [];
       total = j.total != null ? j.total : (j.totalElements != null ? j.totalElements : d.length);
       d.forEach(function (x) {
+        ids.push(x.mongoId);
         rows.push({
-          ma: x.maHoSo, tthc: x.thuTuc, linhVuc: x.linhVuc, coQuan: x.coQuanThucHien,
+          ma: x.maHoSo, tthc: x.thuTuc, linhVuc: x.linhVuc, coQuan: '',
           ngayNop: x.ngayNop || x.ngayTiepNhan, han: x.hanXuLyToanQuyTrinh, hen: x.ngayHenTra,
           tt: x.trangThai, buoc: x.trangThaiBuocXuLy, ht: x.hinhThucTiepNhan, bs: x.boSungHoSo ? 1 : 0
         });
@@ -6335,6 +6336,30 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
       if (!d.length) break;
       page++;
     }
+    var pick = function (j) {
+      var d0 = (j && j.data) || {}, f = {};
+      try { f = typeof d0.detail === 'string' ? JSON.parse(d0.detail) : (d0.detail || {}); } catch (e0) { f = {}; }
+      return f.tokhaiDangBoCapTrenCoSoName || f.donViCapTrenName || f.tokhaiDangBoChiBoCoSoName || (d0.coquanTiepnhanData && d0.coquanTiepnhanData.name) || '';
+    };
+    var idx = 0, done = 0, miss = 0;
+    var worker = async function () {
+      while (idx < rows.length) {
+        var i = idx++;
+        try {
+          var rr = await fetch('https://gateway-gqtthc.dcs.vn/xulytthc/v1/ho-so/' + ids[i], { headers: { Authorization: 'Bearer ' + tk, Accept: 'application/json' } });
+          if (rr.status === 401 || rr.status === 403) throw new Error('Phiên gqtthc đã hết hạn, hãy đăng nhập lại rồi bấm lại.');
+          if (!rr.ok) throw new Error('HTTP ' + rr.status);
+          rows[i].coQuan = String(pick(await rr.json())).slice(0, 200);
+        } catch (e2) {
+          if (/hết hạn/.test(String(e2 && e2.message))) throw e2;
+          miss++;
+        }
+        done++;
+        if (done % 3 === 0 || done === rows.length) say('Đang lấy đơn vị đảng bộ xã, phường: ' + done + '/' + rows.length + '…');
+      }
+    };
+    say('Đang lấy đơn vị đảng bộ xã, phường của ' + rows.length + ' hồ sơ…');
+    await Promise.all([worker(), worker(), worker(), worker()]);
     var syncId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     say('Đang gửi ' + rows.length + ' hồ sơ lên Google Sheet…');
     await fetch(API, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify({ type: 'hoso', token: pw, syncId: syncId, rows: rows }) }) });
@@ -6352,7 +6377,7 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
       if (!(ok && ok.last && ok.last.syncId === syncId)) { ok = null; await new Promise(function (r2) { setTimeout(r2, 1000); }); }
     }
     try { localStorage.setItem('hscx.token', pw); } catch (e) {}
-    say(ok ? '✅ Đã đồng bộ ' + ok.last.rowCount + ' hồ sơ chờ xử lý lúc ' + ok.last.updatedAtText + '.'
+    say(ok ? '✅ Đã đồng bộ ' + ok.last.rowCount + ' hồ sơ chờ xử lý lúc ' + ok.last.updatedAtText + '.' + (miss ? '\n⚠ ' + miss + ' hồ sơ chưa lấy được đơn vị xã, phường.' : '')
            : '✓ Đã gửi ' + rows.length + ' hồ sơ. Chưa xác nhận được kết quả, hãy mở lại cửa sổ Hồ sơ chờ xử lý trên trang quản trị để kiểm tra.');
     setTimeout(function () { box.remove(); }, 20000);
   } catch (e) {
@@ -6370,6 +6395,7 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
     return /^[\w-]{20,}$/.test(v)?'https://script.google.com/macros/s/'+v+'/exec':'';
   }
   function bmSrc(){return '('+hscxRun.toString()+')('+JSON.stringify(getApi())+');void 0'}
+  function stt(r){var v=String(r.buoc||r.tt||'');return v==='4'?'Chờ xử lý':(v||'—')}
   function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
   function say(t){try{toast(t)}catch(_){alert(t)}}
 
@@ -6440,7 +6466,7 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
       tr.appendChild(el('td',null,fmt(r.ngayNop)));
       tr.appendChild(el('td',null,fmt(r.han)));
       var tl=el('td');tl.appendChild(el('span','bdg '+level(r),leftText(r)));tr.appendChild(tl);
-      var tx=el('td',null,r.buoc||r.tt||'—');
+      var tx=el('td',null,stt(r));
       if(r.bs){tx.appendChild(document.createElement('br'));tx.appendChild(el('span','bdg warn','Cần bổ sung'))}
       tr.appendChild(tx);
       tb.appendChild(tr);
@@ -6482,8 +6508,8 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
     var list=filtered();
     if(!list.length){say('Không có dữ liệu để xuất.');return}
     var q=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'};
-    var out=[['STT','Mã hồ sơ','Thủ tục','Lĩnh vực','Cơ quan thực hiện','Ngày nộp','Hạn xử lý','Còn lại','Trạng thái','Bước xử lý','Cần bổ sung']];
-    list.forEach(function(r,i){out.push([i+1,r.ma,r.tthc,r.linhVuc,r.coQuan,fmt(r.ngayNop),fmt(r.han),leftText(r),r.tt,r.buoc,r.bs?'Có':'Không'])});
+    var out=[['STT','Mã hồ sơ','Thủ tục','Lĩnh vực','Đảng bộ xã, phường xử lý','Ngày nộp','Hạn xử lý','Còn lại','Trạng thái','Bước xử lý','Cần bổ sung']];
+    list.forEach(function(r,i){out.push([i+1,r.ma,r.tthc,r.linhVuc,r.coQuan,fmt(r.ngayNop),fmt(r.han),leftText(r),stt(r),'',r.bs?'Có':'Không'])});
     var blob=new Blob(['\ufeff'+out.map(function(r){return r.map(q).join(',')}).join('\r\n')],{type:'text/csv;charset=utf-8'});
     var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ho-so-cho-xu-ly.csv';document.body.appendChild(a);a.click();
     setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);

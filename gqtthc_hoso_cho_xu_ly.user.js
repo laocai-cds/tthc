@@ -26,7 +26,7 @@ async function hscxRun(API) {
       if (!pw) { box.remove(); return; }
     }
     say('Đang lấy danh sách hồ sơ chờ xử lý…');
-    var rows = [], page = 1, total = Infinity, SIZE = 200;
+    var rows = [], ids = [], page = 1, total = Infinity, SIZE = 200;
     while (rows.length < total && page <= 50) {
       var r = await fetch('https://gateway-gqtthc.dcs.vn/xulytthc/v1/ho-so/ho-so-xu-ly', {
         method: 'POST',
@@ -38,8 +38,9 @@ async function hscxRun(API) {
       var j = await r.json(), d = j.data || [];
       total = j.total != null ? j.total : (j.totalElements != null ? j.totalElements : d.length);
       d.forEach(function (x) {
+        ids.push(x.mongoId);
         rows.push({
-          ma: x.maHoSo, tthc: x.thuTuc, linhVuc: x.linhVuc, coQuan: x.coQuanThucHien,
+          ma: x.maHoSo, tthc: x.thuTuc, linhVuc: x.linhVuc, coQuan: '',
           ngayNop: x.ngayNop || x.ngayTiepNhan, han: x.hanXuLyToanQuyTrinh, hen: x.ngayHenTra,
           tt: x.trangThai, buoc: x.trangThaiBuocXuLy, ht: x.hinhThucTiepNhan, bs: x.boSungHoSo ? 1 : 0
         });
@@ -47,6 +48,30 @@ async function hscxRun(API) {
       if (!d.length) break;
       page++;
     }
+    var pick = function (j) {
+      var d0 = (j && j.data) || {}, f = {};
+      try { f = typeof d0.detail === 'string' ? JSON.parse(d0.detail) : (d0.detail || {}); } catch (e0) { f = {}; }
+      return f.tokhaiDangBoCapTrenCoSoName || f.donViCapTrenName || f.tokhaiDangBoChiBoCoSoName || (d0.coquanTiepnhanData && d0.coquanTiepnhanData.name) || '';
+    };
+    var idx = 0, done = 0, miss = 0;
+    var worker = async function () {
+      while (idx < rows.length) {
+        var i = idx++;
+        try {
+          var rr = await fetch('https://gateway-gqtthc.dcs.vn/xulytthc/v1/ho-so/' + ids[i], { headers: { Authorization: 'Bearer ' + tk, Accept: 'application/json' } });
+          if (rr.status === 401 || rr.status === 403) throw new Error('Phiên gqtthc đã hết hạn, hãy đăng nhập lại rồi bấm lại.');
+          if (!rr.ok) throw new Error('HTTP ' + rr.status);
+          rows[i].coQuan = String(pick(await rr.json())).slice(0, 200);
+        } catch (e2) {
+          if (/hết hạn/.test(String(e2 && e2.message))) throw e2;
+          miss++;
+        }
+        done++;
+        if (done % 3 === 0 || done === rows.length) say('Đang lấy đơn vị đảng bộ xã, phường: ' + done + '/' + rows.length + '…');
+      }
+    };
+    say('Đang lấy đơn vị đảng bộ xã, phường của ' + rows.length + ' hồ sơ…');
+    await Promise.all([worker(), worker(), worker(), worker()]);
     var syncId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     say('Đang gửi ' + rows.length + ' hồ sơ lên Google Sheet…');
     await fetch(API, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify({ type: 'hoso', token: pw, syncId: syncId, rows: rows }) }) });
@@ -64,7 +89,7 @@ async function hscxRun(API) {
       if (!(ok && ok.last && ok.last.syncId === syncId)) { ok = null; await new Promise(function (r2) { setTimeout(r2, 1000); }); }
     }
     try { localStorage.setItem('hscx.token', pw); } catch (e) {}
-    say(ok ? '✅ Đã đồng bộ ' + ok.last.rowCount + ' hồ sơ chờ xử lý lúc ' + ok.last.updatedAtText + '.'
+    say(ok ? '✅ Đã đồng bộ ' + ok.last.rowCount + ' hồ sơ chờ xử lý lúc ' + ok.last.updatedAtText + '.' + (miss ? '\n⚠ ' + miss + ' hồ sơ chưa lấy được đơn vị xã, phường.' : '')
            : '✓ Đã gửi ' + rows.length + ' hồ sơ. Chưa xác nhận được kết quả, hãy mở lại cửa sổ Hồ sơ chờ xử lý trên trang quản trị để kiểm tra.');
     setTimeout(function () { box.remove(); }, 20000);
   } catch (e) {

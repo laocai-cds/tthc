@@ -33,7 +33,7 @@ const HS_COLS = [
   ['ma', 'Mã hồ sơ'],
   ['tthc', 'Tên TTHC'],
   ['linhVuc', 'Lĩnh vực'],
-  ['coQuan', 'Cơ quan thực hiện'],
+  ['coQuan', 'Đảng bộ xã, phường'],
   ['ngayNop', 'Ngày nộp'],
   ['han', 'Hạn xử lý toàn quy trình'],
   ['hen', 'Ngày hẹn trả'],
