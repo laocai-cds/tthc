@@ -6108,7 +6108,7 @@ html.is-admin #adminBtn{display:inline-flex!important}
 <div class="admpane" data-grp="tq"><div class="admstat"><div><small>Đang online</small><b id="admOn">–</b></div><div><small>Tổng lượt truy cập</small><b id="admTot">–</b></div></div><p class="hint">Số liệu lấy từ bộ đếm truy cập của trang.</p></div>
 <div class="admpane" data-grp="cn"><div id="admTools"></div><p class="hint">Nhập Excel/JSON, sửa thông báo, Đảng phí và Trang web đơn vị chỉ mở được khi đã đăng nhập quản trị.</p></div>
 <div class="admpane" data-grp="dl"><div id="admSheetHost"></div><p class="hint">Bảng dữ liệu Google Sheets và nút đồng bộ (đã chuyển từ trang chính vào Quản trị hệ thống). Trang vẫn tự đồng bộ khi mở và mỗi phút.</p></div>
-<div class="admpane" data-grp="nk"><div class="row"><input id="nkFilter" type="search" placeholder="Lọc theo Gmail hoặc thao tác…" autocomplete="off"><button type="button" class="btn" id="nkReload">Tải lại</button></div>
+<div class="admpane" data-grp="nk"><div class="row"><input id="nkFilter" type="search" placeholder="Lọc theo Gmail hoặc thao tác…" autocomplete="off"><button type="button" class="btn" id="nkReload">Tải lại</button><button type="button" class="btn" id="nkExport" title="Tải nhật ký về máy dạng file .txt">⬇ Xuất .txt</button></div>
 <div id="nkInfo" class="hint">Nhật ký thao tác của tài khoản quản trị trên trang (đăng nhập, mở chức năng, gửi dữ liệu…). Chỉ Toàn quyền xem được.</div>
 <div id="nkWrap"><table><thead><tr><th>Thời gian</th><th>Tài khoản</th><th>Thao tác</th><th>Chi tiết</th></tr></thead><tbody id="nkBody"><tr><td colspan="4">Chưa tải.</td></tr></tbody></table></div></div>
 <div class="admpane" data-grp="pq"><table><thead><tr><th>Gmail</th><th>Quyền</th><th></th></tr></thead><tbody id="admBody"><tr><td colspan="3">Đang tải…</td></tr></tbody></table>
@@ -6192,6 +6192,17 @@ window.AUTH=(function(){
       if(!d||!d.ok){box.innerHTML='<tr><td colspan="4">'+(d&&d.error==='unauthorized'?'Chỉ tài khoản Toàn quyền được xem nhật ký.':'Máy chủ Apps Script chưa cập nhật phần nhật ký. Hãy triển khai phiên bản mới của dự án "03 thủ tục".')+'</td></tr>';return}
       window.__nkRows=d.rows||[];info.textContent='Hiển thị '+window.__nkRows.length+' thao tác mới nhất (tổng '+(d.total||0)+'). Nhật ký ghi từ lúc cập nhật trở đi.';nkPaint()}
     catch(_){box.innerHTML='<tr><td colspan="4">Không tải được nhật ký (lỗi mạng).</td></tr>'}}
+  async function nkExport(){const m=g('nkInfo');
+    try{m.textContent='Đang lấy toàn bộ nhật ký để xuất…';const d=await jp('action=logs&n=500&idToken='+encodeURIComponent(await fresh()),20000);
+      if(!d||!d.ok){m.textContent='Chưa xuất được: máy chủ chưa cập nhật phần nhật ký hoặc bạn không phải Toàn quyền.';return}
+      const q=(g('nkFilter').value||'').trim().toLowerCase(),R=(d.rows||[]).filter(r=>!q||(r.e+' '+r.a+' '+r.d).toLowerCase().indexOf(q)>=0);
+      const now=new Date(),p2=n=>String(n).padStart(2,'0'),stamp=now.getFullYear()+p2(now.getMonth()+1)+p2(now.getDate())+'_'+p2(now.getHours())+p2(now.getMinutes());
+      const head='NHẬT KÝ THAO TÁC QUẢN TRỊ – DVC Lào Cai (theo dõi TTHC)\r\nXuất lúc: '+p2(now.getDate())+'/'+p2(now.getMonth()+1)+'/'+now.getFullYear()+' '+p2(now.getHours())+':'+p2(now.getMinutes())+(q?'  ·  Bộ lọc: '+q:'')+'\r\nSố dòng: '+R.length+' (mới nhất ở trên)\r\n'+'='.repeat(70)+'\r\n';
+      const body=R.map(r=>'['+r.t+'] '+r.e+'\r\n    Thao tác : '+r.a+'\r\n    Chi tiết : '+(r.d||'-')).join('\r\n\r\n');
+      const blob=new Blob(['\ufeff'+head+'\r\n'+body+'\r\n'],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);a.download='nhat-ky-thao-tac_'+stamp+'.txt';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+      m.textContent='Đã xuất '+R.length+' dòng ra file '+a.download+'.'}
+    catch(_){m.textContent='Không xuất được nhật ký (lỗi mạng).'}}
   function nkPaint(){const box=g('nkBody'),q=(g('nkFilter').value||'').trim().toLowerCase(),R=(window.__nkRows||[]).filter(r=>!q||(r.e+' '+r.a+' '+r.d).toLowerCase().indexOf(q)>=0);
     box.innerHTML=R.length?R.map(r=>'<tr><td>'+esc(r.t)+'</td><td>'+esc(r.e)+'</td><td>'+esc(r.a)+'</td><td>'+esc(r.d)+'</td></tr>').join(''):'<tr><td colspan="4">Chưa có thao tác nào.</td></tr>'}
   async function admLoad(){const box=g('admBody');if(!box||role!=='admin')return null;
@@ -6233,7 +6244,7 @@ window.AUTH=(function(){
     tabs.forEach(b=>b.onclick=()=>showTab(b.dataset.g));
     let st='tq';try{st=localStorage.getItem('tt_admtab')||'tq'}catch(_){}showTab(['tq','cn','pq'].includes(st)?st:'tq');
     window.__admShowTab=showTab;
-    g('admReload').onclick=admLoad;g('nkReload').onclick=nkLoad;g('nkFilter').oninput=nkPaint;
+    g('admReload').onclick=admLoad;g('nkReload').onclick=nkLoad;g('nkExport').onclick=nkExport;g('nkFilter').oninput=nkPaint;
     g('admAdd').onclick=()=>{const i=g('admEmail'),e=i.value.trim().toLowerCase();
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){g('admMsg').textContent='Gmail chưa đúng định dạng.';return}
       const ck=[...document.querySelectorAll('#admNewPerm [data-nk]:checked')].map(x=>x.dataset.nk),pl=ck.indexOf('all')>=0?['all']:['bc','dp','dl','nd'].filter(k=>ck.indexOf(k)>=0);
