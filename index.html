@@ -6143,7 +6143,7 @@ window.AUTH=(function(){
     try{tok=await u.getIdToken()}catch(_){tok=''}
     try{const d=await jp('action=whoami&idToken='+encodeURIComponent(tok));
       if(my!==gen)return;
-      if(d&&d.ok&&d.role==='admin'){perms=Array.isArray(d.perms)&&d.perms.length?d.perms:['all'];if(role!=='admin'){say('Đã đăng nhập quản trị: '+(d.email||''));setRole('admin');logAct('Đăng nhập',d.email||'')}else setRole('admin')}
+      if(d&&d.ok&&d.role==='admin'){perms=Array.isArray(d.perms)&&d.perms.length?d.perms:['all'];if(role!=='admin'){say('Đã đăng nhập quản trị: '+(d.email||''));setRole('admin');logAct('Đăng nhập','Đăng nhập quản trị bằng Google · '+dev())}else setRole('admin')}
       else if(d&&d.ok){setRole(null);say('Tài khoản '+(d.email||u.email||'')+' chưa được cấp quyền quản trị.');try{await auth.signOut()}catch(_){}}
       else{setRole(null);say('Chưa kiểm tra được quyền quản trị. Hãy cập nhật Apps Script có phần đăng nhập rồi thử lại.')}
     }catch(_){if(my===gen){setRole(null);say('Không kết nối được máy chủ để kiểm tra quyền. Hãy thử lại.')}}}
@@ -6159,22 +6159,32 @@ window.AUTH=(function(){
         if(c==='auth/operation-not-allowed'){say('Chưa bật đăng nhập Google trong Firebase.');return}
         say('Không đăng nhập được'+(c?' ('+c+')':'')+'. Hãy thử lại.')}
     }catch(_){say('Không tải được dịch vụ đăng nhập. Kiểm tra mạng rồi thử lại.')}finally{b.disabled=false}}
-  async function logout(){logAct('Đăng xuất',(user&&user.email)||'');try{await auth.signOut()}catch(_){}setRole(null);say('Đã đăng xuất.')}
+  async function logout(){logAct('Đăng xuất','Thoát phiên quản trị · '+dev());try{await auth.signOut()}catch(_){}setRole(null);say('Đã đăng xuất.')}
   const fresh=()=>user?user.getIdToken().then(t=>{tok=t;return t}).catch(()=>tok):Promise.resolve('');
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   /* ---- Nhật ký thao tác quản trị: gửi lên Apps Script (action=log), xem ở tab Nhật ký ---- */
   function logAct(act,detail){if(role!=='admin')return;
     fresh().then(t=>{if(!t)return;return window.__nkRawFetch(EP,{method:'POST',mode:'no-cors',body:new URLSearchParams({payload:JSON.stringify({action:'log',act:act,detail:detail||'',src:'web',idToken:t})})})}).catch(()=>{})}
   window.__nkRawFetch=window.fetch.bind(window);
+  const dev=()=>{const u=navigator.userAgent||'',br=/CocCoc/i.test(u)?'Cốc Cốc':/Edg\//.test(u)?'Edge':/OPR\//.test(u)?'Opera':/Firefox/.test(u)?'Firefox':/Zalo/i.test(u)?'Zalo':/Chrome/.test(u)?'Chrome':/Safari/.test(u)?'Safari':'trình duyệt',os=/Android/.test(u)?'Android':/iPhone|iPad/.test(u)?'iOS':/Windows/.test(u)?'Windows':/Mac OS/.test(u)?'macOS':/Linux/.test(u)?'Linux':'';return br+(os?' trên '+os:'')};
+  const PN={'dang-phi':'Thu nộp đảng phí','nhan-xet':'Nhận xét nơi cư trú'};
+  const pname=id=>PN[id]||String(id||'').replace(/-/g,' ');
+  const page=()=>{const c=document.getElementById('crumbName');return c?c.textContent.trim():''};
+  const FN={owner:'cán bộ phụ trách',guided:'hướng dẫn',received:'tiếp nhận',total:'tổng',processed:'đã xử lý',need:'cần xử lý',done:'hoàn thành',done10:'hoàn thành T10',dvccreated:'tài khoản DVC',dvctotal:'tổng DVC',bankcreated:'tài khoản ngân hàng',banktotal:'tổng ngân hàng',paid:'đã nộp',note:'ghi chú'};
   window.fetch=function(u,o){try{if(role==='admin'&&o&&o.method==='POST'&&typeof u==='string'&&u.indexOf('script.google.com/')>=0&&o.body&&typeof o.body.get==='function'){
       const p=JSON.parse(o.body.get('payload')||'null');
       if(p&&p.action!=='log'&&p.action!=='admin_add'&&p.action!=='admin_remove'){
         let a='Gửi dữ liệu lên Google Sheets',d='';
-        if(Array.isArray(p.updates)){a='Cập nhật số liệu thủ tục';d=p.updates.length+' đơn vị'}
-        else if(p.type==='hoso'){a='Đồng bộ hồ sơ chờ xử lý';d=(p.rows&&p.rows.length||0)+' dòng'}
-        else if(p.type){a='Gửi dữ liệu: '+String(p.type).slice(0,30);d=Array.isArray(p.rows)?p.rows.length+' dòng':''}
-        else if(p.action){a='Gửi yêu cầu: '+String(p.action).slice(0,30)}
-        logAct(a,d)}}}catch(_){}
+        const ups=Array.isArray(p.updates)?p.updates:(p.procedureId?[p]:null);
+        if(ups){const procs=[...new Set(ups.map(x=>pname(x.procedureId)))].join(', '),ids=[...new Set(ups.map(x=>x.unitId))];
+          const flds=[...new Set(ups.flatMap(x=>Object.keys(x.values||{})))].map(k=>FN[k]||k).slice(0,6).join(', ');
+          if(ups.length===1){a='Sửa số liệu 1 đơn vị';d='Thủ tục: '+procs+' · đơn vị mã '+ids[0]+(flds?' · sửa: '+flds:'')}
+          else{a='Nhập/cập nhật số liệu hàng loạt';d=ups.length+' bản ghi · thủ tục: '+procs+' · '+ids.length+' đơn vị'+(flds?' · cột: '+flds:'')}}
+        else if(p.type==='hoso'){a='Đồng bộ hồ sơ chờ xử lý';d=(p.rows&&p.rows.length||0)+' hồ sơ lấy từ gqtthc.dcs.vn gửi lên Google Sheets (không kèm thông tin đảng viên)'}
+        else if(p.type){a='Đồng bộ dữ liệu: '+String(p.type).slice(0,30);d=Array.isArray(p.rows)?p.rows.length+' dòng gửi lên Google Sheets':'Gửi lên Google Sheets'}
+        else if(p.admin!=null){a='Cập nhật dữ liệu quản trị';d='Gửi bảng dữ liệu lên Google Sheets'}
+        else if(p.action){a='Gửi yêu cầu: '+String(p.action).slice(0,30);d='Gửi tới máy chủ Apps Script'}
+        logAct(a,d+(page()?' · tại: '+page():''))}}}catch(_){}
     return window.__nkRawFetch(u,o)};
   async function nkLoad(){const box=g('nkBody'),info=g('nkInfo');if(!box||!isFull())return;
     box.innerHTML='<tr><td colspan="4">Đang tải…</td></tr>';
@@ -6202,7 +6212,7 @@ window.AUTH=(function(){
     m.textContent='Chưa thấy thay đổi. Bấm “Tải lại”; nếu vẫn chưa được, kiểm tra Apps Script đã triển khai bản mới.'}
   function init(){
     const b=g('loginBtn');if(b)b.onclick=()=>role==='admin'?logout():login();
-    g('adminBtn').onclick=()=>{g('admOv').classList.add('on');window.__admShowTab&&__admShowTab((document.querySelector('.admtabs [aria-selected=true]')||{dataset:{g:'tq'}}).dataset.g)};
+    g('adminBtn').onclick=()=>{logAct('Mở Quản trị hệ thống','Mở cửa sổ quản trị'+(page()?' · tại: '+page():''));g('admOv').classList.add('on');window.__admShowTab&&__admShowTab((document.querySelector('.admtabs [aria-selected=true]')||{dataset:{g:'tq'}}).dataset.g)};
     g('admClose').onclick=()=>g('admOv').classList.remove('on');
     g('admOv').addEventListener('click',e=>{if(e.target.id==='admOv')g('admOv').classList.remove('on')});
     const TOOLS=[['#hscxOpen','📥 Hồ sơ chờ xử lý'],['#openImport','↑ Nhập Excel'],['#exportJson','↓ Xuất JSON'],['#importJson','↑ Nhập JSON'],['#editAnnouncement','✎ Sửa thông báo'],['#duesDetailOpen','📋 Chi tiết thu đảng phí'],['#dpMenuAction','₫ Đảng phí'],['#unitsMenuAction','🔗 Trang web đơn vị'],['#buildReport','📄 Tạo báo cáo'],['#rptMenuDocx','⬇ Báo cáo Word (.docx)'],['#rptMenuXlsx','⬇ Báo cáo Excel (.xlsx)']];
@@ -6210,10 +6220,11 @@ window.AUTH=(function(){
       ['Thu đảng phí','c-red',[['#duesDetailOpen','Xem từng đơn vị']]],
       ['Dữ liệu','c-green',[['#hscxOpen','Hồ sơ chờ xử lý từ gqtthc'],['#openImport','Nhập từ file Excel'],['#dpMenuAction','Cập nhật số thu'],['#exportJson','Sao lưu ra JSON'],['#importJson','Khôi phục từ JSON']]],
       ['Nội dung & đơn vị','c-amber',[['#editAnnouncement','Sửa dòng thông báo'],['#unitsMenuAction','Liên kết site đơn vị']]]];
+    const DESC={};GROUPS.forEach(gr=>gr[2].forEach(x=>{DESC[x[0]]=x[1]}));
     g('admTools').innerHTML=GROUPS.map(gr=>'<section class="admgrp '+gr[1]+'" data-pg="'+({'Báo cáo':'bc','Thu đảng phí':'dp','Dữ liệu':'dl','Nội dung & đơn vị':'nd'}[gr[0]])+'"><h4>'+gr[0]+'</h4><div class="admgrid">'+gr[2].map(x=>{const i=TOOLS.findIndex(t=>t[0]===x[0]);return i<0?'':'<button type="button" class="btn" data-tool="'+i+'"><b>'+TOOLS[i][1]+'</b><small>'+x[1]+'</small></button>'}).join('')+'</div></section>').join('');
     g('admTools').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(!b||role!=='admin')return;
       const el=document.querySelector(TOOLS[+b.dataset.tool][0]);if(!el){say('Chức năng này chưa tải xong, thử lại sau giây lát.');return}
-      logAct('Mở chức năng',TOOLS[+b.dataset.tool][1]);g('admOv').classList.remove('on');setTimeout(()=>el.click(),50)});
+      logAct('Mở chức năng: '+TOOLS[+b.dataset.tool][1].replace(/^\S+\s/,''),(DESC[TOOLS[+b.dataset.tool][0]]||'Mở từ cửa sổ Quản trị hệ thống')+(page()?' · tại: '+page():''));g('admOv').classList.remove('on');setTimeout(()=>el.click(),50)});
     const tabs=document.querySelectorAll('.admtabs button');
     function showTab(id){tabs.forEach(b=>b.setAttribute('aria-selected',b.dataset.g===id?'true':'false'));
       document.querySelectorAll('.admpane').forEach(el=>el.classList.toggle('admhide',el.dataset.grp!==id));
