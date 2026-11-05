@@ -6099,7 +6099,7 @@ html.is-admin #adminBtn{display:inline-flex!important}
 #admBox h3{margin:0 0 4px;font-size:18px}#admBox .hint{color:#728198;font-size:12.5px;margin:0 0 12px}
 #admBox table{width:100%;border-collapse:collapse;margin:8px 0}#admBox td,#admBox th{border:1px solid #d7dee8;padding:6px 8px;text-align:left;font-size:13px}
 #admBox .row{display:flex;gap:8px;margin:10px 0}#admBox input{flex:1;padding:8px 10px;border:1px solid #cdd6e2;border-radius:8px;font:inherit}
-#admBox .pg{display:inline-flex;align-items:center;gap:4px;margin:2px 10px 2px 0;font-size:12.5px;white-space:nowrap}#admBox .pg input{flex:none;padding:0;width:auto}#admBox .pg.full{font-weight:700;color:#8f0b12}#admBox .pgrow{font-size:12.5px;color:#4a5566;margin:2px 0 6px}#admBox [hidden],.admtabs [hidden]{display:none!important}#nkWrap{max-height:52vh;overflow:auto;border-radius:8px}#nkWrap td,#nkWrap th{font-size:12.5px;vertical-align:top}#nkWrap th{position:sticky;top:0;background:#f1f5f9;z-index:1}#nkWrap td:first-child{white-space:nowrap;color:#4a5566}#nkWrap td:nth-child(3){font-weight:600}#nkWrap td:nth-child(2){word-break:break-all}#nkWrap td:nth-child(4){word-break:break-word}#nkWrap table{table-layout:fixed;width:100%}#nkWrap th:nth-child(1){width:23%}#nkWrap th:nth-child(2){width:29%}#nkWrap th:nth-child(3){width:23%}#nkWrap td:first-child{white-space:normal}#nkWrap td{overflow-wrap:anywhere}.admtabs button{padding:9px 6px;font-size:12.5px}#admBox .x{float:right}#admMsg{min-height:18px;color:#12a486;font-size:13px}
+#admBox .pg{display:inline-flex;align-items:center;gap:4px;margin:2px 10px 2px 0;font-size:12.5px;white-space:nowrap}#admBox .pg input{flex:none;padding:0;width:auto}#admBox .pg.full{font-weight:700;color:#8f0b12}#admBox .pgrow{font-size:12.5px;color:#4a5566;margin:2px 0 6px}#admBox [hidden],.admtabs [hidden]{display:none!important}#nkUser{padding:8px 10px;border:1px solid #cdd6e2;border-radius:8px;font:inherit;background:#fff}#nkWrap{max-height:52vh;overflow:auto;border-radius:8px}#nkWrap td,#nkWrap th{font-size:12.5px;vertical-align:top}#nkWrap th{position:sticky;top:0;background:#f1f5f9;z-index:1}#nkWrap td:first-child{white-space:nowrap;color:#4a5566}#nkWrap td:nth-child(3){font-weight:600}#nkWrap td:nth-child(2){word-break:break-all}#nkWrap td:nth-child(4){word-break:break-word}#nkWrap table{table-layout:fixed;width:100%}#nkWrap th:nth-child(1){width:20%}#nkWrap th:nth-child(2){width:27%}#nkWrap th:nth-child(3){width:24%}#nkWrap td,#nkWrap th{padding:6px 7px;overflow-wrap:anywhere;word-break:break-word;white-space:normal}.admpane[data-grp=nk] .row{flex-wrap:wrap}#nkUser{flex:1 1 100%;max-width:100%}#nkFilter{flex:1 1 180px;min-width:0}#nkWrap td:first-child{white-space:normal}#nkWrap td{overflow-wrap:anywhere}.admtabs button{padding:9px 6px;font-size:12.5px}#admBox .x{float:right}#admMsg{min-height:18px;color:#12a486;font-size:13px}
 </style><div id="admOv" role="dialog" aria-modal="true" aria-labelledby="admTtl"><div id="admBox">
 <button type="button" class="btn x" id="admClose">Đóng</button>
 <h3 id="admTtl">🛡 Quản trị hệ thống</h3>
@@ -6108,7 +6108,7 @@ html.is-admin #adminBtn{display:inline-flex!important}
 <div class="admpane" data-grp="tq"><div class="admstat"><div><small>Đang online</small><b id="admOn">–</b></div><div><small>Tổng lượt truy cập</small><b id="admTot">–</b></div></div><p class="hint">Số liệu lấy từ bộ đếm truy cập của trang.</p></div>
 <div class="admpane" data-grp="cn"><div id="admTools"></div><p class="hint">Nhập Excel/JSON, sửa thông báo, Đảng phí và Trang web đơn vị chỉ mở được khi đã đăng nhập quản trị.</p></div>
 <div class="admpane" data-grp="dl"><div id="admSheetHost"></div><p class="hint">Bảng dữ liệu Google Sheets và nút đồng bộ (đã chuyển từ trang chính vào Quản trị hệ thống). Trang vẫn tự đồng bộ khi mở và mỗi phút.</p></div>
-<div class="admpane" data-grp="nk"><div class="row"><input id="nkFilter" type="search" placeholder="Lọc theo Gmail hoặc thao tác…" autocomplete="off"><button type="button" class="btn" id="nkReload">Tải lại</button><button type="button" class="btn" id="nkExport" title="Tải nhật ký về máy dạng file .txt">⬇ Xuất .txt</button></div>
+<div class="admpane" data-grp="nk"><div class="row"><select id="nkUser" title="Chọn tài khoản"><option value="">Tất cả tài khoản</option></select><input id="nkFilter" type="search" placeholder="Lọc theo Gmail hoặc thao tác…" autocomplete="off"><button type="button" class="btn" id="nkReload">Tải lại</button><button type="button" class="btn" id="nkExport" title="Tải nhật ký về máy dạng file .txt">⬇ Xuất .txt</button></div>
 <div id="nkInfo" class="hint">Nhật ký thao tác của tài khoản quản trị trên trang (đăng nhập, mở chức năng, gửi dữ liệu…). Chỉ Toàn quyền xem được.</div>
 <div id="nkWrap"><table><thead><tr><th>Thời gian</th><th>Tài khoản</th><th>Thao tác</th><th>Chi tiết</th></tr></thead><tbody id="nkBody"><tr><td colspan="4">Chưa tải.</td></tr></tbody></table></div></div>
 <div class="admpane" data-grp="pq"><table><thead><tr><th>Gmail</th><th>Quyền</th><th></th></tr></thead><tbody id="admBody"><tr><td colspan="3">Đang tải…</td></tr></tbody></table>
@@ -6190,12 +6190,12 @@ window.AUTH=(function(){
     box.innerHTML='<tr><td colspan="4">Đang tải…</td></tr>';
     try{const d=await jp('action=logs&n=300&idToken='+encodeURIComponent(await fresh()),15000);
       if(!d||!d.ok){box.innerHTML='<tr><td colspan="4">'+(d&&d.error==='unauthorized'?'Chỉ tài khoản Toàn quyền được xem nhật ký.':'Máy chủ Apps Script chưa cập nhật phần nhật ký. Hãy triển khai phiên bản mới của dự án "03 thủ tục".')+'</td></tr>';return}
-      window.__nkRows=d.rows||[];info.textContent='Hiển thị '+window.__nkRows.length+' thao tác mới nhất (tổng '+(d.total||0)+'). Nhật ký ghi từ lúc cập nhật trở đi.';nkPaint()}
+      window.__nkRows=d.rows||[];nkUsers(d.rows||[]);info.textContent='Hiển thị '+window.__nkRows.length+' thao tác mới nhất (tổng '+(d.total||0)+'). Nhật ký ghi từ lúc cập nhật trở đi.';nkPaint()}
     catch(_){box.innerHTML='<tr><td colspan="4">Không tải được nhật ký (lỗi mạng).</td></tr>'}}
   async function nkExport(){const m=g('nkInfo');
     try{m.textContent='Đang lấy toàn bộ nhật ký để xuất…';const d=await jp('action=logs&n=500&idToken='+encodeURIComponent(await fresh()),20000);
       if(!d||!d.ok){m.textContent='Chưa xuất được: máy chủ chưa cập nhật phần nhật ký hoặc bạn không phải Toàn quyền.';return}
-      const q=(g('nkFilter').value||'').trim().toLowerCase(),R=(d.rows||[]).filter(r=>!q||(r.e+' '+r.a+' '+r.d).toLowerCase().indexOf(q)>=0);
+      const q=((g('nkUser').value||'')+' '+(g('nkFilter').value||'')).trim(),R=(d.rows||[]).filter(nkSel);
       const now=new Date(),p2=n=>String(n).padStart(2,'0'),stamp=now.getFullYear()+p2(now.getMonth()+1)+p2(now.getDate())+'_'+p2(now.getHours())+p2(now.getMinutes());
       const head='NHẬT KÝ THAO TÁC QUẢN TRỊ – DVC Lào Cai (theo dõi TTHC)\r\nXuất lúc: '+p2(now.getDate())+'/'+p2(now.getMonth()+1)+'/'+now.getFullYear()+' '+p2(now.getHours())+':'+p2(now.getMinutes())+(q?'  ·  Bộ lọc: '+q:'')+'\r\nSố dòng: '+R.length+' (mới nhất ở trên)\r\n'+'='.repeat(70)+'\r\n';
       const body=R.map(r=>'['+r.t+'] '+r.e+'\r\n    Thao tác : '+r.a+'\r\n    Chi tiết : '+(r.d||'-')).join('\r\n\r\n');
@@ -6203,7 +6203,14 @@ window.AUTH=(function(){
       a.href=URL.createObjectURL(blob);a.download='nhat-ky-thao-tac_'+stamp+'.txt';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
       m.textContent='Đã xuất '+R.length+' dòng ra file '+a.download+'.'}
     catch(_){m.textContent='Không xuất được nhật ký (lỗi mạng).'}}
-  function nkPaint(){const box=g('nkBody'),q=(g('nkFilter').value||'').trim().toLowerCase(),R=(window.__nkRows||[]).filter(r=>!q||(r.e+' '+r.a+' '+r.d).toLowerCase().indexOf(q)>=0);
+  async function nkUsers(rows){const sel=g('nkUser');if(!sel)return;const cur=sel.value,set=new Map();
+    (rows||[]).forEach(r=>{if(r.e)set.set(r.e,(set.get(r.e)||0)+1)});
+    let boot=[],adm=[];try{const d=await jp('action=admins&idToken='+encodeURIComponent(await fresh()),10000);if(d&&d.ok){boot=d.boot||[];adm=d.admins||[]}}catch(_){}
+    const all=[...new Set([...boot,...adm,...set.keys()].map(x=>String(x).toLowerCase()))];
+    sel.innerHTML='<option value="">Tất cả tài khoản ('+all.length+')</option>'+all.map(e=>'<option value="'+esc(e)+'">'+esc(e)+(set.has(e)?' · '+set.get(e)+' thao tác':' · chưa có thao tác')+(boot.map(x=>x.toLowerCase()).includes(e)?' · gốc':'')+'</option>').join('');
+    if(cur&&all.includes(cur))sel.value=cur}
+  const nkSel=r=>{const u=(g('nkUser')&&g('nkUser').value||'').toLowerCase(),q=(g('nkFilter').value||'').trim().toLowerCase();return(!u||String(r.e).toLowerCase()===u)&&(!q||(r.e+' '+r.a+' '+r.d).toLowerCase().indexOf(q)>=0)};
+  function nkPaint(){const box=g('nkBody'),R=(window.__nkRows||[]).filter(nkSel);
     box.innerHTML=R.length?R.map(r=>'<tr><td>'+esc(r.t)+'</td><td>'+esc(r.e)+'</td><td>'+esc(r.a)+'</td><td>'+esc(r.d)+'</td></tr>').join(''):'<tr><td colspan="4">Chưa có thao tác nào.</td></tr>'}
   async function admLoad(){const box=g('admBody');if(!box||role!=='admin')return null;
     const msg=t=>{box.innerHTML='<tr><td colspan="3">'+esc(t)+'</td></tr>'};
@@ -6244,7 +6251,7 @@ window.AUTH=(function(){
     tabs.forEach(b=>b.onclick=()=>showTab(b.dataset.g));
     let st='tq';try{st=localStorage.getItem('tt_admtab')||'tq'}catch(_){}showTab(['tq','cn','pq'].includes(st)?st:'tq');
     window.__admShowTab=showTab;
-    g('admReload').onclick=admLoad;g('nkReload').onclick=nkLoad;g('nkExport').onclick=nkExport;g('nkFilter').oninput=nkPaint;
+    g('admReload').onclick=admLoad;g('nkReload').onclick=nkLoad;g('nkExport').onclick=nkExport;g('nkFilter').oninput=nkPaint;g('nkUser').onchange=nkPaint;
     g('admAdd').onclick=()=>{const i=g('admEmail'),e=i.value.trim().toLowerCase();
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){g('admMsg').textContent='Gmail chưa đúng định dạng.';return}
       const ck=[...document.querySelectorAll('#admNewPerm [data-nk]:checked')].map(x=>x.dataset.nk),pl=ck.indexOf('all')>=0?['all']:['bc','dp','dl','nd'].filter(k=>ck.indexOf(k)>=0);
