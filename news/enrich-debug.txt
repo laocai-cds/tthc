@@ -1,11 +1,16 @@
-Lấy được 17/20 bài
+Lấy được 28/30 bài
 == THỐNG KÊ THEO BÁO ==
-   16  baolaocai.vn  có ảnh
-    2  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+   20  baolaocai.vn  có ảnh
+    2  trangtraiviet.danviet.vn  có ảnh
     1  baophapluat.vn  có ảnh
+    1  vtv.vn  có ảnh
+    1  www.vietnamplus.vn  có ảnh
+    1  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    1  vnexpress.net  có ảnh
+    1  tuoitre.vn  có ảnh
+    1  www.qdnd.vn  có ảnh
     1  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/nep-tu-le-ben-dat-hung-khanh-d838839.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thu-truong-nguyen-quoc-tri-khanh-thanh-nha-may-che-bien-que-hoi-lao-cai-d839721.html
 LỖI không phải HTML: application/pdf https://cdn.baolaocai.vn/files/VNxw3tYqxmLPvyr_JaFI6s1WZKKhuQsSIGmik2_ltOWW0vpzLKx3nL2Ru9qN5ltteKeKnhP5zrnHkqk0oKZnCI7BEaK7GA2iFRwrLRDF9fw/6-du-thao-van-ban-hop-nhat-vanthuky-vanthuky.pdf
