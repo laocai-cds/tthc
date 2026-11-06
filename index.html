@@ -4258,7 +4258,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
 .aic-fu button:hover,.aic-sug button:hover{background:#fff1ee;border-color:#e3a39c}
 .aic-typing{display:inline-flex;gap:4px;padding:12px 14px}.aic-typing i{width:7px;height:7px;border-radius:50%;background:#c3cad6;animation:aicDot 1s infinite}.aic-typing i:nth-child(2){animation-delay:.15s}.aic-typing i:nth-child(3){animation-delay:.3s}
 @keyframes aicDot{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
-.aic-sug{display:flex;gap:6px;overflow-x:auto;padding:6px 12px 2px;scrollbar-width:none}.aic-sug::-webkit-scrollbar{display:none}.aic-sug button{flex:none}
+.aic-sug{display:flex;flex-wrap:wrap;gap:6px;max-height:100px;overflow-y:auto;overflow-x:hidden;padding:6px 12px 2px;scrollbar-width:thin}.aic-sug button{flex:none;max-width:100%;white-space:normal;text-align:left;line-height:1.25}
 .aic-form{display:flex;gap:8px;align-items:flex-end;padding:10px 12px 12px;background:#fff;border-top:1px solid var(--line)}
 .aic-form textarea{flex:1;min-height:40px;max-height:110px;resize:none;border:1px solid #d9e0ea;border-radius:12px;padding:10px 12px;font:13px/1.45 "Segoe UI",Arial,sans-serif;color:var(--ink);outline:0}
 .aic-form textarea:focus{border-color:#c51620;box-shadow:0 0 0 3px rgba(197,22,32,.12)}
