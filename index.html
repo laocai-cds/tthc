@@ -4294,6 +4294,24 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
  const AI_ENDPOINT='https://script.google.com/macros/s/AKfycbyBj6mFHz40EysbN9UG7wgMoBzPT8lRLOxG2d387biH2CANqKyxeKcPWmxyyxhH3jWT/exec';
  const aiUrl=()=>{try{return localStorage.getItem('aic.endpoint')||AI_ENDPOINT}catch(e){return AI_ENDPOINT}};
  let aiHist=[];
+ /* ==== Nhúng trong site xã: nhận số liệu + tên xã qua postMessage ==== */
+ let SITE=null,siteWait=null;
+ const inFrame=(()=>{try{return window.parent!==window}catch(e){return false}})();
+ const siteShort=()=>SITE?SITE.name.replace(/^Đảng bộ\s+/i,'').trim():'';
+ window.addEventListener('message',e=>{
+  if(!inFrame||e.source!==window.parent)return;
+  const d=e.data;if(!d||d.type!=='aic-site-ctx'||typeof d.ctx!=='string')return;
+  const first=!SITE;SITE={name:String(d.name||'').slice(0,80),ctx:d.ctx.slice(0,9000),at:Date.now()};
+  if(siteWait){siteWait();siteWait=null}
+  try{const st=document.getElementById('aicSub');if(st&&SITE.name)st.textContent='Số liệu '+SITE.name;
+   if(first&&typeof welcome==='function'&&log&&log.children.length===1&&log.querySelector('.aic-welcome'))welcome()}catch(_){}});
+ const askSite=()=>{try{window.parent.postMessage({type:'aic-need-ctx'},'*')}catch(e){}};
+ const freshSite=()=>inFrame?new Promise(res=>{const t=setTimeout(()=>{siteWait=null;res()},700);siteWait=()=>{clearTimeout(t);res()};askSite()}):Promise.resolve();
+ if(inFrame){try{window.parent.postMessage({type:'aic-ready'},'*')}catch(e){}let tries=0;const iv=setInterval(()=>{if(SITE||++tries>8){clearInterval(iv);return}askSite()},1500)}
+ const siteQ=q=>{if(!SITE)return false;const n=N(q),sn=N(siteShort());
+  return /\b(xa nay|xa minh|xa toi|don vi (toi|minh|nay)|chung toi|o day|site nay|dang bo nay|cua xa|trong xa|toan xa)\b/.test(n)||(sn&&n.includes(sn))};
+ function siteBlock(){if(!SITE)return '';
+  return '=== SỐ LIỆU SITE XÃ (ưu tiên) ===\nNgười hỏi đang dùng site "'+SITE.name+'". Khi họ nói "xã này", "đơn vị tôi", "chúng tôi", "ở đây" hoặc nêu tên '+siteShort()+', hãy trả lời bằng số liệu dưới đây, KHÔNG dùng số liệu toàn tỉnh. Đây là số liệu đảng phí thật của site xã, chỉ nêu những gì có trong bảng, không bịa thêm.\n'+(SITE.ctx||'(Chưa tải được số liệu đảng phí của xã; hãy nói rõ là chưa có số liệu, đừng đoán.)')+'\n=== HẾT SỐ LIỆU SITE XÃ ===\n\nSố liệu chung toàn tỉnh (site TTHC):\n'}
  function md(t){let h=E(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g,'$1<i>$2</i>');
   const out=[];let list=null;
   for(const raw of h.split(/\n/)){const l=raw.trim();
@@ -4314,11 +4332,11 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
   L.push('Cách tính: 03 thủ tục hồ sơ = 5% có cán bộ phụ trách + 5% đã hướng dẫn + 20% × min(1; tiếp nhận/10) + 50% × min(1; hoàn thành/10) + 10% × đã xử lý/tiếp nhận + 10% × hoàn thành/tiếp nhận (chỉ tiêu 10 hồ sơ/đơn vị). Đảng phí = 80% × tỉ lệ thu trong kỳ + 4% × (cán bộ phụ trách + hướng dẫn + TK DVC + TK ngân hàng + đã nộp). Tỷ lệ đảng viên đã nộp = (8)÷((2)+(3)−(4)−(5)).');
   if(typeof RPT_DOCS!=='undefined')L.push('Căn cứ: '+RPT_DOCS.join('; ')+'.');
   findUnits(q).slice(0,3).forEach(n=>{const x=r.find(z=>z.unit===n);if(x)L.push('Đơn vị '+n+': tổng '+PC(x.average)+', hạng '+(r.indexOf(x)+1)+'; '+procs().map((p,k)=>p.short+' '+(x.values[k]==null?'—':PC(x.values[k]))).join(', ')+'.');const dd=duesOf(n);if(dd)L.push('  Đảng phí: '+dd.dn+' đã nộp, tỷ lệ '+P2(dd.mrate)+', tiền '+F(dd.nop)+' đồng.')});
- }catch(e){}return L.join('\n')}
+ }catch(e){}return siteBlock()+L.join('\n')}
  async function askAI(q){const url=aiUrl();if(!url)return null;
   const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),100000);
   const steps=[[1500,'Đang tra cứu thư viện văn bản…'],[7000,'AI đang soạn câu trả lời…'],[20000,'Câu hỏi cần thêm thời gian, vui lòng chờ…'],[45000,'Máy chủ AI đang bận, đang thử lại…']],tids=steps.map(([t,m])=>setTimeout(()=>{const b=document.getElementById('aicTyping');if(b){let l=b.querySelector('.aic-tymsg');if(!l){l=document.createElement('span');l.className='aic-tymsg';b.querySelector('.aic-typing').appendChild(l)}l.textContent=m}},t));
-  try{const res=await fetch(url,{method:'POST',body:JSON.stringify({q,ctx:buildCtx(q),hist:aiHist.slice(-3)}),signal:ctrl.signal});
+  try{await freshSite();const res=await fetch(url,{method:'POST',body:JSON.stringify({q,ctx:buildCtx(q),hist:aiHist.slice(-3)}),signal:ctrl.signal});
    const j=await res.json();if(!j.ok)throw new Error(j.error||'Máy chủ AI báo lỗi.');
    aiHist.push({q,a:String(j.text).slice(0,800)});
    const r=R(`<div class="aic-aitag">✨ Trả lời bởi AI (${E(j.provider||'AI')})${j.docs?` · dựa trên ${j.docs} trích đoạn văn bản`:''}</div>`+md(j.text).replace(/\[(\d{1,2})\]/g,'<sup class="aic-cite" data-cite="$1" title="Xem nguồn [$1]">$1</sup>'),j.docs?['ai']:['ai','track','fee'],[]);r.web=j.sources||[];r.model=j.model;return r}
@@ -4463,7 +4481,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
  const SUGS=['Tình hình chung','Top 5 đơn vị dẫn đầu','Đơn vị chưa triển khai','Tình hình thu đảng phí','Bình quân theo khối','Cách tính tiến độ','Căn cứ văn bản'];
  sug.innerHTML=SUGS.map(s=>`<button type="button" data-ask="${E(s)}">${E(s)}</button>`).join('');
  const now=()=>new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
- function welcome(){log.innerHTML=`<div class="aic-welcome"><h3>Xin chào! 👋</h3><p>Tôi là trợ lý tra cứu của hệ thống theo dõi 04 thủ tục hành chính của Đảng tỉnh Lào Cai. Chọn một chủ đề hoặc nhập câu hỏi bên dưới.</p><div class="aic-cats">${[['📊','Tiến độ chung','Bình quân, trạng thái','Tình hình chung'],['🏢','Tra cứu đơn vị','Ví dụ: Bảo Hà','Tiến độ Bảo Hà'],['🏆','Xếp hạng','Dẫn đầu / cần đôn đốc','Top 5 đơn vị dẫn đầu'],['💳','Đảng phí','Tỷ lệ, số tiền, chưa thu','Tình hình thu đảng phí'],['📜','Căn cứ văn bản','Quy định, kế hoạch','Căn cứ văn bản'],['📘','Hướng dẫn','Cập nhật, Excel, báo cáo','Cách cập nhật tiến độ']].map(c=>`<button type="button" class="aic-cat" data-ask="${E(c[3])}"><span>${c[0]}</span><div><b>${c[1]}</b><small>${c[2]}</small></div></button>`).join('')}</div></div>`}
+ function welcome(){const sc=SITE?[['🏘️','Đảng phí '+siteShort(),'Đã nộp, còn phải thu','Xã này đã nộp đảng phí bao nhiêu và còn phải thu bao nhiêu?'],['⚠️','Đơn vị cần đôn đốc','Chưa nộp nhiều nhất','Đơn vị nào trong xã chưa nộp nhiều nhất?']]:[];log.innerHTML=`<div class="aic-welcome"><h3>Xin chào! 👋</h3><p>${SITE?'Tôi đang xem số liệu của <b>'+E(SITE.name)+'</b>, bạn có thể hỏi về xã này, về thủ tục hành chính hoặc số liệu toàn tỉnh.':'Tôi là trợ lý tra cứu của hệ thống theo dõi 04 thủ tục hành chính của Đảng tỉnh Lào Cai. Chọn một chủ đề hoặc nhập câu hỏi bên dưới.'}</p><div class="aic-cats">${sc.concat([['📊','Tiến độ chung','Bình quân, trạng thái','Tình hình chung'],['🏢','Tra cứu đơn vị','Ví dụ: Bảo Hà','Tiến độ Bảo Hà'],['🏆','Xếp hạng','Dẫn đầu / cần đôn đốc','Top 5 đơn vị dẫn đầu'],['💳','Đảng phí','Tỷ lệ, số tiền, chưa thu','Tình hình thu đảng phí'],['📜','Căn cứ văn bản','Quy định, kế hoạch','Căn cứ văn bản'],['📘','Hướng dẫn','Cập nhật, Excel, báo cáo','Cách cập nhật tiến độ']]).map(c=>`<button type="button" class="aic-cat" data-ask="${E(c[3])}"><span>${c[0]}</span><div><b>${c[1]}</b><small>${c[2]}</small></div></button>`).join('')}</div></div>`}
  function srcHtml(keys,web){const ks=[...new Set(keys)];web=web||[];if(!ks.length&&!web.length)return '';
   return `<b>Nguồn thông tin</b><ol>${web.filter(w=>w.kind==='doc').map(w=>w.kind==='doc'?`<li class="aic-doc" id="${E(w._id||'')}">📄 <span class="aic-n">[${w.n}]</span> <a href="${E(w.url)}" target="_blank" rel="noopener noreferrer">${E(w.title)} ↗</a><small>“${E(String(w.snippet||'').replace(/[.…\s]+$/,''))}…”</small></li>`:`<li>🌐 <a href="${E(w.url)}" target="_blank" rel="noopener noreferrer">${E(w.title)} ↗</a></li>`).join('')}${ks.map(k=>{const s=SRC[k];if(!s)return '';if(k==='bases'){return `<li>${E(s.t)}:<small>${(typeof RPT_DOCS!=='undefined'?RPT_DOCS:[]).map(E).join('<br>')}</small></li>`}return `<li>${s.u?`<a href="${s.u}" target="_blank" rel="noopener noreferrer">${E(s.t)} ↗</a>`:E(s.t)}</li>`}).join('')}${web.filter(w=>w.kind!=='doc').map(w=>w.kind==='doc'?`<li class="aic-doc" id="${E(w._id||'')}">📄 <span class="aic-n">[${w.n}]</span> <a href="${E(w.url)}" target="_blank" rel="noopener noreferrer">${E(w.title)} ↗</a><small>“${E(String(w.snippet||'').replace(/[.…\s]+$/,''))}…”</small></li>`:`<li>🌐 <a href="${E(w.url)}" target="_blank" rel="noopener noreferrer">${E(w.title)} ↗</a></li>`).join('')}</ol><small style="margin-top:4px">Số liệu: ${E(syncTxt())}.</small>`}
  function addUser(t){log.insertAdjacentHTML('beforeend',`<div class="aic-row user"><div class="aic-msg"><div class="aic-bub">${E(t)}</div></div></div>`)}
@@ -4473,7 +4491,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
  let busy=false,hist=[],hi=-1;
  function ask(t){t=String(t||'').trim();if(!t||busy)return;busy=true;addUser(t);hist.unshift(t);hi=-1;inp.value='';fit();
   log.insertAdjacentHTML('beforeend',`<div class="aic-row bot" id="aicTyping"><span class="aic-mini">${ICON}</span><div class="aic-bub aic-typing"><i></i><i></i><i></i></div></div>`);log.scrollTop=log.scrollHeight;
-  setTimeout(async()=>{let r;try{r=forceAI?null:answer(t)}catch(e){console.error(e);r=null}
+  setTimeout(async()=>{let r;try{r=(forceAI||siteQ(t))?null:answer(t)}catch(e){console.error(e);r=null}
    if(!r&&aiUrl()){r=await askAI(t)}
    document.getElementById('aicTyping')?.remove();addBot(r||FALLBACK(),r&&!r.noai&&!(r.src||[]).includes('ai')?t:null);busy=false;forceAI=false;inp.focus()},380)}
  let forceAI=false;
@@ -4491,7 +4509,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
   const h=e.target.closest('[data-aic]');if(!h)return;
   if(h.dataset.aic==='close')toggle(false);else if(h.dataset.aic==='max')panel.classList.toggle('max');else{welcome();hist=[]}
  });
- function toggle(open){open=open??!panel.classList.contains('open');panel.classList.toggle('open',open);panel.setAttribute('aria-hidden',String(!open));launch.setAttribute('aria-expanded',String(open));if(open){if(!log.children.length)welcome();setTimeout(()=>inp.focus(),50);const st=document.getElementById('aicSub');if(st)st.textContent=(aiUrl()?'AI đã kết nối · ':'Trực tuyến · ')+syncTxt()}}
+ function toggle(open){open=open??!panel.classList.contains('open');panel.classList.toggle('open',open);panel.setAttribute('aria-hidden',String(!open));launch.setAttribute('aria-expanded',String(open));if(open){if(!log.children.length)welcome();setTimeout(()=>inp.focus(),50);const st=document.getElementById('aicSub');if(st)st.textContent=SITE&&SITE.name?'Số liệu '+SITE.name+(aiUrl()?' · AI đã kết nối':''):(aiUrl()?'AI đã kết nối · ':'Trực tuyến · ')+syncTxt()}}
  launch.onclick=()=>toggle();
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.classList.contains('open')&&!document.querySelector('.ud-overlay.open,.tp-ov.open,.hmz-ov.open'))toggle(false)});
  window.openAssistant=q=>{toggle(true);if(q)ask(q)};
