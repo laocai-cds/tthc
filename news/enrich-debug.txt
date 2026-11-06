@@ -1,9 +1,10 @@
-Lấy được 19/22 bài
+Lấy được 17/20 bài
 == THỐNG KÊ THEO BÁO ==
-   18  baolaocai.vn  có ảnh
+   15  baolaocai.vn  có ảnh
     2  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
     1  vov.vn  lỗi HTTP Error 403: Forbidden
-    1  daibieunhandan.vn  có ảnh
+    1  tienphong.vn  có ảnh
+    1  www.qdnd.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thu-truong-nguyen-quoc-tri-khanh-thanh-nha-may-che-bien-que-hoi-lao-cai-d839721.html
