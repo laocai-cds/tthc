@@ -6605,7 +6605,8 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
 
 <script>
 /* Liên kết từ các site xã: ?ai=1 (hoặc #ai) tự mở khung Trợ lý AI TTHC */
-(function(){try{if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,iv=setInterval(function(){n++;var b=document.getElementById('chatLaunch'),p=document.getElementById('procedureChat');if(b&&p&&typeof b.onclick==='function'){clearInterval(iv);if(!p.classList.contains('open'))b.click();return}if(n>80)clearInterval(iv)},250)}catch(e){}})();
+(function(){try{if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('aic-embed');var st=document.createElement('style');st.textContent='html.aic-embed body *{visibility:hidden!important}html.aic-embed #procedureChat,html.aic-embed #procedureChat *{visibility:visible!important}html.aic-embed body{background:#f7f8fb!important;overflow:hidden!important}html.aic-embed #procedureChat.aic{position:fixed!important;inset:0!important;right:0!important;bottom:0!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-height:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;transform:none!important}html.aic-embed [data-aic="max"],html.aic-embed [data-aic="close"],html.aic-embed .announcement-overlay{display:none!important}';document.head.appendChild(st)}
+if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,iv=setInterval(function(){n++;var b=document.getElementById('chatLaunch'),p=document.getElementById('procedureChat');if(b&&p&&typeof b.onclick==='function'){clearInterval(iv);if(!p.classList.contains('open'))b.click();return}if(n>80)clearInterval(iv)},250)}catch(e){}})();
 </script>
 </body></html>
 
