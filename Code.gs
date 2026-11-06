@@ -184,6 +184,7 @@ function write_(payload) {
     log.getRange(2, 1, 1, 9).setValues([[when, payload.fileName || '', data.length, t.members || 0, t.paidProfiles || 0, t.declared || 0, t.paid || 0, t.rate || 0, payload.syncId || '']]);
 
     updateRegistry_(ss, key, when);
+    if (key === nowKey) { try { recordFirstDone_(ss, key, data, when); } catch (e) { /* ghi nhận phụ, không làm hỏng đồng bộ */ } }
     SpreadsheetApp.flush();
 
     const info = { syncId: String(payload.syncId || ''), updatedAtText: when, rowCount: data.length, fileName: payload.fileName || '', spreadsheetId: SPREADSHEET_ID, month: key, tab: sh.getName() };
@@ -192,6 +193,31 @@ function write_(payload) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/* ---------- Ghi nhận đơn vị hoàn thành đảng phí (100% đảng viên phải nộp đã nộp) ---------- */
+const FIRST_DONE_SHEET = 'HOAN THANH SOM';
+
+/** Mỗi lần đồng bộ tháng hiện tại: đơn vị nào vừa đạt 100% (đã nộp ≥ phải nộp > 0) mà chưa được ghi nhận trong tháng
+ *  thì thêm một dòng (THANG | DON VI | THOI DIEM | PHAI NOP | DA NOP). Dòng ghi sớm nhất = đơn vị hoàn thành đầu tiên. */
+function recordFirstDone_(ss, key, data, when) {
+  let sh = ss.getSheetByName(FIRST_DONE_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(FIRST_DONE_SHEET);
+    sh.getRange(1, 1, 1, 5).setValues([['THANG', 'DON VI', 'THOI DIEM', 'PHAI NOP', 'DA NOP']]).setFontWeight('bold').setBackground('#eef3fb');
+    sh.setFrozenRows(1);
+    sh.getRange('A:C').setNumberFormat('@');
+  }
+  const seen = {};
+  if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, 2).getValues().forEach(r => { seen[String(r[0]).trim() + '|' + String(r[1]).trim()] = true; });
+  const add = [];
+  data.forEach(r => {
+    const den = (Number(r[3]) || 0) + (Number(r[4]) || 0) - (Number(r[5]) || 0) - (Number(r[6]) || 0);
+    const dn = Number(r[9]) || 0;
+    const name = String(r[1]).trim();
+    if (den > 0 && dn >= den && !seen[key + '|' + name]) add.push([key, name, when, den, dn]);
+  });
+  if (add.length) sh.getRange(sh.getLastRow() + 1, 1, add.length, 5).setValues(add);
 }
 
 /** Bảo đảm tab có ít nhất 17 cột (tab cũ có thể chỉ có 14 cột). */

@@ -53,7 +53,7 @@
   const cellText = c => String(c ? (c.v != null ? c.v : (c.f != null ? c.f : '')) : '').trim();
   const cellNum = c => { if (!c) return 0; if (typeof c.v === 'number') return c.v; const s = String(c.f != null ? c.f : (c.v != null ? c.v : '')).replace(/[^\d-]/g, ''); return s ? parseInt(s, 10) : 0; };
   /* gviz cần responseHandler nằm trong tqx → dựng URL riêng */
-  function gvizTab(tab) {
+  function gvizTab(tab, hdr) {
     return new Promise(resolve => {
       const cb = '__rptDues_' + Date.now() + '_' + Math.random().toString(36).slice(2), sc = document.createElement('script');
       let ended = false;
@@ -61,9 +61,14 @@
       const timer = setTimeout(() => finish(null), 20000);
       root[cb] = p => finish(p && p.table ? p : null);
       sc.onerror = () => finish(null);
-      sc.src = 'https://docs.google.com/spreadsheets/d/' + DUES_SHEET_ID + '/gviz/tq?tqx=out:json;responseHandler:' + cb + '&sheet=' + encodeURIComponent(tab) + '&headers=2&_=' + Date.now();
+      sc.src = 'https://docs.google.com/spreadsheets/d/' + DUES_SHEET_ID + '/gviz/tq?tqx=out:json;responseHandler:' + cb + '&sheet=' + encodeURIComponent(tab) + '&headers=' + (hdr || 2) + '&_=' + Date.now();
       sc.async = true; document.head.appendChild(sc);
     });
+  }
+  /* Đơn vị hoàn thành 100% đảng phí (tab HOAN THANH SOM do Apps Script ghi nhận); null = chưa có tab/không đọc được */
+  async function loadFirstDone() {
+    const p = await gvizTab('HOAN THANH SOM', 1);
+    root.__firstDone = p ? ((p.table.rows || []).map(r => r.c || []).map(c => ({ month: cellText(c[0]), unit: cellText(c[1]), when: cellText(c[2]) })).filter(x => x.month && x.unit)) : null;
   }
   function parseDues(p) {
     const rows = ((p && p.table && p.table.rows) || []).map(r => r.c || [])
@@ -302,7 +307,7 @@
     const write = html => { win.document.open(); win.document.write(html); win.document.close(); };
     if (per.type !== 'all') {
       write(msgPage('Đang lập báo cáo ' + per.label + '…', 'Đang đọc số liệu lưu trữ đầu kỳ, cuối kỳ và số liệu đảng phí từ Google Sheets.')); bindPicker(win, per);
-      try { ctx = await context(per); } catch (e) { console.error(e); if (win.closed) return; write(msgPage('Không lập được báo cáo ' + per.label, (e && e.message) || String(e))); bindPicker(win, per); return; }
+      try { await loadFirstDone().catch(() => { root.__firstDone = null; }); ctx = await context(per); } catch (e) { console.error(e); if (win.closed) return; write(msgPage('Không lập được báo cáo ' + per.label, (e && e.message) || String(e))); bindPicker(win, per); return; }
       if (win.closed) return;
     }
     const m = root.buildReportModel(ctx);
