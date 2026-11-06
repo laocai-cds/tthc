@@ -1,12 +1,15 @@
-Lấy được 17/20 bài
+Lấy được 22/24 bài
 == THỐNG KÊ THEO BÁO ==
-   15  baolaocai.vn  có ảnh
-    2  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    1  vov.vn  lỗi HTTP Error 403: Forbidden
-    1  tienphong.vn  có ảnh
-    1  www.qdnd.vn  có ảnh
+   13  baolaocai.vn  có ảnh
+    2  trangtraiviet.danviet.vn  có ảnh
+    2  nhandan.vn  có ảnh
+    2  tienphong.vn  có ảnh
+    1  vtcnews.vn  có ảnh
+    1  cdn.baolaocai.vn  lỗi không phải HTML: application/pdf
+    1  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    1  baoxaydung.vn  có ảnh
+    1  vov.gov.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
+LỖI không phải HTML: application/pdf https://cdn.baolaocai.vn/files/wgpJX2K5PCKCIrhiQuIVuLbPPrKuTAc_fBPU0mT3kFU2HcRGAE5uqY8fzlVq8_su/bao-vc-so.pdf
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thu-truong-nguyen-quoc-tri-khanh-thanh-nha-may-che-bien-que-hoi-lao-cai-d839721.html
-LỖI HTTP Error 403: Forbidden https://vov.vn/kinh-te/lao-cai-doc-luc-giai-phong-mat-bang-cho-sieu-du-an-duong-sat-ket-noi-post1347592.vov
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/trao-sinh-ke-qua-tang-cho-phu-nu-va-hoc-sinh-vung-bien-si-ma-cai-d831336.html
