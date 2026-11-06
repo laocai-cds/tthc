@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Trợ lý AI TTHC</title>
+<style>
+:root{--ink:#172c4a;--mut:#6b7a90;--line:#e7ebf2;--red:#b3111b;--bg:#f7f8fb}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:"Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--bg);overflow:hidden}
+.app{display:flex;flex-direction:column;height:100%}
+header{flex:none;display:flex;align-items:center;gap:11px;padding:12px 14px;color:#fff;background:radial-gradient(120% 160% at 0% 0%,rgba(242,194,75,.30),transparent 55%),linear-gradient(115deg,#8f0b12 0%,#c51620 55%,#e0432f 100%);border-bottom:2px solid #f2ca63}
+.av{position:relative;flex:none;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:#fff;color:#c51620}
+.av svg{width:20px;height:20px}
+.av i{position:absolute;right:-3px;top:-3px;width:10px;height:10px;border-radius:50%;background:#22c55e;border:2px solid #b3111b}
+.ttl{flex:1;min-width:0;line-height:1.2;padding-right:34px}
+.ttl b{display:block;font-size:14.5px;font-weight:800}
+.ttl small{display:block;margin-top:2px;font-size:11px;font-weight:600;color:#ffe1c4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb{flex:none;width:30px;height:30px;border:0;border-radius:9px;background:rgba(255,255,255,.18);color:#fff;display:grid;place-items:center;cursor:pointer}
+.hb:hover{background:rgba(255,255,255,.3)}
+.hb svg{width:15px;height:15px}
+#log{flex:1;overflow-y:auto;padding:12px 12px 4px;scroll-behavior:smooth}
+.welcome{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 14px}
+.welcome h3{margin:0 0 4px;font-size:16px}
+.welcome p{margin:0 0 10px;font-size:13px;color:var(--mut);line-height:1.45}
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.cat{display:flex;gap:9px;align-items:center;text-align:left;border:1px solid var(--line);background:#fafbfd;border-radius:11px;padding:8px 10px;cursor:pointer;font:inherit;color:inherit}
+.cat:hover{border-color:#e3a39c;background:#fff6f4}
+.cat>span{font-size:19px;flex:none}
+.cat b{display:block;font-size:12.5px}.cat small{display:block;margin-top:1px;font-size:11px;color:var(--mut)}
+.row{display:flex;margin:9px 0;gap:8px}
+.row.user{justify-content:flex-end}
+.bub{max-width:88%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.5;word-wrap:break-word;overflow-wrap:anywhere}
+.row.user .bub{background:linear-gradient(135deg,#b3111b,#d6362a);color:#fff;border-bottom-right-radius:4px}
+.row.bot .bub{background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+.bub p{margin:0 0 7px}.bub p:last-child{margin-bottom:0}
+.bub ul,.bub ol{margin:4px 0 7px;padding-left:20px}
+.bub h4{margin:8px 0 4px;font-size:13.5px}
+.tag{display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:10px;background:#efeafd;color:#5b3fc4;font-size:11px;font-weight:700}
+.cite{display:inline-block;vertical-align:super;font-size:10px;font-weight:800;color:#b3111b;background:#fdeceb;border-radius:6px;padding:0 4px;margin:0 1px;cursor:pointer}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tb{border:1px solid var(--line);background:#fff;border-radius:9px;padding:3px 8px;font:600 11px "Segoe UI",Arial;color:var(--mut);cursor:pointer}
+.tb:hover{border-color:#e3a39c;color:#8f141c}
+.src{display:none;margin-top:6px;padding:8px 10px;border-radius:10px;background:#f3f5fa;font-size:12px}
+.src.show{display:block}.src ol{margin:4px 0 0;padding-left:18px}.src li{margin:3px 0}.src li.hl{background:#fff3c4}
+.src a{color:#1a56c4}.src small{display:block;color:var(--mut)}
+.typing{display:flex;gap:4px;align-items:center;padding:3px 0}
+.typing i{width:7px;height:7px;border-radius:50%;background:#c9a09b;animation:b 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+.tymsg{margin-left:8px;font-size:12px;color:var(--mut)}
+#sug{flex:none;display:flex;flex-wrap:wrap;gap:6px;max-height:100px;overflow-y:auto;padding:6px 12px 2px}
+#sug button{border:1px solid #ecd9d5;background:#fff;color:#8f141c;border-radius:16px;padding:4px 10px;font:600 11.5px "Segoe UI",Arial;cursor:pointer;text-align:left;line-height:1.25}
+#sug button:hover{background:#fff1ee;border-color:#e3a39c}
+form{flex:none;display:flex;gap:8px;align-items:flex-end;padding:8px 12px;border-top:1px solid var(--line);background:#fff}
+textarea{flex:1;resize:none;border:1.5px solid #e1c9c6;border-radius:13px;padding:9px 12px;font:13.5px "Segoe UI",Arial;color:var(--ink);outline:none;max-height:110px}
+textarea:focus{border-color:#c51620}
+.send{flex:none;width:40px;height:40px;border:0;border-radius:12px;background:linear-gradient(135deg,#b3111b,#e0432f);color:#fff;display:grid;place-items:center;cursor:pointer}
+.send:disabled{opacity:.5;cursor:default}.send svg{width:18px;height:18px}
+.note{flex:none;padding:0 12px 8px;background:#fff;font-size:10.5px;color:var(--mut);text-align:center;line-height:1.35}
+@media(max-width:420px){.cats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+ <header>
+  <span class="av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg><i></i></span>
+  <div class="ttl"><b>Trợ lý AI TTHC</b><small id="sub">AI đã kết nối</small></div>
+  <button class="hb" id="clear" type="button" title="Cuộc hội thoại mới" aria-label="Cuộc hội thoại mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+ </header>
+ <div id="log" aria-live="polite"></div>
+ <div id="sug"></div>
+ <form id="f" autocomplete="off">
+  <textarea id="inp" rows="1" placeholder="Hỏi về đảng phí, đơn vị, thủ tục, hướng dẫn…" aria-label="Câu hỏi"></textarea>
+  <button class="send" id="send" type="submit" aria-label="Gửi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg></button>
+ </form>
+ <div class="note">Câu hỏi ngoài phạm vi do AI trả lời và cần kiểm chứng với văn bản gốc · Câu hỏi được lưu lại để cải thiện trợ lý</div>
+</div>
+<script>
+(()=>{
+ /* Trang chat nhẹ của Trợ lý AI TTHC, dùng trong cửa sổ bật ra của các site xã (không tải trang TTHC). */
+ const AI_ENDPOINT='https://script.google.com/macros/s/AKfycbyBj6mFHz40EysbN9UG7wgMoBzPT8lRLOxG2d387biH2CANqKyxeKcPWmxyyxhH3jWT/exec';
+ const aiUrl=()=>{try{return localStorage.getItem('aic.endpoint')||AI_ENDPOINT}catch(e){return AI_ENDPOINT}};
+ const $=s=>document.querySelector(s),log=$('#log'),inp=$('#inp'),sug=$('#sug'),sendBtn=$('#send');
+ const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const nowT=()=>new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit'}).format(new Date());
+ const inFrame=(()=>{try{return window.parent!==window}catch(e){return false}})();
+ let SITE=null,siteWait=null,aiHist=[],hist=[],busy=false;
+ const short=()=>SITE?SITE.name.replace(/^Đảng bộ\s+/i,'').trim():'';
+ const SID=()=>{try{let v=localStorage.getItem('aic.sid');if(!v){v=Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem('aic.sid',v)}return v}catch(e){return ''}};
+
+ function md(t){let h=E(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g,'$1<i>$2</i>');
+  const out=[];let list=null;
+  for(const raw of h.split(/\n/)){const l=raw.trim();let m;
+   if((m=l.match(/^[-*•]\s+(.*)/))){if(list!=='ul'){if(list)out.push('</'+list+'>');out.push('<ul>');list='ul'}out.push('<li>'+m[1]+'</li>');continue}
+   if((m=l.match(/^\d+[.)]\s+(.*)/))){if(list!=='ol'){if(list)out.push('</'+list+'>');out.push('<ol>');list='ol'}out.push('<li>'+m[1]+'</li>');continue}
+   if(list){out.push('</'+list+'>');list=null}
+   if((m=l.match(/^#{1,4}\s+(.*)/))){out.push('<h4>'+m[1]+'</h4>');continue}
+   if(l)out.push('<p>'+l+'</p>')}
+  if(list)out.push('</'+list+'>');return out.join('')}
+
+ /* ===== Nhận tên xã + số liệu từ site xã ===== */
+ const askSite=()=>{try{window.parent.postMessage({type:'aic-need-ctx'},'*')}catch(e){}};
+ const freshSite=()=>inFrame?new Promise(res=>{const t=setTimeout(()=>{siteWait=null;res()},700);siteWait=()=>{clearTimeout(t);res()};askSite()}):Promise.resolve();
+ window.addEventListener('message',e=>{
+  if(!inFrame||e.source!==window.parent)return;const d=e.data;
+  if(!d||d.type!=='aic-site-ctx'||typeof d.ctx!=='string')return;
+  const first=!SITE;SITE={name:String(d.name||'').slice(0,80),ctx:d.ctx.slice(0,9000)};
+  if(siteWait){siteWait();siteWait=null}
+  $('#sub').textContent=SITE.name?'Số liệu '+SITE.name+' · AI đã kết nối':'AI đã kết nối';
+  if(first&&log.children.length===1&&log.querySelector('.welcome')&&!restore())welcome();
+  renderSug()});
+ if(inFrame){try{window.parent.postMessage({type:'aic-ready'},'*')}catch(e){}let n=0;const iv=setInterval(()=>{if(SITE||++n>8){clearInterval(iv);return}askSite()},1500)}
+ function siteBlock(){if(!SITE)return '';
+  return '=== SỐ LIỆU SITE XÃ (ưu tiên) ===\nNgười hỏi đang dùng site "'+SITE.name+'". Khi họ nói "xã này", "đơn vị tôi", "chúng tôi", "ở đây" hoặc nêu tên '+short()+', hãy trả lời bằng số liệu dưới đây. Đây là số liệu đảng phí thật của site xã, chỉ nêu những gì có trong bảng, không bịa thêm. Trang này không có số liệu toàn tỉnh: nếu được hỏi số liệu của đơn vị khác hoặc toàn tỉnh, hãy nói rõ là chưa có và gợi ý xem site TTHC.\n'+(SITE.ctx||'(Chưa tải được số liệu đảng phí của xã; hãy nói rõ là chưa có số liệu, đừng đoán.)')+'\n=== HẾT SỐ LIỆU SITE XÃ ===\n'}
+
+ /* ===== Nhớ hội thoại trên máy (30 ngày) ===== */
+ const key=()=>'aic.lite.'+(SITE&&SITE.name?SITE.name:(inFrame?'embed':'main'));
+ function clean(h){try{const d=new DOMParser().parseFromString('<div>'+h+'</div>','text/html');d.querySelectorAll('script,iframe,object,embed,style,link,form').forEach(n=>n.remove());d.querySelectorAll('*').forEach(n=>{[...n.attributes].forEach(a=>{if(/^on/i.test(a.name)||(/^(href|src)$/i.test(a.name)&&/^\s*(javascript|data):/i.test(a.value)))n.removeAttribute(a.name)})});return d.body.firstChild.innerHTML}catch(e){return ''}}
+ function save(){try{if(!log.querySelector('.row'))return;const c=log.cloneNode(true);c.querySelectorAll('#typing').forEach(n=>n.remove());const rows=[...c.querySelectorAll('.row')];while(c.innerHTML.length>180000&&rows.length>2)rows.shift().remove();localStorage.setItem(key(),JSON.stringify({t:Date.now(),h:c.innerHTML,hist:hist.slice(0,20),ai:aiHist.slice(-6)}))}catch(e){}}
+ function restore(){try{const j=JSON.parse(localStorage.getItem(key())||'null');if(!j||!j.h||Date.now()-j.t>30*864e5)return false;const h=clean(j.h);if(!h)return false;log.innerHTML=h;hist=Array.isArray(j.hist)?j.hist:[];aiHist=Array.isArray(j.ai)?j.ai:[];log.scrollTop=log.scrollHeight;return true}catch(e){return false}}
+ const forget=()=>{try{localStorage.removeItem(key())}catch(e){}};
+
+ /* ===== Giao diện ===== */
+ function welcome(){
+  const cats=(SITE?[['🏘️','Đảng phí '+short(),'Đã nộp, còn phải thu','Xã này đã nộp đảng phí bao nhiêu và còn phải thu bao nhiêu?'],['⚠️','Đơn vị cần đôn đốc','Chưa nộp nhiều nhất','Đơn vị nào trong xã chưa nộp nhiều nhất?'],['🏆','Xếp hạng','Dẫn đầu trong xã','Chi bộ nào nộp đảng phí tốt nhất trong xã?'],['📋','Hồ sơ cần xử lý','Chưa duyệt, chưa có hồ sơ','Xã này có bao nhiêu hồ sơ chưa duyệt và chưa có hồ sơ?']]:[])
+   .concat([['📜','Căn cứ văn bản','Quy định, kế hoạch','Căn cứ văn bản triển khai thu nộp đảng phí điện tử gồm những gì?'],['📘','Hướng dẫn','Nộp, duyệt hồ sơ','Hướng dẫn quy trình thu nộp đảng phí trên môi trường điện tử']]);
+  log.innerHTML='<div class="welcome"><h3>Xin chào! 👋</h3><p>'+(SITE?'Tôi đang xem số liệu của <b>'+E(SITE.name)+'</b>. Bạn có thể hỏi về xã này, về thủ tục hành chính và văn bản của Đảng.':'Tôi là trợ lý tra cứu thủ tục hành chính của Đảng tỉnh Lào Cai. Nhập câu hỏi bên dưới.')+'</p><div class="cats">'+cats.map(c=>'<button type="button" class="cat" data-ask="'+E(c[3])+'"><span>'+c[0]+'</span><div><b>'+E(c[1])+'</b><small>'+E(c[2])+'</small></div></button>').join('')+'</div></div>'}
+ function renderSug(){const q=SITE?['Xã này đã nộp bao nhiêu?','Chi bộ nào chưa nộp?','Cách tính tỷ lệ đảng viên đã nộp','Căn cứ văn bản']:['Căn cứ văn bản','Hướng dẫn thu nộp đảng phí điện tử'];sug.innerHTML=q.map(t=>'<button type="button" data-ask="'+E(t)+'">'+E(t)+'</button>').join('')}
+ const addUser=t=>log.insertAdjacentHTML('beforeend','<div class="row user"><div class="bub">'+E(t)+'</div></div>');
+ function addBot(html,srcs){const id='s'+Date.now()+Math.random().toString(36).slice(2,5),n=(srcs||[]).length;
+  log.insertAdjacentHTML('beforeend','<div class="row bot"><div style="max-width:92%"><div class="bub">'+html+'</div><div class="tools">'+(n?'<button type="button" class="tb" data-src="'+id+'">📎 Nguồn ('+n+')</button>':'')+'<button type="button" class="tb" data-copy>⧉ Sao chép</button><span style="font-size:10.5px;color:var(--mut);align-self:center">'+nowT()+'</span></div>'+(n?'<div class="src" id="'+id+'"><b>Nguồn thông tin</b><ol>'+srcs.map(s=>'<li class="doc">📄 <a href="'+E(s.url)+'" target="_blank" rel="noopener noreferrer">'+E(s.title)+' ↗</a>'+(s.snippet?'<small>“'+E(String(s.snippet).replace(/[.…\s]+$/,''))+'…”</small>':'')+'</li>').join('')+'</ol></div>':'')+'</div></div>');
+  log.scrollTop=log.scrollHeight}
+
+ async function ask(t){t=String(t||'').trim();if(!t||busy)return;busy=true;sendBtn.disabled=true;
+  addUser(t);hist.unshift(t);inp.value='';fit();
+  log.insertAdjacentHTML('beforeend','<div class="row bot" id="typing"><div class="bub"><span class="typing"><i></i><i></i><i></i><span class="tymsg" id="tymsg"></span></span></div></div>');log.scrollTop=log.scrollHeight;
+  const steps=[[1500,'Đang tra cứu thư viện văn bản…'],[7000,'AI đang soạn câu trả lời…'],[20000,'Câu hỏi cần thêm thời gian, vui lòng chờ…'],[45000,'Máy chủ AI đang bận, đang thử lại…']].map(([ms,m])=>setTimeout(()=>{const x=$('#tymsg');if(x)x.textContent=m},ms));
+  const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),100000);
+  try{await freshSite();
+   const res=await fetch(aiUrl(),{method:'POST',body:JSON.stringify({q:t,ctx:siteBlock(),hist:aiHist.slice(-3),site:SITE?SITE.name:'',sid:SID()}),signal:ctrl.signal});
+   const j=await res.json();if(!j.ok)throw new Error(j.error||'Máy chủ AI báo lỗi.');
+   aiHist.push({q:t,a:String(j.text).slice(0,800)});
+   const docs=(j.sources||[]).filter(s=>s.kind==='doc');
+   $('#typing')?.remove();
+   addBot('<div class="tag">✨ Trả lời bởi AI ('+E(j.provider||'AI')+')'+(docs.length?' · dựa trên '+docs.length+' trích đoạn văn bản':'')+'</div>'+md(j.text).replace(/\[(\d{1,2})\]/g,'<sup class="cite" data-cite="$1" title="Xem nguồn [$1]">$1</sup>'),(j.sources||[]).filter(s=>s.url))}
+  catch(e){$('#typing')?.remove();addBot('<p>⚠️ Chưa kết nối được trợ lý AI: '+E((e.name==='AbortError'?'máy chủ AI phản hồi quá lâu (trên 100 giây), vui lòng hỏi lại':e.message==='Failed to fetch'?'không gọi được máy chủ AI, hãy kiểm tra mạng':e.message).replace(/\.$/,''))+'.</p>')}
+  finally{clearTimeout(tm);steps.forEach(clearTimeout);save();busy=false;sendBtn.disabled=false;inp.focus()}}
+
+ const fit=()=>{inp.style.height='auto';inp.style.height=Math.min(110,inp.scrollHeight)+'px'};
+ inp.addEventListener('input',fit);
+ inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask(inp.value)}else if(e.key==='ArrowUp'&&!inp.value&&hist.length){e.preventDefault();inp.value=hist[0]}});
+ $('#f').addEventListener('submit',e=>{e.preventDefault();ask(inp.value)});
+ $('#clear').addEventListener('click',()=>{welcome();hist=[];aiHist=[];forget()});
+ document.addEventListener('click',e=>{
+  const a=e.target.closest('[data-ask]');if(a){ask(a.dataset.ask);return}
+  const ct=e.target.closest('[data-cite]');if(ct){const msg=ct.closest('.row'),btn=msg&&msg.querySelector('[data-src]'),box=btn&&document.getElementById(btn.dataset.src);if(box){box.classList.add('show');const li=box.querySelectorAll('li.doc')[+ct.dataset.cite-1];(li||box).scrollIntoView({block:'nearest',behavior:'smooth'});if(li){li.classList.add('hl');setTimeout(()=>li.classList.remove('hl'),1600)}}return}
+  const s=e.target.closest('[data-src]');if(s){const box=document.getElementById(s.dataset.src);if(box)box.classList.toggle('show');return}
+  const c=e.target.closest('[data-copy]');if(c){const t=c.closest('.row').querySelector('.bub').innerText;navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>{c.textContent='✓ Đã chép';setTimeout(()=>c.textContent='⧉ Sao chép',1500)}).catch(()=>{});return}
+ });
+ if(!restore())welcome();renderSug();inp.focus();
+})();
+</script>
+</body>
+</html>
