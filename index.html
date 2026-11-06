@@ -6603,6 +6603,10 @@ html:not(.is-admin) .topbar .top-actions #adminBtn,html:not(.is-admin) .topbar .
 })();
 </script>
 
+<script>
+/* Liên kết từ các site xã: ?ai=1 (hoặc #ai) tự mở khung Trợ lý AI TTHC */
+(function(){try{if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,iv=setInterval(function(){n++;var b=document.getElementById('chatLaunch'),p=document.getElementById('procedureChat');if(b&&p&&typeof b.onclick==='function'){clearInterval(iv);if(!p.classList.contains('open'))b.click();return}if(n>80)clearInterval(iv)},250)}catch(e){}})();
+</script>
 </body></html>
 
 
