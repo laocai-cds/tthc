@@ -1,14 +1,8 @@
-Lấy được 12/15 bài
+Lấy được 14/15 bài
 == THỐNG KÊ THEO BÁO ==
-    8  baolaocai.vn  có ảnh
-    2  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    1  vov.vn  lỗi HTTP Error 403: Forbidden
-    1  vtcnews.vn  có ảnh
+   13  baolaocai.vn  có ảnh
+    1  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
     1  www.vietnamplus.vn  có ảnh
-    1  tuoitre.vn  có ảnh
-    1  baoxaydung.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
-LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/to-chuc-le-vieng-truy-dieu-va-an-tang-3-hai-cot-liet-si-tai-au-lau-lao-cai-post1348085.vov
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thu-truong-nguyen-quoc-tri-khanh-thanh-nha-may-che-bien-que-hoi-lao-cai-d839721.html
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/phuc-khanh-da-dang-sinh-ke-giup-nguoi-dan-thoat-ngheo-d831006.html
