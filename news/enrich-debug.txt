@@ -1,16 +1,15 @@
-Lấy được 15/21 bài
+Lấy được 10/16 bài
 == THỐNG KÊ THEO BÁO ==
-   13  baolaocai.vn  có ảnh
+    8  baolaocai.vn  có ảnh
     5  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    1  trangtraiviet.danviet.vn  có ảnh
-    1  vietnam.vnanet.vn  có ảnh
-    1  suckhoedoisong.vn  không có ảnh
+    1  vov.vn  lỗi HTTP Error 403: Forbidden
+    1  tuoitre.vn  có ảnh
+    1  baovephapluat.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
-suckhoedoisong.vn: <meta property=og:title content="Triệu tập nữ tài xế chèn ép, tông ngã xe của thai phụ "> <meta property=og:description content="SKĐS - Võ Tuyết Sang thừa nhận hành vi đánh lái, chèn ép xe máy điện và cản trở thai phụ di chuyển. "> <meta property=og:type content=article> <meta property=og:site_name content="Báo Sức khỏe &amp; Đời sống"> <meta property=og:locale content=vi_VN> <meta property=og:url content=https://suckhoedoisong.vn/trieu-tap-nu-tai-xe-chen-ep-tong-nga-xe-cua-thai-phu-16926110422073866.htm>
 == VÍ DỤ LỖI ==
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/phong-du-thuong-trao-can-cau-thoat-ngheo-cho-nguoi-dan-d840383.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/mo-duong-o-phong-du-thuong-d840407.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/phong-du-thuong-bien-canh-sac-thanh-sinh-ke-d840424.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thu-truong-nguyen-quoc-tri-khanh-thanh-nha-may-che-bien-que-hoi-lao-cai-d839721.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/giai-phap-dua-san-pham-ocop-khanh-hoa-tren-nen-tang-so-d837935.html
-KHÔNG CÓ ẢNH (90055 byte) https://suckhoedoisong.vn/trieu-tap-nu-tai-xe-chen-ep-tong-nga-xe-cua-thai-phu-16926110422073866.htm
+LỖI HTTP Error 403: Forbidden https://vov.vn/kinh-te/thi-diem-phuong-xhcn-lao-cai-khi-chinh-quyen-xoay-so-thu-tuc-thay-doanh-nghiep-post1322317.vov
