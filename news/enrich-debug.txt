@@ -1,11 +1,13 @@
-Lấy được 15/17 bài
+Lấy được 19/22 bài
 == THỐNG KÊ THEO BÁO ==
    14  baolaocai.vn  có ảnh
-    1  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    3  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    2  baophapluat.vn  có ảnh
+    1  vtvgo.vn  có ảnh
+    1  happyvietnam.vnanet.vn  có ảnh
     1  www.vietnamplus.vn  có ảnh
-    1  suckhoedoisong.vn  không có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
-suckhoedoisong.vn: <meta property=og:title content="Lào Cai phát triển bệnh viện đa khoa chuyên sâu, giảm gánh nặng chuyển tuyến"> <meta property=og:description content="SKĐS - Lào Cai đầu tư 2.600 tỷ đồng phát triển bệnh viện chuyên sâu cấp vùng, hướng tới nâng cao chất lượng khám, chữa bệnh cho người dân."> <meta property=og:type content=article> <meta property=og:site_name content="Báo Sức khỏe &amp; Đời sống"> <meta property=og:locale content=vi_VN> <meta property=og:url content=https://suckhoedoisong.vn/lao-cai-phat-trien-benh-vien-da-khoa-chuyen-sau-giam-ganh-nang-chuyen-tuyen-169261107173205648.htm>
 == VÍ DỤ LỖI ==
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/phong-du-thuong-trao-can-cau-thoat-ngheo-cho-nguoi-dan-d840383.html
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thu-truong-nguyen-quoc-tri-khanh-thanh-nha-may-che-bien-que-hoi-lao-cai-d839721.html
-KHÔNG CÓ ẢNH (90417 byte) https://suckhoedoisong.vn/lao-cai-phat-trien-benh-vien-da-khoa-chuyen-sau-giam-ganh-nang-chuyen-tuyen-169261107173205648.htm
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/giai-phap-dua-san-pham-ocop-khanh-hoa-tren-nen-tang-so-d837935.html
