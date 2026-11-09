@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ĐP Tỉnh Lào Cai – đồng bộ đảng phí từ gqtthc
 // @namespace    laocai-cds
-// @version      1.1
+// @version      1.2
 // @description  Thêm nút nổi "ĐP Tỉnh Lào Cai" trên gqtthc.dcs.vn: lấy số liệu đảng phí (kèm sổ S02: phải nộp, đã nộp, còn nợ cấp trên) qua API và gửi lên Google Sheet của site TTHC.
 // @match        https://gqtthc.dcs.vn/*
 // @run-at       document-idle
@@ -29,7 +29,7 @@
     return v;
   }
 
-  async function run(API) {
+  async function run(API, auto) {
     const box = document.createElement('div');
     box.style.cssText = 'position:fixed;z-index:2147483647;top:14px;right:14px;left:14px;max-width:360px;margin-left:auto;padding:12px 16px;border-radius:12px;background:#12315f;color:#fff;font:600 14px/1.45 system-ui,sans-serif;white-space:pre-line;box-shadow:0 8px 28px rgba(0,0,0,.35)';
     const T0 = performance.now();
@@ -39,12 +39,13 @@
     const say = (m, bad, runT, good) => { curMsg = m; curBad = !!bad; curOk = !!good; if (runT) { if (!tick) tick = setInterval(paint, 100); } else if (tick) { clearInterval(tick); tick = null; } paint(); };
     try {
       const tk = localStorage.getItem('token');
-      if (!tk) { alert('Chưa đăng nhập gqtthc.dcs.vn.'); return; }
+      if (!tk) { if (auto) { say('⏱ Tự động: chưa đăng nhập gqtthc.dcs.vn — hãy đăng nhập lại.', true); setTimeout(() => box.remove(), 15000); } else alert('Chưa đăng nhập gqtthc.dcs.vn.'); return; }
       let pw = localStorage.getItem(K_PW) || '';
+      if (!pw && auto) { say('⏱ Tự động: chưa lưu mật khẩu đồng bộ — bấm nút ĐP Tỉnh Lào Cai đồng bộ tay 1 lần để lưu.', true); setTimeout(() => box.remove(), 15000); return; }
       if (!pw) { pw = (prompt('Mật khẩu đồng bộ đảng phí:') || '').trim(); if (!pw) return; }
 
       const now0 = new Date();
-      const PK = await new Promise(res => {
+      const PK = auto ? (now0.getFullYear() + '-' + (now0.getMonth() + 1)) : await new Promise(res => {
         const ov = document.createElement('div');
         ov.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font:14px/1.45 system-ui,sans-serif';
         let o = '';
@@ -118,10 +119,10 @@
       const speed = apiT < 2500 ? '🟢 Nhanh' : apiT < 6000 ? '🟡 Bình thường' : '🔴 Chậm';
       const detail = s02Msg + '\n⏱ Tổng ' + f1(tF - T0) + ' · Kết nối ' + speed + '\nAPI ' + f1(apiT) + ' (chờ ' + f1(tB - tA) + ', tải ' + Math.max(1, Math.round(raw.length / 1024)) + ' KB) · Gửi Sheet ' + f1(tE - tD) + ' · Xác nhận ' + f1(tF - tE) + (nc.effectiveType ? '\nMạng ' + nc.effectiveType + (nc.rtt ? ' · RTT ' + nc.rtt + 'ms' : '') : '');
       say((ok ? '✅ HOÀN THÀNH — đã đồng bộ ' + ok.last.rowCount + ' đơn vị kỳ tháng ' + SM + '/' + cy + (ok.last.tab ? ' (tab ' + ok.last.tab + ')' : '') + ' lúc ' + ok.last.updatedAtText + '.' : '✓ Đã gửi ' + rows.length + ' đơn vị. Chưa xác nhận được kết quả — hãy mở lại trang Đảng phí để xem “Lần đồng bộ gần nhất”.') + detail, false, false, !!ok);
-      setTimeout(() => box.remove(), 25000);
+      setTimeout(() => box.remove(), auto ? 6000 : 25000);
     } catch (e) {
       if (/mật khẩu|token|không hợp lệ/i.test(String(e.message))) { try { localStorage.removeItem(K_PW); } catch (x) {} }
-      say('✕ ' + (e && e.name === 'AbortError' ? 'API phản hồi quá chậm (quá 30 giây). Kiểm tra mạng rồi bấm lại.' : e.message) + '   (sau ' + f1(performance.now() - T0) + ')', true);
+      say((auto ? '⏱ Tự động — ' : '') + '✕ ' + (e && e.name === 'AbortError' ? 'API phản hồi quá chậm (quá 30 giây). Kiểm tra mạng rồi bấm lại.' : e.message) + '   (sau ' + f1(performance.now() - T0) + ')', true);
       setTimeout(() => box.remove(), 15000);
     }
   }
@@ -145,6 +146,35 @@
     if (api) run(api);
   };
   cfg.onclick = () => { askApi(); };
-  wrap.append(btn, cfg);
+  /* Chạy tự động: giữ tab gqtthc.dcs.vn đang đăng nhập và đang mở; cứ mỗi N phút tự lấy số liệu THÁNG HIỆN TẠI */
+  const K_AUTO = 'dangphi.auto', K_LAST = 'dangphi.autoLast';
+  const autoMin = () => { try { return Math.max(0, parseInt(localStorage.getItem(K_AUTO) || '0', 10) || 0); } catch (e) { return 0; } };
+  const clock = document.createElement('button');
+  clock.type = 'button';
+  clock.style.cssText = 'height:40px;padding:0 12px;border:0;border-radius:20px;color:#fff;font-weight:700;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.35)';
+  const paintClock = () => { const m = autoMin(); clock.textContent = m ? '⏱ ' + m + ' phút' : '⏱ Tắt'; clock.style.background = m ? '#0f8a3c' : '#6b7280'; clock.title = m ? 'Đang tự động đồng bộ mỗi ' + m + ' phút (tháng hiện tại). Bấm để đổi/tắt.' : 'Bấm để bật tự động đồng bộ định kỳ'; };
+  let busy = false;
+  const getApi = () => { try { return localStorage.getItem(K_API) || ''; } catch (e) { return ''; } };
+  async function autoTick(force) {
+    const m = autoMin(), api = getApi();
+    if (!m || !api || busy) return;
+    let last = 0; try { last = +localStorage.getItem(K_LAST) || 0; } catch (e) {}
+    if (!force && Date.now() - last < m * 60000) return;
+    busy = true;
+    try { localStorage.setItem(K_LAST, String(Date.now())); } catch (e) {}
+    try { await run(api, true); } finally { busy = false; }
+  }
+  clock.onclick = () => {
+    const v = prompt('Tự động đồng bộ đảng phí (tháng hiện tại) mỗi bao nhiêu phút?\nNhập 0 để tắt. Tối thiểu 10 phút. Cần giữ tab gqtthc.dcs.vn đang mở và đã đăng nhập.', String(autoMin() || 30));
+    if (v === null) return;
+    let n = parseInt(v, 10); if (!(n > 0)) n = 0; else if (n < 10) n = 10;
+    try { localStorage.setItem(K_AUTO, String(n)); localStorage.removeItem(K_LAST); } catch (e) {}
+    paintClock();
+    if (n) { if (!getApi()) askApi(); autoTick(true); }
+  };
+  paintClock();
+  setInterval(() => autoTick(false), 60000);
+  setTimeout(() => autoTick(false), 8000);
+  wrap.append(btn, clock, cfg);
   document.body.appendChild(wrap);
 })();
