@@ -686,7 +686,7 @@ function rptHTML(m){
  body+=P(`<b class="g">Biểu dương: </b>${esc(rptPraise50(m))}`);
  const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
  if(D){body+=H(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>P(esc(t))).join('');
-  body+=P(`<b class="g">Biểu dương: </b>${esc(rptDuesPraise(D).replace(/^Biểu dương /,''))} <b class="g">Đơn vị hoàn thành 100% đầu tiên: </b>${esc(rptDuesFirstVal(D))}`);
+  body+=P(`<b class="g">Biểu dương: </b><b class="g">Đơn vị hoàn thành 100% đầu tiên: </b>${esc(rptDuesFirstVal(D))} ${esc(rptDuesPraise(D).replace(/^Biểu dương /,''))}`);
   body+=cap(`Bảng 2. Đơn vị được tuyên dương về thu nộp đảng phí (tỷ lệ đảng viên đã nộp ${D.honorNote})`)+T(['Hạng','Đơn vị','ĐV phải nộp','ĐV đã nộp','Tỷ lệ ĐV đã nộp','Tiền đã nộp (đ)'],D.honor.map((x,i)=>[i+1,x.name,fmt(x.need),fmt(x.dn),rptPctD(x.r),fmt(x.nop)]),[700,3571,1150,1150,1200,1300],[0,2,3,4,5]);
   if(rptDuesGood(D))body+=P(esc(rptDuesGood(D)));
   body+=P(`<b class="w">Cần đôn đốc (${fmt(D.weak.length+D.zero.length)} đơn vị dưới 20%): </b>${esc(rptNameList([...D.weak,...D.zero].sort((a,b)=>a.r-b.r),1e9)+'.')}`);
@@ -797,7 +797,7 @@ function exportReportXlsx(m,w){
  if(m.dues){const D=m.dues;
   sheets.push(sheet('PL06 Thu đảng phí',`Phụ lục 06. Thu nộp đảng phí ${D.month} — tỷ lệ đảng viên đã nộp ${rptPctD(D.rate)}`,['TT','Đơn vị','Tổng ĐV (1)','ĐV phải nộp','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền khai báo (đ)','Tiền đã nộp (đ)','Phải nộp cấp trên (đ)','Đã nộp cấp trên (đ)','Còn nợ cấp trên (đ)','Tỷ lệ ĐV đã nộp','Tuyên dương'],
    D.rows.map((x,i)=>[N(i+1),T(x.name),N(x.t),N(x.need),N(x.dn),N(x.chua),N(x.kb),N(x.nop),N(x.pn),N(x.dc),N(x.no),P(x.r),T(x.r>=RPT_HONOR?'Tuyên dương':'')]),[6,40,11,12,13,13,16,16,16,16,16,13,13],
-   [[{v:'Tổng cộng',s:7},'',N(D.t),N(D.need),N(D.dn),N(D.chua),N(D.kb),N(D.nop),N(D.pn),N(D.dc),N(D.no),{v:D.rate,s:9}],[],...rptDuesText(D).map(t=>[{v:t,s:8}]),[{v:rptDuesPraise(D)+' Đơn vị hoàn thành 100% đầu tiên: '+rptDuesFirstVal(D),s:8}]]));
+   [[{v:'Tổng cộng',s:7},'',N(D.t),N(D.need),N(D.dn),N(D.chua),N(D.kb),N(D.nop),N(D.pn),N(D.dc),N(D.no),{v:D.rate,s:9}],[],...rptDuesText(D).map(t=>[{v:t,s:8}]),[{v:'Biểu dương: Đơn vị hoàn thành 100% đầu tiên: '+rptDuesFirstVal(D)+' '+rptDuesPraise(D).replace(/^Biểu dương /,''),s:8}]]));
   const Z=D.rows.filter(x=>(+x.nop||0)<=0).sort((a,b)=>a.name.localeCompare(b.name,'vi'));
   sheets.push(sheet('PL07 Chua thu DP',`Phụ lục 07. Danh sách đơn vị chưa thu được tiền đảng phí ${D.month} (${Z.length}/${D.rows.length} đơn vị)`,['TT','Đơn vị','Tổng số đảng viên','ĐV phải nộp','Số tiền đã nộp (đ)'],
    Z.map((x,i)=>[N(i+1),T(x.name),N(x.t),N(x.need),N(0)]),[6,46,16,14,18]))}
@@ -967,7 +967,7 @@ function exportReportDocx(m,w){
  body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run(rptPraise50(m))],{ind:true});
  const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
  if(D){body+=h(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>para(t,{ind:true})).join('');
-  body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run(rptDuesPraise(D).replace(/^Biểu dương /,'')+' '),run('Đơn vị hoàn thành 100% đầu tiên: ',{b:true,color:'8A5A00'}),run(rptDuesFirstVal(D))],{ind:true});
+  body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run('Đơn vị hoàn thành 100% đầu tiên: ',{b:true,color:'8A5A00'}),run(rptDuesFirstVal(D)+' '+rptDuesPraise(D).replace(/^Biểu dương /,''))],{ind:true});
   body+=para([run(`Bảng 2. Đơn vị được tuyên dương về thu nộp đảng phí (tỷ lệ đảng viên đã nộp ${D.honorNote})`,{b:true,sz:24})],{keep:true,jc:'left'})
    +table(['Hạng','Đơn vị','ĐV phải nộp','ĐV đã nộp','Tỷ lệ ĐV đã nộp','Tiền đã nộp (đ)'],D.honor.map((x,i)=>[i+1,x.name,fmt(x.need),fmt(x.dn),rptPctD(x.r),fmt(x.nop)]),[700,3571,1150,1150,1200,1300],[0,2,3,4,5]);
   if(rptDuesGood(D))body+=para(rptDuesGood(D),{ind:true});
