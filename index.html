@@ -660,6 +660,10 @@ function rptDuesFirst(d){ /* đơn vị hoàn thành 100% đầu tiên trong th�
  if(!rows.length)return key===cur?`Hoàn thành đảng phí đầu tiên trong ${d.month}: đến nay chưa có đơn vị nào có 100% đảng viên phải nộp đã nộp đảng phí.`:'';
  const f=rows.filter(x=>x.when===rows[0].when),w=rows[0].when.replace(/:\d+$/,'');
  return `Hoàn thành đảng phí đầu tiên trong ${d.month}: ${f.map(x=>x.unit).join('; ')}, đạt 100% đảng viên phải nộp đã nộp đảng phí (ghi nhận lúc ${w}). Đến nay có ${fmt(rows.length)} đơn vị đạt 100%.`}
+function rptDuesFirstVal(d){ /* nội dung sau nhãn "Đơn vị hoàn thành 100% đầu tiên:"; luôn có chữ (dự phòng bằng số liệu bảng khi chưa đọc được nhật ký) */
+ const fd=rptDuesFirst(d).replace(/^Hoàn thành đảng phí đầu tiên trong [^:]*: /,'');if(fd)return fd;
+ const f=(d.rows||[]).filter(x=>x.r>=.9999);
+ return f.length?`${f.map(x=>x.name).join('; ')}, đạt 100% đảng viên phải nộp đã nộp đảng phí (chưa có mốc thời gian ghi nhận).`:'đến nay chưa có đơn vị nào đạt 100% đảng viên phải nộp đã nộp đảng phí.'}
 function rptCountHonor(d){return d.rows.filter(x=>x.r>=RPT_HONOR).length}
 function rptDuesPraise(d){const top=d.honor.map(x=>x.name+' ('+rptPctD(x.r)+')').join('; ');
  return `Biểu dương ${fmt(d.honor.length)} đơn vị có tỷ lệ đảng viên đã nộp đảng phí trên môi trường điện tử ${d.honorNote}: ${top}. Đây là những đơn vị đã chủ động chỉ đạo, hướng dẫn đảng viên kê khai, duyệt hồ sơ và nộp đảng phí kịp thời, cần được nhân rộng.`}
@@ -682,8 +686,7 @@ function rptHTML(m){
  body+=P(`<b class="g">Biểu dương: </b>${esc(rptPraise50(m))}`);
  const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
  if(D){body+=H(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>P(esc(t))).join('');
-  body+=P(`<b class="g">Biểu dương: </b>${esc(rptDuesPraise(D).replace(/^Biểu dương /,''))}`);
-  {const fd=rptDuesFirst(D);if(fd)body+=P(`<b class="g">Hoàn thành đảng phí đầu tiên: </b>${esc(fd.replace(/^Hoàn thành đảng phí đầu tiên trong [^:]*: /,''))}`)}
+  body+=P(`<b class="g">Biểu dương: </b>${esc(rptDuesPraise(D).replace(/^Biểu dương /,''))} <b class="g">Đơn vị hoàn thành 100% đầu tiên: </b>${esc(rptDuesFirstVal(D))}`);
   body+=cap(`Bảng 2. Đơn vị được tuyên dương về thu nộp đảng phí (tỷ lệ đảng viên đã nộp ${D.honorNote})`)+T(['Hạng','Đơn vị','ĐV phải nộp','ĐV đã nộp','Tỷ lệ ĐV đã nộp','Tiền đã nộp (đ)'],D.honor.map((x,i)=>[i+1,x.name,fmt(x.need),fmt(x.dn),rptPctD(x.r),fmt(x.nop)]),[700,3571,1150,1150,1200,1300],[0,2,3,4,5]);
   if(rptDuesGood(D))body+=P(esc(rptDuesGood(D)));
   body+=P(`<b class="w">Cần đôn đốc (${fmt(D.weak.length+D.zero.length)} đơn vị dưới 20%): </b>${esc(rptNameList([...D.weak,...D.zero].sort((a,b)=>a.r-b.r),1e9)+'.')}`);
@@ -794,7 +797,7 @@ function exportReportXlsx(m,w){
  if(m.dues){const D=m.dues;
   sheets.push(sheet('PL06 Thu đảng phí',`Phụ lục 06. Thu nộp đảng phí ${D.month} — tỷ lệ đảng viên đã nộp ${rptPctD(D.rate)}`,['TT','Đơn vị','Tổng ĐV (1)','ĐV phải nộp','Đã duyệt, đã nộp (8)','Chưa có hồ sơ (9)','Tiền khai báo (đ)','Tiền đã nộp (đ)','Phải nộp cấp trên (đ)','Đã nộp cấp trên (đ)','Còn nợ cấp trên (đ)','Tỷ lệ ĐV đã nộp','Tuyên dương'],
    D.rows.map((x,i)=>[N(i+1),T(x.name),N(x.t),N(x.need),N(x.dn),N(x.chua),N(x.kb),N(x.nop),N(x.pn),N(x.dc),N(x.no),P(x.r),T(x.r>=RPT_HONOR?'Tuyên dương':'')]),[6,40,11,12,13,13,16,16,16,16,16,13,13],
-   [[{v:'Tổng cộng',s:7},'',N(D.t),N(D.need),N(D.dn),N(D.chua),N(D.kb),N(D.nop),N(D.pn),N(D.dc),N(D.no),{v:D.rate,s:9}],[],...rptDuesText(D).map(t=>[{v:t,s:8}]),[{v:rptDuesPraise(D),s:8}],...(rptDuesFirst(D)?[[{v:rptDuesFirst(D),s:8}]]:[])]));
+   [[{v:'Tổng cộng',s:7},'',N(D.t),N(D.need),N(D.dn),N(D.chua),N(D.kb),N(D.nop),N(D.pn),N(D.dc),N(D.no),{v:D.rate,s:9}],[],...rptDuesText(D).map(t=>[{v:t,s:8}]),[{v:rptDuesPraise(D)+' Đơn vị hoàn thành 100% đầu tiên: '+rptDuesFirstVal(D),s:8}]]));
   const Z=D.rows.filter(x=>(+x.nop||0)<=0).sort((a,b)=>a.name.localeCompare(b.name,'vi'));
   sheets.push(sheet('PL07 Chua thu DP',`Phụ lục 07. Danh sách đơn vị chưa thu được tiền đảng phí ${D.month} (${Z.length}/${D.rows.length} đơn vị)`,['TT','Đơn vị','Tổng số đảng viên','ĐV phải nộp','Số tiền đã nộp (đ)'],
    Z.map((x,i)=>[N(i+1),T(x.name),N(x.t),N(x.need),N(0)]),[6,46,16,14,18]))}
@@ -964,8 +967,7 @@ function exportReportDocx(m,w){
  body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run(rptPraise50(m))],{ind:true});
  const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
  if(D){body+=h(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>para(t,{ind:true})).join('');
-  body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run(rptDuesPraise(D).replace(/^Biểu dương /,''))],{ind:true});
-  {const fd=rptDuesFirst(D);if(fd)body+=para([run('Hoàn thành đảng phí đầu tiên: ',{b:true,color:'8A5A00'}),run(fd.replace(/^Hoàn thành đảng phí đầu tiên trong [^:]*: /,''))],{ind:true})}
+  body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run(rptDuesPraise(D).replace(/^Biểu dương /,'')+' '),run('Đơn vị hoàn thành 100% đầu tiên: ',{b:true,color:'8A5A00'}),run(rptDuesFirstVal(D))],{ind:true});
   body+=para([run(`Bảng 2. Đơn vị được tuyên dương về thu nộp đảng phí (tỷ lệ đảng viên đã nộp ${D.honorNote})`,{b:true,sz:24})],{keep:true,jc:'left'})
    +table(['Hạng','Đơn vị','ĐV phải nộp','ĐV đã nộp','Tỷ lệ ĐV đã nộp','Tiền đã nộp (đ)'],D.honor.map((x,i)=>[i+1,x.name,fmt(x.need),fmt(x.dn),rptPctD(x.r),fmt(x.nop)]),[700,3571,1150,1150,1200,1300],[0,2,3,4,5]);
   if(rptDuesGood(D))body+=para(rptDuesGood(D),{ind:true});
