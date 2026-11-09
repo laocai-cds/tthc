@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ĐP Tỉnh Lào Cai – đồng bộ đảng phí từ gqtthc
 // @namespace    laocai-cds
-// @version      1.3
+// @version      1.4
 // @description  Thêm nút nổi "ĐP Tỉnh Lào Cai" trên gqtthc.dcs.vn: lấy số liệu đảng phí (kèm sổ S02: phải nộp, đã nộp, còn nợ cấp trên) qua API và gửi lên Google Sheet của site TTHC.
 // @match        https://gqtthc.dcs.vn/*
 // @run-at       document-idle
@@ -173,7 +173,14 @@
     if (n) { if (!getApi()) askApi(); autoTick(true); }
   };
   paintClock();
-  setInterval(() => autoTick(false), 60000);
+  /* Bộ đếm giờ đặt trong Web Worker để tab chạy nền ít bị trình duyệt làm chậm; không dùng được Worker thì quay về setInterval */
+  let timerOk = false;
+  try {
+    const w = new Worker(URL.createObjectURL(new Blob(['setInterval(function(){postMessage(1)},10000)'], { type: 'text/javascript' })));
+    w.onmessage = () => autoTick(false);
+    w.onerror = () => { if (!timerOk) { timerOk = true; setInterval(() => autoTick(false), 20000); } };
+    timerOk = false;
+  } catch (e) { timerOk = true; setInterval(() => autoTick(false), 20000); }
   setTimeout(() => autoTick(false), 8000);
   wrap.append(btn, clock, cfg);
   document.body.appendChild(wrap);
