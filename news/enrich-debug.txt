@@ -1,9 +1,15 @@
-Lấy được 11/13 bài
+Lấy được 14/16 bài
 == THỐNG KÊ THEO BÁO ==
-   11  baolaocai.vn  có ảnh
+    8  baolaocai.vn  có ảnh
+    2  trangtraiviet.danviet.vn  có ảnh
+    1  vtcnews.vn  có ảnh
+    1  nhandan.vn  có ảnh
+    1  daibieunhandan.vn  có ảnh
+    1  baophapluat.vn  có ảnh
     1  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    1  vov.vn  lỗi HTTP Error 403: Forbidden
+    1  suckhoedoisong.vn  không có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
+suckhoedoisong.vn: <meta property=og:title content="Thanh Hóa khẩn cấp triển khai các biện pháp ứng phó với mưa lớn"> <meta property=og:description content="SKĐS - Ban Chỉ đạo Phòng thủ dân sự quốc gia đề nghị Ủy ban nhân dân tỉnh Thanh Hóa khẩn cấp ứng phó với mưa lớn, lũ quét."> <meta property=og:type content=article> <meta property=og:site_name content="Báo Sức khỏe &amp; Đời sống"> <meta property=og:locale content=vi_VN> <meta property=og:url content=https://suckhoedoisong.vn/thanh-hoa-khan-cap-trien-khai-cac-bien-phap-ung-pho-voi-mua-lon-169261109144336957.htm>
 == VÍ DỤ LỖI ==
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thu-truong-nguyen-quoc-tri-khanh-thanh-nha-may-che-bien-que-hoi-lao-cai-d839721.html
-LỖI HTTP Error 403: Forbidden https://vov.vn/kinh-te/thi-diem-phuong-xhcn-lao-cai-khi-chinh-quyen-xoay-so-thu-tuc-thay-doanh-nghiep-post1322317.vov
+KHÔNG CÓ ẢNH (96616 byte) https://suckhoedoisong.vn/thanh-hoa-khan-cap-trien-khai-cac-bien-phap-ung-pho-voi-mua-lon-169261109144336957.htm
