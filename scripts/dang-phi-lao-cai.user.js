@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ĐP Tỉnh Lào Cai – đồng bộ đảng phí từ gqtthc
 // @namespace    laocai-cds
-// @version      1.2
+// @version      1.3
 // @description  Thêm nút nổi "ĐP Tỉnh Lào Cai" trên gqtthc.dcs.vn: lấy số liệu đảng phí (kèm sổ S02: phải nộp, đã nộp, còn nợ cấp trên) qua API và gửi lên Google Sheet của site TTHC.
 // @match        https://gqtthc.dcs.vn/*
 // @run-at       document-idle
@@ -159,15 +159,15 @@
     const m = autoMin(), api = getApi();
     if (!m || !api || busy) return;
     let last = 0; try { last = +localStorage.getItem(K_LAST) || 0; } catch (e) {}
-    if (!force && Date.now() - last < m * 60000) return;
+    if (!force && Date.now() - last < m * 60000 - 5000) return;
     busy = true;
     try { localStorage.setItem(K_LAST, String(Date.now())); } catch (e) {}
     try { await run(api, true); } finally { busy = false; }
   }
   clock.onclick = () => {
-    const v = prompt('Tự động đồng bộ đảng phí (tháng hiện tại) mỗi bao nhiêu phút?\nNhập 0 để tắt. Tối thiểu 10 phút. Cần giữ tab gqtthc.dcs.vn đang mở và đã đăng nhập.', String(autoMin() || 30));
+    const v = prompt('Tự động đồng bộ đảng phí (tháng hiện tại) mỗi bao nhiêu phút?\nNhập 0 để tắt. Tối thiểu 1 phút (khuyên dùng 5 phút trở lên). Cần giữ tab gqtthc.dcs.vn đang mở và đã đăng nhập.', String(autoMin() || 30));
     if (v === null) return;
-    let n = parseInt(v, 10); if (!(n > 0)) n = 0; else if (n < 10) n = 10;
+    let n = parseInt(v, 10); if (!(n > 0)) n = 0; else if (n < 1) n = 1;
     try { localStorage.setItem(K_AUTO, String(n)); localStorage.removeItem(K_LAST); } catch (e) {}
     paintClock();
     if (n) { if (!getApi()) askApi(); autoTick(true); }
