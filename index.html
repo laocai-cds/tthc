@@ -3295,6 +3295,20 @@ body.dp-lock{overflow:hidden}
   /* ===== Nút API: dấu trang chạy trên gqtthc.dcs.vn, lấy số liệu qua API rồi gửi lên Google Sheet ===== */
   function dpBookmarklet(API) {
     let AM = 0;
+    /* Nhãn cố định góc trái dưới: cho biết đang tự động lặp, lần cuối lúc nào; bấm để tắt */
+    const badge = t => {
+      let b = document.getElementById('__dpBmBadge');
+      if (!window.__dpBmTimer) { if (b) b.remove(); return; }
+      if (!b) {
+        b = document.createElement('div'); b.id = '__dpBmBadge'; b.title = 'Bấm để tắt tự động đồng bộ';
+        b.style.cssText = 'position:fixed;z-index:2147483646;left:14px;bottom:14px;padding:8px 14px;border-radius:20px;background:#0f8a3c;color:#fff;font:700 13px system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer';
+        b.onclick = () => { if (confirm('Tắt tự động đồng bộ đảng phí?')) { clearInterval(window.__dpBmTimer); window.__dpBmTimer = 0; b.remove(); } };
+        document.body.appendChild(b);
+      }
+      b.dataset.am = b.dataset.am || AM;
+      b.textContent = '⏱ Tự động mỗi ' + b.dataset.am + ' phút' + (t ? ' · lần cuối ' + t : ' · đang chờ lần đầu');
+    };
+    const hm = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
     const go = async (auto) => {
       const box = document.createElement('div');
       box.style.cssText = 'position:fixed;z-index:2147483647;top:14px;right:14px;max-width:360px;padding:12px 16px;border-radius:12px;background:#12315f;color:#fff;font:600 14px/1.45 system-ui,sans-serif;white-space:pre-line;box-shadow:0 8px 28px rgba(0,0,0,.35)';
@@ -3326,7 +3340,7 @@ body.dp-lock{overflow:hidden}
           document.body.appendChild(ov); sel.focus();
         });
         if (!PK) return;
-        if (!auto) { if (window.__dpBmTimer) { clearInterval(window.__dpBmTimer); window.__dpBmTimer = 0; } if (AM > 0) window.__dpBmTimer = setInterval(() => { if (window.__dpBmBusy) return; window.__dpBmBusy = true; go(true).finally(() => { window.__dpBmBusy = false; }); }, AM * 60000); }
+        if (!auto) { if (window.__dpBmTimer) { clearInterval(window.__dpBmTimer); window.__dpBmTimer = 0; } if (AM > 0) window.__dpBmTimer = setInterval(() => { if (window.__dpBmBusy) return; window.__dpBmBusy = true; go(true).finally(() => { window.__dpBmBusy = false; badge(hm()); }); }, AM * 60000); { const o = document.getElementById('__dpBmBadge'); if (o) o.remove(); badge(); } }
         const cy = +PK.split('-')[0], SM = +PK.split('-')[1];
         if (navigator.onLine === false) throw new Error('Máy đang mất kết nối mạng. Kiểm tra mạng rồi bấm lại.');
         say('Đang lấy số liệu tháng ' + SM + '/' + cy + ' từ API…', false, true);
@@ -3397,7 +3411,7 @@ body.dp-lock{overflow:hidden}
       }
     };
     window.__dpBmBusy = true;
-    go(false).finally(() => { window.__dpBmBusy = false; });
+    go(false).finally(() => { window.__dpBmBusy = false; badge(hm()); });
   }
   function dpBmSrc() { return '(' + dpBookmarklet.toString() + ')(' + JSON.stringify(getApi2()) + ');void 0'; }
   (function () {
