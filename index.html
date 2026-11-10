@@ -6861,4 +6861,41 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
  upd();new MutationObserver(upd).observe(nav,{childList:true});
 })();
 </script>
+<style id="table-redesign">
+/* ===== Bảng "Theo dõi theo đơn vị": hàng dạng thẻ, tiêu đề đỏ rượu vang – navy ===== */
+.table-panel{position:relative;overflow:hidden;border-radius:26px!important}
+.table-panel::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#7a0c22,#c51620 40%,#e0a21c 70%,#15336f);z-index:3}
+.table-panel .table-head h2{color:#14284d!important;font-weight:900!important}
+.table-panel .table-wrap table{border-collapse:separate!important;border-spacing:0 6px!important}
+.table-panel .table-wrap thead th{background:linear-gradient(100deg,#7a0c22 0%,#3d1230 45%,#14284d 100%) fixed!important;color:#fff!important;border:0!important;
+ box-shadow:inset 0 -3px 0 rgba(224,162,28,.85)!important;letter-spacing:.05em}
+.table-panel .table-wrap thead th:first-child{border-radius:14px 0 0 14px}
+.table-panel .table-wrap thead th:last-child{border-radius:0 14px 14px 0}
+.table-panel .table-wrap tbody tr{background:transparent!important}
+.table-panel .table-wrap tbody td{background:#fff!important;border:0!important;border-top:1px solid #e6eaf3!important;border-bottom:1px solid #e6eaf3!important;transition:background .16s,box-shadow .16s}
+.table-panel .table-wrap tbody td:first-child{border-left:1px solid #e6eaf3!important;border-radius:16px 0 0 16px;box-shadow:inset 4px 0 0 var(--rs,#cbd3e4)}
+.table-panel .table-wrap tbody td:last-child{border-right:1px solid #e6eaf3!important;border-radius:0 16px 16px 0}
+.table-panel .table-wrap tbody tr{--rs:#cbd3e4}
+.table-panel .table-wrap tbody tr:has(td:nth-last-child(2) .pill.warn){--rs:#e0a21c}
+.table-panel .table-wrap tbody tr:has(td:nth-last-child(2) .pill.good){--rs:#12a05a}
+.table-panel .table-wrap tbody tr:hover td{background:#fffaf0!important;border-color:rgba(224,162,28,.75)!important}
+.table-panel .table-wrap tbody tr:hover td:first-child{box-shadow:inset 4px 0 0 var(--rs),-2px 0 0 3px rgba(224,162,28,.14)}
+.table-panel .table-wrap tbody tr:hover{filter:drop-shadow(0 8px 14px rgba(20,40,77,.12))}
+.table-panel .unit-cell{color:#14284d!important;font-weight:700!important}
+.table-panel .row-action{background:linear-gradient(135deg,#e0212c,#a01220)!important;color:#fff!important;border:0!important;border-radius:999px!important;font-weight:800!important;padding:7px 16px!important;box-shadow:0 6px 14px rgba(197,22,32,.35)!important}
+.table-panel .table-wrap td .pill{border-radius:999px!important;font-weight:800}
+.table-panel .table-wrap td .pill.good{background:#e5f8ee!important;color:#0e8a50!important}
+.table-panel .table-wrap td .pill.warn{background:#fff4d6!important;color:#9a6200!important}
+.table-panel .table-wrap td .pill.gray{background:#eef0f6!important;color:#6b7799!important}
+.table-panel .table-wrap td .pill::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:1px}
+.table-panel .table-wrap td input[type=checkbox][disabled]{appearance:none;-webkit-appearance:none;width:22px;height:22px;border-radius:50%;border:2px solid #d5dbea;background:#fff;display:inline-grid;place-items:center;vertical-align:middle;opacity:1}
+.table-panel .table-wrap td input[type=checkbox][disabled]:checked{background:#12a05a;border-color:#12a05a;box-shadow:0 4px 10px rgba(18,160,90,.4)}
+.table-panel .table-wrap td input[type=checkbox][disabled]:checked::after{content:"✓";color:#fff;font-size:13px;font-weight:900;line-height:1}
+.table-panel .table-foot .pages #pageNum{background:#14284d;color:#fff;border-radius:999px;padding:6px 14px;font-weight:800}
+.table-panel .progress-cell .bar-track{height:9px!important;border-radius:99px!important;background:#edf0f7!important;overflow:hidden}
+.table-panel .progress-cell .bar-fill{border-radius:99px!important;background:linear-gradient(90deg,#e0a21c,#c51620)!important}
+.table-panel .progress-cell.lv-done .bar-fill{background:linear-gradient(90deg,#34d399,#12a05a)!important}
+.table-panel .progress-cell.lv-done strong{color:#0e8a50!important}
+.table-panel .progress-cell strong{font-weight:900}
+</style>
 </body></html>
