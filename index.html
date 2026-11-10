@@ -6974,4 +6974,15 @@ html body .sidebar{background:radial-gradient(110% 42% at 0% 0%,rgba(236,150,110
 html body .sidebar::after{content:"";position:absolute;left:50%;top:50%;margin:-115px 0 0 -115px;width:230px;height:230px;background:url(trong-dong.png) center/contain no-repeat;opacity:.18;pointer-events:none;z-index:0;animation:tdSpin 24s linear infinite}
 @keyframes tdSpin{to{transform:rotate(360deg)}}
 </style>
+<style id="sidebar-compact">
+html body .sidebar .nav-label{min-height:0!important;height:28px!important;padding-top:4px!important;padding-bottom:0!important;margin:4px 0 0!important}
+html body .sidebar nav.nav>button{min-height:0!important;height:40px!important;padding-top:3px!important;padding-bottom:3px!important;margin:0 0 4px!important}
+html body .sidebar nav.nav>button .ring,html body .sidebar nav.nav>button [class*=ring],html body .sidebar nav.nav>button svg{transform-origin:center}
+html body .sidebar nav.nav{gap:0!important}
+html body .sidebar .news-launch,html body .sidebar .units-web summary{min-height:0!important;height:40px!important;padding-top:2px!important;padding-bottom:2px!important}
+html body .sidebar .news-launch small,html body .sidebar .units-web summary small,html body .sidebar .news-launch .sbx-txt small{display:none!important}
+html body .sidebar .chat-launch,html body .sidebar .docs-link,html body .sidebar .usage-guide summary{min-height:0!important;height:62px!important;padding:6px 10px!important}
+html body .sidebar .sidebar-foot{gap:6px!important}
+</style>
+<style id="sidebar-compact2">html body .sidebar .sidebar-foot button.chat-launch,html body .sidebar .sidebar-foot a.docs-link,html body .sidebar .sidebar-foot .usage-guide>details>summary{height:auto!important;min-height:64px!important;box-sizing:border-box!important;padding:8px 10px!important;overflow:visible!important}html body .sidebar .sidebar-foot .usage-guide,html body .sidebar .sidebar-foot .usage-guide>details{height:auto!important;min-height:0!important}</style>
 </body></html>
