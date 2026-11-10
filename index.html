@@ -804,7 +804,6 @@ html body .app .sidebar.is-collapsed .sidebar-collapse-toggle{top:auto!important
 html body .app .sidebar:not(.is-collapsed) .brand b{font-size:16px!important;letter-spacing:.03em!important}
 html body .app .sidebar:not(.is-collapsed) .brand small{font-size:8.5px!important}
 </style>
-<script id="pf-crest">(function(){const i=document.querySelector('.brand .crest img'),h=document.querySelector('.pf-ico');if(!i||!h)return;h.innerHTML='<img alt="Cờ Đảng" src="'+i.src+'">';const b=document.querySelector('.pf-brand div');if(b&&!b.querySelector('small'))b.insertAdjacentHTML('beforeend','<small>Dịch vụ công của Đảng · Lào Cai</small>')})();</script>
 </body></html>`}
 /* ---------- Excel (.xlsx, dựng trực tiếp OOXML — không cần thư viện ngoài) ---------- */
 function rptXlsxBlob(sheets){
@@ -1302,7 +1301,6 @@ html body .app .sidebar.is-collapsed .sidebar-collapse-toggle{top:auto!important
 html body .app .sidebar:not(.is-collapsed) .brand b{font-size:16px!important;letter-spacing:.03em!important}
 html body .app .sidebar:not(.is-collapsed) .brand small{font-size:8.5px!important}
 </style>
-<script id="pf-crest">(function(){const i=document.querySelector('.brand .crest img'),h=document.querySelector('.pf-ico');if(!i||!h)return;h.innerHTML='<img alt="Cờ Đảng" src="'+i.src+'">';const b=document.querySelector('.pf-brand div');if(b&&!b.querySelector('small'))b.insertAdjacentHTML('beforeend','<small>Dịch vụ công của Đảng · Lào Cai</small>')})();</script>
 </body></html>`);tab.document.close();tab.focus()});/* Firebase: thống kê người đang online và tổng lượt truy cập. */
 const firebaseConfig={
   apiKey:"AIzaSyCZ9gzT18b1QovsS0y4-SgmUFqtyMvkR0A",
@@ -7177,23 +7175,7 @@ html body .app .sidebar .nav-label:has(+#nav){display:none!important}
 html body .app .sidebar .nav-label:has(+#proceduresNav){display:none!important}
 html body .app .sidebar .brand::after{display:none!important;content:none!important}
 html body .app .sidebar:not(.is-collapsed) #nav{margin-top:16px!important}
-/* Chân trang: khối đỏ đô – vàng đồng bộ với thanh menu */
-html body .page-footer.pf-pro{margin-top:26px!important;border-radius:24px!important;overflow:hidden;box-shadow:0 14px 34px -14px rgba(122,12,34,.65)!important}
-html body .pf-pro::before{height:5px!important;border-radius:0!important;background:linear-gradient(90deg,#f2c14e,#fff3c4 30%,#f2b632 55%,#d98a00 80%,#f2c14e)!important}
-html body .pf-in{border:0!important;border-radius:0!important;padding:20px 28px!important;position:relative;background:radial-gradient(90% 160% at 8% 0%,rgba(224,101,63,.55),transparent 55%),linear-gradient(115deg,#8f1d14 0%,#6b1410 55%,#4a0b0b 100%)!important;color:#fff}
-html body .pf-in::after{content:"";position:absolute;right:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(242,193,78,.22),transparent 65%);pointer-events:none}
-html body .pf-ico{width:52px!important;height:52px!important;border-radius:50%!important;padding:0!important;border:0!important;background:conic-gradient(#fff3c4,#f2b632,#b8741a,#fff3c4)!important;box-shadow:0 0 18px rgba(242,182,50,.6)!important;position:relative;overflow:hidden}
-html body .pf-ico::before{content:"";position:absolute;inset:3px;border-radius:50%;background:#fff}
-html body .pf-ico img{position:relative;z-index:1;width:30px;height:auto}
-html body .pf-brand b{font-size:15px!important;font-weight:800!important;color:#fff!important;letter-spacing:.01em}
-html body .pf-brand b+small,html body .pf-brand small{display:block;margin-top:3px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#ffe2a8!important}
-html body .pf-dev{padding:4px 0 4px 22px!important;border-left:2px solid rgba(242,193,78,.7)!important;position:relative;z-index:1}
-html body .pf-dev small{color:#ffe2a8!important;font-size:10px!important;letter-spacing:.14em!important}
-html body .pf-dev b{margin-top:3px!important;font-size:20px!important;font-weight:900!important;letter-spacing:.02em;background:linear-gradient(180deg,#fff3c4,#f2b632 70%,#e9a21f);-webkit-background-clip:text;background-clip:text;color:transparent!important}
-html body .pf-dev span{color:#f7e7e0!important;font-size:12.5px!important;font-weight:600!important}
-@media(max-width:900px){html body .pf-in{padding:18px!important}html body .pf-dev{padding:12px 0 0!important;border-left:0!important;border-top:1px solid rgba(242,193,78,.5)!important}}
 @media(min-width:761px){html body .app .sidebar .sidebar-collapse-toggle{display:none!important}}
 </style>
 <script id="sidebar-always-open">(function(){const sb=document.querySelector('.sidebar');if(!sb)return;const mq=matchMedia('(min-width:761px)');const fix=()=>{if(mq.matches&&sb.classList.contains('is-collapsed'))sb.classList.remove('is-collapsed')};fix();new MutationObserver(fix).observe(sb,{attributes:true,attributeFilter:['class']});mq.addEventListener&&mq.addEventListener('change',fix)})();</script>
-<script id="pf-crest">(function(){const i=document.querySelector('.brand .crest img'),h=document.querySelector('.pf-ico');if(!i||!h)return;h.innerHTML='<img alt="Cờ Đảng" src="'+i.src+'">';const b=document.querySelector('.pf-brand div');if(b&&!b.querySelector('small'))b.insertAdjacentHTML('beforeend','<small>Dịch vụ công của Đảng · Lào Cai</small>')})();</script>
 </body></html>
