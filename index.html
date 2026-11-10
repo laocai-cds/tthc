@@ -6910,5 +6910,12 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
 .table-panel .table-head .filters .select#sortFilter{display:none!important}
 .table-panel .table-head .filters .input:hover,.table-panel .table-head .filters .select:hover{border-color:#e0a21c!important}
 .table-panel .table-head .filters .input:focus,.table-panel .table-head .filters .select:focus{outline:0!important;border-color:#c51620!important;box-shadow:0 0 0 4px rgba(197,22,32,.14)!important}
+/* Bộ lọc luôn nằm trên một hàng */
+.table-panel .table-head{flex-wrap:nowrap!important}
+.table-panel .table-head>div:first-child{flex:0 1 auto;min-width:0}
+.table-panel .table-head>div:first-child p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.table-panel .table-head .filters{flex:1 1 auto!important;flex-wrap:nowrap!important;justify-content:flex-end;min-width:0;gap:8px!important}
+.table-panel .table-head .filters .input{flex:1 1 150px;min-width:130px!important;width:auto!important;max-width:255px}
+.table-panel .table-head .filters .select{flex:0 1 auto;min-width:120px!important;padding-left:14px!important;padding-right:30px!important;font-size:13px!important}
 </style>
 </body></html>
