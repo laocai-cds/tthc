@@ -6746,7 +6746,9 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
 .app .sidebar:not(.is-collapsed) .brand small::after{content:"★";font-size:9px;color:#ff5a4d}
 /* Mục menu */
 .sidebar .nav-label{color:#8fa3c7!important;letter-spacing:.2em!important}
-.sidebar .nav button{border:1px solid transparent!important;border-radius:14px!important}
+.sidebar .nav button{border:1px solid transparent!important;border-radius:26px!important}
+.sidebar .nav button .ico{border-radius:50%!important}
+.sidebar:not(.is-collapsed) #proceduresNav button{padding-right:8px!important;padding-left:16px!important}
 .sidebar .nav button:hover{background:rgba(255,255,255,.06)!important;border-color:rgba(160,185,235,.16)!important;filter:none!important}
 .sidebar .nav button.active{background:linear-gradient(90deg,rgba(242,193,78,.24),rgba(242,193,78,.04))!important;border-color:rgba(242,193,78,.42)!important;box-shadow:inset 3px 0 0 #f2c14e,0 0 18px rgba(242,193,78,.12)!important}
 /* Vòng tròn tiến độ cho 4 thủ tục */
@@ -6767,7 +6769,7 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
 .sidebar .sidebar-foot>.units-web{margin:0!important}
 .sidebar .sidebar-foot .news-launch{margin:0!important}
 .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.news-launch,.units-web summary,.chat-launch.aic-launch,.docs-link,.usage-guide summary){
- box-sizing:border-box!important;width:100%!important;max-width:100%!important;margin:0!important;border-radius:15px!important;
+ box-sizing:border-box!important;width:100%!important;max-width:100%!important;margin:0!important;border-radius:22px!important;
  border:1px solid rgba(160,185,235,.2)!important;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.02))!important;box-shadow:none!important;overflow:visible}
 .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.chat-launch.aic-launch,.docs-link,.usage-guide summary){
  display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;gap:7px!important;min-height:68px!important;padding:10px 10px 9px!important;position:relative}
@@ -6787,7 +6789,7 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
 .sidebar .sidebar-foot .chat-launch::after{display:none}
 .sidebar .sidebar-foot .news-launch .nl-badge{background:var(--a)!important;color:#fff!important}
 .sidebar .sidebar-foot .units-web summary .sbx-end{background:transparent!important;color:#8fa3c7!important}
-.sidebar .sidebar-foot .usage-guide details[open] summary{border-radius:15px 15px 0 0!important}
+.sidebar .sidebar-foot .usage-guide details[open] summary{border-radius:22px 22px 0 0!important}
 .sidebar .sidebar-foot .usage-guide summary .sbx-txt{flex:none;width:100%}
 .sidebar .sidebar-foot .usage-guide:has(details[open]) summary{flex-direction:row!important;align-items:center!important;min-height:0!important}
 .sidebar .sidebar-foot .usage-guide:has(details[open]) summary .sbx-txt{width:auto;flex:1}
