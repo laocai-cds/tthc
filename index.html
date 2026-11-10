@@ -7175,6 +7175,18 @@ html body .app .sidebar .nav-label:has(+#nav){display:none!important}
 html body .app .sidebar .nav-label:has(+#proceduresNav){display:none!important}
 html body .app .sidebar .brand::after{display:none!important;content:none!important}
 html body .app .sidebar:not(.is-collapsed) #nav{margin-top:16px!important}
+/* Biểu tượng nhỏ ở đầu từng thủ tục */
+html body .sidebar:not(.is-collapsed) #proceduresNav button{grid-template-columns:28px minmax(0,1fr) auto!important;grid-template-areas:"ico text count"!important;column-gap:8px!important;padding-left:8px!important}
+html body .sidebar:not(.is-collapsed) #proceduresNav button .ico{display:grid!important;grid-area:ico;place-items:center;width:28px!important;height:28px!important;min-width:0!important;border-radius:9px!important;background:color-mix(in srgb,var(--ic,#5aa2ff) 22%,transparent)!important;color:var(--ic,#5aa2ff)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ic,#5aa2ff) 45%,transparent)!important;padding:0!important}
+html body .sidebar:not(.is-collapsed) #proceduresNav button .ico svg{width:16px!important;height:16px!important}
+html body .sidebar #proceduresNav button:nth-child(1){--ic:#7db8ff}
+html body .sidebar #proceduresNav button:nth-child(2){--ic:#b9a4ff}
+html body .sidebar #proceduresNav button:nth-child(3){--ic:#4fe3c1}
+html body .sidebar #proceduresNav button:nth-child(4){--ic:#ffd36b}
+html body .sidebar #proceduresNav button.tp-nav{--ic:#ff9a7d}
+html body .sidebar:not(.is-collapsed) #proceduresNav button .nav-text{font-size:12.5px!important;white-space:nowrap!important;letter-spacing:-.01em!important;overflow:visible!important}
+html body .sidebar:not(.is-collapsed) #proceduresNav button{column-gap:8px!important;padding-right:6px!important}
+html body .sidebar:not(.is-collapsed) #proceduresNav button .count{width:36px!important;height:36px!important}
 @media(min-width:761px){html body .app .sidebar .sidebar-collapse-toggle{display:none!important}}
 </style>
 <script id="sidebar-always-open">(function(){const sb=document.querySelector('.sidebar');if(!sb)return;const mq=matchMedia('(min-width:761px)');const fix=()=>{if(mq.matches&&sb.classList.contains('is-collapsed'))sb.classList.remove('is-collapsed')};fix();new MutationObserver(fix).observe(sb,{attributes:true,attributeFilter:['class']});mq.addEventListener&&mq.addEventListener('change',fix)})();</script>
