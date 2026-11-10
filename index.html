@@ -7171,5 +7171,7 @@ html.calm .sidebar-collapse-toggle{animation:none!important}
 html body .app .sidebar.is-collapsed .sidebar-collapse-toggle{top:auto!important;bottom:20px!important;right:auto!important;left:50%!important;margin-left:-17px!important}
 html body .app .sidebar:not(.is-collapsed) .brand b{font-size:16px!important;letter-spacing:.03em!important}
 html body .app .sidebar:not(.is-collapsed) .brand small{font-size:8.5px!important}
+@media(min-width:761px){html body .app .sidebar .sidebar-collapse-toggle{display:none!important}}
 </style>
+<script id="sidebar-always-open">(function(){const sb=document.querySelector('.sidebar');if(!sb)return;const mq=matchMedia('(min-width:761px)');const fix=()=>{if(mq.matches&&sb.classList.contains('is-collapsed'))sb.classList.remove('is-collapsed')};fix();new MutationObserver(fix).observe(sb,{attributes:true,attributeFilter:['class']});mq.addEventListener&&mq.addEventListener('change',fix)})();</script>
 </body></html>
