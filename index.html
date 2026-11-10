@@ -772,6 +772,7 @@ html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot.sidebar-fo
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.units-web,.usage-guide)>details{height:44px!important}
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot .usage-guide>details>summary,html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot .units-web>details>summary{height:44px!important;min-height:44px!important;padding:0!important;margin:0!important;justify-content:center!important}
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide>details{margin:0!important;height:44px!important;min-height:0!important}
+html body .sidebar:not(.is-collapsed) #proceduresNav,html body .sidebar:not(.is-collapsed) #proceduresNav.acc-closed{max-height:none!important;opacity:1!important;pointer-events:auto!important;overflow:visible!important}
 </style>
 </body></html>`}
 /* ---------- Excel (.xlsx, dựng trực tiếp OOXML — không cần thư viện ngoài) ---------- */
@@ -1238,6 +1239,7 @@ html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot.sidebar-fo
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.units-web,.usage-guide)>details{height:44px!important}
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot .usage-guide>details>summary,html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot .units-web>details>summary{height:44px!important;min-height:44px!important;padding:0!important;margin:0!important;justify-content:center!important}
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide>details{margin:0!important;height:44px!important;min-height:0!important}
+html body .sidebar:not(.is-collapsed) #proceduresNav,html body .sidebar:not(.is-collapsed) #proceduresNav.acc-closed{max-height:none!important;opacity:1!important;pointer-events:auto!important;overflow:visible!important}
 </style>
 </body></html>`);tab.document.close();tab.focus()});/* Firebase: thống kê người đang online và tổng lượt truy cập. */
 const firebaseConfig={
@@ -6907,13 +6909,7 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
 .topbar{column-gap:10px}
 </style>
 <script id="sidebar-redesign-js">
-(function(){const nav=document.getElementById('proceduresNav'),lab=nav&&nav.previousElementSibling;
- if(nav&&lab&&lab.classList.contains('nav-label')){const K='dvc-procedures-open';let open=true;try{open=localStorage.getItem(K)!=='0'}catch(_){}
-  lab.classList.add('acc');lab.setAttribute('role','button');lab.tabIndex=0;lab.setAttribute('aria-controls','proceduresNav');
-  const ch=document.createElement('span');ch.className='acc-chev';ch.setAttribute('aria-hidden','true');ch.textContent='›';lab.append(ch);
-  const set=o=>{open=o;lab.setAttribute('aria-expanded',o);nav.classList.toggle('acc-closed',!o);try{localStorage.setItem(K,o?'1':'0')}catch(_){}};
-  lab.addEventListener('click',()=>set(!open));lab.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();set(!open)}});set(open)}
-})();
+/* Mục Thủ tục luôn hiển thị, không còn nút xổ ra/thu lại */
 (function(){const nav=document.getElementById('proceduresNav');if(!nav)return;
  function upd(){nav.querySelectorAll('.count').forEach(c=>{const n=parseFloat(String(c.textContent).replace(',','.'));if(isFinite(n))c.style.setProperty('--p',Math.max(0,Math.min(100,n)))})}
  upd();new MutationObserver(upd).observe(nav,{childList:true});
@@ -7082,5 +7078,6 @@ html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot.sidebar-fo
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.units-web,.usage-guide)>details{height:44px!important}
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot .usage-guide>details>summary,html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot .units-web>details>summary{height:44px!important;min-height:44px!important;padding:0!important;margin:0!important;justify-content:center!important}
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide>details{margin:0!important;height:44px!important;min-height:0!important}
+html body .sidebar:not(.is-collapsed) #proceduresNav,html body .sidebar:not(.is-collapsed) #proceduresNav.acc-closed{max-height:none!important;opacity:1!important;pointer-events:auto!important;overflow:visible!important}
 </style>
 </body></html>
