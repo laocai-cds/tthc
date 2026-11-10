@@ -1,11 +1,10 @@
-Lấy được 11/13 bài
+Lấy được 10/12 bài
 == THỐNG KÊ THEO BÁO ==
     7  baolaocai.vn  có ảnh
     2  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    1  vtcnews.vn  có ảnh
+    1  doanhnhan.baophapluat.vn  có ảnh
     1  nhandan.vn  có ảnh
-    1  baovephapluat.vn  có ảnh
-    1  vtv.vn  có ảnh
+    1  baoxaydung.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/dua-van-hoa-truyen-thong-thanh-nguon-luc-phat-trien-o-nam-chay-d840538.html
