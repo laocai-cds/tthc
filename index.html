@@ -6938,7 +6938,7 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
 @keyframes tpuIn{from{opacity:0;transform:translate(-50%,-48%) scale(.98)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 .table-panel.tp-pop .table-wrap{flex:1 1 auto;min-height:0;max-height:none!important;overflow:auto}
 .table-panel.tp-pop .table-head{padding-right:64px!important}
-#tpuBackdrop{position:fixed;inset:0;z-index:69;background:rgba(13,25,48,.58);backdrop-filter:blur(3px);display:none}
+#tpuBackdrop{position:fixed;inset:0;z-index:69;background:rgba(13,25,48,.72);display:none}
 body.tpu-open #tpuBackdrop{display:block}
 body.tpu-open{overflow:hidden}
 .tpu-close{position:absolute;top:14px;right:16px;z-index:5;width:36px;height:36px;border-radius:50%;border:1px solid #d5dbea;background:#fff;color:#14284d;font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center;transition:.16s}
@@ -6951,6 +6951,9 @@ body.tpu-open{overflow:hidden}
 .table-panel.tp-pop .table-wrap table{width:100%!important;min-width:0!important}
 .overlay .drawer{width:min(640px,100%)!important}
 .table-panel .table-wrap thead th{background:linear-gradient(180deg,#6d3d5e,#4f4676)!important}
+/* Popup mượn mượt: tạm dừng hiệu ứng nền phía sau */
+body.tpu-open *:not(.table-panel):not(.table-panel *){animation-play-state:paused!important}
+.table-panel.tp-pop{will-change:transform;contain:layout paint}
 </style>
 <script id="update-popup-js">
 (function(){
