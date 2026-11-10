@@ -6817,6 +6817,23 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
 .sidebar .sidebar-foot .usage-guide details[open] summary{border-radius:26px 26px 0 0!important}
 .sidebar .sidebar-foot .news-launch .nl-badge,.sidebar .sidebar-foot .chat-launch .aicl-badge{border-radius:999px!important}
 .sidebar .nav-label.acc{border-radius:999px}
+/* Rê chuột: hiệu ứng phát sáng */
+.sidebar .nav button,.sidebar .sidebar-foot :is(.news-launch,.units-web summary,.chat-launch.aic-launch,.docs-link,.usage-guide summary){transition:transform .22s ease,box-shadow .25s ease,border-color .25s ease,background .25s ease!important}
+.sidebar .nav button:hover{background:linear-gradient(90deg,rgba(242,193,78,.2),rgba(242,193,78,.05))!important;border-color:rgba(242,193,78,.6)!important;color:#fff!important;transform:translateX(3px)!important;
+ box-shadow:0 0 0 1px rgba(242,193,78,.35),0 0 20px rgba(242,193,78,.42),inset 0 0 14px rgba(242,193,78,.14)!important}
+.sidebar .nav button.active:hover{transform:translateX(0)!important;box-shadow:inset 3px 0 0 #f2c14e,0 0 0 1px rgba(242,193,78,.45),0 0 24px rgba(242,193,78,.5)!important}
+.sidebar #proceduresNav button:hover .count{box-shadow:0 0 14px var(--c),0 0 4px var(--c);filter:brightness(1.15)}
+.sidebar .nav button:hover .ico{background:linear-gradient(145deg,#f7d97f,#e0a02a)!important;color:#4a2f06!important;box-shadow:0 0 16px rgba(242,193,78,.8)!important}
+.sidebar .nav-label.acc:hover{text-shadow:0 0 12px rgba(255,227,138,.9);background:rgba(242,193,78,.1)}
+.sidebar .nav-label.acc:hover .acc-chev{box-shadow:0 0 12px rgba(242,193,78,.85);background:rgba(242,193,78,.2)}
+.sidebar .sidebar-foot :is(.news-launch,.units-web summary,.chat-launch.aic-launch,.docs-link,.usage-guide summary):hover{transform:translateY(-3px)!important;
+ border-color:color-mix(in srgb,var(--a) 85%,#fff)!important;background:linear-gradient(160deg,color-mix(in srgb,var(--a) 34%,transparent),rgba(255,255,255,.04))!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--a) 70%,transparent),0 0 22px color-mix(in srgb,var(--a) 65%,transparent),0 10px 24px rgba(0,0,0,.35)!important}
+.sidebar .sidebar-foot :is(.news-launch,.units-web summary,.chat-launch,.docs-link,.usage-guide summary):hover :is(.sbx-ico,.aicl-ico){box-shadow:0 0 0 3px color-mix(in srgb,var(--a) 35%,transparent),0 0 18px var(--a)!important;animation:sbGlow 1.4s ease-in-out infinite}
+@keyframes sbGlow{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--a) 22%,transparent),0 0 26px var(--a)}}
+.sidebar .brand .crest{transition:box-shadow .25s ease}
+.sidebar .brand:hover .crest{box-shadow:0 0 0 3px rgba(242,193,78,.8),0 0 24px rgba(242,193,78,.6)!important}
+@media(prefers-reduced-motion:reduce){.sidebar .sidebar-foot :hover :is(.sbx-ico,.aicl-ico){animation:none}}
 </style>
 <style id="clock-left">
 /* Đồng hồ + ngày đưa sang hẳn góc trái thanh trên cùng */
