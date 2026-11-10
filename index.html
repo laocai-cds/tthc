@@ -6952,7 +6952,8 @@ body.tpu-open{overflow:hidden}
 .overlay .drawer{width:min(640px,100%)!important}
 .table-panel .table-wrap thead th{background:linear-gradient(180deg,#6d3d5e,#4f4676)!important}
 /* Popup mượn mượt: tạm dừng hiệu ứng nền phía sau */
-body.tpu-open *:not(.table-panel):not(.table-panel *){animation-play-state:paused!important}
+body.tpu-open :where(.hero,#heroVideo,.marquee,.ticker,.topbar,.sidebar,main>*) *{animation-play-state:paused}
+body.tpu-open .overlay,body.tpu-open .overlay *,body.tpu-open .table-panel,body.tpu-open .table-panel *,body.tpu-open #tpuBackdrop{animation-play-state:running!important}
 .table-panel.tp-pop{will-change:transform;contain:layout paint}
 </style>
 <script id="update-popup-js">
