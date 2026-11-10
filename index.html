@@ -752,6 +752,19 @@ b.w{color:#8a3b12}b.g{color:#8a5a00}
 ${body}
 </section>
 ${apx}
+<style id="foot-row">
+/* Cụm nút chân thanh menu: một hàng ngang, chỉ biểu tượng, dồn xuống đáy; rê chuột hiện tên (title) */
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot{display:flex!important;flex-wrap:nowrap!important;align-items:stretch!important;justify-content:space-between!important;gap:5px!important;position:relative!important;margin-top:auto!important;padding:12px 0 2px!important;border-top:1px solid rgba(255,255,255,.14)!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot>*{flex:1 1 0!important;min-width:0!important;width:auto!important;max-width:none!important;margin:0!important;grid-column:auto!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-web,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-web details,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide details{display:flex!important;height:100%!important;position:static!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.news-launch,.units-web summary,.chat-launch.aic-launch,.docs-link,.usage-guide summary){display:flex!important;flex:1 1 auto!important;width:100%!important;height:44px!important;min-height:44px!important;box-sizing:border-box!important;align-items:center!important;justify-content:center!important;gap:0!important;padding:0!important;border-radius:14px!important;overflow:visible!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.sbx-txt,.aicl-txt,.nl-badge,.aicl-badge,.sbx-end,.sbx-chev){display:none!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.sbx-ico,.aicl-ico){width:30px!important;height:30px!important;margin:0!important;border-radius:10px!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.sbx-ico,.aicl-ico) svg{width:17px!important;height:17px!important}
+/* danh sách "Web các đơn vị" mở lên phía trên hàng nút */
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-list{position:absolute!important;left:0!important;right:0!important;bottom:calc(100% + 8px)!important;z-index:30!important;max-height:240px!important;border:1px solid rgba(200,170,255,.45)!important;border-radius:14px!important;background:rgba(58,22,110,.96)!important;box-shadow:0 14px 30px rgba(0,0,0,.45)!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-web details[open] summary{border-radius:14px!important;box-shadow:0 0 0 2px #f2ca63!important}
+</style>
 </body></html>`}
 /* ---------- Excel (.xlsx, dựng trực tiếp OOXML — không cần thư viện ngoài) ---------- */
 function rptXlsxBlob(sheets){
@@ -1197,6 +1210,19 @@ footer{max-width:1180px;margin:0 auto;padding:0 26px 34px;color:#7a879a;font-siz
 <details><summary>Đơn vị cần hỗ trợ kỹ thuật?</summary><p>Ghi nội dung vào bảng “Khó khăn, đề xuất” hoặc liên hệ cán bộ đầu mối của Ban chỉ đạo để được hướng dẫn trực tiếp.</p></details></section>
 </main></div>
 <footer>Hệ thống theo dõi thủ tục hành chính của Đảng · Nguồn số liệu: Google Sheets · Hướng dẫn cập nhật ${new Date().toLocaleDateString('vi-VN')}</footer>
+<style id="foot-row">
+/* Cụm nút chân thanh menu: một hàng ngang, chỉ biểu tượng, dồn xuống đáy; rê chuột hiện tên (title) */
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot{display:flex!important;flex-wrap:nowrap!important;align-items:stretch!important;justify-content:space-between!important;gap:5px!important;position:relative!important;margin-top:auto!important;padding:12px 0 2px!important;border-top:1px solid rgba(255,255,255,.14)!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot>*{flex:1 1 0!important;min-width:0!important;width:auto!important;max-width:none!important;margin:0!important;grid-column:auto!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-web,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-web details,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide details{display:flex!important;height:100%!important;position:static!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.news-launch,.units-web summary,.chat-launch.aic-launch,.docs-link,.usage-guide summary){display:flex!important;flex:1 1 auto!important;width:100%!important;height:44px!important;min-height:44px!important;box-sizing:border-box!important;align-items:center!important;justify-content:center!important;gap:0!important;padding:0!important;border-radius:14px!important;overflow:visible!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.sbx-txt,.aicl-txt,.nl-badge,.aicl-badge,.sbx-end,.sbx-chev){display:none!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.sbx-ico,.aicl-ico){width:30px!important;height:30px!important;margin:0!important;border-radius:10px!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.sbx-ico,.aicl-ico) svg{width:17px!important;height:17px!important}
+/* danh sách "Web các đơn vị" mở lên phía trên hàng nút */
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-list{position:absolute!important;left:0!important;right:0!important;bottom:calc(100% + 8px)!important;z-index:30!important;max-height:240px!important;border:1px solid rgba(200,170,255,.45)!important;border-radius:14px!important;background:rgba(58,22,110,.96)!important;box-shadow:0 14px 30px rgba(0,0,0,.45)!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-web details[open] summary{border-radius:14px!important;box-shadow:0 0 0 2px #f2ca63!important}
+</style>
 </body></html>`);tab.document.close();tab.focus()});/* Firebase: thống kê người đang online và tổng lượt truy cập. */
 const firebaseConfig={
   apiKey:"AIzaSyCZ9gzT18b1QovsS0y4-SgmUFqtyMvkR0A",
@@ -7019,5 +7045,18 @@ html body .app .sidebar:not(.is-collapsed) .sidebar-foot .chat-launch.aic-launch
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot .chat-launch.aic-launch .aicl-ico,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .docs-link.docs-link .sbx-ico,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide.usage-guide .sbx-ico{width:26px!important;height:26px!important}
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot .chat-launch.aic-launch .aicl-txt b,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .docs-link.docs-link .sbx-txt b,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide.usage-guide .sbx-txt b{font-size:12px!important;white-space:nowrap!important;overflow:visible!important;letter-spacing:0!important}
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot .chat-launch.aic-launch .aicl-badge{top:3px!important;right:5px!important}
+</style>
+<style id="foot-row">
+/* Cụm nút chân thanh menu: một hàng ngang, chỉ biểu tượng, dồn xuống đáy; rê chuột hiện tên (title) */
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot{display:flex!important;flex-wrap:nowrap!important;align-items:stretch!important;justify-content:space-between!important;gap:5px!important;position:relative!important;margin-top:auto!important;padding:12px 0 2px!important;border-top:1px solid rgba(255,255,255,.14)!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot>*{flex:1 1 0!important;min-width:0!important;width:auto!important;max-width:none!important;margin:0!important;grid-column:auto!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-web,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-web details,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide details{display:flex!important;height:100%!important;position:static!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.news-launch,.units-web summary,.chat-launch.aic-launch,.docs-link,.usage-guide summary){display:flex!important;flex:1 1 auto!important;width:100%!important;height:44px!important;min-height:44px!important;box-sizing:border-box!important;align-items:center!important;justify-content:center!important;gap:0!important;padding:0!important;border-radius:14px!important;overflow:visible!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.sbx-txt,.aicl-txt,.nl-badge,.aicl-badge,.sbx-end,.sbx-chev){display:none!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.sbx-ico,.aicl-ico){width:30px!important;height:30px!important;margin:0!important;border-radius:10px!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot :is(.sbx-ico,.aicl-ico) svg{width:17px!important;height:17px!important}
+/* danh sách "Web các đơn vị" mở lên phía trên hàng nút */
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-list{position:absolute!important;left:0!important;right:0!important;bottom:calc(100% + 8px)!important;z-index:30!important;max-height:240px!important;border:1px solid rgba(200,170,255,.45)!important;border-radius:14px!important;background:rgba(58,22,110,.96)!important;box-shadow:0 14px 30px rgba(0,0,0,.45)!important}
+html body .app .sidebar:not(.is-collapsed) .sidebar-foot .units-web details[open] summary{border-radius:14px!important;box-shadow:0 0 0 2px #f2ca63!important}
 </style>
 </body></html>
