@@ -398,7 +398,7 @@ function renderNav(){let n=$('#nav');n.innerHTML=`<button class="${activeId==='o
 function activate(id){activeId=id;page=1;$('#crumbName').textContent=id==='overview'?'Tổng quan':procedure(id).short;render()}
 
 function startLiveSine(){const canvas=document.getElementById('liveSine');if(!canvas)return;const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;function draw(now){if(!canvas.isConnected)return;if(!document.hidden){ctx.clearRect(0,0,w,h);ctx.strokeStyle='#f2e9e7';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);ctx.stroke();ctx.beginPath();for(let x=0;x<=w;x++){const y=h/2+Math.sin(x*.075-now*.003)*h*.31;if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}const grad=ctx.createLinearGradient(0,0,w,0);grad.addColorStop(0,'#e53935');grad.addColorStop(.5,'#e6a52f');grad.addColorStop(1,'#8e24aa');ctx.strokeStyle=grad;ctx.lineWidth=2.5;ctx.lineCap='round';ctx.stroke();const procedures=(data?.procedures||[]).slice(0,4),slot=w/Math.max(1,procedures.length);procedures.forEach((p,i)=>{const x=slot*(i+.5),y=h/2+Math.sin(x*.075-now*.003)*h*.31,average=p.units?.length?p.units.reduce((sum,u)=>sum+progress(p,u),0)/p.units.length:0,label=Math.round(average*100)+'%';ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,5.5,0,Math.PI*2);ctx.fill();ctx.fillStyle=['#b3262d','#ad7412','#147a67','#7352a3'][i];ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();ctx.font='bold 10px Segoe UI,Arial';ctx.textAlign='center';ctx.fillText(label,x,Math.max(9,Math.min(h-2,y-7)))})}requestAnimationFrame(draw)}requestAnimationFrame(draw)}startLiveSine();function updateClock(){const now=new Date(),date=new Intl.DateTimeFormat('vi-VN',{day:'2-digit',month:'long',year:'numeric'}).format(now),time=new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(now);const weekday=new Intl.DateTimeFormat('vi-VN',{weekday:'long'}).format(now);$('#today').innerHTML=`<span><em>${weekday}</em>${date}</span><small>${time.replace(/:/g,'<i>:</i>')}</small>`}setInterval(updateClock,1000);function render(){renderNav();renderOverview();renderTable();updateClock();$('#procedureFilter').innerHTML=`<option value="all">Tất cả thủ tục</option>`+data.procedures.map(p=>`<option value="${p.id}">${esc(p.short)}</option>`).join('');$('#procedureFilter').value=activeId==='overview'?'all':activeId}
-function first100HTML(done){const l=done||[];if(!l.length)return `<div class="lb-first none"><i>🥇</i><span><b>Đơn vị hoàn thành 100% đầu tiên:</b> chưa có đơn vị nào<small>Đạt 100% khi hoàn thành cả 04 thủ tục</small></span></div>`;const shown=l.slice(0,3).map(u=>esc(u.unit)).join('; ');return `<div class="lb-first"><i>🥇</i><span><b>Đơn vị hoàn thành 100% đầu tiên:</b> ${shown}${l.length>3?' …':''}<small>Đến nay có ${fmt(l.length)} đơn vị đạt 100%</small></span></div>`}
+function first100HTML(done){const l=done||[];if(!l.length)return `<div class="lb-first none"><i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> chưa có đơn vị</span></div>`;const shown=l.slice(0,3).map(u=>esc(u.unit)).join('; ');return `<div class="lb-first"><i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> ${shown}${l.length>3?' …':''}<small>${fmt(l.length)} đơn vị đạt 100%</small></span></div>`}
 function leaderboardHTML(leaders,fullDone){
 const cls=['gold','silver','bronze'];
 const rows=leaders.map((u,i)=>`<button type="button" class="lb-item ${cls[i]||''}" data-unit-detail="${esc(u.unit)}" title="Bấm để xem chỉ số các thủ tục"><span class="lb-medal">${i+1}</span><span class="lb-info"><span class="lb-name">${esc(u.unit)}</span><span class="lb-track"><i style="width:${Math.min(100,u.average*100).toFixed(1)}%"></i></span></span><span class="lb-score">${pct(u.average)}</span><span class="lb-go" aria-hidden="true">›</span></button>`).join('');
@@ -1782,15 +1782,19 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
 })();
 </script>
 <style id="lb-first-style">
-.lb-first{display:flex;align-items:center;gap:8px;margin:8px 0 0;padding:7px 11px;border:1px solid #f1d58e;border-radius:14px;background:linear-gradient(135deg,#fff8e1,#ffeab8);color:#6b4200;font-size:12px;line-height:1.35}
-.lb-first i{font-style:normal;font-size:20px;flex:none}.lb-first span{min-width:0}.lb-first small{display:block;color:#8a6a2c;font-size:10.5px}.lb-first b{color:#b4400e}
+.lb-first{display:flex;align-items:center;gap:7px;margin:6px 0 0;padding:5px 10px;border:1px solid #f1d58e;border-radius:12px;background:linear-gradient(135deg,#fff8e1,#ffeab8);color:#6b4200;font-size:11.5px;line-height:1.25}
+.lb-first i{font-style:normal;font-size:16px;flex:none}.lb-first span{min-width:0}.lb-first small{display:block;color:#8a6a2c;font-size:10px}.lb-first b{color:#b4400e}
 .lb-first.none{background:#faf6ee;border-color:#eadfc7;color:#7a6a4a}
 .heading.hero>.leaderboard-pair .lb-first{margin-top:4px;padding:4px 7px;font-size:10px;border-radius:10px;gap:6px}.heading.hero>.leaderboard-pair .lb-first i{font-size:15px}.heading.hero>.leaderboard-pair .lb-first small{font-size:9px}
 </style>
+<style id="top3-first100-fit">
+.heading.hero>.leaderboard-pair>#top3Dues,.heading.hero>.leaderboard-pair>#leaderboard{height:auto!important;max-height:none!important;overflow:visible!important}
+#top3Dues .top3-dues-status{margin:4px 0 0}
+</style>
 <style id="top3-first100-style">
-#top3Dues .t3f{display:flex;align-items:center;gap:8px;margin:8px 0 0;padding:7px 11px;border:1px solid #f1d58e;border-radius:14px;background:linear-gradient(135deg,#fff8e1,#ffeab8);color:#6b4200;font-size:12px;line-height:1.35}
-#top3Dues .t3f i{font-style:normal;font-size:20px;flex:none}
-#top3Dues .t3f span{min-width:0}#top3Dues .t3f small{display:block;color:#8a6a2c;font-size:10.5px}
+#top3Dues .t3f{display:flex;align-items:center;gap:7px;margin:6px 0 0;padding:5px 10px;border:1px solid #f1d58e;border-radius:12px;background:linear-gradient(135deg,#fff8e1,#ffeab8);color:#6b4200;font-size:11.5px;line-height:1.25}
+#top3Dues .t3f i{font-style:normal;font-size:16px;flex:none}
+#top3Dues .t3f span{min-width:0}#top3Dues .t3f small{display:block;color:#8a6a2c;font-size:10px}
 #top3Dues .t3f b{color:#b4400e}
 #top3Dues .t3f.none{background:#faf6ee;border-color:#eadfc7;color:#7a6a4a}
 .heading.hero>.leaderboard-pair>#top3Dues .t3f{margin-top:4px;padding:4px 7px;font-size:10px;border-radius:10px;gap:6px}
@@ -1809,11 +1813,11 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
  function show(rows){
   if(rows===null)return;
   const k=month(),L=rows.filter(x=>x.month===k).sort((a,b)=>ts(a.when)-ts(b.when));
-  if(!L.length){box.className='t3f none';box.innerHTML='<i>🥇</i><span><b>Đơn vị hoàn thành 100% đầu tiên:</b> chưa có đơn vị nào<small>Đạt 100% khi toàn bộ đảng viên phải nộp đã nộp đảng phí</small></span>';return}
+  if(!L.length){box.className='t3f none';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> chưa có đơn vị</span>';return}
   const first=L.filter(x=>x.when===L[0].when),t=ts(L[0].when),d=t?new Date(t):null,
    at=d?String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' ngày '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'):'';
   box.className='t3f';
-  box.innerHTML='<i>🥇</i><span><b>Đơn vị hoàn thành 100% đầu tiên:</b> '+first.map(x=>esc(x.unit)).join('; ')+'<small>'+(at?'Ghi nhận lúc '+at+' · ':'')+'Đến nay có '+L.length+' đơn vị đạt 100%</small></span>';
+  box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+first.map(x=>esc(x.unit)).join('; ')+'<small>'+(at?at+' · ':'')+L.length+' đơn vị đạt 100%</small></span>';
  }
  let cache=null,busy=false;
  function load(){
