@@ -7190,9 +7190,8 @@ html body .sidebar:not(.is-collapsed) #proceduresNav button .count{width:36px!im
 /* Trống đồng nằm giữa khối 5 mục (thay vì giữa cả thanh menu) */
 html body .sidebar::after{display:none!important}
 html body .sidebar:not(.is-collapsed) #proceduresNav{position:relative;isolation:isolate}
-html body .sidebar:not(.is-collapsed) #proceduresNav::before{content:"";position:absolute;left:50%;top:50%;width:250px;height:250px;margin:-125px 0 0 -125px;background:url(trong-dong.png) center/contain no-repeat;opacity:.28;pointer-events:none;z-index:-1;animation:tdSpin 24s linear infinite}
+html body .sidebar:not(.is-collapsed) #proceduresNav::before{content:"";position:absolute;left:50%;top:50%;width:250px;height:250px;margin:-125px 0 0 -125px;background:url(trong-dong.png) center/contain no-repeat;opacity:.28;pointer-events:none;z-index:-1;will-change:transform;animation:tdSpin 18s linear infinite!important}
 html.calm #proceduresNav::before{animation:none!important}
-@media(prefers-reduced-motion:reduce){html body .sidebar #proceduresNav::before{animation:none!important}}
 @media(min-width:761px){html body .app .sidebar .sidebar-collapse-toggle{display:none!important}}
 </style>
 <script id="sidebar-always-open">(function(){const sb=document.querySelector('.sidebar');if(!sb)return;const mq=matchMedia('(min-width:761px)');const fix=()=>{if(mq.matches&&sb.classList.contains('is-collapsed'))sb.classList.remove('is-collapsed')};fix();new MutationObserver(fix).observe(sb,{attributes:true,attributeFilter:['class']});mq.addEventListener&&mq.addEventListener('change',fix)})();</script>
