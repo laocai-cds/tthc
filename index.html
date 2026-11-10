@@ -6805,6 +6805,14 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
 .sidebar:not(.is-collapsed) #proceduresNav{max-height:420px;transition:max-height .3s ease,opacity .25s ease,margin .25s ease}
 .sidebar:not(.is-collapsed) #proceduresNav.acc-closed{max-height:0;overflow:hidden;opacity:0;margin:0;pointer-events:none}
 </style>
+<style id="clock-left">
+/* Đồng hồ + ngày đưa sang hẳn góc trái thanh trên cùng */
+.topbar .top-actions{display:contents}
+.topbar .top-actions>.date{order:0;margin-right:4px}
+.topbar>.crumb{order:1;margin-right:auto}
+.topbar .top-actions>:not(.date){order:2}
+.topbar{column-gap:10px}
+</style>
 <script id="sidebar-redesign-js">
 (function(){const nav=document.getElementById('proceduresNav'),lab=nav&&nav.previousElementSibling;
  if(nav&&lab&&lab.classList.contains('nav-label')){const K='dvc-procedures-open';let open=true;try{open=localStorage.getItem(K)!=='0'}catch(_){}
