@@ -1780,6 +1780,48 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
  load();setInterval(()=>{if(!document.hidden&&DuesMonth.live())load()},60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&DuesMonth.live())load()});window.addEventListener('dues-month-change',()=>load());
 })();
 </script>
+<style id="top3-first100-style">
+#top3Dues .t3f{display:flex;align-items:center;gap:8px;margin:8px 0 0;padding:7px 11px;border:1px solid #f1d58e;border-radius:14px;background:linear-gradient(135deg,#fff8e1,#ffeab8);color:#6b4200;font-size:12px;line-height:1.35}
+#top3Dues .t3f i{font-style:normal;font-size:20px;flex:none}
+#top3Dues .t3f span{min-width:0}#top3Dues .t3f small{display:block;color:#8a6a2c;font-size:10.5px}
+#top3Dues .t3f b{color:#b4400e}
+#top3Dues .t3f.none{background:#faf6ee;border-color:#eadfc7;color:#7a6a4a}
+.heading.hero>.leaderboard-pair>#top3Dues .t3f{margin-top:4px;padding:4px 7px;font-size:10px;border-radius:10px;gap:6px}
+.heading.hero>.leaderboard-pair>#top3Dues .t3f i{font-size:15px}
+.heading.hero>.leaderboard-pair>#top3Dues .t3f small{font-size:9px}
+</style>
+<script id="top3-first100-script">
+/* Đơn vị hoàn thành 100% đầu tiên trong tháng: đọc tab "HOAN THANH SOM" (Apps Script ghi nhận theo thời điểm đồng bộ) */
+(function(){
+ const SHEET='1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-M1AGkWO4g',list=document.getElementById('top3DuesList');if(!list)return;
+ const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const box=document.createElement('div');box.className='t3f none';box.id='top3First100';box.setAttribute('aria-live','polite');list.after(box);
+ const cell=c=>c&&(c.f!=null?c.f:c.v!=null?c.v:'')+'';
+ const ts=w=>{const x=/(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)/.exec(w);return x?new Date(+x[3],+x[2]-1,+x[1],+x[4],+x[5]).getTime():0};
+ const month=()=>{try{return window.DuesMonth.state.month}catch(_){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}};
+ function show(rows){
+  if(rows===null)return;
+  const k=month(),L=rows.filter(x=>x.month===k).sort((a,b)=>ts(a.when)-ts(b.when));
+  if(!L.length){box.className='t3f none';box.innerHTML='<i>🥇</i><span><b>Đơn vị hoàn thành 100% đầu tiên:</b> chưa có đơn vị nào<small>Đạt 100% khi toàn bộ đảng viên phải nộp đã nộp đảng phí</small></span>';return}
+  const first=L.filter(x=>x.when===L[0].when),t=ts(L[0].when),d=t?new Date(t):null,
+   at=d?String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' ngày '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'):'';
+  box.className='t3f';
+  box.innerHTML='<i>🥇</i><span><b>Đơn vị hoàn thành 100% đầu tiên:</b> '+first.map(x=>esc(x.unit)).join('; ')+'<small>'+(at?'Ghi nhận lúc '+at+' · ':'')+'Đến nay có '+L.length+' đơn vị đạt 100%</small></span>';
+ }
+ let cache=null,busy=false;
+ function load(){
+  if(busy)return;busy=true;
+  const cb='__t3first_'+Date.now()+'_'+Math.random().toString(36).slice(2),sc=document.createElement('script');let done=false;
+  const fin=p=>{if(done)return;done=true;busy=false;clearTimeout(tm);delete window[cb];sc.remove();
+   if(p&&p.table){cache=(p.table.rows||[]).map(r=>r.c||[]).map(c=>({month:cell(c[0]).trim(),unit:cell(c[1]).trim(),when:cell(c[2]).trim()})).filter(x=>x.month&&x.unit);show(cache)}};
+  const tm=setTimeout(()=>fin(null),20000);window[cb]=fin;sc.onerror=()=>fin(null);
+  sc.src='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?tqx=out:json;responseHandler:'+cb+'&sheet='+encodeURIComponent('HOAN THANH SOM')+'&headers=1&_='+Date.now();
+  sc.async=true;document.head.appendChild(sc);
+ }
+ load();setInterval(()=>{if(!document.hidden)load()},120000);
+ window.addEventListener('dues-month-change',()=>{if(cache)show(cache);load()});
+})();
+</script>
 <style id="dues-detail-table-style">
 /* Nút "Xem chi tiết" trên thẻ Top 03 thu đảng phí */
 .dd-open-btn{flex:none;display:flex;width:100%;justify-content:center;align-items:center;gap:5px;margin-top:6px;border:1px solid #efc98a;background:linear-gradient(135deg,#fff7e6,#ffe9c2);color:#b4400e;font-family:inherit;font-weight:700;font-size:10.5px;line-height:1.2;padding:5px 10px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:transform .15s,box-shadow .15s}
