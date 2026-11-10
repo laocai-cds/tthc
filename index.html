@@ -4808,6 +4808,11 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
 .pf-brand{display:flex;align-items:center;gap:12px;min-width:0}
 .pf-ico{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#c51620,#8f0b12);box-shadow:0 4px 12px rgba(197,22,32,.28)}
 .pf-ico svg{width:20px;height:20px}
+/* Biểu tượng khiên: nền sáng, khiên đỏ, dấu tích xanh lá */
+.pf-ico{background:#fff!important;border:1px solid #f0d4d6;box-shadow:0 4px 12px rgba(197,22,32,.18)!important}
+.pf-ico svg{width:24px;height:24px}
+.pf-ico svg path:first-child{stroke:#c51620;fill:#fff0f1}
+.pf-ico svg path:last-child{stroke:#12a05a;stroke-width:3}
 .pf-brand b{display:block;font-size:13.5px;font-weight:800;color:#172c4a}
 .pf-brand small{display:block;margin-top:2px;font-size:11.5px;color:#7a8698}
 .pf-dev{padding-left:18px;border-left:1px solid #eadfd4;line-height:1.35}
