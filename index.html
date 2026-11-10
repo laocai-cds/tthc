@@ -6793,8 +6793,24 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
 .sidebar .sidebar-foot .usage-guide summary .sbx-txt{flex:none;width:100%}
 .sidebar .sidebar-foot .usage-guide:has(details[open]) summary{flex-direction:row!important;align-items:center!important;min-height:0!important}
 .sidebar .sidebar-foot .usage-guide:has(details[open]) summary .sbx-txt{width:auto;flex:1}
+/* Mục "Thủ tục hành chính" dạng xổ ra / thu lại */
+.sidebar:not(.is-collapsed) .nav-label.acc{cursor:pointer;user-select:none;border-radius:12px;transition:color .18s,background .18s}
+.sidebar:not(.is-collapsed) .nav-label.acc:hover{color:#ffe38a!important;background:rgba(255,255,255,.05)}
+.sidebar .nav-label.acc:focus-visible{outline:2px solid #f2c14e;outline-offset:2px}
+.sidebar .nav-label.acc .acc-chev{order:3;flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);color:#f2c14e;font-size:14px;line-height:1;font-weight:900;transition:transform .25s ease}
+.sidebar .nav-label.acc[aria-expanded="true"] .acc-chev{transform:rotate(90deg)}
+.sidebar.is-collapsed .nav-label.acc .acc-chev{display:none}
+.sidebar:not(.is-collapsed) #proceduresNav{max-height:420px;transition:max-height .3s ease,opacity .25s ease,margin .25s ease}
+.sidebar:not(.is-collapsed) #proceduresNav.acc-closed{max-height:0;overflow:hidden;opacity:0;margin:0;pointer-events:none}
 </style>
 <script id="sidebar-redesign-js">
+(function(){const nav=document.getElementById('proceduresNav'),lab=nav&&nav.previousElementSibling;
+ if(nav&&lab&&lab.classList.contains('nav-label')){const K='dvc-procedures-open';let open=true;try{open=localStorage.getItem(K)!=='0'}catch(_){}
+  lab.classList.add('acc');lab.setAttribute('role','button');lab.tabIndex=0;lab.setAttribute('aria-controls','proceduresNav');
+  const ch=document.createElement('span');ch.className='acc-chev';ch.setAttribute('aria-hidden','true');ch.textContent='›';lab.append(ch);
+  const set=o=>{open=o;lab.setAttribute('aria-expanded',o);nav.classList.toggle('acc-closed',!o);try{localStorage.setItem(K,o?'1':'0')}catch(_){}};
+  lab.addEventListener('click',()=>set(!open));lab.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();set(!open)}});set(open)}
+})();
 (function(){const nav=document.getElementById('proceduresNav');if(!nav)return;
  function upd(){nav.querySelectorAll('.count').forEach(c=>{const n=parseFloat(String(c.textContent).replace(',','.'));if(isFinite(n))c.style.setProperty('--p',Math.max(0,Math.min(100,n)))})}
  upd();new MutationObserver(upd).observe(nav,{childList:true});
