@@ -776,6 +776,19 @@ html body .sidebar:not(.is-collapsed) #proceduresNav,html body .sidebar:not(.is-
 html body .sidebar:not(.is-collapsed) .nav-label:has(+#proceduresNav){white-space:nowrap!important;letter-spacing:.03em!important;font-size:11px!important}
 html body .sidebar #proceduresNav button.tp-nav .nav-text{font-weight:550!important}
 html body .sidebar #proceduresNav button.tp-nav:not(.active) .nav-text{font-weight:550!important}
+html body .app .sidebar:not(.is-collapsed) .brand{flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;gap:9px!important;padding:6px 6px 16px!important}
+html body .app .sidebar:not(.is-collapsed) .brand::after{left:50%!important;transform:translateX(-50%)!important;width:60px!important}
+html body .app .sidebar:not(.is-collapsed) .brand .crest{position:relative!important;width:74px!important;height:74px!important;border-radius:50%!important;background:conic-gradient(#fff3c4,#f2b632,#b8741a,#fff3c4)!important;box-shadow:0 0 22px rgba(242,182,50,.65),0 6px 16px rgba(0,0,0,.35)!important;display:grid!important;place-items:center!important;overflow:hidden!important;animation:brGlow 3.2s ease-in-out infinite}
+html body .app .sidebar:not(.is-collapsed) .brand .crest::before{content:"";position:absolute;inset:4px;border-radius:50%;background:#fff}
+html body .app .sidebar:not(.is-collapsed) .brand .crest img{position:relative;z-index:1;width:58%!important;max-height:58%!important}
+html body .app .sidebar:not(.is-collapsed) .brand .tt{text-align:center!important}
+html body .app .sidebar:not(.is-collapsed) .brand b{font-size:24px!important;letter-spacing:.04em!important;display:block}
+html body .app .sidebar:not(.is-collapsed) .brand small{justify-content:center!important;margin-top:6px!important;font-size:11px!important;text-transform:uppercase;letter-spacing:.07em!important;color:#ffe2a8!important}
+html body .app .sidebar:not(.is-collapsed) .brand small::before{content:"★";width:auto;height:auto;background:none;font-size:9px;color:#f2c14e}
+html body .app .sidebar:not(.is-collapsed) .brand small::after{content:"★";font-size:9px;color:#f2c14e}
+@keyframes brGlow{50%{box-shadow:0 0 32px rgba(242,182,50,.95),0 6px 16px rgba(0,0,0,.35)}}
+html.calm .brand .crest,html body.calm .brand .crest{animation:none!important}
+@media(prefers-reduced-motion:reduce){html body .app .sidebar .brand .crest{animation:none!important}}
 </style>
 </body></html>`}
 /* ---------- Excel (.xlsx, dựng trực tiếp OOXML — không cần thư viện ngoài) ---------- */
@@ -1246,6 +1259,19 @@ html body .sidebar:not(.is-collapsed) #proceduresNav,html body .sidebar:not(.is-
 html body .sidebar:not(.is-collapsed) .nav-label:has(+#proceduresNav){white-space:nowrap!important;letter-spacing:.03em!important;font-size:11px!important}
 html body .sidebar #proceduresNav button.tp-nav .nav-text{font-weight:550!important}
 html body .sidebar #proceduresNav button.tp-nav:not(.active) .nav-text{font-weight:550!important}
+html body .app .sidebar:not(.is-collapsed) .brand{flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;gap:9px!important;padding:6px 6px 16px!important}
+html body .app .sidebar:not(.is-collapsed) .brand::after{left:50%!important;transform:translateX(-50%)!important;width:60px!important}
+html body .app .sidebar:not(.is-collapsed) .brand .crest{position:relative!important;width:74px!important;height:74px!important;border-radius:50%!important;background:conic-gradient(#fff3c4,#f2b632,#b8741a,#fff3c4)!important;box-shadow:0 0 22px rgba(242,182,50,.65),0 6px 16px rgba(0,0,0,.35)!important;display:grid!important;place-items:center!important;overflow:hidden!important;animation:brGlow 3.2s ease-in-out infinite}
+html body .app .sidebar:not(.is-collapsed) .brand .crest::before{content:"";position:absolute;inset:4px;border-radius:50%;background:#fff}
+html body .app .sidebar:not(.is-collapsed) .brand .crest img{position:relative;z-index:1;width:58%!important;max-height:58%!important}
+html body .app .sidebar:not(.is-collapsed) .brand .tt{text-align:center!important}
+html body .app .sidebar:not(.is-collapsed) .brand b{font-size:24px!important;letter-spacing:.04em!important;display:block}
+html body .app .sidebar:not(.is-collapsed) .brand small{justify-content:center!important;margin-top:6px!important;font-size:11px!important;text-transform:uppercase;letter-spacing:.07em!important;color:#ffe2a8!important}
+html body .app .sidebar:not(.is-collapsed) .brand small::before{content:"★";width:auto;height:auto;background:none;font-size:9px;color:#f2c14e}
+html body .app .sidebar:not(.is-collapsed) .brand small::after{content:"★";font-size:9px;color:#f2c14e}
+@keyframes brGlow{50%{box-shadow:0 0 32px rgba(242,182,50,.95),0 6px 16px rgba(0,0,0,.35)}}
+html.calm .brand .crest,html body.calm .brand .crest{animation:none!important}
+@media(prefers-reduced-motion:reduce){html body .app .sidebar .brand .crest{animation:none!important}}
 </style>
 </body></html>`);tab.document.close();tab.focus()});/* Firebase: thống kê người đang online và tổng lượt truy cập. */
 const firebaseConfig={
@@ -7090,5 +7116,18 @@ html body .sidebar:not(.is-collapsed) #proceduresNav,html body .sidebar:not(.is-
 html body .sidebar:not(.is-collapsed) .nav-label:has(+#proceduresNav){white-space:nowrap!important;letter-spacing:.03em!important;font-size:11px!important}
 html body .sidebar #proceduresNav button.tp-nav .nav-text{font-weight:550!important}
 html body .sidebar #proceduresNav button.tp-nav:not(.active) .nav-text{font-weight:550!important}
+html body .app .sidebar:not(.is-collapsed) .brand{flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;gap:9px!important;padding:6px 6px 16px!important}
+html body .app .sidebar:not(.is-collapsed) .brand::after{left:50%!important;transform:translateX(-50%)!important;width:60px!important}
+html body .app .sidebar:not(.is-collapsed) .brand .crest{position:relative!important;width:74px!important;height:74px!important;border-radius:50%!important;background:conic-gradient(#fff3c4,#f2b632,#b8741a,#fff3c4)!important;box-shadow:0 0 22px rgba(242,182,50,.65),0 6px 16px rgba(0,0,0,.35)!important;display:grid!important;place-items:center!important;overflow:hidden!important;animation:brGlow 3.2s ease-in-out infinite}
+html body .app .sidebar:not(.is-collapsed) .brand .crest::before{content:"";position:absolute;inset:4px;border-radius:50%;background:#fff}
+html body .app .sidebar:not(.is-collapsed) .brand .crest img{position:relative;z-index:1;width:58%!important;max-height:58%!important}
+html body .app .sidebar:not(.is-collapsed) .brand .tt{text-align:center!important}
+html body .app .sidebar:not(.is-collapsed) .brand b{font-size:24px!important;letter-spacing:.04em!important;display:block}
+html body .app .sidebar:not(.is-collapsed) .brand small{justify-content:center!important;margin-top:6px!important;font-size:11px!important;text-transform:uppercase;letter-spacing:.07em!important;color:#ffe2a8!important}
+html body .app .sidebar:not(.is-collapsed) .brand small::before{content:"★";width:auto;height:auto;background:none;font-size:9px;color:#f2c14e}
+html body .app .sidebar:not(.is-collapsed) .brand small::after{content:"★";font-size:9px;color:#f2c14e}
+@keyframes brGlow{50%{box-shadow:0 0 32px rgba(242,182,50,.95),0 6px 16px rgba(0,0,0,.35)}}
+html.calm .brand .crest,html body.calm .brand .crest{animation:none!important}
+@media(prefers-reduced-motion:reduce){html body .app .sidebar .brand .crest{animation:none!important}}
 </style>
 </body></html>
