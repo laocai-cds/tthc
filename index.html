@@ -3403,9 +3403,17 @@ body.dp-lock{overflow:hidden}
         const tA = performance.now();
         const d = new Date(), p2 = n => String(n).padStart(2, '0'), mm = p2(SM), yy = cy;
         const body = { kyNopStart: '01/' + mm + '/' + yy, kyNopEnd: new Date(yy, SM, 0).getDate() + '/' + mm + '/' + yy, parentId: 2122408, hasChildren: true, page: 1, size: 500 };
-        const ac = new AbortController(), to = setTimeout(() => ac.abort(), 30000);
-        const r = await fetch('https://gateway-gqtthc.dcs.vn/report/dashboard/danh-sach-theo-doi-dang-phi', { signal: ac.signal, method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
-        clearTimeout(to);
+        let r = null;
+        for (let at = 1; at <= 2 && !r; at++) { /* chờ tối đa 90 giây mỗi lần; chậm hoặc lỗi máy chủ thì tự thử lại 1 lần */
+          const ac = new AbortController(), to = setTimeout(() => ac.abort(), 90000);
+          try {
+            if (at > 1) say('API phản hồi chậm, đang thử lại lần ' + at + '…', false, true);
+            const rr = await fetch('https://gateway-gqtthc.dcs.vn/report/dashboard/danh-sach-theo-doi-dang-phi', { signal: ac.signal, method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
+            clearTimeout(to);
+            if (rr.status >= 500 && at < 2) continue;
+            r = rr;
+          } catch (e) { clearTimeout(to); if (at >= 2) throw e; }
+        }
         const tB = performance.now();
         if (!r.ok) throw new Error('API trả lỗi ' + r.status + (r.status === 401 ? ' — hãy đăng nhập lại.' : ''));
         const raw = await r.text();
@@ -3460,7 +3468,7 @@ body.dp-lock{overflow:hidden}
         setTimeout(() => box.remove(), auto ? 6000 : 25000);
       } catch (e) {
         if (/mật khẩu|token|không hợp lệ/i.test(String(e.message))) { try { localStorage.removeItem('dangphi.token'); } catch (x) {} }
-        say((auto ? '⏱ Tự động — ' : '') + '✕ ' + (e && e.name === 'AbortError' ? 'API phản hồi quá chậm (quá 30 giây). Kiểm tra mạng rồi bấm lại.' : e.message) + '   (sau ' + f1(performance.now() - T0) + ')', true);
+        say((auto ? '⏱ Tự động — ' : '') + '✕ ' + (e && e.name === 'AbortError' ? 'API phản hồi quá chậm (quá 90 giây, đã thử 2 lần). Kiểm tra mạng rồi bấm lại.' : e.message) + '   (sau ' + f1(performance.now() - T0) + ')', true);
         setTimeout(() => box.remove(), 15000);
       }
     };
