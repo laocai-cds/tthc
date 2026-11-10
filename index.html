@@ -774,6 +774,8 @@ html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot .usage-gui
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide>details{margin:0!important;height:44px!important;min-height:0!important}
 html body .sidebar:not(.is-collapsed) #proceduresNav,html body .sidebar:not(.is-collapsed) #proceduresNav.acc-closed{max-height:none!important;opacity:1!important;pointer-events:auto!important;overflow:visible!important}
 html body .sidebar:not(.is-collapsed) .nav-label:has(+#proceduresNav){white-space:nowrap!important;letter-spacing:.03em!important;font-size:11px!important}
+html body .sidebar #proceduresNav button.tp-nav .nav-text{font-weight:550!important}
+html body .sidebar #proceduresNav button.tp-nav:not(.active) .nav-text{font-weight:550!important}
 </style>
 </body></html>`}
 /* ---------- Excel (.xlsx, dựng trực tiếp OOXML — không cần thư viện ngoài) ---------- */
@@ -1242,6 +1244,8 @@ html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot .usage-gui
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide>details{margin:0!important;height:44px!important;min-height:0!important}
 html body .sidebar:not(.is-collapsed) #proceduresNav,html body .sidebar:not(.is-collapsed) #proceduresNav.acc-closed{max-height:none!important;opacity:1!important;pointer-events:auto!important;overflow:visible!important}
 html body .sidebar:not(.is-collapsed) .nav-label:has(+#proceduresNav){white-space:nowrap!important;letter-spacing:.03em!important;font-size:11px!important}
+html body .sidebar #proceduresNav button.tp-nav .nav-text{font-weight:550!important}
+html body .sidebar #proceduresNav button.tp-nav:not(.active) .nav-text{font-weight:550!important}
 </style>
 </body></html>`);tab.document.close();tab.focus()});/* Firebase: thống kê người đang online và tổng lượt truy cập. */
 const firebaseConfig={
@@ -6830,7 +6834,7 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
 #proceduresNav button:nth-child(3) .count{--c:#34d6b4}
 #proceduresNav button:nth-child(4) .count{--c:#f2c14e}
 #proceduresNav button.tp-nav .count{--c:#ff7a59}
-#proceduresNav button.tp-nav .nav-text{font-weight:800}
+#proceduresNav button.tp-nav .nav-text{font-weight:inherit}
 #proceduresNav button.active .count::before{background:#62142e}
 .sidebar.is-collapsed #proceduresNav .count{display:none!important}
 /* Khu tiện ích: lưới ô kính mờ */
@@ -7084,5 +7088,7 @@ html body .app .sidebar:not(.is-collapsed) .sidebar-foot.sidebar-foot .usage-gui
 html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide,html body .app .sidebar:not(.is-collapsed) .sidebar-foot .usage-guide>details{margin:0!important;height:44px!important;min-height:0!important}
 html body .sidebar:not(.is-collapsed) #proceduresNav,html body .sidebar:not(.is-collapsed) #proceduresNav.acc-closed{max-height:none!important;opacity:1!important;pointer-events:auto!important;overflow:visible!important}
 html body .sidebar:not(.is-collapsed) .nav-label:has(+#proceduresNav){white-space:nowrap!important;letter-spacing:.03em!important;font-size:11px!important}
+html body .sidebar #proceduresNav button.tp-nav .nav-text{font-weight:550!important}
+html body .sidebar #proceduresNav button.tp-nav:not(.active) .nav-text{font-weight:550!important}
 </style>
 </body></html>
