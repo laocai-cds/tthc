@@ -1,6 +1,6 @@
 (function(){'use strict';
-  const K_API = 'dangphi.api';      // URL Apps Script …/exec (lưu trên gqtthc.dcs.vn)
-  const K_PW = 'dangphi.token';     // mật khẩu đồng bộ (dùng chung với dấu trang)
+  const K_API = 'dangphi.api';
+  const K_PW = 'dangphi.token';
 
   function normApi(v) {
     v = (v || '').trim();
