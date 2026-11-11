@@ -5729,8 +5729,8 @@ $('umAdd').onclick=()=>{const name=$('umName').value.trim().replace(/\s+/g,' '),
  if(!url){say('Liên kết không hợp lệ (cần dạng https://…).','err');$('umUrl').focus();return}
  if(draft.some((u,i)=>i!==editIdx&&u.url.replace(/\/$/,'')===url.replace(/\/$/,''))){say('Liên kết này đã có trong danh sách.','err');return}
  if(editIdx<0&&draft.length>=60){say('Tối đa 60 đơn vị.','err');return}
- if(editIdx>=0)draft[editIdx]={name,url};else draft.push({name,url});
- const was=editIdx>=0;resetForm();renderDraft();say((was?'Đã cập nhật. ':'Đã thêm. ')+'Bấm “Lưu danh sách” để áp dụng.','ok');$('umName').focus()};
+ if(editIdx>=0)draft[editIdx]={name,url};else draft.unshift({name,url});
+ const was=editIdx>=0;resetForm();renderDraft();say((was?'Đã cập nhật. ':'Đã thêm vào đầu danh sách. ')+'Bấm “Lưu danh sách” để áp dụng.','ok');$('umName').focus()};
 [$('umName'),$('umUrl')].forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('umAdd').click()}}));
 $('umList').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
  if(b.dataset.del!=null){const i=+b.dataset.del;if(confirm('Xóa “'+draft[i].name+'” khỏi danh sách?')){draft.splice(i,1);if(editIdx===i)resetForm();else if(editIdx>i)editIdx--;renderDraft();say('Đã xóa. Bấm “Lưu danh sách” để áp dụng.','ok')}}
