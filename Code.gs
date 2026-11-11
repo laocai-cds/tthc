@@ -184,7 +184,7 @@ function write_(payload) {
     log.getRange(2, 1, 1, 9).setValues([[when, payload.fileName || '', data.length, t.members || 0, t.paidProfiles || 0, t.declared || 0, t.paid || 0, t.rate || 0, payload.syncId || '']]);
 
     updateRegistry_(ss, key, when);
-    if (key === nowKey) { try { recordFirstDone_(ss, key, data, when); } catch (e) { /* ghi nhận phụ, không làm hỏng đồng bộ */ } }
+    if (key === nowKey) { try { recordFirstDone_(ss, key, data, when); } catch (e) { /* ghi nhận phụ, không làm hỏng đồng bộ */ Logger.log('recordFirstDone_: ' + e); PropertiesService.getScriptProperties().setProperty('FIRST_DONE_ERROR', when + ' · ' + e); } }
     SpreadsheetApp.flush();
 
     const info = { syncId: String(payload.syncId || ''), updatedAtText: when, rowCount: data.length, fileName: payload.fileName || '', spreadsheetId: SPREADSHEET_ID, month: key, tab: sh.getName() };
@@ -218,6 +218,15 @@ function recordFirstDone_(ss, key, data, when) {
     if (den > 0 && dn >= den && !seen[key + '|' + name]) add.push([key, name, when, den, dn]);
   });
   if (add.length) sh.getRange(sh.getLastRow() + 1, 1, add.length, 5).setValues(add);
+}
+
+/** Chạy tay 1 lần (Run) để ghi bù các đơn vị đã đạt 100% ở tab tháng hiện tại vào tab HOAN THANH SOM. */
+function backfillFirstDone() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID), key = monthKey_();
+  const sh = ss.getSheetByName(monthTab_(key));
+  if (!sh) throw new Error('Chưa có tab ' + monthTab_(key));
+  const vals = sh.getRange(HEADER_ROWS + 1, 1, Math.max(1, sh.getLastRow() - HEADER_ROWS), 10).getValues().filter(r => r[1]);
+  recordFirstDone_(ss, key, vals, Utilities.formatDate(new Date(), TZ, 'dd/MM/yyyy HH:mm:ss'));
 }
 
 /** Bảo đảm tab có ít nhất 17 cột (tab cũ có thể chỉ có 14 cột). */

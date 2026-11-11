@@ -2000,13 +2000,28 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
  function show(rows){
   if(rows===null)return;
   const k=month(),L=rows.filter(x=>x.month===k).sort((a,b)=>ts(a.when)-ts(b.when));
-  if(!L.length){box.className='t3f none';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> chưa có đơn vị</span>';return}
+  if(!L.length){
+   /* Tab ghi nhận chưa có dòng (Apps Script chưa ghi được): tự tính từ số liệu tháng — đã nộp ≥ phải nộp > 0 */
+   if(fb.length){box.className='t3f';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+fb.slice(0,3).map(esc).join('; ')+(fb.length>3?' …':'')+'<small>'+fb.length+' đơn vị đạt 100%</small></span>';return}
+   box.className='t3f none';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> chưa có đơn vị</span>';return}
   const first=L.filter(x=>x.when===L[0].when),t=ts(L[0].when),d=t?new Date(t):null,
    at=d?String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' ngày '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'):'';
   box.className='t3f';
   box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+first.map(x=>esc(x.unit)).join('; ')+'<small>'+(at?at+' · ':'')+L.length+' đơn vị đạt 100%</small></span>';
  }
- let cache=null,busy=false;
+ let cache=null,busy=false,fb=[],busyFb=false;
+ const num=c=>{if(!c)return 0;if(typeof c.v==='number')return c.v;const n=parseFloat(String(c.f!=null?c.f:c.v!=null?c.v:'').trim().replace(/\./g,'').replace(',','.'));return Number.isFinite(n)?n:0};
+ function loadFb(){
+  if(busyFb)return;
+  try{if(window.DuesMonth.state.mode==='cum'){fb=[];return}}catch(_){}
+  busyFb=true;
+  const cb='__t3fb_'+Date.now()+'_'+Math.random().toString(36).slice(2),sc=document.createElement('script');let done=false;
+  const fin=p=>{if(done)return;done=true;busyFb=false;clearTimeout(tm);delete window[cb];sc.remove();
+   if(p&&p.table){fb=(p.table.rows||[]).map(r=>r.c||[]).filter(c=>{const u=cell(c[1]).trim();if(!u||/^(tổng|cộng)/i.test(u))return false;const den=num(c[3])+num(c[4])-num(c[5])-num(c[6]);return den>0&&num(c[9])>=den}).map(c=>cell(c[1]).trim());if(cache)show(cache)}};
+  const tm=setTimeout(()=>fin(null),20000);window[cb]=fin;sc.onerror=()=>fin(null);
+  try{window.DuesMonth.attach(sc,cb)}catch(_){fin(null);return}
+  sc.async=true;document.head.appendChild(sc);
+ }
  function load(){
   if(busy)return;busy=true;
   const cb='__t3first_'+Date.now()+'_'+Math.random().toString(36).slice(2),sc=document.createElement('script');let done=false;
@@ -2016,8 +2031,8 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   sc.src='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?tqx=out:json;responseHandler:'+cb+'&sheet='+encodeURIComponent('HOAN THANH SOM')+'&headers=1&_='+Date.now();
   sc.async=true;document.head.appendChild(sc);
  }
- load();setInterval(()=>{if(!document.hidden)load()},120000);
- window.addEventListener('dues-month-change',()=>{if(cache)show(cache);load()});
+ load();loadFb();setInterval(()=>{if(!document.hidden){load();loadFb()}},120000);
+ window.addEventListener('dues-month-change',()=>{fb=[];if(cache)show(cache);load();loadFb()});
 })();
 </script>
 <style id="dues-detail-table-style">
