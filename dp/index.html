@@ -48,11 +48,26 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
     <h2>Đồng bộ ngay</h2>
     <ol>
       <li>Bấm nút dưới để mở <b>gqtthc.dcs.vn</b> và đăng nhập (nếu chưa).</li>
-      <li>Trên trang gqtthc, chạm thanh địa chỉ, gõ tên dấu trang <b>ĐP Tỉnh Lào Cai</b>, chạm vào dấu trang đó.</li>
+      <li>Gõ chữ <b>dp</b> vào thanh địa chỉ, chạm vào mục có hình ★ (dấu trang <b>dp</b>).</li>
       <li>Chờ thông báo xanh “HOÀN THÀNH”, rồi quay lại app, bấm <b>Làm mới</b>.</li>
     </ol>
     <a class="btn go" href="https://gqtthc.dcs.vn/" target="_blank" rel="noopener">Mở gqtthc.dcs.vn</a>
     <a class="btn sec" href="../index.html" id="site">Xem trang theo dõi TTHC</a>
+  </div>
+
+  <div class="card">
+    <details id="bmhelp">
+      <summary>Lập dấu trang “dp” (làm 1 lần)</summary>
+      <ol>
+        <li>Bấm <b>Chép dấu trang ngắn</b> bên dưới.</li>
+        <li>Trên Chrome: menu ⋮ → ☆ <b>Lưu dấu trang</b> (trang nào cũng được). Rồi menu ⋮ → <b>Dấu trang</b> → giữ ngón tay vào mục vừa lưu → <b>Chỉnh sửa</b>.</li>
+        <li>Ô <b>Tên</b>: gõ <b>dp</b>. Ô <b>URL</b>: giữ ngón tay, <b>Dán</b>. Bấm Lưu.</li>
+      </ol>
+      <button class="go" id="bmShort" type="button" style="font-size:16px;padding:13px">Chép dấu trang ngắn</button>
+      <p class="hint">Nếu khi chạy trên gqtthc báo “gqtthc chặn tải mã ngoài”, dùng bản đầy đủ (dài hơn, làm tương tự, đè lên dấu trang <b>dp</b> cũ):</p>
+      <button class="sec" id="bmFull" type="button">Chép dấu trang đầy đủ</button>
+      <div id="bmMsg" class="hint"></div>
+    </details>
   </div>
 
   <div class="card">
@@ -107,6 +122,23 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
     set(a); $('api').value = a; $('cfg').open = false; check();
   };
   $('refresh').onclick = check;
+  var SHORT = "javascript:(function(){var s=document.createElement('script');s.src='https://laocai-tthc.pages.dev/dp/run.js?'+Date.now();s.onerror=function(){alert('gqtthc chặn tải mã ngoài')};document.head.appendChild(s)})()";
+  function copyText(t, ok) {
+    var m = $('bmMsg');
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { m.textContent = ok; }, function () {
+      var ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); m.textContent = ok; } catch (e) { m.textContent = 'Không chép được. Thử lại hoặc cho phép bộ nhớ tạm.'; }
+      ta.remove();
+    });
+  }
+  $('bmShort').onclick = function () { copyText(SHORT, '✅ Đã chép dấu trang ngắn. Dán vào ô URL của dấu trang “dp”.'); };
+  $('bmFull').onclick = function () {
+    fetch('run.js?' + Date.now()).then(function (r) { return r.text(); }).then(function (c) {
+      c = c.replace(/\r?\n/g, ' ');
+      copyText('javascript:' + encodeURIComponent(c), '✅ Đã chép dấu trang đầy đủ (' + Math.round(c.length / 1024) + ' KB). Dán vào ô URL của dấu trang “dp”.');
+    }, function () { $('bmMsg').textContent = 'Không tải được mã. Kiểm tra mạng.'; });
+  };
+
   check();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
 })();
