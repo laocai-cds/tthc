@@ -504,6 +504,23 @@ def _first_text(i):
     return (i.get("title") or "") + " " + first
 
 
+# Đơn vị mà tên riêng (không kèm chữ "xã") đủ để nhận diện khi bài đến từ báo địa phương hoặc nhắc "Lào Cai".
+# Tiêu đề báo hay viết "ở Xuân Hòa", "Xuân Hòa khẩn trương…", "các xã A, B, Xuân Hòa".
+BARE_LOCAL_OK = {"xã Xuân Hòa"}
+
+
+def _bare_local(i, text, bare):
+    t = unicodedata_nfc(text)
+    if not re.search(r"(^|[^\w])" + re.escape(bare) + r"(?!\w)", t):  # đúng hoa thường: tên riêng viết hoa
+        return False
+    return local_source(i.get("source") or "") or "Lào Cai" in t
+
+
+def unicodedata_nfc(t):
+    import unicodedata
+    return unicodedata.normalize("NFC", str(t or ""))
+
+
 def write_unit_files(items, updated_at, partial):
     """Ghi news/units/<xã>.json: tin đã lọc sẵn cho từng xã/phường và cho Tỉnh Lào Cai (khớp quy tắc ở site)."""
     os.makedirs(UNIT_DIR, exist_ok=True)
@@ -520,7 +537,8 @@ def write_unit_files(items, updated_at, partial):
     for u in UNITS:
         bare = re.sub(r"^(xã|phường)\s+", "", u, flags=re.I)
         groups[u] = [k for k, i in enumerate(shown)
-                     if u in (i.get("us") or []) or _mentions(texts[k], u) or _head_mention(i.get("title"), bare)]
+                     if u in (i.get("us") or []) or _mentions(texts[k], u) or _head_mention(i.get("title"), bare)
+                     or (u in BARE_LOCAL_OK and _bare_local(i, texts[k], bare))]
     written = 0
     for name, idx in groups.items():
         payload = {"partial": partial, "provTotal": len(shown), "provSources": sources,
@@ -530,6 +548,8 @@ def write_unit_files(items, updated_at, partial):
         for i in payload["items"]:
             o = {k: v for k, v in i.items() if k not in ("ni", "nf")}
             o["published"] = i["published"].strftime("%Y-%m-%dT%H:%M:%SZ")
+            if name in BARE_LOCAL_OK:  # site lọc lại theo "us", nên gắn nhãn để bài khớp tên riêng không bị loại
+                o["us"] = sorted(set((o.get("us") or []) + [name]))
             out_items.append(o)
         payload["items"] = out_items
         path = os.path.join(UNIT_DIR, slug(name) + ".json")
