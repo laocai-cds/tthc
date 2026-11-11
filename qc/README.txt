@@ -1,1 +1,0 @@
-Thả ảnh chụp trang chủ mỗi xã vào đây, tên file theo tên miền con: phuckhanh.jpg, tramtau.jpg, simacai.jpg, nghiado.jpg, baothang.jpg, phinhho.jpg, volao.jpg (rộng ~600px, chụp khi không có hộp thông báo).

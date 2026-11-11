@@ -6338,11 +6338,13 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  const SITES=[['Phúc Khánh','phuckhanh'],['Trạm Tấu','tramtau'],['Si Ma Cai','simacai'],['Nghĩa Đô','nghiado'],['Bảo Thắng','baothang'],['Phình Hồ','phinhho'],['Võ Lao','volao']];
  const list=()=>SITES.map((x,i)=>[x[0],'https://'+x[1]+'.pages.dev/',PAL[i%PAL.length][0],PAL[i%PAL.length][1]]);
  let XA=[];
- const card=x=>{const u=x[1];return '<a class="xa-it" href="'+u+'" target="_blank" rel="noopener noreferrer" title="Xem thử website xã '+x[0]+'" style="--c1:'+x[2]+';--c2:'+x[3]+'"><span class="xa-sh"><b>'+x[0]+'</b><small>'+new URL(u).hostname+'</small><img src="qc/'+new URL(u).hostname.split('.')[0]+'.jpg" alt="" loading="lazy" decoding="async"></span><span class="xa-nm">'+x[0]+'</span></a>'};
+ /* Ảnh chụp trang chủ thật của xã, kèm ?shot=1 để trang xã ẩn dải thông báo; dịch vụ WordPress mShots, ảnh đầu có thể chậm vài giây */
+ const shot=u=>'https://s0.wp.com/mshots/v1/'+encodeURIComponent(u+'?shot=1')+'?w=360&h=225';
+ const card=x=>{const u=x[1];return '<a class="xa-it" href="'+u+'" target="_blank" rel="noopener noreferrer" title="Xem thử website xã '+x[0]+'" style="--c1:'+x[2]+';--c2:'+x[3]+'"><span class="xa-sh"><b>'+x[0]+'</b><small>'+new URL(u).hostname+'</small><img src="'+shot(u)+'" alt="" loading="lazy" decoding="async"></span><span class="xa-nm">'+x[0]+'</span></a>'};
  const box=document.createElement('div');box.className='xa-slide';box.id='xaSlide';box.setAttribute('aria-label','Các website xã đã triển khai');
  const track=document.createElement('div');track.className='xa-track';box.append(track);
  const fill=()=>{XA=list();box.hidden=!XA.length;if(!XA.length){track.innerHTML='';return}const h=XA.map(card).join('');const w=Math.max(box.clientWidth,window.innerWidth||0,1),k=Math.max(1,Math.ceil(w/(XA.length*130)));track.innerHTML=h.repeat(k)+h.repeat(k);track.style.setProperty('--xa-dur',(XA.length*k*5)+'s');
-  track.querySelectorAll('img').forEach(i=>i.addEventListener('error',()=>i.remove()));
+  track.querySelectorAll('img').forEach(i=>{i.addEventListener('error',()=>i.remove());let n=0;const base=i.src;i.addEventListener('load',()=>{if(i.naturalWidth<200&&n<5){n++;setTimeout(()=>{i.src=base+'&r='+n},4000*n)}})});
   track.querySelectorAll('a').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()))};
  strip.before(box);fill();let sig=JSON.stringify(XA.map(x=>x[1]));setInterval(()=>{const n=JSON.stringify(list().map(x=>x[1]));if(n!==sig){sig=n;fill()}},3000);let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{const k0=track.children.length;fill()},300)});
 })();
