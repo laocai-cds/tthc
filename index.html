@@ -6453,7 +6453,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  const wrap=()=>{off=((off%period)+period)%period};
  const paint=()=>{track.style.transform='translate3d('+(-off).toFixed(2)+'px,0,0)'};
  function tick(t){const dt=last?Math.min(.05,(t-last)/1000):0;last=t;
-  if(!drag){off+=SPEED*dt+vel*dt;vel*=Math.pow(.05,dt);if(Math.abs(vel)<1)vel=0}
+  if(!drag){off+=-SPEED*dt+vel*dt;vel*=Math.pow(.05,dt);if(Math.abs(vel)<1)vel=0}
   wrap();paint();requestAnimationFrame(tick)}
  box.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;drag={x:e.clientX,o:off,t:performance.now(),lx:e.clientX,lt:performance.now()};moved=false;vel=0});
  window.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x;
