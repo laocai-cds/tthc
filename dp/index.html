@@ -60,7 +60,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
       <summary>Cài đặt (làm 1 lần)</summary>
       <label for="api">URL Apps Script của site TTHC</label>
       <input id="api" placeholder="https://script.google.com/macros/s/AKfy…/exec" inputmode="url" autocomplete="off">
-      <p class="hint">Dùng để xem lần đồng bộ gần nhất. Không cần token hay mật khẩu gqtthc trong app này.</p>
+      <p class="hint">Đây là URL Apps Script “Input DangPhi” (khác URL bảng Google Sheets). Nếu đã lưu trong hộp “Đồng bộ đảng phí” của site TTHC cùng địa chỉ web này thì app tự nhận, không cần nhập lại. Nếu chưa, mở hộp đó trên site TTHC, chép URL ở ô “URL Apps Script” rồi dán vào đây.</p>
       <button class="sec" id="save" type="button">Lưu</button>
     </details>
   </div>
@@ -71,7 +71,8 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var K = 'dp.api';
-  var get = function () { try { return localStorage.getItem(K) || ''; } catch (e) { return ''; } };
+  /* Ưu tiên URL đã lưu sẵn trên site TTHC (cùng địa chỉ web nên dùng chung bộ nhớ), sau đó mới tới URL nhập trong app */
+  var get = function () { try { return localStorage.getItem('dangphi.api') || localStorage.getItem(K) || ''; } catch (e) { return ''; } };
   var set = function (v) { try { localStorage.setItem(K, v); } catch (e) {} };
   function normApi(v) {
     v = (v || '').trim();
@@ -99,6 +100,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
   }
 
   $('api').value = get();
+  if (get() && !localStorage.getItem('dp.api')) { try { set(get()); } catch (e) {} }
   $('save').onclick = function () {
     var a = normApi($('api').value);
     if (!a) { show('Link Apps Script chưa đúng.', 'bad'); return; }
