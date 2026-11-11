@@ -6334,9 +6334,10 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 </style>
 <script id="xa-slide-script">
 (()=>{const strip=document.getElementById('adStrip');if(!strip||document.getElementById('xaSlide'))return;
- /* Chỉ lấy các site chạy trên Cloudflare Pages (*.pages.dev), đọc từ danh sách “Trang web các đơn vị” (Tác vụ → Trang web đơn vị). Thêm xã mới: nhập link .pages.dev vào danh sách đó */
+ /* Chỉ hiển thị 7 site chạy trên Cloudflare Pages (*.pages.dev). Thêm xã mới: thêm 1 dòng [tên, tên-miền-con] vào SITES */
  const PAL=[['#2f3a8f','#6a5fc1'],['#b3261e','#e0703a'],['#1565c0','#42a5f5'],['#0f7b5f','#4cc29a'],['#a5121f','#e2574c'],['#8a5a00','#e0a82e'],['#5b2a86','#a56bd6'],['#0b6e8a','#4fb8d4']];
- const list=()=>{try{const seen=new Set();return (window.__unitSites&&window.__unitSites()||[]).filter(u=>{try{const h=new URL(u.url).hostname.toLowerCase();if(!/\.pages\.dev$/.test(h)||seen.has(h))return false;seen.add(h);return true}catch(_){return false}}).map((u,i)=>[String(u.name).replace(/^Đảng bộ (xã |phường )?/i,''),u.url,PAL[i%PAL.length][0],PAL[i%PAL.length][1]])}catch(_){return[]}};
+ const SITES=[['Phúc Khánh','phuckhanh'],['Trạm Tấu','tramtau'],['Si Ma Cai','simacai'],['Nghĩa Đô','nghiado'],['Bảo Thắng','baothang'],['Phình Hồ','phinhho'],['Võ Lao','volao']];
+ const list=()=>SITES.map((x,i)=>[x[0],'https://'+x[1]+'.pages.dev/',PAL[i%PAL.length][0],PAL[i%PAL.length][1]]);
  let XA=[];
  const card=x=>{const u=x[1];return '<a class="xa-it" href="'+u+'" target="_blank" rel="noopener noreferrer" title="Xem thử website xã '+x[0]+'" style="--c1:'+x[2]+';--c2:'+x[3]+'"><span class="xa-sh"><b>'+x[0]+'</b><small>'+new URL(u).hostname+'</small></span><span class="xa-nm">'+x[0]+'</span></a>'};
  const box=document.createElement('div');box.className='xa-slide';box.id='xaSlide';box.setAttribute('aria-label','Các website xã đã triển khai');
