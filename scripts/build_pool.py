@@ -412,6 +412,7 @@ def fetch_gnews():
             f'"{bare}" "Lào Cai" when:365d',           # chỉ tên riêng, tiêu đề hay bỏ chữ xã/phường
             f'"{bare}" site:baolaocai.vn when:365d',   # riêng Báo Lào Cai, nguồn nhiều tin xã nhất
             f'"{bare}" "Lào Cai" ({GN_SITES}) when:365d',  # các báo, đài trung ương có giấy phép
+            f'"{bare}" site:trangtraiviet.danviet.vn when:365d',  # riêng Trang trại Việt (Dân Việt), theo từng xã
         ]
     items, failed = [], 0
     for q in queries:
