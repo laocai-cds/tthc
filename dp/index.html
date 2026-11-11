@@ -20,83 +20,48 @@ main{padding:14px 14px 40px;max-width:560px;margin:0 auto}
 .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
 .card h2{font-size:14px;margin:0 0 8px;color:var(--navy);text-transform:uppercase;letter-spacing:.03em}
 label{display:block;font-size:13px;color:#566;margin:10px 0 4px}
-input,select,textarea{width:100%;padding:12px;border:1px solid #bbc3d1;border-radius:10px;font-size:16px;background:#fff;color:inherit}
-textarea{min-height:64px;resize:vertical;font:13px/1.35 ui-monospace,monospace}
-.row{display:flex;gap:8px}
-.row>*{flex:1}
-button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:13px 14px;cursor:pointer}
-.go{width:100%;background:var(--red);color:#fff;font-size:18px;padding:16px;box-shadow:0 4px 12px rgba(179,38,30,.35)}
-.go:disabled{opacity:.6}
+input{width:100%;padding:12px;border:1px solid #bbc3d1;border-radius:10px;font-size:16px;background:#fff;color:inherit}
+button,a.btn{display:block;width:100%;text-align:center;text-decoration:none;font:inherit;font-weight:700;border:0;border-radius:12px;padding:15px 14px;cursor:pointer;margin-top:8px}
+.go{background:var(--red);color:#fff;font-size:18px;box-shadow:0 4px 12px rgba(179,38,30,.35)}
 .sec{background:#fff;color:var(--navy);border:1px solid #bbc3d1;font-weight:600}
-.msg{border-radius:12px;padding:12px 14px;color:#fff;background:var(--navy);white-space:pre-line;font-weight:600;font-size:14px;display:none;margin-bottom:12px}
-.msg.ok{background:var(--ok)}.msg.bad{background:var(--bad)}
-.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.kpi div{background:var(--bg);border-radius:10px;padding:8px 10px}
-.kpi b{display:block;font-size:20px;color:var(--navy)}
-.kpi span{font-size:12px;color:#566}
-details summary{cursor:pointer;font-weight:700;color:var(--navy)}
-.hint{font-size:13px;color:#566;margin:6px 0 0}
-code{background:#eef1f6;border-radius:6px;padding:1px 5px;font-size:12px;word-break:break-all}
+.stat{border-radius:12px;padding:12px 14px;background:var(--bg);font-weight:600;font-size:15px;white-space:pre-line}
+.stat.ok{background:#e4f5ea;color:#0b5d29}.stat.bad{background:#fbe5e8;color:var(--bad)}
 ol{padding-left:20px;margin:6px 0}
-li{margin:4px 0;font-size:14px}
+li{margin:6px 0;font-size:15px}
+.hint{font-size:13px;color:#566;margin:6px 0 0}
+details summary{cursor:pointer;font-weight:700;color:var(--navy)}
 </style>
 </head>
 <body>
 <header>
   <img src="icon-192.png" alt="">
-  <div><h1>ĐP Tỉnh Lào Cai</h1><small>Lấy đảng phí từ gqtthc.dcs.vn → Google Sheet</small></div>
+  <div><h1>ĐP Tỉnh Lào Cai</h1><small>Đồng bộ đảng phí từ gqtthc.dcs.vn</small></div>
 </header>
 <main>
-  <div id="msg" class="msg"></div>
-
   <div class="card">
-    <h2>1. Token đăng nhập gqtthc</h2>
-    <textarea id="token" placeholder="Dán token vào đây (hết hạn thì dán lại)" autocomplete="off" spellcheck="false"></textarea>
-    <div class="row" style="margin-top:8px">
-      <button class="sec" id="paste" type="button">📋 Dán từ bộ nhớ tạm</button>
-      <button class="sec" id="open" type="button">Mở gqtthc</button>
-    </div>
-    <details style="margin-top:10px">
-      <summary>Cách lấy token trên điện thoại</summary>
-      <ol>
-        <li>Mở <b>gqtthc.dcs.vn</b> trong trình duyệt và đăng nhập tài khoản quản trị cao nhất của đơn vị.</li>
-        <li>Chạy dấu trang “Copy token” (tạo 1 lần, xem bên dưới) để chép token vào bộ nhớ tạm.</li>
-        <li>Quay lại app này, bấm <b>Dán từ bộ nhớ tạm</b>.</li>
-      </ol>
-      <p class="hint">Mã dấu trang “Copy token” (chép cả dòng, lưu làm dấu trang, đặt tên <b>Copy token</b>):</p>
-      <textarea id="bm" readonly>javascript:(function(){var t=localStorage.getItem('token');if(!t){alert('Chưa đăng nhập gqtthc');return}(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){alert('Đã chép token. Quay lại app ĐP Lào Cai để dán.')},function(){prompt('Chép token này:',t)})})();</textarea>
-      <button class="sec" id="copybm" type="button" style="margin-top:6px;width:100%">Chép mã dấu trang</button>
-    </details>
+    <h2>Lần đồng bộ gần nhất</h2>
+    <div id="stat" class="stat">Đang kiểm tra…</div>
+    <button class="sec" id="refresh" type="button">Làm mới</button>
   </div>
 
   <div class="card">
-    <h2>2. Kỳ thu</h2>
-    <select id="month"></select>
+    <h2>Đồng bộ ngay</h2>
+    <ol>
+      <li>Bấm nút dưới để mở <b>gqtthc.dcs.vn</b> và đăng nhập (nếu chưa).</li>
+      <li>Trên trang gqtthc, chạm thanh địa chỉ, gõ tên dấu trang <b>ĐP Tỉnh Lào Cai</b>, chạm vào dấu trang đó.</li>
+      <li>Chờ thông báo xanh “HOÀN THÀNH”, rồi quay lại app, bấm <b>Làm mới</b>.</li>
+    </ol>
+    <a class="btn go" href="https://gqtthc.dcs.vn/" target="_blank" rel="noopener">Mở gqtthc.dcs.vn</a>
+    <a class="btn sec" href="../index.html" id="site">Xem trang theo dõi TTHC</a>
   </div>
 
-  <button class="go" id="go" type="button">ĐP Tỉnh Lào Cai – Lấy &amp; đồng bộ</button>
-
-  <div class="card" id="result" style="display:none;margin-top:12px">
-    <h2>Kết quả</h2>
-    <div class="kpi">
-      <div><b id="k-units">–</b><span>đơn vị</span></div>
-      <div><b id="k-rate">–</b><span>tỷ lệ thu</span></div>
-      <div><b id="k-declared">–</b><span>đã khai báo (đ)</span></div>
-      <div><b id="k-paid">–</b><span>đã nộp (đ)</span></div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:12px">
+  <div class="card">
     <details id="cfg">
       <summary>Cài đặt (làm 1 lần)</summary>
       <label for="api">URL Apps Script của site TTHC</label>
       <input id="api" placeholder="https://script.google.com/macros/s/AKfy…/exec" inputmode="url" autocomplete="off">
-      <label for="pw">Mật khẩu đồng bộ</label>
-      <input id="pw" type="password" autocomplete="off">
-      <label for="proxy">Địa chỉ Worker trung gian (chỉ điền nếu app báo bị chặn CORS)</label>
-      <input id="proxy" placeholder="https://dp-proxy.tenban.workers.dev" inputmode="url" autocomplete="off">
-      <p class="hint">Để trống thì app gọi thẳng gateway-gqtthc.dcs.vn. Mã Worker có sẵn trong file <code>dp/worker.js</code>.</p>
-      <button class="sec" id="save" type="button" style="margin-top:8px;width:100%">Lưu cài đặt</button>
+      <p class="hint">Dùng để xem lần đồng bộ gần nhất. Không cần token hay mật khẩu gqtthc trong app này.</p>
+      <button class="sec" id="save" type="button">Lưu</button>
     </details>
   </div>
 </main>
@@ -105,157 +70,42 @@ li{margin:4px 0;font-size:14px}
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
-  var GATEWAY = 'https://gateway-gqtthc.dcs.vn';
-  var PARENT_ID = 2122408; /* Đảng bộ tỉnh Lào Cai, giống nút ĐP Tỉnh Lào Cai */
-  var LS = {
-    get: function (k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
-    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-  };
-  var num = function (x) { return Number(x) || 0; };
-  var p2 = function (n) { return String(n).padStart(2, '0'); };
-  var fmt = function (n) { return Math.round(n).toLocaleString('vi-VN'); };
-
+  var K = 'dp.api';
+  var get = function () { try { return localStorage.getItem(K) || ''; } catch (e) { return ''; } };
+  var set = function (v) { try { localStorage.setItem(K, v); } catch (e) {} };
   function normApi(v) {
     v = (v || '').trim();
     if (/^AKfy[\w-]{20,}$/.test(v)) return 'https://script.google.com/macros/s/' + v + '/exec';
     var m = v.match(/https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec/);
     return m ? m[0] : '';
   }
-  function say(text, kind) {
-    var m = $('msg'); m.textContent = text; m.className = 'msg' + (kind ? ' ' + kind : ''); m.style.display = text ? 'block' : 'none';
-    if (text) window.scrollTo({ top: 0, behavior: 'smooth' });
+  function show(t, k) { var s = $('stat'); s.textContent = t; s.className = 'stat' + (k ? ' ' + k : ''); }
+
+  function check() {
+    var API = get();
+    if (!API) { $('cfg').open = true; show('Chưa cài URL Apps Script. Mở “Cài đặt” bên dưới.', 'bad'); return; }
+    show('Đang kiểm tra…');
+    var cb = '__dp' + Date.now(), s = document.createElement('script');
+    var t = setTimeout(function () { delete window[cb]; s.remove(); show('Không đọc được trạng thái (mạng chậm hoặc URL sai). Bấm Làm mới để thử lại.', 'bad'); }, 20000);
+    window[cb] = function (v) {
+      clearTimeout(t); delete window[cb]; s.remove();
+      var l = v && v.last;
+      if (l) show('✅ ' + (l.rowCount || '?') + ' đơn vị' + (l.tab ? ' · tab ' + l.tab : '') + '\nLúc ' + (l.updatedAtText || '—'), 'ok');
+      else show('Chưa có lần đồng bộ nào.');
+    };
+    s.onerror = function () { clearTimeout(t); delete window[cb]; show('Không đọc được trạng thái. Kiểm tra URL Apps Script.', 'bad'); };
+    s.src = API + '?action=status&callback=' + cb + '&_=' + Date.now();
+    document.head.appendChild(s);
   }
 
-  /* Khởi tạo */
-  $('token').value = LS.get('dp.token');
-  $('api').value = LS.get('dp.api');
-  $('pw').value = LS.get('dp.pw');
-  $('proxy').value = LS.get('dp.proxy');
-  if (!LS.get('dp.api') || !LS.get('dp.pw')) $('cfg').open = true;
-  var now = new Date(), opts = '';
-  for (var i = 0; i < 12; i++) {
-    var d = new Date(now.getFullYear(), now.getMonth() - i, 1), y = d.getFullYear(), m = d.getMonth() + 1;
-    opts += '<option value="' + y + '-' + m + '"' + (i ? '' : ' selected') + '>Tháng ' + m + '/' + y + (i ? '' : ' (hiện tại)') + '</option>';
-  }
-  $('month').innerHTML = opts;
-
+  $('api').value = get();
   $('save').onclick = function () {
     var a = normApi($('api').value);
-    if (!a) { say('Link Apps Script chưa đúng.', 'bad'); return; }
-    var pr = $('proxy').value.trim().replace(/\/+$/, '');
-    if (pr && !/^https:\/\//.test(pr)) { say('Địa chỉ Worker phải bắt đầu bằng https://', 'bad'); return; }
-    LS.set('dp.api', a); LS.set('dp.pw', $('pw').value.trim()); LS.set('dp.proxy', pr);
-    $('api').value = a; $('cfg').open = false; say('Đã lưu cài đặt.', 'ok');
+    if (!a) { show('Link Apps Script chưa đúng.', 'bad'); return; }
+    set(a); $('api').value = a; $('cfg').open = false; check();
   };
-  $('token').onchange = function () { LS.set('dp.token', cleanToken($('token').value)); };
-  function cleanToken(t) { return (t || '').trim().replace(/^Bearer\s+/i, '').replace(/^"|"$/g, ''); }
-  $('paste').onclick = function () {
-    if (!navigator.clipboard || !navigator.clipboard.readText) { say('Trình duyệt không cho đọc bộ nhớ tạm. Giữ ô trên để dán tay.', 'bad'); return; }
-    navigator.clipboard.readText().then(function (t) {
-      t = cleanToken(t);
-      if (t.length < 20) { say('Bộ nhớ tạm chưa có token. Chạy dấu trang “Copy token” trên gqtthc trước.', 'bad'); return; }
-      $('token').value = t; LS.set('dp.token', t); say('Đã dán token.', 'ok');
-    }, function () { say('Chưa được cấp quyền đọc bộ nhớ tạm. Giữ ô trên để dán tay.', 'bad'); });
-  };
-  $('open').onclick = function () { window.open('https://gqtthc.dcs.vn/', '_blank'); };
-  $('copybm').onclick = function () {
-    var t = $('bm').value;
-    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { say('Đã chép mã dấu trang.', 'ok'); }, function () { $('bm').select(); say('Chọn và chép tay mã trong khung.', 'bad'); });
-  };
-
-  async function post(path, tk, body, signal) {
-    var base = LS.get('dp.proxy') || GATEWAY;
-    var r;
-    try {
-      r = await fetch(base + path, { method: 'POST', signal: signal, headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
-    } catch (e) {
-      if (e && e.name === 'AbortError') throw e;
-      var er = new Error(LS.get('dp.proxy') ? 'Không gọi được Worker trung gian. Kiểm tra địa chỉ Worker và mạng.' : 'Bị chặn gọi trực tiếp tới gqtthc (CORS) hoặc mất mạng. Cần triển khai Worker trung gian (file dp/worker.js) rồi điền địa chỉ vào Cài đặt.');
-      er.cors = true; throw er;
-    }
-    return r;
-  }
-
-  async function run() {
-    var tk = cleanToken($('token').value), API = LS.get('dp.api'), pw = LS.get('dp.pw');
-    if (!API || !pw) { $('cfg').open = true; say('Điền URL Apps Script và mật khẩu đồng bộ trong Cài đặt trước.', 'bad'); return; }
-    if (!tk) { say('Chưa có token gqtthc. Dán token ở mục 1.', 'bad'); return; }
-    LS.set('dp.token', tk);
-    if (navigator.onLine === false) { say('Máy đang mất mạng.', 'bad'); return; }
-    var pk = $('month').value.split('-'), cy = +pk[0], SM = +pk[1], mm = p2(SM);
-    var T0 = performance.now(), f1 = function (ms) { return (ms / 1000).toFixed(1).replace('.', ',') + 's'; };
-    say('Đang lấy số liệu tháng ' + SM + '/' + cy + ' từ API…');
-    try { fetch(API + '?action=status&warm=' + Date.now(), { mode: 'no-cors' }).catch(function () {}); } catch (e) {}
-    var body = { kyNopStart: '01/' + mm + '/' + cy, kyNopEnd: new Date(cy, SM, 0).getDate() + '/' + mm + '/' + cy, parentId: PARENT_ID, hasChildren: true, page: 1, size: 500 };
-    var r = null;
-    for (var at = 1; at <= 2 && !r; at++) {
-      var ac = new AbortController(), to = setTimeout(function () { ac.abort(); }, 90000);
-      try {
-        if (at > 1) say('API phản hồi chậm, đang thử lại lần ' + at + '…');
-        var rr = await post('/report/dashboard/danh-sach-theo-doi-dang-phi', tk, body, ac.signal);
-        clearTimeout(to);
-        if (rr.status >= 500 && at < 2) continue;
-        r = rr;
-      } catch (e) { clearTimeout(to); if (at >= 2 || e.cors) throw e; }
-    }
-    if (!r.ok) throw new Error('API trả lỗi ' + r.status + (r.status === 401 || r.status === 403 ? ' — token hết hạn hoặc sai, hãy đăng nhập gqtthc và lấy token mới.' : ''));
-    var j = await r.json(), list = j.data || [];
-    if (!list.length) throw new Error('API không trả đơn vị nào. Hãy dùng token của tài khoản quản trị cao nhất của đơn vị.');
-    var rows = list.map(function (x, i) { return [i + 1, x.tenDonVi, num(x.tongSoLuongDangVien), num(x.soLuongDangVienChinhThuc), num(x.soLuongDangVienTamThoi), num(x.soLuongChuyenTamThoi), num(x.soLuongDangVienMienGiam), num(x.tongSoHoSoChuaDuyet), num(x.tongSoHoSoDaDuyetChuaNop), num(x.tongSoHoSoDaDuyetDaNop), num(x.soLuongHoSoChuaKhaiBao), num(x.tongSoTienDaKhaiBao), num(x.tongSoTienDaNop), num(x.mucDoThucHien)]; });
-
-    /* Sổ S02 (phải nộp, đã nộp, còn nợ cấp trên). Lỗi S02 không làm hỏng đồng bộ chính. */
-    var s02Msg = '';
-    try {
-      say('Đang lấy sổ S02 (nộp cấp trên)…');
-      var r2 = await post('/report/s02/danh-sach', tk, { page: 1, size: 500, donViId: null, fromDate: body.kyNopStart, toDate: body.kyNopEnd });
-      if (!r2.ok) throw new Error('HTTP ' + r2.status);
-      var j2 = await r2.json(), l2 = j2.data || [];
-      var nm = function (s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); };
-      var kr = function (o) { return num(o && o.kyBaoCao); }, mp = new Map(l2.map(function (x) { return [nm(x.tenToChucDang), x]; })), hit = 0;
-      rows.forEach(function (rw) { var x = mp.get(nm(rw[1])); if (x) { hit++; rw.push(kr(x.dangPhiPhaiNopCapTren), kr(x.dangPhiDaNopCapTren), num(x.dangPhiChuaNopCapTrenCuoiKyBaoCao)); } else rw.push(0, 0, 0); });
-      s02Msg = '\nSổ S02: khớp ' + hit + '/' + rows.length + ' đơn vị';
-    } catch (e2) { rows.forEach(function (rw) { rw.length = 14; }); s02Msg = '\n⚠ Chưa lấy được sổ S02 (' + (e2 && e2.message || e2) + ') — các cột nộp cấp trên giữ nguyên.'; }
-
-    var sum = function (k) { return rows.reduce(function (a, rw) { return a + rw[k]; }, 0); };
-    var declared = sum(11), paid = sum(12), d = new Date();
-    var rate = declared > 0 ? Math.round(paid / declared * 10000) / 100 : 0;
-    var syncId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-    var payload = { token: pw, syncId: syncId, fileName: 'API gqtthc kỳ T' + SM + '/' + cy + ' · ' + p2(d.getDate()) + '/' + p2(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes()), month: cy + '-' + mm, source: 'api-month',
-      totals: { units: rows.length, members: sum(2), paidProfiles: sum(9), declared: declared, paid: paid, rate: rate }, rows: rows };
-    say('Đang gửi ' + rows.length + ' đơn vị lên Google Sheet…');
-    await fetch(API, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify(payload) }) });
-    say('Đang xác nhận kết quả trên Google Sheet…');
-    var ok = null;
-    for (var k = 0; k < 12 && !ok; k++) {
-      ok = await new Promise(function (res) {
-        var cb = '__dp' + Date.now() + k, s = document.createElement('script');
-        var t = setTimeout(function () { delete window[cb]; s.remove(); res(null); }, 9000);
-        window[cb] = function (v) { clearTimeout(t); delete window[cb]; s.remove(); res(v); };
-        s.onerror = function () { clearTimeout(t); res(null); };
-        s.src = API + '?action=status&callback=' + cb + '&_=' + Date.now();
-        document.head.appendChild(s);
-      });
-      if (ok && ok.lastError && ok.lastError.syncId === syncId) throw new Error(ok.lastError.error);
-      if (!(ok && ok.last && ok.last.syncId === syncId)) { ok = null; await new Promise(function (r3) { setTimeout(r3, 1000); }); }
-    }
-    $('k-units').textContent = rows.length; $('k-rate').textContent = rate.toFixed(2).replace('.', ',') + '%';
-    $('k-declared').textContent = fmt(declared); $('k-paid').textContent = fmt(paid); $('result').style.display = 'block';
-    var tail = s02Msg + '\n⏱ Tổng ' + f1(performance.now() - T0);
-    if (ok) say('✅ HOÀN THÀNH — đã đồng bộ ' + ok.last.rowCount + ' đơn vị kỳ tháng ' + SM + '/' + cy + (ok.last.tab ? ' (tab ' + ok.last.tab + ')' : '') + ' lúc ' + ok.last.updatedAtText + '.' + tail, 'ok');
-    else say('✓ Đã gửi ' + rows.length + ' đơn vị. Chưa xác nhận được kết quả — mở trang Đảng phí để xem “Lần đồng bộ gần nhất”.' + tail);
-  }
-
-  $('go').onclick = async function () {
-    var b = $('go'); b.disabled = true;
-    try { await run(); }
-    catch (e) {
-      var t = e && e.name === 'AbortError' ? 'API phản hồi quá chậm (quá 90 giây, đã thử 2 lần). Kiểm tra mạng rồi bấm lại.' : (e && e.message || String(e));
-      if (/mật khẩu|không hợp lệ/i.test(t)) LS.set('dp.pw', '');
-      say('✕ ' + t, 'bad');
-    }
-    b.disabled = false;
-  };
-
+  $('refresh').onclick = check;
+  check();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
 })();
 </script>
