@@ -1,10 +1,8 @@
-Lấy được 11/13 bài
+Lấy được 11/12 bài
 == THỐNG KÊ THEO BÁO ==
    10  baolaocai.vn  có ảnh
     1  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
     1  tienphong.vn  có ảnh
-    1  www.laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
 LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/thu-truong-nguyen-quoc-tri-khanh-thanh-nha-may-che-bien-que-hoi-lao-cai-d839721.html
-LỖI <urlopen error [Errno 101] Network is unreachable> https://www.laocai.gov.vn/thong-tin-nganh-dia-phuong/giai-chay-ban-lau-discovery-run-huong-sac-bien-cuong-lan-thu-nhat-nam-2026-se-dien-ra-tu-ngay-31-1616362
