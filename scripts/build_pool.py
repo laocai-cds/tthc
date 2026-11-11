@@ -26,7 +26,7 @@ UNITS = json.load(open(os.path.join(ROOT, "scripts", "units.json"), encoding="ut
 
 UA = "Mozilla/5.0 (compatible; LaoCaiNewsPool/1.0; +https://laocai-cds.github.io/tthc/)"
 KEEP_DAYS = 365
-MAX_ITEMS = 6000
+MAX_ITEMS = 10000  # đã nâng từ 6000 để thêm nguồn mới mà không đẩy tin cũ trong năm ra ngoài
 TIMEOUT = 20
 
 # Nguồn RSS trực tiếp: (tên hiển thị, [feed thử lần lượt], trang chủ để tự dò link RSS)
@@ -67,7 +67,56 @@ ALLOWED_NAMES = {
     "báo bảo vệ pháp luật", "vtv.vn", "vtvgo", "vtv", "vtc news", "báo giáo dục và thời đại", "giáo dục và thời đại",
     "dân việt", "báo dân việt", "báo nông thôn ngày nay", "báo nông thôn ngày nay/dân việt", "trang trại việt",
     "tạp chí cộng sản", "báo điện tử đảng cộng sản việt nam", "kinh tế & đô thị", "báo kinh tế và đô thị",
+    # Bổ sung: báo, đài có giấy phép của nhà nước hay xuất hiện trên Google News khi viết về Lào Cai
+    "đài phát thanh và truyền hình lào cai", "đài phát thanh - truyền hình lào cai", "truyền hình lào cai",
+    "báo biên phòng", "báo điện tử chính phủ", "báo điện tử vov", "vov.vn", "báo văn hóa", "báo văn hoá",
+    "báo thể thao & văn hóa", "báo điện tử tiếng nói việt nam", "báo thanh tra", "báo công lý",
+    "báo tài nguyên và môi trường", "báo ảnh việt nam",
 }
+
+# Nguồn tuỳ chọn: tự dò RSS từ trang chủ, KHÔNG tính vào số nguồn lỗi (partial) nếu không lấy được.
+OPTIONAL_DIRECT = [
+    ("Báo Quân đội nhân dân", [], "https://www.qdnd.vn/"),
+    ("Báo Nông nghiệp và Môi trường", [], "https://nongnghiepmoitruong.vn/"),
+    ("Báo Tiền Phong", [], "https://tienphong.vn/"),
+    ("Báo Pháp Luật Việt Nam", [], "https://baophapluat.vn/"),
+    ("Báo Đại biểu Nhân dân", [], "https://daibieunhandan.vn/"),
+    ("Báo Công Thương", [], "https://congthuong.vn/"),
+    ("Báo Xây dựng", [], "https://baoxaydung.vn/"),
+    ("Báo Giáo dục và Thời đại", [], "https://giaoducthoidai.vn/"),
+    ("Báo Dân Việt", [], "https://danviet.vn/"),
+    ("Báo Công an nhân dân", [], "https://cand.vn/"),
+    ("Báo Biên phòng", [], "https://bienphongvietnam.vn/"),
+    ("Tạp chí Cộng sản", [], "https://tapchicongsan.org.vn/"),
+]
+
+# Chuyên mục riêng cho từng xã, phường trên Báo Lào Cai: baolaocai.vn/dia-phuong/<slug>/<id>.html
+# (slug = tên đơn vị bỏ dấu; "xã Nậm Chày" là id 114, id 71 là xã Nậm Chảy nên không dùng)
+BLC_BASE = "https://baolaocai.vn"
+BLC_IDS = {
+    "xa-khao-mang": 14, "xa-mu-cang-chai": 15, "xa-pung-luong": 16, "xa-tu-le": 17, "xa-tram-tau": 18,
+    "xa-hanh-phuc": 19, "xa-phinh-ho": 20, "xa-lien-son": 21, "xa-gia-hoi": 22, "xa-son-luong": 23,
+    "xa-van-chan": 24, "xa-thuong-bang-la": 25, "xa-chan-thinh": 26, "xa-nghia-tam": 27, "xa-phong-du-ha": 28,
+    "xa-chau-que": 29, "xa-lam-giang": 30, "xa-dong-cuong": 31, "xa-tan-hop": 32, "xa-mau-a": 33,
+    "xa-xuan-ai": 34, "xa-mo-vang": 35, "xa-lam-thuong": 36, "xa-luc-yen": 37, "xa-tan-linh": 38,
+    "xa-khanh-hoa": 39, "xa-phuc-loi": 40, "xa-muong-lai": 41, "xa-cam-nhan": 42, "xa-yen-thanh": 43,
+    "xa-thac-ba": 44, "xa-yen-binh": 45, "xa-bao-ai": 46, "xa-tran-yen": 47, "xa-hung-khanh": 48,
+    "xa-luong-thinh": 49, "xa-viet-hong": 50, "xa-quy-mong": 51, "xa-coc-san": 52, "xa-hop-thanh": 53,
+    "xa-phong-hai": 54, "xa-xuan-quang": 55, "xa-bao-thang": 56, "xa-tang-loong": 57, "xa-gia-phu": 58,
+    "xa-muong-hum": 59, "xa-den-sang": 60, "xa-y-ty": 61, "xa-a-mu-sung": 62, "xa-trinh-tuong": 63,
+    "xa-nam-chay": 114, "xa-ban-xeo": 112, "xa-bat-xat": 64, "xa-vo-lao": 65, "xa-khanh-yen": 66,
+    "xa-van-ban": 67, "xa-duong-quy": 68, "xa-chieng-ken": 69, "xa-minh-luong": 70, "xa-bao-yen": 72,
+    "xa-nghia-do": 73, "xa-thuong-ha": 74, "xa-xuan-hoa": 75, "xa-phuc-khanh": 76, "xa-bao-ha": 77,
+    "xa-muong-bo": 78, "xa-ban-ho": 79, "xa-ta-van": 80, "xa-ta-phin": 81, "xa-coc-lau": 82,
+    "xa-bao-nhai": 83, "xa-ban-lien": 84, "xa-bac-ha": 85, "xa-ta-cu-ty": 86, "xa-lung-phinh": 87,
+    "xa-pha-long": 88, "xa-muong-khuong": 89, "xa-ban-lau": 90, "xa-cao-son": 91, "xa-si-ma-cai": 92,
+    "xa-sin-cheng": 93, "xa-ngu-chi-son": 95, "xa-che-tao": 96, "xa-lao-chai": 97, "xa-nam-co": 98,
+    "xa-ta-xi-lang": 99, "xa-cat-thinh": 100, "xa-phong-du-thuong": 101, "xa-nam-xe": 94,
+    "phuong-nghia-lo": 102, "phuong-trung-tam": 103, "phuong-cau-thia": 104, "phuong-van-phu": 105,
+    "phuong-yen-bai": 106, "phuong-nam-cuong": 107, "phuong-au-lau": 108, "phuong-cam-duong": 109,
+    "phuong-lao-cai": 110, "phuong-sa-pa": 111,
+}
+BLC_MAX_NEW_PER_RUN = 700   # số bài mới tối đa lấy chi tiết (ngày, ảnh, mô tả) mỗi lần chạy; phần còn lại để lần sau
 
 
 def norm_name(s):
@@ -204,9 +253,9 @@ def discover_feeds(home):
     return res[:6]
 
 
-def fetch_direct():
+def fetch_direct(sources=None, count_failed=True):
     items, failed = [], 0
-    for label, feeds, home in DIRECT:
+    for label, feeds, home in (DIRECT if sources is None else sources):
         got, tried = [], list(feeds)
         ok = False
         for attempt in range(2):
@@ -226,9 +275,112 @@ def fetch_direct():
             print(f"  + {label}: {len(got)} bài")
             items += got
         else:
-            failed += 1
+            failed += 1 if count_failed else 0
             print(f"  - {label}: không lấy được", file=sys.stderr)
     return items, failed
+
+
+# ---------- Chuyên mục từng xã, phường của Báo Lào Cai ----------
+def _meta(page, key):
+    """Giá trị thẻ meta (property hoặc name = key), không phụ thuộc thứ tự thuộc tính."""
+    for m in re.finditer(r"<meta\b[^>]*>", page, re.I):
+        tag = m.group(0)
+        k = re.search(r'(?:property|name)=["\']([^"\']+)["\']', tag, re.I)
+        if k and k.group(1).lower() == key.lower():
+            c = re.search(r'content=["\']([^"\']*)["\']', tag, re.I)
+            if c:
+                return html.unescape(c.group(1)).strip()
+    return ""
+
+
+def _blc_list_page(unit, url):
+    """Lấy danh sách bài từ trang chuyên mục của một xã/phường. Trả về danh sách (tiêu đề, url, ngày hoặc None)."""
+    page = http_get(url, "text/html")
+    # Nếu trang có khai báo RSS thì dùng luôn.
+    rss = re.search(r"<link[^>]+type=[\"']application/(?:rss|atom)\+xml[\"'][^>]*href=[\"']([^\"']+)[\"']", page, re.I)
+    if rss:
+        try:
+            return [(g["title"], g["url"], g["published"], g.get("desc", ""), g.get("img", ""))
+                    for g in parse_feed(http_get(urllib.parse.urljoin(url, html.unescape(rss.group(1)))), "Báo Lào Cai")]
+        except Exception:
+            pass
+    out, seen = [], set()
+    for m in re.finditer(r"<a\b[^>]*href=[\"']([^\"']*-post\d+\.html)[\"'][^>]*>(.*?)</a>", page, re.I | re.S):
+        href = urllib.parse.urljoin(url, html.unescape(m.group(1)))
+        if href in seen:
+            continue
+        tag = m.group(0)
+        t = re.search(r'title=["\']([^"\']{12,})["\']', tag, re.I)
+        title = clean_text(t.group(1)) if t else clean_text(m.group(2))
+        if len(title) < 12:
+            continue
+        seen.add(href)
+        pub = None  # ngày đăng lấy từ trang bài viết (ngày ở trang danh sách dễ lẫn giữa các bài)
+        out.append((title, href, pub, "", ""))
+    return out
+
+
+def _blc_detail(item):
+    """Bổ sung ngày đăng, mô tả, ảnh từ trang bài viết (thẻ meta). Trả về True nếu có ngày đăng."""
+    try:
+        page, final = fetch_page_head(item["url"])
+    except Exception as e:
+        print(f"  ! chi tiết {item['url']}: {e}", file=sys.stderr)
+        return False
+    pub = parse_date(_meta(page, "article:published_time") or _meta(page, "pubdate") or _meta(page, "date"))
+    if pub and not item.get("published"):
+        item["published"] = pub
+    if not item.get("desc"):
+        item["desc"] = clean_text(_meta(page, "og:description") or _meta(page, "description"))
+    if not item.get("img"):
+        item["img"] = og_image(page, final)
+    return bool(item.get("published"))
+
+
+def fetch_blc_sections(known_pub):
+    """Gom tin từ chuyên mục riêng của từng xã, phường trên Báo Lào Cai (báo chính thống của tỉnh).
+    Mỗi bài gắn nhãn 'us' = đơn vị tương ứng để site hiển thị đúng xã."""
+    from concurrent.futures import ThreadPoolExecutor
+    targets = [(u, f"{BLC_BASE}/dia-phuong/{slug(u)}/{BLC_IDS[slug(u)]}.html") for u in UNITS if slug(u) in BLC_IDS]
+    found, failed = {}, 0
+
+    def one(t):
+        u, url = t
+        for attempt in range(2):
+            try:
+                return u, _blc_list_page(u, url)
+            except Exception as e:
+                print(f"  ! chuyên mục {u}: {e}", file=sys.stderr)
+                time.sleep(2.0)
+        return u, None
+
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        for u, rows in ex.map(one, targets):
+            if rows is None:
+                failed += 1
+                continue
+            for title, href, pub, desc, img in rows:
+                k = re.sub(r"[#?].*$", "", href).rstrip("/").lower()
+                it = found.setdefault(k, {"title": title, "url": href, "desc": desc, "published": pub,
+                                          "source": "Báo Lào Cai", "img": img, "us": []})
+                if u not in it["us"]:
+                    it["us"].append(u)
+    items = list(found.values())
+    # Bài đã có trong pool: dùng lại ngày đăng cũ (chỉ cần gắn nhãn xã). Bài mới: lấy ngày, mô tả, ảnh từ trang bài viết.
+    need = []
+    for i in items:
+        k = re.sub(r"[#?].*$", "", i["url"]).rstrip("/").lower()
+        if k in known_pub:
+            i["published"] = known_pub[k]
+        elif not i["published"]:
+            need.append(i)
+    need = need[:BLC_MAX_NEW_PER_RUN]
+    if need:
+        with ThreadPoolExecutor(max_workers=6) as ex:
+            list(ex.map(_blc_detail, need))
+    items = [i for i in items if i["published"]]
+    print(f"  + Chuyên mục xã/phường (Báo Lào Cai): {len(items)} bài từ {len(targets)} chuyên mục, {failed} lỗi")
+    return items, failed, len(targets)
 
 
 def gnews_url(q):
@@ -241,6 +393,14 @@ def allowed(source):
     return n in ALLOWED_NAMES or n in {norm_name(d[0]) for d in DIRECT}
 
 
+# Các báo, đài trung ương có giấy phép: truy vấn Google News giới hạn theo trang (site:) cho từng xã, phường.
+GN_SITES = " OR ".join("site:" + d for d in (
+    "nhandan.vn", "vov.vn", "vietnamplus.vn", "baotintuc.vn", "baodantoc.vn", "baochinhphu.vn", "qdnd.vn",
+    "cand.vn", "baophapluat.vn", "nongnghiepmoitruong.vn", "tienphong.vn", "daibieunhandan.vn", "vtv.vn",
+    "laodong.vn", "dantri.com.vn", "vnexpress.net", "tuoitre.vn", "thanhnien.vn", "laocai.gov.vn",
+    "danviet.vn", "kinhtedothi.vn", "giaoducthoidai.vn", "congthuong.vn", "baoxaydung.vn", "bienphongvietnam.vn"))
+
+
 def fetch_gnews():
     """Truy vấn Google News RSS cho tỉnh và từng xã, phường; giữ lại bài của báo chính thống."""
     queries = ['"Lào Cai" when:7d',
@@ -251,6 +411,7 @@ def fetch_gnews():
             f'"{u}" "Lào Cai" when:365d',              # đúng tên đơn vị (xã/phường + tên)
             f'"{bare}" "Lào Cai" when:365d',           # chỉ tên riêng, tiêu đề hay bỏ chữ xã/phường
             f'"{bare}" site:baolaocai.vn when:365d',   # riêng Báo Lào Cai, nguồn nhiều tin xã nhất
+            f'"{bare}" "Lào Cai" ({GN_SITES}) when:365d',  # các báo, đài trung ương có giấy phép
         ]
     items, failed = [], 0
     for q in queries:
@@ -575,14 +736,6 @@ def main():
         prev_partial = bool(json.load(open(OUT, encoding="utf-8")).get("partial"))
     except Exception:
         pass
-    if only_images:
-        direct, d_failed, gn, g_failed, g_total = [], 0, [], 0, 0
-    else:
-        print("Gom tin trực tiếp từ các báo…")
-        direct, d_failed = fetch_direct()
-        print("Gom tin qua Google News…")
-        gn, g_failed, g_total = fetch_gnews()
-
     # Giữ bài cũ trong KEEP_DAYS ngày để dữ liệu không bị hụt khi một nguồn tạm lỗi.
     old = []
     try:
@@ -593,8 +746,27 @@ def main():
                 old.append(i)
     except Exception:
         pass
+    known_pub = {re.sub(r"[#?].*$", "", i["url"]).rstrip("/").lower(): i["published"] for i in old}
+
+    if only_images:
+        direct, d_failed, gn, g_failed, g_total = [], 0, [], 0, 0
+    else:
+        print("Gom tin trực tiếp từ các báo…")
+        direct, d_failed = fetch_direct()
+        opt, _ = fetch_direct(OPTIONAL_DIRECT, count_failed=False)
+        direct += opt
+        print("Gom tin từ chuyên mục từng xã, phường của Báo Lào Cai…")
+        try:
+            blc, blc_failed, blc_total = fetch_blc_sections(known_pub)
+        except Exception as e:
+            print(f"  ! chuyên mục xã/phường lỗi: {e}", file=sys.stderr)
+            blc, blc_failed, blc_total = [], 0, 0
+        direct += blc
+        print("Gom tin qua Google News…")
+        gn, g_failed, g_total = fetch_gnews()
 
     seen_u, seen_t, merged = set(), set(), []
+    by_url, by_title = {}, {}  # url / tiêu đề chuẩn hoá -> bài đã giữ, để gộp nhãn đơn vị 'us' khi trùng
     horizon = now - timedelta(days=KEEP_DAYS)
     limit = now + timedelta(days=1)
     dropped = Counter()
@@ -614,12 +786,21 @@ def main():
             continue
         ku = re.sub(r"[#?].*$", "", i["url"]).rstrip("/").lower()
         kt = norm_key(i["title"])
+        keep = by_url.get(ku) or by_title.get(kt)
+        if keep is not None and i.get("us"):  # bài đã có (cũ hoặc nguồn khác): gộp thêm nhãn xã, phường
+            keep["us"] = sorted(set((keep.get("us") or []) + i["us"]))
+            if not keep.get("desc") and i.get("desc"):
+                keep["desc"] = i["desc"]
+            if not keep.get("img") and i.get("img"):
+                keep["img"] = i["img"]
         if len(i["title"]) < 10 or ku in seen_u or kt in seen_t:
             continue
         if not re.match(r"^https?://\S+$", i["url"]):
             continue
         seen_u.add(ku)
         seen_t.add(kt)
+        by_url[ku] = i
+        by_title[kt] = i
         merged.append(i)
 
     if dropped:
@@ -657,6 +838,8 @@ def main():
             o["img"] = i["img"]
         if i.get("bad"):
             o["bad"] = True
+        if i.get("us"):
+            o["us"] = sorted(set(i["us"]))  # đơn vị mà chuyên mục báo gán cho bài
         if i.get("ni") and "img" not in o:
             o["ni"] = True  # đã thử lấy ảnh nhưng bài không có ảnh: lần sau khỏi thử lại
         if i.get("nf") and "img" not in o:
