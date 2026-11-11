@@ -6314,6 +6314,48 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  refresh();setInterval(refresh,3000);
 })();
 </script>
+<style id="xa-slide-css">
+.xa-slide{position:relative;margin:8px 26px 0;overflow:hidden;border:1px solid #e6dcdf;border-radius:14px;background:#fff;padding:8px 0 6px;box-shadow:0 3px 10px rgba(20,40,77,.08)}
+.xa-slide::before,.xa-slide::after{content:"";position:absolute;top:0;bottom:0;width:34px;z-index:2;pointer-events:none}
+.xa-slide::before{left:0;background:linear-gradient(90deg,#fff,rgba(255,255,255,0))}.xa-slide::after{right:0;background:linear-gradient(270deg,#fff,rgba(255,255,255,0))}
+.xa-track{display:flex;gap:12px;width:max-content;animation:xaRun var(--xa-dur,40s) linear infinite}
+.xa-slide:hover .xa-track,.xa-slide:focus-within .xa-track{animation-play-state:paused}
+@keyframes xaRun{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.xa-slide{overflow-x:auto}.xa-track{animation:none}}
+.xa-it{flex:none;width:118px;text-decoration:none;color:#14284d;border-radius:10px}
+.xa-it:focus-visible{outline:2px solid #c51620;outline-offset:2px}
+.xa-sh{position:relative;display:block;height:72px;border-radius:8px;border:1px solid #d9c3c8;overflow:hidden;background:linear-gradient(120deg,var(--c1,#7a0c22),var(--c2,#15336f));transition:transform .18s,box-shadow .18s}
+.xa-sh img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;background:#fff}
+.xa-sh::after{content:"Xem thử ↗";position:absolute;inset:0;display:grid;place-items:center;background:rgba(15,37,72,.62);color:#fff;font:700 11.5px "Segoe UI",Arial,sans-serif;opacity:0;transition:opacity .18s}
+.xa-it:hover .xa-sh,.xa-it:focus-visible .xa-sh{transform:translateY(-3px) scale(1.04);box-shadow:0 8px 18px rgba(15,37,72,.3)}
+.xa-it:hover .xa-sh::after,.xa-it:focus-visible .xa-sh::after{opacity:1}
+.xa-nm{display:block;margin-top:5px;text-align:center;font:650 11.5px "Segoe UI",Arial,sans-serif;white-space:nowrap}
+@media(max-width:760px){.xa-slide{margin:8px 14px 0}}
+</style>
+<script id="xa-slide-script">
+(()=>{const strip=document.getElementById('adStrip');if(!strip||document.getElementById('xaSlide'))return;
+ /* Chỉ lấy các site chạy trên Cloudflare Pages (*.pages.dev). Thêm xã mới: thêm 1 dòng [tên, tên-miền-con, màu 1, màu 2] */
+ const XA=[
+  ['Phúc Khánh','phuckhanh','#2f3a8f','#6a5fc1'],
+  ['Trạm Tấu','tramtau','#b3261e','#e0703a'],
+  ['Si Ma Cai','simacai','#1565c0','#42a5f5'],
+  ['Nghĩa Đô','nghiado','#0f7b5f','#4cc29a'],
+  ['Bảo Thắng','baothang','#a5121f','#e2574c'],
+  ['Lương Thịnh','luongthinh','#8a5a00','#e0a82e'],
+  ['Phình Hồ','phinhho','#5b2a86','#a56bd6'],
+  ['Võ Lao','volao','#0b6e8a','#4fb8d4']];
+ const shot=u=>'https://s0.wp.com/mshots/v1/'+encodeURIComponent(u)+'?w=360&h=225';
+ const card=x=>{const u='https://'+x[1]+'.pages.dev/';return '<a class="xa-it" href="'+u+'" target="_blank" rel="noopener noreferrer" title="Xem thử website xã '+x[0]+'" style="--c1:'+x[2]+';--c2:'+x[3]+'"><span class="xa-sh"><img src="'+shot(u)+'" alt="" loading="lazy" decoding="async"></span><span class="xa-nm">'+x[0]+'</span></a>'};
+ const h=XA.map(card).join('');
+ const box=document.createElement('div');box.className='xa-slide';box.id='xaSlide';box.setAttribute('aria-label','Các website xã đã triển khai');
+ box.innerHTML='<div class="xa-track" style="--xa-dur:'+Math.max(24,XA.length*5)+'s">'+h+h+'</div>';
+ box.querySelectorAll('img').forEach(i=>{i.addEventListener('error',()=>i.remove());
+  /* mShots trả ảnh tạm (nhỏ) khi đang chụp: thử lại sau vài giây, tối đa 4 lần */
+  let n=0;const base=i.src;i.addEventListener('load',()=>{if(i.naturalWidth<200&&n<4){n++;setTimeout(()=>{i.src=base+'&r='+n},4000*n)}})});
+ box.querySelectorAll('a').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()));
+ strip.before(box);
+})();
+</script>
 <style id="authCss">
 html:not(.is-admin) #adminBtn{display:none!important}
 #openImport,#exportJson,#importJson,#announcementMenuAction,#dpMenuAction,#unitsMenuAction,#editAnnouncement,#anbEdit{display:none!important}
