@@ -6419,9 +6419,9 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 .xa-slide{position:relative;margin:8px 26px 0;overflow:hidden;border:1px solid #e6dcdf;border-radius:14px;background:#fff;padding:8px 0 6px;box-shadow:0 3px 10px rgba(20,40,77,.08)}
 .xa-slide::before,.xa-slide::after{content:"";position:absolute;top:0;bottom:0;width:34px;z-index:2;pointer-events:none}
 .xa-slide::before{left:0;background:linear-gradient(90deg,#fff,rgba(255,255,255,0))}.xa-slide::after{right:0;background:linear-gradient(270deg,#fff,rgba(255,255,255,0))}
-.xa-track{display:flex;gap:12px;width:max-content;animation:xaRun var(--xa-dur,40s) linear infinite;will-change:transform}
-.xa-slide:hover .xa-track,.xa-slide:focus-within .xa-track{animation-play-state:paused}
-@keyframes xaRun{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+.xa-slide{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}.xa-slide.drag{cursor:grabbing}
+.xa-track{display:flex;gap:12px;width:max-content;will-change:transform;transform:translate3d(0,0,0)}
+.xa-track img,.xa-track a{-webkit-user-drag:none;user-drag:none}
 .xa-it{flex:none;width:118px;text-decoration:none;color:#14284d;border-radius:10px}
 .xa-it:focus-visible{outline:2px solid #c51620;outline-offset:2px}
 .xa-sh{position:relative;display:block;height:72px;border-radius:8px;border:1px solid #d9c3c8;overflow:hidden;background:linear-gradient(120deg,var(--c1,#7a0c22),var(--c2,#15336f));transition:transform .18s,box-shadow .18s}
@@ -6444,9 +6444,27 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  const card=x=>{const u=x[1];return '<a class="xa-it" href="'+u+'" target="_blank" rel="noopener noreferrer" title="Xem thử website xã '+x[0]+'" style="--c1:'+x[2]+';--c2:'+x[3]+'"><span class="xa-sh"><b>'+x[0]+'</b><small>'+new URL(u).hostname+'</small><img src="'+shot(u)+'" alt="" loading="lazy" decoding="async"></span><span class="xa-nm">'+x[0]+'</span></a>'};
  const box=document.createElement('div');box.className='xa-slide';box.id='xaSlide';box.setAttribute('aria-label','Các website xã đã triển khai');
  const track=document.createElement('div');track.className='xa-track';box.append(track);
- const fill=()=>{XA=list();box.hidden=!XA.length;if(!XA.length){track.innerHTML='';return}const h=XA.map(card).join('');const w=Math.max(box.clientWidth,window.innerWidth||0,1),k=Math.max(1,Math.ceil(w/(XA.length*130)));track.innerHTML=h.repeat(k)+h.repeat(k);track.style.setProperty('--xa-dur',(XA.length*k*5)+'s');
+ const fill=()=>{XA=list();box.hidden=!XA.length;if(!XA.length){track.innerHTML='';return}const h=XA.map(card).join('');const w=Math.max(box.clientWidth,window.innerWidth||0,1),k=Math.max(1,Math.ceil(w/(XA.length*130)));track.innerHTML=h.repeat(k)+h.repeat(k);
   track.querySelectorAll('img').forEach(i=>{i.addEventListener('error',()=>i.remove());let n=0;const base=i.src;i.addEventListener('load',()=>{if(i.naturalWidth<200&&n<5){n++;setTimeout(()=>{i.src=base+'&r='+n},4000*n)}})});
-  track.querySelectorAll('a').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()))};
+  track.querySelectorAll('a').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()));measure()};
+ /* Chạy bằng JS: luôn tự chạy, vuốt/kéo được hai chiều, bấm vào trang vẫn không dừng */
+ let off=0,period=1,vel=0,drag=null,moved=false,last=0;const SPEED=34;
+ function measure(){const n=track.children.length/2;period=n>0&&track.children[n]?track.children[n].offsetLeft-track.children[0].offsetLeft:1;if(period<1)period=1}
+ const wrap=()=>{off=((off%period)+period)%period};
+ const paint=()=>{track.style.transform='translate3d('+(-off).toFixed(2)+'px,0,0)'};
+ function tick(t){const dt=last?Math.min(.05,(t-last)/1000):0;last=t;
+  if(!drag){off+=SPEED*dt+vel*dt;vel*=Math.pow(.05,dt);if(Math.abs(vel)<1)vel=0}
+  wrap();paint();requestAnimationFrame(tick)}
+ box.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;drag={x:e.clientX,o:off,t:performance.now(),lx:e.clientX,lt:performance.now()};moved=false;vel=0});
+ window.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x;
+  if(!moved&&Math.abs(dx)>6){moved=true;box.classList.add('drag');try{box.setPointerCapture(e.pointerId)}catch(_){}}
+  if(moved){off=drag.o-dx;const now=performance.now(),dt=(now-drag.lt)/1000;if(dt>0){vel=-(e.clientX-drag.lx)/dt;}drag.lx=e.clientX;drag.lt=now}});
+ const end=()=>{if(!drag)return;drag=null;box.classList.remove('drag');if(vel>900)vel=900;if(vel<-900)vel=-900;setTimeout(()=>{moved=false},0)};
+ window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end);
+ box.addEventListener('click',e=>{if(moved){e.preventDefault();e.stopPropagation()}},true);
+ box.addEventListener('dragstart',e=>e.preventDefault());
+ box.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){off-=130;e.preventDefault()}else if(e.key==='ArrowRight'){off+=130;e.preventDefault()}});
+ requestAnimationFrame(tick);
  strip.before(box);fill();let sig=JSON.stringify(XA.map(x=>x[1]));setInterval(()=>{const n=JSON.stringify(list().map(x=>x[1]));if(n!==sig){sig=n;fill()}},3000);let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{const k0=track.children.length;fill()},300)});
 })();
 </script>
