@@ -6320,7 +6320,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 .xa-slide::before{left:0;background:linear-gradient(90deg,#fff,rgba(255,255,255,0))}.xa-slide::after{right:0;background:linear-gradient(270deg,#fff,rgba(255,255,255,0))}
 .xa-track{display:flex;gap:12px;width:max-content;animation:xaRun var(--xa-dur,40s) linear infinite;will-change:transform}
 .xa-slide:hover .xa-track,.xa-slide:focus-within .xa-track{animation-play-state:paused}
-@keyframes xaRun{to{transform:translateX(-50%)}}
+@keyframes xaRun{from{transform:translateX(-50%)}to{transform:translateX(0)}}
 .xa-it{flex:none;width:118px;text-decoration:none;color:#14284d;border-radius:10px}
 .xa-it:focus-visible{outline:2px solid #c51620;outline-offset:2px}
 .xa-sh{position:relative;display:block;height:72px;border-radius:8px;border:1px solid #d9c3c8;overflow:hidden;background:linear-gradient(120deg,var(--c1,#7a0c22),var(--c2,#15336f));transition:transform .18s,box-shadow .18s}
