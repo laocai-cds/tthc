@@ -5350,6 +5350,24 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.periodLabel();d=
 .app .content>.heading.hero .hm-tabs button{font-size:8.5px}
 }
 </style>
+<style id="fit-view">
+/* Gọn các khối đầu trang để tổng quan vừa một khung hình màn hình máy tính */
+.xa-slide{padding:6px 0 4px;margin-top:6px}.xa-slide .xa-sh{height:50px}.xa-slide .xa-it{width:104px}.xa-slide .xa-nm{margin-top:3px}
+@media(min-width:901px){
+.app .content>.heading.hero{padding:12px 20px 12px 24px;gap:8px 14px;margin-bottom:10px}
+.app .content>.heading.hero .hv-stage{min-height:188px}
+.app .content>.heading.hero .hv{padding:8px 11px;gap:5px}
+.app .content>.heading.hero>.hero-live.hm-on{padding:8px 11px;gap:4px}
+.app .content>.heading.hero .hm-row{grid-template-columns:minmax(110px,140px) minmax(0,1fr)}
+.app .content>.heading.hero .hm-side{gap:4px}
+}
+@media(min-width:901px) and (max-height:820px){
+.app .content>.heading.hero>.leaderboard-pair{gap:8px}
+.ad-strip{margin-top:6px;padding-top:5px;padding-bottom:5px}
+.app .content>.heading.hero>.leaderboard-pair>#leaderboard,.app .content>.heading.hero>.leaderboard-pair>#top3Dues,.app .content>.heading.hero>.leaderboard-pair>#top3Money{height:232px;min-height:232px;max-height:232px;padding-top:8px;padding-bottom:8px}
+.app .content>.heading.hero>.leaderboard-pair .lb-item,.app .content>.heading.hero>.leaderboard-pair .top3-dues-item{min-height:0;padding-top:3px;padding-bottom:3px}
+}
+</style>
 <style id="sidebar-btn-colors">
 /* Mỗi nút cuối thanh menu một màu: AI (đỏ) · Hỏi–đáp (vàng) · Tài liệu (xanh lá) · Hướng dẫn (xanh dương) */
 .sidebar .docs-link:not(.qa-link){border:1px solid rgba(140,235,190,.45)!important;background:radial-gradient(120% 160% at 0% 0%,rgba(170,255,210,.3),transparent 55%),linear-gradient(115deg,#05644c,#0e9f74 58%,#2fc28d)!important;box-shadow:0 8px 20px rgba(14,159,116,.32),inset 0 1px 0 rgba(255,255,255,.22)!important}
