@@ -1,9 +1,8 @@
-Lấy được 21/23 bài
+Lấy được 11/13 bài
 == THỐNG KÊ THEO BÁO ==
-   19  baolaocai.vn  có ảnh
-    1  tienphong.vn  có ảnh
+   10  baolaocai.vn  có ảnh
     1  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    1  baovephapluat.vn  có ảnh
+    1  tienphong.vn  có ảnh
     1  www.laocai.gov.vn  lỗi <urlopen error [Errno 101] Network is unreachable>
 == MẪU THẺ META (mỗi báo một mẫu) ==
 == VÍ DỤ LỖI ==
