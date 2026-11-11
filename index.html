@@ -6434,9 +6434,9 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
 </style>
 <script id="xa-slide-script">
 (()=>{const strip=document.getElementById('adStrip');if(!strip||document.getElementById('xaSlide'))return;
- /* Chỉ hiển thị 8 site chạy trên Cloudflare Pages (*.pages.dev). Thêm xã mới: thêm 1 dòng [tên, tên-miền-con] vào SITES */
+ /* Chỉ hiển thị các site chạy trên Cloudflare Pages (*.pages.dev). Thêm xã mới: thêm 1 dòng [tên, tên-miền-con] vào SITES */
  const PAL=[['#2f3a8f','#6a5fc1'],['#b3261e','#e0703a'],['#1565c0','#42a5f5'],['#0f7b5f','#4cc29a'],['#a5121f','#e2574c'],['#8a5a00','#e0a82e'],['#5b2a86','#a56bd6'],['#0b6e8a','#4fb8d4']];
- const SITES=[['Phúc Khánh','phuckhanh'],['Nghĩa Đô','nghiado'],['Lương Thịnh','luongthinh'],['Võ Lao','xavolao'],['Si Ma Cai','xasimacai'],['Trạm Tấu','tramtau'],['Phình Hồ','phinhho'],['Văn Bàn','vanban']];
+ const SITES=[['Phúc Khánh','phuckhanh'],['Nghĩa Đô','nghiado'],['Lương Thịnh','luongthinh'],['Võ Lao','xavolao'],['Si Ma Cai','xasimacai'],['Trạm Tấu','tramtau'],['Phình Hồ','phinhho'],['Văn Bàn','vanban'],['Xuân Hòa','xuanhoa']];
  const list=()=>SITES.map((x,i)=>[x[0],'https://'+x[1]+'.pages.dev/',PAL[i%PAL.length][0],PAL[i%PAL.length][1]]);
  let XA=[];
  /* Ảnh chụp trang chủ thật của xã, kèm ?shot=1 để trang xã ẩn dải thông báo; dịch vụ WordPress mShots, ảnh đầu có thể chậm vài giây */
