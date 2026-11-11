@@ -6339,7 +6339,7 @@ document.addEventListener('keydown',function(e){const o=ov();if(e.key==='Escape'
  const list=()=>SITES.map((x,i)=>[x[0],'https://'+x[1]+'.pages.dev/',PAL[i%PAL.length][0],PAL[i%PAL.length][1]]);
  let XA=[];
  /* Ảnh chụp trang chủ thật của xã, kèm ?shot=1 để trang xã ẩn dải thông báo; dịch vụ WordPress mShots, ảnh đầu có thể chậm vài giây */
- const shot=u=>'https://s0.wp.com/mshots/v1/'+encodeURIComponent(u+'?shot=1')+'?w=360&h=225';
+ const shot=u=>'https://s0.wp.com/mshots/v1/'+encodeURIComponent(u+'?shot=1&v=2')+'?w=360&h=225';
  const card=x=>{const u=x[1];return '<a class="xa-it" href="'+u+'" target="_blank" rel="noopener noreferrer" title="Xem thử website xã '+x[0]+'" style="--c1:'+x[2]+';--c2:'+x[3]+'"><span class="xa-sh"><b>'+x[0]+'</b><small>'+new URL(u).hostname+'</small><img src="'+shot(u)+'" alt="" loading="lazy" decoding="async"></span><span class="xa-nm">'+x[0]+'</span></a>'};
  const box=document.createElement('div');box.className='xa-slide';box.id='xaSlide';box.setAttribute('aria-label','Các website xã đã triển khai');
  const track=document.createElement('div');track.className='xa-track';box.append(track);
