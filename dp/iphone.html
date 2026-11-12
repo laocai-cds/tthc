@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ĐP trên iPhone (Safari)</title>
+<meta name="theme-color" content="#0f3a6e">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--navy:#0f3a6e;--org:#e07b00;--ok:#0f8a3c;--bg:#f3f5f9;--line:#d7dce5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#1b2433;font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:env(safe-area-inset-bottom)}
+header{background:var(--navy);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 14px}
+header h1{font-size:18px;margin:0}header small{opacity:.85}
+main{padding:14px;max-width:560px;margin:0 auto}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+h2{font-size:15px;margin:0 0 8px;color:var(--navy)}
+ol{margin:0;padding-left:20px}li{margin:4px 0}
+label.sw{display:flex;gap:8px;align-items:flex-start;font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{border:0;border-radius:10px;padding:12px 8px;font:700 14px system-ui,sans-serif;background:var(--org);color:#fff;cursor:pointer}
+button:active{filter:brightness(.9)}
+#msg{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));background:#0b2b52;color:#fff;border-radius:12px;padding:10px 12px;font-size:14px;margin-top:12px;display:none}
+small.n{color:#5a667a}
+</style>
+</head>
+<body>
+<header><h1>ĐP trên iPhone (Safari)</h1><small>Không cần cài app</small></header>
+<main>
+<div class="card"><h2>Cách làm (mỗi xã làm 1 lần)</h2>
+<ol>
+<li>Dùng <b>Safari</b>. Bấm nút xã bên dưới để <b>chép dấu trang</b>.</li>
+<li>Bấm nút <b>Chia sẻ</b> (hình ô vuông có mũi tên) → <b>Thêm dấu trang</b> → đặt tên, ví dụ <i>ĐP Dền Sáng</i> → Lưu.</li>
+<li>Mở lại mục <b>Dấu trang</b> (hình quyển sách) → bấm <b>Sửa</b> → chạm vào dấu trang vừa tạo → xóa ô địa chỉ rồi <b>dán</b> (giữ ngón tay vào ô → Dán) → Xong.</li>
+<li>Vào <b>gqtthc.dcs.vn</b>, đăng nhập. Bấm quyển sách → chọn dấu trang <i>ĐP …</i>. Lần đầu máy hỏi mã đồng bộ, nhập một lần.</li>
+</ol></div>
+<div class="card"><label class="sw"><input type="checkbox" id="chung" checked> <span>Dùng <b>Mã chung</b> (gửi qua DP-CHUNG). Khi máy hỏi mã, nhập Mã chung. Bỏ tích nếu muốn dùng mã riêng của từng xã.</span></label></div>
+<div class="card"><h2>Chọn xã để chép dấu trang</h2><div class="grid" id="list"></div></div>
+<div class="card"><small class="n">Nếu dán dấu trang không chạy: Cài đặt → Safari → bật “Chặn cửa sổ bật lên” thì tắt; thử lại. Chrome iPhone không dùng được cách này, hãy dùng Safari.</small></div>
+<div id="msg"></div>
+</main>
+<script src="iphone-data.js"></script>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  function say(t){var m=$('msg');m.textContent=t;m.style.display='block'}
+  function build(x){
+    var arg=x.arg;
+    if(arg&&typeof arg==='object'&&$('chung').checked&&window.DPCHUNG){arg=Object.assign({},arg,{chung:window.DPCHUNG})}
+    var js='(()=>{'+x.code+'\n('+x.fn+')('+JSON.stringify(arg)+')})();void 0';
+    return 'javascript:'+encodeURIComponent(js);
+  }
+  function copy(t,ok){
+    var done=function(){say(ok)};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,fb)}else fb();
+    function fb(){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,t.length);
+      try{document.execCommand('copy')?done():say('Không chép được. Thử lại.')}catch(e){say('Không chép được. Thử lại.')}ta.remove()}
+  }
+  (window.DPXA||[]).forEach(function(x){
+    var b=document.createElement('button');b.textContent=x.label;
+    b.onclick=function(){var s=build(x);copy(s,'✅ Đã chép dấu trang "'+x.label+'" ('+Math.round(s.length/1024)+' KB). Giờ bấm Chia sẻ → Thêm dấu trang, rồi sửa địa chỉ và dán.')};
+    $('list').appendChild(b);
+  });
+})();
+</script>
+</body>
+</html>
