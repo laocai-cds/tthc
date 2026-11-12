@@ -654,17 +654,17 @@ function rptDuesText(d){return[
  `Theo số liệu đồng bộ từ hệ thống quản lý đảng phí, ${fmt(d.units)} đảng bộ, chi bộ trực thuộc có tổng số ${fmt(d.t)} đảng viên; số đảng viên thuộc diện phải nộp đảng phí [(2)+(3)−(4)−(5)] là ${fmt(d.need)} đồng chí. Đến nay có ${fmt(d.dn)} đảng viên đã được duyệt hồ sơ và đã nộp đảng phí trên môi trường điện tử, đạt ${rptPctD(d.rate)}; tổng số tiền đã nộp ${fmt(d.nop)} đồng/${fmt(d.kb)} đồng theo hồ sơ đã khai báo; còn ${fmt(d.chua)} đảng viên chưa có hồ sơ.`,
  `Phân theo tỷ lệ đảng viên đã nộp: ${fmt(rptCountHonor(d))} đơn vị đạt từ 95% trở lên; ${fmt(d.good.length)} đơn vị từ 80% đến dưới 95%; ${fmt(d.mid.length)} đơn vị từ 50% đến dưới 80%; ${fmt(d.low.length)} đơn vị từ 20% đến dưới 50%; ${fmt(d.weak.length)} đơn vị dưới 20% và ${fmt(d.zero.length)} đơn vị chưa có đảng viên nộp đảng phí.`]}
 function rptDuesFirst(d){ /* đơn vị hoàn thành 100% đầu tiên trong tháng của báo cáo; '' nếu không có dữ liệu để nói */
- const L=window.__firstDone,mm=/(\d+)\/(\d{4})/.exec(d.month||'');if(!mm||!Array.isArray(L))return'';
+ const L=window.__firstDone,mm=/(\d{1,2})\D+(\d{4})/.exec(d.month||'');if(!mm||!Array.isArray(L))return'';
  const key=mm[2]+'-'+String(mm[1]).padStart(2,'0'),now=new Date(),cur=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
  const ts=w=>{const x=/(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)/.exec(w);return x?new Date(+x[3],+x[2]-1,+x[1],+x[4],+x[5]).getTime():0};
  const rows=L.filter(x=>x.month===key).sort((a,b)=>ts(a.when)-ts(b.when));
  if(!rows.length)return key===cur?`Hoàn thành đảng phí đầu tiên trong ${d.month}: đến nay chưa có đơn vị nào có 100% đảng viên phải nộp đã nộp đảng phí.`:'';
- const f=rows.filter(x=>x.when===rows[0].when),w=rows[0].when.replace(/:\d+$/,'');
+ const f=[rows[0]],w=rows[0].when.replace(/:\d+$/,'');
  return `Hoàn thành đảng phí đầu tiên trong ${d.month}: ${f.map(x=>x.unit).join('; ')}, đạt 100% đảng viên phải nộp đã nộp đảng phí (ghi nhận lúc ${w}). Đến nay có ${fmt(rows.length)} đơn vị đạt 100%.`}
 function rptDuesFirstVal(d){ /* nội dung sau nhãn "Đơn vị hoàn thành 100% đầu tiên:"; luôn có chữ (dự phòng bằng số liệu bảng khi chưa đọc được nhật ký) */
  const fd=rptDuesFirst(d).replace(/^Hoàn thành đảng phí đầu tiên trong [^:]*: /,'');if(fd)return fd;
  const f=(d.rows||[]).filter(x=>x.r>=.9999);
- return f.length?`${f.map(x=>x.name).join('; ')}, đạt 100% đảng viên phải nộp đã nộp đảng phí (chưa có mốc thời gian ghi nhận).`:'đến nay chưa có đơn vị nào đạt 100% đảng viên phải nộp đã nộp đảng phí.'}
+ return f.length?`${f[0].name}, đạt 100% đảng viên phải nộp đã nộp đảng phí (chưa có mốc thời gian ghi nhận).`:'đến nay chưa có đơn vị nào đạt 100% đảng viên phải nộp đã nộp đảng phí.'}
 function rptCountHonor(d){return d.rows.filter(x=>x.r>=RPT_HONOR).length}
 function rptDuesPraise(d){const top=d.honor.map(x=>x.name+' ('+rptPctD(x.r)+')').join('; ');
  return `Biểu dương ${fmt(d.honor.length)} đơn vị có tỷ lệ đảng viên đã nộp đảng phí trên môi trường điện tử ${d.honorNote}: ${top}. Đây là những đơn vị đã chủ động chỉ đạo, hướng dẫn đảng viên kê khai, duyệt hồ sơ và nộp đảng phí kịp thời, cần được nhân rộng.`}
@@ -2002,9 +2002,9 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const k=month(),L=rows.filter(x=>x.month===k).sort((a,b)=>ts(a.when)-ts(b.when));
   if(!L.length){
    /* Tab ghi nhận chưa có dòng (Apps Script chưa ghi được): tự tính từ số liệu tháng — đã nộp ≥ phải nộp > 0 */
-   if(fb.length){box.className='t3f';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+fb.slice(0,3).map(x=>'<em class="fu">'+esc(x)+'</em>').join('; ')+(fb.length>3?' …':'')+'<small>'+fb.length+' đơn vị đạt 100%</small></span>';return}
+   if(fb.length){box.className='t3f';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+fb.slice(0,1).map(x=>'<em class="fu">'+esc(x)+'</em>').join('')+'<small>'+fb.length+' đơn vị đạt 100%</small></span>';return}
    box.className='t3f none';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> chưa có đơn vị</span>';return}
-  const first=L.filter(x=>x.when===L[0].when),t=ts(L[0].when),d=t?new Date(t):null,
+  const first=[L[0]],t=ts(L[0].when),d=t?new Date(t):null,
    at=d?String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' ngày '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'):'';
   box.className='t3f';
   box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+first.map(x=>'<em class="fu">'+esc(x.unit)+'</em>').join('; ')+'<small>'+(at?at+' · ':'')+L.length+' đơn vị đạt 100%</small></span>';
