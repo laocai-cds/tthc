@@ -3063,6 +3063,7 @@ body.dp-lock{overflow:hidden}
        <li>Mở <b>gqtthc.dcs.vn</b> (đã đăng nhập) rồi bấm dấu trang đó.</li>
        <li>Nhập <b>mật khẩu đồng bộ</b> ở lần đầu (máy nhớ lại cho lần sau). Dữ liệu 104 đơn vị tháng hiện tại được lấy qua API và ghi lên Google Sheet.</li>
       </ol>
+      <div style="margin-top:10px;padding:9px 12px;border-radius:10px;background:#eef3fb;font-size:13px;line-height:1.55">💻 <b>Phần mềm DP-DangPhi (Windows)</b>: có sẵn nút <b>ĐP Tỉnh Lào Cai</b> và các nút ĐP của từng xã, chạy nhiều đơn vị một lúc, tự động theo giờ. <a href="https://github.com/laocai-cds/dp-app/releases/latest/download/DP-DangPhi-Setup.exe" target="_blank" rel="noopener" style="font-weight:700">⬇ Tải file cài (Setup.exe)</a> · <a href="https://github.com/laocai-cds/dp-app/releases/latest" target="_blank" rel="noopener">Các bản phát hành</a></div>
      </details>
      <div class="dp-cfg dp-hidden" id="dpCfg">
       <div class="dp-field" style="margin-bottom:8px"><label for="dpApi">① Apps Script — nhập file Excel (URL …/exec)</label>
@@ -3570,7 +3571,7 @@ body.dp-lock{overflow:hidden}
       const T0 = performance.now();
       let curMsg = '', curBad = false, curOk = false, tick = null, dead = false; const acs = new Set();
       const f1 = ms => (ms / 1000).toFixed(1).replace('.', ',') + 's';
-      const paint = () => { if (dead) return; box.textContent = curMsg + (tick ? '   ⏱ ' + f1(performance.now() - T0) : ''); box.style.background = curBad ? '#a50d26' : curOk ? '#0f8a3c' : '#12315f'; const xb=document.createElement('span');xb.textContent='✕';xb.title='Tắt / hủy lấy số liệu';xb.style.cssText='position:absolute;top:3px;right:9px;cursor:pointer;font-size:17px;line-height:1;opacity:.85';xb.onclick=e=>{e.stopPropagation();dead=true;if(tick){clearInterval(tick);tick=null}acs.forEach(a=>{try{a.abort()}catch(_){}});box.remove()};box.style.paddingRight='34px';box.appendChild(xb); if (!box.parentNode) document.body.appendChild(box); };
+      const paint = () => { if (dead) return; box.textContent = curMsg + (tick ? '   ⏱ ' + f1(performance.now() - T0) : ''); box.style.background = curBad ? '#a50d26' : curOk ? '#0f8a3c' : '#12315f'; if (!box.parentNode) document.body.appendChild(box); };
       /* run=true: đồng hồ giây chạy liên tục; run=false: dừng đồng hồ và hiện kết quả */
       const say = (m, bad, run, good) => { curMsg = m; curBad = !!bad; curOk = !!good; if (run) { if (!tick) tick = setInterval(paint, 100); } else if (tick) { clearInterval(tick); tick = null; } paint(); };
       try {
@@ -3605,6 +3606,9 @@ body.dp-lock{overflow:hidden}
         const tA = performance.now();
         const d = new Date(), p2 = n => String(n).padStart(2, '0'), mm = p2(SM), yy = cy;
         const body = { kyNopStart: '01/' + mm + '/' + yy, kyNopEnd: new Date(yy, SM, 0).getDate() + '/' + mm + '/' + yy, parentId: 2122408, hasChildren: true, page: 1, size: 500 };
+        /* Sổ S02 chạy SONG SONG với API chính (trước đây chạy nối tiếp sau, cộng thêm thời gian chờ) */
+        const s02P = fetch('https://gateway-gqtthc.dcs.vn/report/s02/danh-sach', { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ page: 1, size: 500, donViId: null, fromDate: body.kyNopStart, toDate: body.kyNopEnd }) }).then(r2 => { if (!r2.ok) throw new Error('HTTP ' + r2.status); return r2.json(); });
+        s02P.catch(() => {});
         let r = null;
         for (let at = 1; at <= 3 && !r; at++) { /* chờ tối đa 90 giây mỗi lần; chậm hoặc lỗi máy chủ thì tự thử lại 1 lần */
           if (dead) throw new Error('Đã hủy'); const ac = new AbortController(); acs.add(ac); const to = setTimeout(() => ac.abort(), 90000);
@@ -3629,9 +3633,7 @@ body.dp-lock{overflow:hidden}
         let s02Msg = '';
         try {
           say('Đang lấy sổ S02 (nộp cấp trên)…', false, true);
-          const r2 = await fetch('https://gateway-gqtthc.dcs.vn/report/s02/danh-sach', { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ page: 1, size: 500, donViId: null, fromDate: body.kyNopStart, toDate: body.kyNopEnd }) });
-          if (!r2.ok) throw new Error('HTTP ' + r2.status);
-          const j2 = await r2.json(), l2 = j2.data || [];
+          const j2 = await s02P, l2 = j2.data || [];
           const nm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
           const kr = o => num(o && o.kyBaoCao), mp = new Map(l2.map(x => [nm(x.tenToChucDang), x]));
           let hit = 0;
