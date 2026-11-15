@@ -7366,4 +7366,9 @@ html.calm #proceduresNav::before{animation:none!important}
 @media(min-width:761px){html body .app .sidebar .sidebar-collapse-toggle{display:none!important}}
 </style>
 <script id="sidebar-always-open">(function(){const sb=document.querySelector('.sidebar');if(!sb)return;const mq=matchMedia('(min-width:761px)');const fix=()=>{if(mq.matches&&sb.classList.contains('is-collapsed'))sb.classList.remove('is-collapsed')};fix();new MutationObserver(fix).observe(sb,{attributes:true,attributeFilter:['class']});mq.addEventListener&&mq.addEventListener('change',fix)})();</script>
+<style id="four-corner-ornaments">
+html body::before,html body::after,html body .app::before,html body .app::after{content:"";position:fixed;z-index:3;pointer-events:none;width:68px;height:68px;opacity:.52;background-repeat:no-repeat;background-size:contain;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%23d6a247' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 97h51M3 97V48'/%3E%3Cpath d='M7 88c13 0 21-7 21-17 0-7-8-10-12-5-3 4 1 8 5 6 5-3 2-9-3-8-10 2-11 15-2 20 11 6 24-1 27-14 2-9-7-13-13-7-4 5 1 10 6 8 4-2 3-8-2-7'/%3E%3Cpath d='M10 94c8-13 18-18 31-17-6 12-17 18-31 17zM8 86c-3-12-1-22 7-29 5 10 2 20-7 29zM19 95c10-8 22-10 34-6-9 9-21 11-34 6z'/%3E%3Crect x='1' y='93' width='5' height='5'/><circle cx='3' cy='38' r='1.4'/><circle cx='3' cy='31' r='1.4'/></g></svg>")}
+html body::before{top:4px;left:4px;transform:scaleY(-1)}html body::after{top:4px;right:4px;transform:scale(-1,-1)}html body .app::before{bottom:4px;left:4px}html body .app::after{bottom:4px;right:4px;transform:scaleX(-1)}
+@media(max-width:760px){html body::before,html body::after,html body .app::before,html body .app::after{width:54px;height:54px}html body .app::before,html body .app::after{bottom:calc(72px + env(safe-area-inset-bottom))}}
+</style>
 </body></html>
