@@ -660,7 +660,7 @@ function rptDuesFirst(d){ /* đơn vị hoàn thành 100% đầu tiên trong th�
  const rows=L.filter(x=>x.month===key).sort((a,b)=>ts(a.when)-ts(b.when));
  if(!rows.length)return key===cur?`Hoàn thành đảng phí đầu tiên trong ${d.month}: đến nay chưa có đơn vị nào có 100% đảng viên phải nộp đã nộp đảng phí.`:'';
  const f=[rows[0]],w=rows[0].when.replace(/:\d+$/,'');
- return `Hoàn thành đảng phí đầu tiên trong ${d.month}: ${f.map(x=>x.unit).join('; ')}, đạt 100% đảng viên phải nộp đã nộp đảng phí (ghi nhận lúc ${w}). Đến nay có ${fmt(rows.length)} đơn vị đạt 100%.`}
+ return `Hoàn thành đảng phí đầu tiên trong ${d.month}: ${f.map(x=>x.unit).join('; ')}, đạt 100% đảng viên phải nộp đã nộp đảng phí (ghi nhận lúc ${w}).`}
 function rptDuesFirstVal(d){ /* nội dung sau nhãn "Đơn vị hoàn thành 100% đầu tiên:"; luôn có chữ (dự phòng bằng số liệu bảng khi chưa đọc được nhật ký) */
  const fd=rptDuesFirst(d).replace(/^Hoàn thành đảng phí đầu tiên trong [^:]*: /,'');if(fd)return fd;
  const f=(d.rows||[]).filter(x=>x.r>=.9999);
