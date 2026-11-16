@@ -402,7 +402,7 @@ function startLiveSine(){const canvas=document.getElementById('liveSine');if(!ca
 window.__procFirst=window.__procFirst||{};
 function pfKey(u){return String(u).trim().replace(/[.#$\[\]\/]/g,'_')}
 function pfAt(t){const d=new Date(t),z=n=>String(n).padStart(2,'0');return z(d.getHours())+':'+z(d.getMinutes())+' ngày '+z(d.getDate())+'/'+z(d.getMonth()+1)}
-function first100HTML(done){const l=done||[];if(!l.length)return `<div class="lb-first none"><i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> chưa có đơn vị</span></div>`;const P=window.__procFirst||{},rec=l.map(u=>({u,t:Number((P[pfKey(u.unit)]||{}).t)||0})).filter(x=>x.t).sort((a,b)=>a.t-b.t),f=rec.length?rec[0]:{u:l[0],t:0};return `<div class="lb-first"><i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> <em class="fu">${esc(f.u.unit)}</em>${f.t?'<small>'+pfAt(f.t)+'</small>':''}</span></div>`}
+function first100HTML(done){const l=done||[];if(!l.length)return `<div class="lb-first none"><i>🥇</i><span><b>HT 100% đầu tiên:</b> chưa có đơn vị</span></div>`;const P=window.__procFirst||{},rec=l.map(u=>({u,t:Number((P[pfKey(u.unit)]||{}).t)||0})).filter(x=>x.t).sort((a,b)=>a.t-b.t),f=rec.length?rec[0]:{u:l[0],t:0};return `<div class="lb-first"><i>🥇</i><span><b>HT 100% đầu tiên:</b> <em class="fu">${esc(f.u.unit)}</em>${f.t?'<small>'+pfAt(f.t)+'</small>':''}</span></div>`}
 let __pfBusy=false;
 async function procFirstDone(done){if(__pfBusy||!done||!done.length)return;__pfBusy=true;try{if(!window.firebase||!firebase.database)return;if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);const ref=firebase.database().ref('firstDone100/procedures'),cur=(await ref.once('value')).val()||{};let changed=false;for(const u of done){const k=pfKey(u.unit);if(cur[k])continue;try{const r=await ref.child(k).transaction(v=>v||{unit:u.unit,t:Date.now()});if(r.snapshot.val()){cur[k]=r.snapshot.val();changed=true}}catch(e){}}window.__procFirst=cur;if(changed||Object.keys(cur).length){const el=document.querySelector('#leaderboard .lb-first');if(el)el.outerHTML=first100HTML(done)}}catch(e){}finally{__pfBusy=false}}
 function leaderboardHTML(leaders,fullDone){
@@ -2008,12 +2008,12 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const k=month(),L=rows.filter(x=>x.month===k).sort((a,b)=>ts(a.when)-ts(b.when));
   if(!L.length){
    /* Tab ghi nhận chưa có dòng (Apps Script chưa ghi được): tự tính từ số liệu tháng — đã nộp ≥ phải nộp > 0 */
-   if(fb.length){box.className='t3f';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+fb.slice(0,1).map(x=>'<em class="fu">'+esc(x)+'</em>').join('')+'</span>';return}
-   box.className='t3f none';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> chưa có đơn vị</span>';return}
+   if(fb.length){box.className='t3f';box.innerHTML='<i>🥇</i><span><b>HT 100% đầu tiên:</b> '+fb.slice(0,1).map(x=>'<em class="fu">'+esc(x)+'</em>').join('')+'</span>';return}
+   box.className='t3f none';box.innerHTML='<i>🥇</i><span><b>HT 100% đầu tiên:</b> chưa có đơn vị</span>';return}
   const first=[L[0]],t=ts(L[0].when),d=t?new Date(t):null,
    at=d?String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' ngày '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'):'';
   box.className='t3f';
-  box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+first.map(x=>'<em class="fu">'+esc(x.unit)+'</em>').join('; ')+''+(at?'<small>'+at+'</small>':'')+'</span>';
+  box.innerHTML='<i>🥇</i><span><b>HT 100% đầu tiên:</b> '+first.map(x=>'<em class="fu">'+esc(x.unit)+'</em>').join('; ')+''+(at?'<small>'+at+'</small>':'')+'</span>';
  }
  let cache=null,busy=false,fb=[],busyFb=false;
  const num=c=>{if(!c)return 0;if(typeof c.v==='number')return c.v;const n=parseFloat(String(c.f!=null?c.f:c.v!=null?c.v:'').trim().replace(/\./g,'').replace(',','.'));return Number.isFinite(n)?n:0};
