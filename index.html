@@ -2002,12 +2002,12 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   const k=month(),L=rows.filter(x=>x.month===k).sort((a,b)=>ts(a.when)-ts(b.when));
   if(!L.length){
    /* Tab ghi nhận chưa có dòng (Apps Script chưa ghi được): tự tính từ số liệu tháng — đã nộp ≥ phải nộp > 0 */
-   if(fb.length){box.className='t3f';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+fb.slice(0,1).map(x=>'<em class="fu">'+esc(x)+'</em>').join('')+'<small>'+fb.length+' đơn vị đạt 100%</small></span>';return}
+   if(fb.length){box.className='t3f';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+fb.slice(0,1).map(x=>'<em class="fu">'+esc(x)+'</em>').join('')+'</span>';return}
    box.className='t3f none';box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> chưa có đơn vị</span>';return}
   const first=[L[0]],t=ts(L[0].when),d=t?new Date(t):null,
    at=d?String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' ngày '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'):'';
   box.className='t3f';
-  box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+first.map(x=>'<em class="fu">'+esc(x.unit)+'</em>').join('; ')+'<small>'+(at?at+' · ':'')+L.length+' đơn vị đạt 100%</small></span>';
+  box.innerHTML='<i>🥇</i><span><b>Hoàn thành 100% đầu tiên:</b> '+first.map(x=>'<em class="fu">'+esc(x.unit)+'</em>').join('; ')+''+(at?'<small>'+at+'</small>':'')+'</span>';
  }
  let cache=null,busy=false,fb=[],busyFb=false;
  const num=c=>{if(!c)return 0;if(typeof c.v==='number')return c.v;const n=parseFloat(String(c.f!=null?c.f:c.v!=null?c.v:'').trim().replace(/\./g,'').replace(',','.'));return Number.isFinite(n)?n:0};
