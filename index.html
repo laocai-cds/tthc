@@ -7377,5 +7377,16 @@ html body::before,html body::after,html body .app::before,html body .app::after{
 html body::before{top:4px;left:4px;transform:scaleY(-1)}html body::after{top:4px;right:4px;transform:scale(-1,-1)}html body .app::before{bottom:4px;left:4px}html body .app::after{bottom:4px;right:4px;transform:scaleX(-1)}
 @media(max-width:760px){html body::before,html body::after,html body .app::before,html body .app::after{width:54px;height:54px}html body .app::before,html body .app::after{bottom:calc(72px + env(safe-area-inset-bottom))}}
 </style>
+<style id="top3-equal">
+/* 3 bảng Top 03 cao bằng nhau (theo bảng cao nhất), "Hoàn thành 100% đầu tiên" nằm trên 1 hàng */
+.heading.hero>.leaderboard-pair{align-items:stretch}
+.app .content>.heading.hero>.leaderboard-pair>#leaderboard,.app .content>.heading.hero>.leaderboard-pair>#top3Dues,.app .content>.heading.hero>.leaderboard-pair>#top3Money,
+.heading.hero>.leaderboard-pair>#leaderboard,.heading.hero>.leaderboard-pair>#top3Dues,.heading.hero>.leaderboard-pair>#top3Money{height:auto!important;min-height:0!important;max-height:none!important;box-sizing:border-box;align-self:stretch}
+.heading.hero>.leaderboard-pair>#leaderboard,.heading.hero>.leaderboard-pair>#top3Dues{overflow:visible!important}
+.heading.hero>.leaderboard-pair>#top3Money{overflow:hidden!important}
+.heading.hero>.leaderboard-pair .lb-first,.heading.hero>.leaderboard-pair #top3Dues .t3f{font-size:10px;padding:4px 6px;gap:5px}.heading.hero>.leaderboard-pair .lb-first i,.heading.hero>.leaderboard-pair #top3Dues .t3f i{font-size:14px}
+.heading.hero>.leaderboard-pair .lb-first>span,.heading.hero>.leaderboard-pair #top3Dues .t3f>span{display:block;flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.heading.hero>.leaderboard-pair .lb-first small,.heading.hero>.leaderboard-pair #top3Dues .t3f small{display:block;overflow:hidden;text-overflow:ellipsis}
+</style>
 <style id="four-corner-ornaments-layer">html body::before,html body::after,html body .app::before,html body .app::after{z-index:6}</style>
 </body></html>
