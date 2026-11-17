@@ -72,6 +72,7 @@ ALLOWED_NAMES = {
     "báo biên phòng", "báo điện tử chính phủ", "báo điện tử vov", "vov.vn", "báo văn hóa", "báo văn hoá",
     "báo thể thao & văn hóa", "báo điện tử tiếng nói việt nam", "báo thanh tra", "báo công lý",
     "báo tài nguyên và môi trường", "báo ảnh việt nam",
+    "cổng thông tin điện tử xã xuân quang - lào cai",
 }
 
 # Nguồn tuỳ chọn: tự dò RSS từ trang chủ, KHÔNG tính vào số nguồn lỗi (partial) nếu không lấy được.
@@ -381,6 +382,100 @@ def fetch_blc_sections(known_pub):
     items = [i for i in items if i["published"]]
     print(f"  + Chuyên mục xã/phường (Báo Lào Cai): {len(items)} bài từ {len(targets)} chuyên mục, {failed} lỗi")
     return items, failed, len(targets)
+
+
+# ---------- Cổng thông tin điện tử riêng của xã (xã.laocai.gov.vn) ----------
+PORTALS = {"xã Xuân Quang": "https://xuanquang.laocai.gov.vn/"}
+PORTAL_MAX_NEW = 60
+PORTAL_DEBUG = os.path.join(ROOT, "news", "portal-debug.txt")
+
+
+def _portal_links(home, page):
+    """Tìm đường dẫn bài viết và trang chuyên mục tin trong HTML trang chủ."""
+    host = urllib.parse.urlparse(home).netloc
+    arts, secs, seen = [], [], set()
+    for m in re.finditer(r"<a\b[^>]*href=[\"']([^\"'#]+)[\"'][^>]*>(.*?)</a>", page, re.I | re.S):
+        href = urllib.parse.urljoin(home, html.unescape(m.group(1)).strip())
+        pu = urllib.parse.urlparse(href)
+        if pu.netloc != host or href in seen or re.search(r"\.(jpg|jpeg|png|gif|pdf|docx?|xlsx?|zip)$", pu.path, re.I):
+            continue
+        seen.add(href)
+        tag = m.group(0)
+        t = re.search(r'title=["\']([^"\']{12,})["\']', tag, re.I)
+        title = clean_text(t.group(1)) if t else clean_text(m.group(2))
+        path = pu.path.lower()
+        if re.search(r"/(tin-tuc|tin-tong-hop|tin-hoat-dong|su-kien|thong-bao|van-hoa|xa-hoi)[^/]*/?$", path) or \
+                re.search(r"/(tin-tuc|su-kien|tin-hoat-dong)[a-z0-9\-]*\.(html|htm|aspx)$", path):
+            secs.append(href)
+        elif len(title) >= 20 and (re.search(r"\d{3,}", path) or path.count("/") >= 3 or path.endswith((".html", ".htm", ".aspx"))):
+            arts.append((title, href))
+    return arts, secs
+
+
+def fetch_xa_portals(known_pub):
+    """Gom tin từ cổng thông tin điện tử của xã. Ưu tiên RSS; không có thì đọc danh sách bài ở trang chủ/chuyên mục tin.
+    Ghi nhật ký dò vào news/portal-debug.txt để kiểm tra khi cổng đổi cấu trúc."""
+    from concurrent.futures import ThreadPoolExecutor
+    log, items = [], []
+    for unit, home in PORTALS.items():
+        label = "Cổng thông tin điện tử " + unit + " - Lào Cai"
+        got = []
+        try:
+            page = http_get(home, "text/html")
+            log.append(f"[{unit}] trang chủ {len(page)} ký tự")
+            feeds = discover_feeds(home) + [urllib.parse.urljoin(home, p) for p in ("rss", "rss.xml", "feed", "rss/tin-tuc.rss", "rss/home.rss")]
+            for f in feeds:
+                try:
+                    g = parse_feed(http_get(f, "application/rss+xml,application/xml,text/xml,*/*"), label)
+                    log.append(f"  RSS {f}: {len(g)} bài")
+                    if g:
+                        got = g
+                        break
+                except Exception as e:
+                    log.append(f"  RSS {f}: lỗi {str(e)[:80]}")
+            if not got:
+                arts, secs = _portal_links(home, page)
+                log.append(f"  trang chủ: {len(arts)} bài, {len(secs)} chuyên mục tin")
+                for sec in secs[:4]:
+                    try:
+                        a2, _ = _portal_links(sec, http_get(sec, "text/html"))
+                        log.append(f"  chuyên mục {sec}: {len(a2)} bài")
+                        arts += a2
+                    except Exception as e:
+                        log.append(f"  chuyên mục {sec}: lỗi {str(e)[:80]}")
+                seen = set()
+                for title, href in arts:
+                    k = re.sub(r"[#?].*$", "", href).rstrip("/").lower()
+                    if k in seen:
+                        continue
+                    seen.add(k)
+                    got.append({"title": title, "url": href, "desc": "", "published": None, "source": label, "img": ""})
+                got = got[:PORTAL_MAX_NEW]
+        except Exception as e:
+            log.append(f"[{unit}] lỗi: {str(e)[:120]}")
+        need = []
+        for g in got:
+            k = re.sub(r"[#?].*$", "", g["url"]).rstrip("/").lower()
+            if k in known_pub:
+                g["published"] = known_pub[k]
+            elif not g.get("published") or not g.get("img"):
+                need.append(g)
+            g["source"] = label
+            g["us"] = [unit]
+        if need:
+            with ThreadPoolExecutor(max_workers=4) as ex:
+                list(ex.map(_blc_detail, need[:PORTAL_MAX_NEW]))
+        ok = [g for g in got if g.get("published")]
+        log.append(f"[{unit}] giữ {len(ok)}/{len(got)} bài có ngày đăng")
+        items += ok
+    try:
+        os.makedirs(os.path.dirname(PORTAL_DEBUG), exist_ok=True)
+        with open(PORTAL_DEBUG, "w", encoding="utf-8") as f:
+            f.write(datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") + "\n" + "\n".join(log) + "\n")
+    except Exception:
+        pass
+    print(f"  + Cổng xã: {len(items)} bài")
+    return items
 
 
 def gnews_url(q):
@@ -763,6 +858,10 @@ def main():
             print(f"  ! chuyên mục xã/phường lỗi: {e}", file=sys.stderr)
             blc, blc_failed, blc_total = [], 0, 0
         direct += blc
+        try:
+            direct += fetch_xa_portals(known_pub)
+        except Exception as e:
+            print(f"  ! cổng xã lỗi: {e}", file=sys.stderr)
         print("Gom tin qua Google News…")
         gn, g_failed, g_total = fetch_gnews()
 
