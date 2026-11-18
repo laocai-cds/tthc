@@ -69,10 +69,12 @@
       const detectFast = async mo => { try {
         say('Đang kiểm tra đường lấy số nhanh (1 lần gọi/đơn vị)…');
         const base = await retry(() => topRows(10002, mo), 5); const samp = base.filter(r => r[5] !== 0).slice(0, 6); if (samp.length < 3) { fastWhy = 'có ít hơn 3 đơn vị có đơn vị con để thử'; return false; } let informative = 0;
-        for (const r of samp) { const t = await fastRows(r[4], mo); const got = Object.keys(t).join('/') || 'không có thủ tục nào';
-          for (const pid of [10002, 10003, 10001]) { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo, pid); const v = t[pid] || [0, 0, 0];
-            if (acc[0] !== v[0] || acc[1] !== v[1] || acc[2] !== v[2]) { fastWhy = 'số theo-tthc lệch: ' + String(r[0]).replace(/^đảng bộ\s*/i, '') + ' · ' + NAMES[pid] + ' · theo-tthc ' + v.join('/') + ' ≠ cộng con ' + acc.join('/') + ' (đơn vị riêng ' + [r[1], r[2], r[3]].join('/') + ') · có: ' + got; try { console.log('[03] kiểm tra đường nhanh', { donVi: r[0], thuTuc: pid, theoTthc: v, congDonViCon: acc, rieng: [r[1], r[2], r[3]], theoTthcTraVe: t }); } catch (e) {} return false; }
-            if (pid === 10002 && (acc[0] !== r[1] || acc[1] !== r[2] || acc[2] !== r[3])) informative++; } }
+        let bad = '';
+        await Promise.all(samp.map(async r => { const t = await fastRows(r[4], mo); const got = Object.keys(t).join('/') || 'không có thủ tục nào';
+          for (const pid of [10002, 10003, 10001]) { if (bad) return; const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo, pid); const v = t[pid] || [0, 0, 0];
+            if (acc[0] !== v[0] || acc[1] !== v[1] || acc[2] !== v[2]) { bad = 'số theo-tthc lệch: ' + String(r[0]).replace(/^đảng bộ\s*/i, '') + ' · ' + NAMES[pid] + ' · theo-tthc ' + v.join('/') + ' ≠ cộng con ' + acc.join('/') + ' (đơn vị riêng ' + [r[1], r[2], r[3]].join('/') + ') · có: ' + got; try { console.log('[03] kiểm tra đường nhanh', { donVi: r[0], thuTuc: pid, theoTthc: v, congDonViCon: acc, rieng: [r[1], r[2], r[3]], theoTthcTraVe: t }); } catch (e) {} return; }
+            if (pid === 10002 && (acc[0] !== r[1] || acc[1] !== r[2] || acc[2] !== r[3])) informative++; } }));
+        if (bad) { fastWhy = bad; return false; }
         if (!informative) { fastWhy = 'chưa chứng minh được theo-tthc có cộng đơn vị con (6 đơn vị thử đều bằng số riêng)'; return false; }
         return true;
       } catch (e) { fastWhy = 'lỗi khi thử: ' + String(e && e.message || e).slice(0, 80); return false; } };
