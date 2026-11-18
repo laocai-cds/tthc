@@ -42,8 +42,13 @@
       const post = (id, uid, mo) => fetch(G3, { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ dvcId: id, coQuanId: uid, page: 0, size: 300, tuThang: mo, denThang: mo }) })
         .then(rr => { if (!rr.ok) throw new Error('HTTP ' + rr.status); return rr.json(); }).then(jj => (jj.data && jj.data.data) || []);
       const topRows = (id, mo) => post(id, 2122408, mo).then(list => { const seen = {}; const rows = list.filter(x => { const n = String(x.coQuanTen || '').trim(); if (Number(x.coQuanId) === 2122408 || !/^đảng bộ\s/i.test(n) || seen[n.toLowerCase()]) { dropped[n || '(trống)'] = 1; return false; } seen[n.toLowerCase()] = 1; return true; }).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong), x.coQuanId, x.coCapCon === false ? 0 : 1]); if (rows.length < 50) throw new Error('trả thiếu đơn vị (' + rows.length + ') tháng ' + mo); return rows; });
-      const monthTop = async (id, mo) => { const k = 'tthc03.m.' + id + '.' + mo; if (mo !== curMo && !sel.has(mo)) { const c = cget(k); if (c) return c; } const rows = await retry(() => topRows(id, mo), 7); if (mo !== curMo) cset(k, rows); return rows; };
-      let kidFail = 0, lastErr = '', kShow = null;
+      const monthTop = async (id, mo) => { const k = 'tthc03.m.' + id + '.' + mo; if (mo !== curMo && !sel.has(mo)) { const c = cget(k); if (c) return c; } let rows;
+        try { rows = await retry(() => topRows(id, mo), 7); }
+        catch (e) { if (id !== 10001) throw e;
+          /* gqtthc không trả nổi truy vấn gốc của nhận xét: lấy danh sách đơn vị từ chính thức rồi hỏi từng đơn vị một */
+          const base = await retry(() => topRows(10002, mo), 5); rows = base.map(r => [r[0], 0, 0, 0, r[4], 1]); fallbackMo[mo] = 1; }
+        if (mo !== curMo && !fallbackMo[mo]) cset(k, rows); return rows; };
+      let kidFail = 0, lastErr = '', kShow = null; const fallbackMo = {};
       const walk = async (uid, seen, acc, depth, mo) => {
         const rows = await retry(() => post(10001, uid, mo), 5);
         rows.forEach(r => { if (seen[r.coQuanId]) return; seen[r.coQuanId] = 1; acc[0] += num(r.dangXuLy); acc[1] += num(r.daTuChoi); acc[2] += num(r.daXuLyXong); });
