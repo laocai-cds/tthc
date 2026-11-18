@@ -15,7 +15,8 @@
   (async function () {
     try {
       /* Luôn hỏi mã ngay khi bấm (không lưu), nhập xong chạy một mạch đến khi hoàn thành. */
-      const code = (prompt('Đồng bộ 03 thủ tục – nhập mã truy cập chung:') || '').trim();
+      let saved = ''; try { saved = localStorage.getItem(K_03) || ''; } catch (e) {}
+      const code = (prompt('Đồng bộ 03 thủ tục – mã truy cập chung' + (saved ? ' (đã nhớ, bấm OK để dùng):' : ':'), saved) || '').trim();
       if (!code) { say('Đã hủy: chưa nhập mã truy cập.', 'bad'); setTimeout(() => box.remove(), 6000); return; }
       const tk = localStorage.getItem('token');
       if (!tk) { alert('Chưa đăng nhập gqtthc.dcs.vn.'); return; }
@@ -83,6 +84,7 @@
         if (!(ok && ok.last03 && ok.last03.syncId === sync)) { ok = null; await new Promise(r => setTimeout(r, 800)); }
       }
       if (!ok) { say('✓ Đã gửi, chưa xác nhận được. Kiểm tra Sheet "Theo dõi 03 thủ tục" (cần triển khai Apps Script bản mới).', 'bad'); setTimeout(() => box.remove(), 20000); return; }
+      try { if (ok.last03.ok !== false) localStorage.setItem(K_03, code); } catch (e) {}
       const L = ok.last03; Object.keys(L.tabs || {}).forEach(id => { const t = L.tabs[id]; if (t && t.ok === undefined) t.ok = !t.error && (t.hit || 0) > 0; if (t && t.total === undefined) t.total = (t.hit || 0) + (t.miss || 0); }); const line = id => { const t = (L.tabs || {})[id]; return t ? (t.ok ? '✅ ' + NAMES[id] + ': ' + t.hit + '/' + t.total + ' đơn vị' + (t.miss ? ' (không khớp ' + t.miss + ')' : '') : '❌ ' + NAMES[id] + ': ' + t.error) : '❔ ' + NAMES[id] + ': chưa rõ'; };
       const nOk = [10002, 10003, 10001].filter(id => (L.tabs || {})[id] && L.tabs[id].ok).length;
       const head = nOk === 3 ? '✅ HOÀN THÀNH 03 thủ tục — đã thay số cũ bằng số mới' : nOk === 0 ? '❌ THẤT BẠI — chưa cập nhật thủ tục nào' : '⚠ XONG MỘT PHẦN (' + nOk + '/3 thủ tục) — bấm lại để thử các thủ tục còn lỗi';
