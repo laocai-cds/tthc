@@ -3913,6 +3913,13 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
 .tp-sync{padding:4px 18px 0;font:600 12px "Segoe UI",Arial,sans-serif;color:#51607a}
 .tp-sync.ok{color:#0d8a62}.tp-sync.warn{color:#92620e}.tp-sync.bad{color:#b4232d}
 body .overlay{z-index:10060!important}
+.tp-t col.c-u{width:25%}.tp-t col.c-tot{width:140px}.tp-t col.c-p{width:15%}.tp-t col.c-df{width:96px}.tp-t col.c-st{width:122px}
+.tp-t{min-width:1180px}
+.tp-t tbody td{padding-top:3px;padding-bottom:3px}
+.tp-cb small{font-size:10.5px}
+.tp-dlg.cmp .tp-kpis{display:grid!important}
+.tp-dlg.cmp .tp-dist{display:none!important}
+@media(max-height:900px){.tp-t td.u small{font-size:10.5px}}
 </style>
 <div class="tp-ov" id="tpOverlay" role="dialog" aria-modal="true" aria-labelledby="tpTitle" aria-hidden="true">
  <section class="tp-dlg">
@@ -4030,7 +4037,7 @@ body .overlay{z-index:10060!important}
  /* Sự kiện */
  document.addEventListener('click',e=>{if(e.target.closest('[data-open-ranking]')){e.preventDefault();open()}});
  $('tpClose').onclick=close;
- {const dlg=ov.querySelector('.tp-dlg'),tg=$('tpTog');const setT=c=>{dlg.classList.toggle('cmp',c);tg.textContent=c?'▾ Hiện tổng quan':'▴ Thu gọn tổng quan';try{localStorage.setItem('tpCmp',c?'1':'0')}catch(e){}};let c0=false;try{c0=localStorage.getItem('tpCmp')==='1'}catch(e){}setT(c0);tg.onclick=()=>setT(!dlg.classList.contains('cmp'))}
+ {const dlg=ov.querySelector('.tp-dlg'),tg=$('tpTog');const setT=c=>{dlg.classList.toggle('cmp',c);tg.textContent=c?'▾ Hiện phân bố':'▴ Ẩn phân bố';try{localStorage.setItem('tpCmp',c?'1':'0')}catch(e){}};let c0=true;try{const v=localStorage.getItem('tpCmp');if(v!==null)c0=v==='1'}catch(e){}setT(c0);tg.onclick=()=>setT(!dlg.classList.contains('cmp'))}
  ov.addEventListener('mousedown',e=>{if(e.target===ov)close()});
  $('tpMonth').addEventListener('change',async e=>{const k=e.target.value;if(!k){st.month='';st.rates=null;refresh();return}$('tpCount').textContent='Đang tải số liệu tháng '+(+k.slice(5))+'/'+k.slice(0,4)+'…';let r=null;try{r=await window.DuesRanking.rates(k)}catch(_){}if(!r){st.month='';st.rates=null;monthOpts();refresh();try{toast('Chưa đọc được số liệu đảng phí tháng '+(+k.slice(5))+'/'+k.slice(0,4))}catch(_){}return}st.month=k;st.rates=r;refresh()});
  $('tpQ').addEventListener('input',e=>{st.q=e.target.value;render()});
