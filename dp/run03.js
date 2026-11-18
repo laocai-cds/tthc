@@ -35,12 +35,13 @@
       if (!sel.size) { alert('Không có tháng hợp lệ (' + first + '–' + cm + '). Đã hủy.'); say('Đã hủy: tháng không hợp lệ.', 'bad'); setTimeout(() => box.remove(), 6000); return; }
       const dropped = {};
       const st = { 10001: '⏳', 10002: '⏳', 10003: '⏳' };
-      const show = () => say('Đang lấy số liệu 03 thủ tục · làm mới tháng ' + [...sel].map(m => +m.slice(0, 2)).join(', ') + '\n' + [10002, 10003, 10001].map(id => { const q = String(id === 10001 && kShow && /^⏳/.test(st[id]) ? kShow() : st[id]).split('\n'); return q[0] + ' ' + NAMES[id] + (q.length > 1 ? '\n' + q.slice(1).join('\n') : ''); }).join('\n'));
+      const show = () => say('Đang lấy số liệu 03 thủ tục · làm mới tháng ' + [...sel].map(m => +m.slice(0, 2)).join(', ') + '\n' + [10002, 10003, 10001].map(id => { const q = String(kShows[id] && /^⏳/.test(st[id]) ? kShows[id]() : st[id]).split('\n'); return q[0] + ' ' + NAMES[id] + (q.length > 1 ? '\n' + q.slice(1).join('\n') : ''); }).join('\n'));
       const retry = async (fn, n) => { let le; for (let a = 0; a < n; a++) { try { return await fn(); } catch (e) { le = e; if (a < n - 1) await new Promise(r => setTimeout(r, 800 + 1500 * a * a)); } } throw le; };
       const cget = k => { try { const c = JSON.parse(localStorage.getItem(k) || 'null'); if (c && c.t && Date.now() - c.t < 864e5) return c.d; } catch (e) {} return null; };
       const cset = (k, d) => { try { localStorage.setItem(k, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {} };
-      const post = (id, uid, mo) => fetch(G3, { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ dvcId: id, coQuanId: uid, page: 0, size: 300, tuThang: mo, denThang: mo }) })
-        .then(rr => { if (!rr.ok) throw new Error('HTTP ' + rr.status); return rr.json(); }).then(jj => (jj.data && jj.data.data) || []);
+      let gAct = 0; const gQ = []; const gSlot = () => new Promise(res => { const go = () => { if (gAct < 14) { gAct++; res(); } else gQ.push(go); }; go(); }); const gFree = () => { gAct--; const n = gQ.shift(); if (n) n(); };
+      const post = (id, uid, mo) => gSlot().then(() => fetch(G3, { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ dvcId: id, coQuanId: uid, page: 0, size: 300, tuThang: mo, denThang: mo }) })
+        .then(rr => { if (!rr.ok) throw new Error('HTTP ' + rr.status); return rr.json(); }).then(jj => (jj.data && jj.data.data) || [])).finally(gFree);
       const topRows = (id, mo) => post(id, 2122408, mo).then(list => { const seen = {}; const rows = list.filter(x => { const n = String(x.coQuanTen || '').trim(); if (Number(x.coQuanId) === 2122408 || !/^đảng bộ\s/i.test(n) || seen[n.toLowerCase()]) { dropped[n || '(trống)'] = 1; return false; } seen[n.toLowerCase()] = 1; return true; }).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong), x.coQuanId, x.coCapCon === false ? 0 : 1]); if (rows.length < 50) throw new Error('trả thiếu đơn vị (' + rows.length + ') tháng ' + mo); return rows; });
       const monthTop = async (id, mo) => { const k = 'tthc03.m.' + id + '.' + mo; if (mo !== curMo && !sel.has(mo)) { const c = cget(k); if (c) return c; } let rows;
         try { rows = await retry(() => topRows(id, mo), 7); }
@@ -48,36 +49,36 @@
           /* gqtthc không trả nổi truy vấn gốc của nhận xét: lấy danh sách đơn vị từ chính thức rồi hỏi từng đơn vị một */
           const base = await retry(() => topRows(10002, mo), 5); rows = base.map(r => [r[0], 0, 0, 0, r[4], 1]); fallbackMo[mo] = 1; }
         if (mo !== curMo && !fallbackMo[mo]) cset(k, rows); return rows; };
-      let kidFail = 0, lastErr = '', kShow = null; const fallbackMo = {};
-      const walk = async (uid, seen, acc, depth, mo) => {
-        const rows = await retry(() => post(10001, uid, mo), 5);
+      const kidFail = {}, lastErr = {}, kShows = {}; const fallbackMo = {};
+      const walk = async (uid, seen, acc, depth, mo, pid) => {
+        const rows = await retry(() => post(pid, uid, mo), 5);
         rows.forEach(r => { if (seen[r.coQuanId]) return; seen[r.coQuanId] = 1; acc[0] += num(r.dangXuLy); acc[1] += num(r.daTuChoi); acc[2] += num(r.daXuLyXong); });
-        if (depth < 5) for (const r of rows) if (r.coCapCon && Number(r.coQuanId) !== Number(uid) && !seen['x' + r.coQuanId]) { seen['x' + r.coQuanId] = 1; await walk(r.coQuanId, seen, acc, depth + 1, mo); }
+        if (depth < 5) for (const r of rows) if (r.coCapCon && Number(r.coQuanId) !== Number(uid) && !seen['x' + r.coQuanId]) { seen['x' + r.coQuanId] = 1; await walk(r.coQuanId, seen, acc, depth + 1, mo, pid); }
       };
-      const kidsMonth = async (rows, mo, prog) => {
-        const k = 'tthc03.k.' + mo, memo = mo !== curMo && !sel.has(mo) ? (cget(k) || {}) : {}, added = {}, out = rows.map(r => r.slice()), failed = []; let next = 0;
+      const kidsMonth = async (rows, mo, prog, pid) => {
+        const k = pid === 10001 ? 'tthc03.k.' + mo : 'tthc03.k.' + pid + '.' + mo, memo = mo !== curMo && !sel.has(mo) ? (cget(k) || {}) : {}, added = {}, out = rows.map(r => r.slice()), failed = []; let next = 0;
         const worker = async () => { while (next < out.length) { const r = out[next++];
           if (r[5] !== 0) {
             if (memo[r[4]]) { r[1] = memo[r[4]][0]; r[2] = memo[r[4]][1]; r[3] = memo[r[4]][2]; }
-            else try { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { failed.push(r); lastErr = String(e && e.message || e).slice(0, 80); }
+            else try { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo, pid); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { failed.push(r); lastErr[pid] = String(e && e.message || e).slice(0, 80); }
           } prog(r[0]); } };
-        await Promise.all(Array.from({ length: 20 }, worker));
-        for (let pass = 0; pass < 2 && failed.length; pass++) { const again = failed.splice(0); let j = 0; await Promise.all(Array.from({ length: 3 }, async () => { while (j < again.length) { const r = again[j++]; try { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { failed.push(r); lastErr = String(e && e.message || e).slice(0, 80); } } })); }
-        kidFail += failed.length;
+        await Promise.all(Array.from({ length: 10 }, worker));
+        for (let pass = 0; pass < 2 && failed.length; pass++) { const again = failed.splice(0); let j = 0; await Promise.all(Array.from({ length: 3 }, async () => { while (j < again.length) { const r = again[j++]; try { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo, pid); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { failed.push(r); lastErr[pid] = String(e && e.message || e).slice(0, 80); } } })); }
+        kidFail[pid] = (kidFail[pid] || 0) + failed.length;
         if (mo !== curMo && Object.keys(added).length) cset(k, Object.assign(memo, added));
         return out;
       };
       const errs = {}, byMonth = { 10001: {}, 10002: {}, 10003: {} };
       const get = async id => { try {
-        let done = 0; const ks = {}; if (id === 10001) months.forEach(m => { ks[m] = { d: 0, t: 0, last: '', wait: true }; });
+        let done = 0; const ks = {}; months.forEach(m => { ks[m] = { d: 0, t: 0, last: '', wait: true }; });
         const kline = () => months.filter(m => ks[m]).map(m => '   · T' + (+m.slice(0, 2)) + ': ' + (ks[m].wait ? 'đang tải danh sách đơn vị…' : ks[m].d >= ks[m].t ? '✓ ' + ks[m].t + '/' + ks[m].t + ' đơn vị' : ks[m].d + '/' + ks[m].t + ' đơn vị' + (ks[m].last ? ' — vừa xong: ' + String(ks[m].last).replace(/^đảng bộ\s*/i, '').slice(0, 40) : ''))).join('\n');
-        if (id === 10001) kShow = () => '⏳ ' + done + '/' + months.length + ' tháng\n' + kline();
+        kShows[id] = () => '⏳ ' + done + '/' + months.length + ' tháng\n' + kline();
         await Promise.all(months.map(async mo => {
           let rows = await monthTop(id, mo);
-          if (id === 10001) { const k = ks[mo]; k.t = rows.length; k.wait = false; rows = await kidsMonth(rows, mo, nm => { k.d++; k.last = nm; st[id] = '⏳ ' + done + '/' + months.length + ' tháng\n' + kline(); }); }
-          byMonth[id][mo] = rows; done++; st[id] = id === 10001 ? '⏳ ' + done + '/' + months.length + ' tháng\n' + kline() : '⏳ (' + done + '/' + months.length + ' tháng)'; show();
+          { const k = ks[mo]; k.t = rows.length; k.wait = false; rows = await kidsMonth(rows, mo, nm => { k.d++; k.last = nm; st[id] = '⏳ ' + done + '/' + months.length + ' tháng\n' + kline(); }, id); }
+          byMonth[id][mo] = rows; done++; st[id] = '⏳ ' + done + '/' + months.length + ' tháng\n' + kline(); show();
         }));
-        if (id === 10001 && kidFail > 25) throw new Error('lấy đơn vị con lỗi ' + kidFail + ' đơn vị (' + lastErr + ')');
+        if ((kidFail[id] || 0) > 25) throw new Error('lấy đơn vị con lỗi ' + kidFail[id] + ' đơn vị (' + lastErr[id] + ')');
         st[id] = '✓'; show(); return true;
       } catch (e2) { st[id] = '✕'; errs[id] = String(e2 && e2.message || e2).slice(0, 160); show(); return null; } };
       const ti = setInterval(show, 1500);
