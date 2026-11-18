@@ -83,10 +83,10 @@
         if (!(ok && ok.last03 && ok.last03.syncId === sync)) { ok = null; await new Promise(r => setTimeout(r, 800)); }
       }
       if (!ok) { say('✓ Đã gửi, chưa xác nhận được. Kiểm tra Sheet "Theo dõi 03 thủ tục" (cần triển khai Apps Script bản mới).', 'bad'); setTimeout(() => box.remove(), 20000); return; }
-      const L = ok.last03, line = id => { const t = (L.tabs || {})[id]; return t ? (t.ok ? '✅ ' + NAMES[id] + ': ' + t.hit + '/' + t.total + ' đơn vị' + (t.miss ? ' (không khớp ' + t.miss + ')' : '') : '❌ ' + NAMES[id] + ': ' + t.error) : '❔ ' + NAMES[id] + ': chưa rõ'; };
+      const L = ok.last03; Object.keys(L.tabs || {}).forEach(id => { const t = L.tabs[id]; if (t && t.ok === undefined) t.ok = !t.error && (t.hit || 0) > 0; if (t && t.total === undefined) t.total = (t.hit || 0) + (t.miss || 0); }); const line = id => { const t = (L.tabs || {})[id]; return t ? (t.ok ? '✅ ' + NAMES[id] + ': ' + t.hit + '/' + t.total + ' đơn vị' + (t.miss ? ' (không khớp ' + t.miss + ')' : '') : '❌ ' + NAMES[id] + ': ' + t.error) : '❔ ' + NAMES[id] + ': chưa rõ'; };
       const nOk = [10002, 10003, 10001].filter(id => (L.tabs || {})[id] && L.tabs[id].ok).length;
       const head = nOk === 3 ? '✅ HOÀN THÀNH 03 thủ tục — đã thay số cũ bằng số mới' : nOk === 0 ? '❌ THẤT BẠI — chưa cập nhật thủ tục nào' : '⚠ XONG MỘT PHẦN (' + nOk + '/3 thủ tục) — bấm lại để thử các thủ tục còn lỗi';
-      say(head + '\n' + [10002, 10003, 10001].map(line).join('\n') + (Object.keys(dropped).length ? '\nĐã bỏ khỏi danh sách (không phải đơn vị): ' + Object.keys(dropped).join('; ') : '') + '\nLúc ' + L.at + ' · ' + f1(performance.now() - T0) + ' · chi tiết xem tab NHAT KY', nOk === 3 ? 'ok' : 'bad');
+      say(head + '\n' + [10002, 10003, 10001].map(line).join('\n') + (Object.keys(dropped).length ? '\nĐã bỏ ' + Object.keys(dropped).length + ' dòng không phải đơn vị (chi bộ, cơ quan tỉnh…)' : '') + '\nLúc ' + L.at + ' · ' + f1(performance.now() - T0) + ' · chi tiết xem tab NHAT KY', nOk === 3 ? 'ok' : 'bad');
       setTimeout(() => box.remove(), nOk === 3 ? 25000 : 40000);
     } catch (e) { say('✕ ' + (e && e.message || e), 'bad'); setTimeout(() => box.remove(), 20000); }
   })();
