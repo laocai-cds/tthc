@@ -152,7 +152,7 @@
     const today = ymd(new Date());
     if (per.from > today) throw new Error('Kỳ ' + per.label + ' chưa bắt đầu.');
     const live = per.to >= today, isM = per.type === 'month', pY = per.n === 1 ? per.y - 1 : per.y, pM = per.n === 1 ? 12 : per.n - 1;
-    const [h0, dues, cur, prev] = await Promise.all([readHistory(per.from, per.to).catch(e => ({ err: e })), duesForPeriod(per), isM ? loadMonth03(per.y, per.n) : null, isM ? loadMonth03(pY, pM) : null]);
+    const [h0, dues, cur, prev, prevDues] = await Promise.all([readHistory(per.from, per.to).catch(e => ({ err: e })), duesForPeriod(per), isM ? loadMonth03(per.y, per.n) : null, isM ? loadMonth03(pY, pM) : null, isM ? duesRows(pY, pM) : null]);
     if (h0.err && !cur) throw h0.err;
     const h = h0.err ? {} : h0;
     if (!live && !h.end && !cur) throw new Error('Chưa có số liệu lưu trữ cho ' + per.label + '. ' + (h.first ? 'Hệ thống bắt đầu lưu số liệu hằng ngày từ ngày ' + dmy(h.first) + '.' : 'Hệ thống chưa lưu ảnh chụp số liệu nào (chạy installDailySnapshotOnce() trong Apps Script).'));
@@ -162,7 +162,7 @@
     const [endDues, baseDues] = await Promise.all([duesAt(endDate), base ? duesAt(base.date) : null]);
     let endProcs = live || !h.end ? liveProcs(endDues) : procsFrom(h.end, endDues), baseProcs = base ? procsFrom(base, baseDues) : null;
     if (cur) {   // tháng có tab "03 THANG": hồ sơ lấy theo tab; đảng phí vẫn theo ảnh chụp đầu kỳ (nếu có)
-      const caseBase = prev ? applyMonth03(endProcs.filter(p => p.kind !== 'fee'), prev) : [], feeBase = baseProcs ? baseProcs.filter(p => p.kind === 'fee') : [];
+      const caseBase = prev ? applyMonth03(endProcs.filter(p => p.kind !== 'fee'), prev) : [], feeBase = base && prevDues ? procsFrom(base, prevDues).filter(p => p.kind === 'fee') : [];   // đảng phí: tỷ lệ thu so với tab tháng trước
       endProcs = applyMonth03(endProcs, cur); baseProcs = caseBase.concat(feeBase); if (!baseProcs.length) baseProcs = null;
     }
     return { per, live, endDate, endProcs, base, baseProcs, first: h.first || null, dues, monthTab: cur ? { y: per.y, n: per.n } : null, prevTab: cur && prev ? { y: pY, n: pM } : null };
