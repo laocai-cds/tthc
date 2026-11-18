@@ -55,17 +55,18 @@
         await Promise.all(Array.from({ length: 12 }, worker));
         return ids.map(u => acc[u]);
       };
-      const get = async id => { let rows; try { rows = await fast(id); } catch (e1) { try { rows = await split(id); } catch (e2) { throw new Error(NAMES[id] + ': ' + (e2 && e2.message || e2) + '. Bấm lại sau ít phút.'); } } st[id] = '✓'; show(); return rows; };
+      const errs = {};
+      const get = async id => { try { let rows; try { rows = await fast(id); } catch (e1) { rows = await split(id); } st[id] = '✓'; show(); return rows; } catch (e2) { st[id] = '✕'; errs[id] = String(e2 && e2.message || e2).slice(0, 160); show(); return null; } };
       const ti = setInterval(show, 1500);
       show();
       const ids = [10002, 10003, 10001];
       let got; try { got = await Promise.all(ids.map(id => get(id))); } finally { clearInterval(ti); }
-      const t03 = {}; ids.forEach((id, k) => { t03[id] = got[k].map(r => [r[0], r[1], r[2], r[3]]); });
+      const t03 = {}; ids.forEach((id, k) => { if (got[k]) t03[id] = got[k].map(r => [r[0], r[1], r[2], r[3]]); });
       let code = ''; try { code = localStorage.getItem(K_03) || ''; } catch (e) {}
       if (!code) { code = (prompt('Mã truy cập chung để ghi số liệu 03 thủ tục lên Google Sheet:') || '').trim(); if (!code) { say('Đã hủy: chưa nhập mã truy cập.', 'bad'); setTimeout(() => box.remove(), 8000); return; } }
       say('Đang ghi lên Google Sheet…');
       const sync = 's3' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-      await fetch(API03, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify({ action: 'tthc03', accessCode: code, syncId: sync, period: per + ' - ' + den, tthc03: t03 }) }) });
+      await fetch(API03, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify({ action: 'tthc03', accessCode: code, syncId: sync, period: per + ' - ' + den, tthc03: t03, errors: errs }) }) });
       let ok = null;
       for (let k = 0; k < 45 && !ok; k++) {
         ok = await new Promise(res => {
@@ -76,13 +77,15 @@
           s.src = API03 + '?action=tthc03_status&callback=' + cb + '&_=' + Date.now();
           document.head.appendChild(s);
         });
-        if (ok && ok.last03 && ok.last03.syncId === sync && ok.last03.ok === false) { try { localStorage.removeItem(K_03); } catch (e) {} throw new Error(ok.last03.error); }
+        if (ok && ok.last03 && ok.last03.syncId === sync && ok.last03.ok === false && /Mã truy cập/.test(ok.last03.error || '')) { try { localStorage.removeItem(K_03); } catch (e) {} throw new Error(ok.last03.error); }
         if (!(ok && ok.last03 && ok.last03.syncId === sync)) { ok = null; await new Promise(r => setTimeout(r, 800)); }
       }
       if (!ok) { say('✓ Đã gửi, chưa xác nhận được. Kiểm tra Sheet "Theo dõi 03 thủ tục" (cần triển khai Apps Script bản mới).', 'bad'); setTimeout(() => box.remove(), 20000); return; }
-      const h = id => (ok.last03.tabs[id] || {}).hit || 0;
-      say('✅ HOÀN THÀNH 03 thủ tục — đã thay số liệu cũ bằng số mới\nChính thức ' + h(10002) + ' · Tạm thời ' + h(10003) + ' · Nhận xét ' + h(10001) + ' đơn vị\nLúc ' + ok.last03.at + ' · ' + f1(performance.now() - T0), 'ok');
-      setTimeout(() => box.remove(), 25000);
+      const L = ok.last03, line = id => { const t = (L.tabs || {})[id]; return t ? (t.ok ? '✅ ' + NAMES[id] + ': ' + t.hit + '/' + t.total + ' đơn vị' + (t.miss ? ' (không khớp ' + t.miss + ')' : '') : '❌ ' + NAMES[id] + ': ' + t.error) : '❔ ' + NAMES[id] + ': chưa rõ'; };
+      const nOk = [10002, 10003, 10001].filter(id => (L.tabs || {})[id] && L.tabs[id].ok).length;
+      const head = nOk === 3 ? '✅ HOÀN THÀNH 03 thủ tục — đã thay số cũ bằng số mới' : nOk === 0 ? '❌ THẤT BẠI — chưa cập nhật thủ tục nào' : '⚠ XONG MỘT PHẦN (' + nOk + '/3 thủ tục) — bấm lại để thử các thủ tục còn lỗi';
+      say(head + '\n' + [10002, 10003, 10001].map(line).join('\n') + '\nLúc ' + L.at + ' · ' + f1(performance.now() - T0) + ' · chi tiết xem tab NHAT KY', nOk === 3 ? 'ok' : 'bad');
+      setTimeout(() => box.remove(), nOk === 3 ? 25000 : 40000);
     } catch (e) { say('✕ ' + (e && e.message || e), 'bad'); setTimeout(() => box.remove(), 20000); }
   })();
 })();

@@ -106,3 +106,6 @@ function tthc03RecalcAll() {
   });
   CacheService.getScriptCache().removeAll(['read_v3_n']);
 }
+
+
+/* Ghi chú 18/11: tthc03Write_ trong dự án Apps Script đã đổi sang xử lý ĐỘC LẬP từng thủ tục, ghi NHAT KY 'Đồng bộ 03 · <thủ tục> · THÀNH CÔNG/THẤT BẠI' và nhận b.errors từ dp/run03.js. Bản đầy đủ nằm trong dự án "03 thủ tục". */
