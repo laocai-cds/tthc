@@ -27,6 +27,7 @@ function tthc03Write_(b) {
   const lock = LockService.getScriptLock();
   try {
     lock.waitLock(25000);
+    if (b.monthsOnly) return tthc03MonthsOnly_(b, syncId, props); // chỉ ghi tab tháng, không đụng 3 tab cộng dồn
     const book = SpreadsheetApp.openById(CONFIG.procedureSpreadsheetId);
     const res = { syncId: syncId, ok: true, period: String(b.period || ''), at: Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss'), tabs: {} };
     const plan = [];
@@ -164,4 +165,20 @@ function tthc03Months_(b) {
     if (all.length) sh.getRange(2, 1, all.length, head.length).setValues(all);
   });
   return n;
+}
+
+/**
+ * Chế độ chỉ-tháng (b.monthsOnly = true, không cần b.tthc03): chỉ ghi các tab "03 THANG mm-yyyy" từ b.months03.
+ * Giữ nguyên 3 tab cộng dồn và dòng trạng thái lần đồng bộ đầy đủ gần nhất (at, tabs); chỉ thêm syncId/months để app xác nhận.
+ */
+function tthc03MonthsOnly_(b, syncId, props) {
+  const at = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss');
+  const prev = tthc03Last_() || {};
+  let n = 0, err = '';
+  try { n = tthc03Months_(b); } catch (e) { err = String(e && e.message || e); }
+  const res = Object.assign({}, prev, { syncId: syncId, ok: !err && n > 0, monthsOnly: true, months: n, monthsAt: at, error: err || (n > 0 ? '' : 'Không có tháng nào đủ dữ liệu để ghi.') });
+  if (res.ok) delete res.error;
+  props.setProperty('LAST_TTHC03', JSON.stringify(res));
+  try { nkAdd_('gqtthc-api', 'Đồng bộ 03 thủ tục: chỉ tháng ' + String(b.period || ''), String(b.period || ''), 'api'); } catch (_) {}
+  return json_({ ok: res.ok });
 }
