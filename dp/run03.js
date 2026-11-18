@@ -60,8 +60,24 @@
         await Promise.all(Array.from({ length: 12 }, worker));
         return ids.map(u => acc[u]);
       };
+      /* Nhận xét nơi cư trú: số của một Đảng bộ phải gồm cả các đơn vị con (chi bộ, đảng bộ cơ sở…), nhiều cấp. API trả dòng của đơn vị cha không gộp con → hỏi từng đơn vị rồi cộng. */
+      let kidFail = 0;
+      const raw = uid => fetch(G3, { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ dvcId: 10001, coQuanId: uid, page: 0, size: 300, tuThang: per, denThang: den }) })
+        .then(rr => { if (!rr.ok) throw new Error('HTTP ' + rr.status); return rr.json(); }).then(jj => (jj.data && jj.data.data) || []);
+      const walk = async (uid, seen, acc, depth) => {
+        const rows = await retry(() => raw(uid), 5);
+        rows.forEach(r => { if (seen[r.coQuanId]) return; seen[r.coQuanId] = 1; acc[0] += num(r.dangXuLy); acc[1] += num(r.daTuChoi); acc[2] += num(r.daXuLyXong); });
+        if (depth < 5) for (const r of rows) if (r.coCapCon && Number(r.coQuanId) !== Number(uid) && !seen['x' + r.coQuanId]) { seen['x' + r.coQuanId] = 1; await walk(r.coQuanId, seen, acc, depth + 1); }
+      };
+      const kids = async rows => {
+        const out = rows.map(r => r.slice()); let next = 0, doneN = 0;
+        const worker = async () => { while (next < out.length) { const r = out[next++]; try { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; } catch (e) { kidFail++; } doneN++; st[10001] = '⏳ (cộng đơn vị con ' + doneN + '/' + out.length + ')'; } };
+        await Promise.all(Array.from({ length: 12 }, worker));
+        if (kidFail > out.length / 4) throw new Error('lấy đơn vị con lỗi ' + kidFail + '/' + out.length + ' đơn vị');
+        return out;
+      };
       const errs = {};
-      const get = async id => { try { let rows; try { rows = await fast(id); } catch (e1) { rows = await split(id); } st[id] = '✓'; show(); return rows; } catch (e2) { st[id] = '✕'; errs[id] = String(e2 && e2.message || e2).slice(0, 160); show(); return null; } };
+      const get = async id => { try { let rows; try { rows = await fast(id); } catch (e1) { rows = await split(id); } if (id === 10001) rows = await kids(rows); st[id] = '✓'; show(); return rows; } catch (e2) { st[id] = '✕'; errs[id] = String(e2 && e2.message || e2).slice(0, 160); show(); return null; } };
       const ti = setInterval(show, 1500);
       show();
       const ids = [10002, 10003, 10001];
@@ -88,7 +104,7 @@
       const L = ok.last03; Object.keys(L.tabs || {}).forEach(id => { const t = L.tabs[id]; if (t && t.ok === undefined) t.ok = !t.error && (t.hit || 0) > 0; if (t && t.total === undefined) t.total = (t.hit || 0) + (t.miss || 0); }); const line = id => { const t = (L.tabs || {})[id]; return t ? (t.ok ? '✅ ' + NAMES[id] + ': ' + t.hit + '/' + t.total + ' đơn vị' + (t.miss ? ' (không khớp ' + t.miss + ')' : '') : '❌ ' + NAMES[id] + ': ' + t.error) : '❔ ' + NAMES[id] + ': chưa rõ'; };
       const nOk = [10002, 10003, 10001].filter(id => (L.tabs || {})[id] && L.tabs[id].ok).length;
       const head = nOk === 3 ? '✅ HOÀN THÀNH 03 thủ tục — đã thay số cũ bằng số mới' : nOk === 0 ? '❌ THẤT BẠI — chưa cập nhật thủ tục nào' : '⚠ XONG MỘT PHẦN (' + nOk + '/3 thủ tục) — bấm lại để thử các thủ tục còn lỗi';
-      say(head + '\n' + [10002, 10003, 10001].map(line).join('\n') + (Object.keys(dropped).length ? '\nĐã bỏ ' + Object.keys(dropped).length + ' dòng không phải đơn vị (chi bộ, cơ quan tỉnh…)' : '') + '\nLúc ' + L.at + ' · ' + f1(performance.now() - T0) + ' · chi tiết xem tab NHAT KY', nOk === 3 ? 'ok' : 'bad');
+      say(head + '\n' + [10002, 10003, 10001].map(line).join('\n') + (kidFail ? '\n⚠ ' + kidFail + ' đơn vị chưa lấy được số của đơn vị con (nhận xét) – chạy lại' : '') + (Object.keys(dropped).length ? '\nĐã bỏ ' + Object.keys(dropped).length + ' dòng không phải đơn vị (chi bộ, cơ quan tỉnh…)' : '') + '\nLúc ' + L.at + ' · ' + f1(performance.now() - T0) + ' · chi tiết xem tab NHAT KY', nOk === 3 ? 'ok' : 'bad');
       setTimeout(() => box.remove(), nOk === 3 ? 25000 : 40000);
     } catch (e) { say('✕ ' + (e && e.message || e), 'bad'); setTimeout(() => box.remove(), 20000); }
   })();
