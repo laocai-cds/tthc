@@ -14,6 +14,9 @@
   const say = (m, kind) => { msg = m; bg = kind === 'bad' ? '#a50d26' : kind === 'ok' ? '#0f8a3c' : '#12315f'; if (kind) { if (tick) { clearInterval(tick); tick = null; } } else if (!tick) tick = setInterval(paint, 500); paint(); };
   (async function () {
     try {
+      /* Luôn hỏi mã ngay khi bấm (không lưu), nhập xong chạy một mạch đến khi hoàn thành. */
+      const code = (prompt('Đồng bộ 03 thủ tục – nhập mã truy cập chung:') || '').trim();
+      if (!code) { say('Đã hủy: chưa nhập mã truy cập.', 'bad'); setTimeout(() => box.remove(), 6000); return; }
       const tk = localStorage.getItem('token');
       if (!tk) { alert('Chưa đăng nhập gqtthc.dcs.vn.'); return; }
       const now = new Date(), per = '01/' + now.getFullYear(), den = p2(now.getMonth() + 1) + '/' + now.getFullYear();
@@ -63,8 +66,6 @@
       const ids = [10002, 10003, 10001];
       let got; try { got = await Promise.all(ids.map(id => get(id))); } finally { clearInterval(ti); }
       const t03 = {}; ids.forEach((id, k) => { if (got[k]) t03[id] = got[k].map(r => [r[0], r[1], r[2], r[3]]); });
-      let code = ''; try { code = localStorage.getItem(K_03) || ''; } catch (e) {}
-      if (!code) { code = (prompt('Mã truy cập chung để ghi số liệu 03 thủ tục lên Google Sheet:') || '').trim(); if (!code) { say('Đã hủy: chưa nhập mã truy cập.', 'bad'); setTimeout(() => box.remove(), 8000); return; } }
       say('Đang ghi lên Google Sheet…');
       const sync = 's3' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       await fetch(API03, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify({ action: 'tthc03', accessCode: code, syncId: sync, period: per + ' - ' + den, tthc03: t03, errors: errs }) }) });
