@@ -19,9 +19,6 @@
  *  - O = Đảng phí phải nộp cấp trên (kỳ báo cáo), P = Đảng phí đã nộp cấp trên (kỳ báo cáo), Q = Còn nợ cấp trên cuối kỳ.
  *  - Mỗi dòng gửi lên có 17 phần tử (14 cột cũ + 3 cột S02). Gói cũ chỉ có 14 phần tử vẫn nhận được, khi đó không đụng tới cột O:Q.
  *
- * Phiên bản 7: nhận gói source = 'tthc03' (nút ĐP Tỉnh Lào Cai, API report/api/v1/thong-ke-ho-so/theo-co-quan) và ghi số liệu
- *  03 thủ tục của từng đơn vị vào 3 tab của Sheet "Theo dõi 03 thủ tục" (cột E:I), khớp đơn vị theo tên. Không ghi cán bộ, hướng dẫn, ảnh.
- *
  * Cài đặt:
  *  1. Dán toàn bộ file này vào Code.gs (thay thế code cũ).
  *  2. Thuộc tính tập lệnh SYNC_TOKEN (hoặc MAT_KHAU) giữ nguyên.
@@ -38,9 +35,7 @@ const HEADER_ROWS = 2;                       // 2 dòng tiêu đề giữ nguyê
 const COLS = 14;                             // STT, Tên đơn vị, (1)…(9), tiền khai báo, tiền đã nộp, tỷ lệ
 const COLS_S02 = 17;                         // 14 cột trên + 3 cột sổ S02 (O, P, Q)
 const S02_HEADERS = ['Phải nộp cấp trên (đ)', 'Đã nộp cấp trên (đ)', 'Còn nợ cấp trên cuối kỳ (đ)'];
-const VERSION = 7;
-const TTHC03_SHEET_ID = '1zWKZy2rMCsahX-f96bk9tMJuLcDp13OfKNcQq3T5oXA'; // Sheet "Theo dõi 03 thủ tục"
-const TTHC03_TABS = { '10001': 'LẤY PHIẾU NHẬN XÉT NƠI CƯ TRÚ', '10002': 'CHUYỂN SINH HOẠT CHÍNH THỨC', '10003': 'CHUYỂN SINH HOẠT TẠM THỜI' };
+const VERSION = 6;
 const TZ = 'Asia/Ho_Chi_Minh';
 
 /** Định dạng số chỉ để cho đẹp: nếu ô thuộc "bảng"/cột có kiểu dữ liệu cố định thì Sheets từ chối → bỏ qua, không làm hỏng đồng bộ. */
@@ -133,8 +128,6 @@ function write_(payload) {
   const token = props.getProperty('SYNC_TOKEN') || props.getProperty('MAT_KHAU');
   if (!token) throw new Error('Chưa đặt SYNC_TOKEN (hoặc MAT_KHAU) trong Thuộc tính tập lệnh.');
   if (String(payload.token || '') !== token) throw new Error('Mật khẩu đồng bộ không đúng.');
-
-  if (payload.source === 'tthc03') return write03_(payload);
 
   const nowKey = monthKey_();
   let key = nowKey;                                // tháng sẽ ghi
@@ -317,8 +310,7 @@ function status_() {
     let last = null, lastError = null;
     try { last = JSON.parse(rawLast); } catch (_) {}
     try { lastError = rawErr ? JSON.parse(rawErr) : null; } catch (_) {}
-    let last03 = null; try { const r3 = props.getProperty('LAST_03'); last03 = r3 ? JSON.parse(r3) : null; } catch (_) {}
-    if (last) return { ok: true, last03: last03, last: last, lastError: lastError, spreadsheetId: SPREADSHEET_ID, currentMonth: cur, currentTab: curTab };
+    if (last) return { ok: true, last: last, lastError: lastError, spreadsheetId: SPREADSHEET_ID, currentMonth: cur, currentTab: curTab };
   }
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const log = ss.getSheetByName(LOG_SHEET_NAME);
@@ -333,67 +325,4 @@ function status_() {
 function testAuthorize() {
   Logger.log(JSON.stringify(status_()));
   Logger.log('Tab tháng hiện tại: ' + monthTab_(monthKey_()));
-}
-
-
-/* ---------- 03 thủ tục: số liệu API theo-co-quan -> Sheet "Theo dõi 03 thủ tục" ---------- */
-function norm03_(t) {
-  return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-}
-
-/**
- * payload.tthc03 = { '10001': [[tenDonVi, dangXuLy, daTuChoi, daXuLyXong], ...], '10002': [...], '10003': [...] }
- * Ánh xạ: Tiếp nhận (E) = Tổng hồ sơ (F) = đang + từ chối + xong; Đã xử lý (G) = từ chối + xong;
- * Phải xử lý (H) = tiếp nhận − từ chối; Hoàn thành (I) = xong.
- */
-function write03_(payload) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(25000);
-  try {
-    const book = SpreadsheetApp.openById(TTHC03_SHEET_ID);
-    const result = { syncId: String(payload.syncId || ''), at: Utilities.formatDate(new Date(), TZ, 'dd/MM/yyyy HH:mm:ss'), period: String(payload.period || ''), tabs: {} };
-    Object.keys(TTHC03_TABS).forEach(id => {
-      const list = payload.tthc03 && payload.tthc03[id];
-      if (!Array.isArray(list) || !list.length) { result.tabs[id] = { skipped: true }; return; }
-      const sh = book.getSheetByName(TTHC03_TABS[id]);
-      if (!sh) throw new Error('Không thấy tab ' + TTHC03_TABS[id]);
-      const last = sh.getLastRow();
-      if (last < 4) throw new Error('Tab ' + TTHC03_TABS[id] + ' chưa có dòng đơn vị.');
-      const names = sh.getRange(4, 1, last - 3, 2).getValues();
-      const map = {};
-      list.forEach(r => { map[norm03_(r[0])] = r; });
-      const vals = sh.getRange(4, 5, last - 3, 5).getValues();
-      let hit = 0, miss = [];
-      names.forEach((n, i) => {
-        if (!(Number(n[0]) > 0)) return;
-        const r = map[norm03_(n[1])];
-        if (!r) { miss.push(String(n[1])); return; }
-        const dang = Math.max(0, Number(r[1]) || 0), tc = Math.max(0, Number(r[2]) || 0), xong = Math.max(0, Number(r[3]) || 0);
-        const nhan = dang + tc + xong;
-        vals[i] = [nhan, nhan, tc + xong, nhan - tc, xong];
-        hit++;
-      });
-      if (hit < 50) throw new Error('Chỉ khớp ' + hit + ' đơn vị ở tab ' + TTHC03_TABS[id] + ' — không ghi để tránh sai dữ liệu.');
-      sh.getRange(4, 5, last - 3, 5).setValues(vals);
-      sortUnitRows03_(sh);
-      result.tabs[id] = { hit: hit, miss: miss.length, missNames: miss.slice(0, 5) };
-    });
-    SpreadsheetApp.flush();
-    PropertiesService.getScriptProperties().setProperty('LAST_03', JSON.stringify(result));
-    return { ok: true, tthc03: result };
-  } finally {
-    try { lock.releaseLock(); } catch (_) {}
-  }
-}
-
-/** Sắp xếp lại các dòng đơn vị theo cột L (KHÓA XẾP HẠNG) như GoogleSheetsSync.gs. */
-function sortUnitRows03_(sheet) {
-  const last = sheet.getLastRow();
-  if (last < 5) return;
-  SpreadsheetApp.flush();
-  const ids = sheet.getRange(4, 1, last - 3, 1).getValues();
-  let first = -1, end = -1;
-  ids.forEach((r, i) => { if (Number(r[0]) > 0) { if (first < 0) first = i; end = i; } });
-  if (first < 0 || end <= first) return;
-  sheet.getRange(4 + first, 1, end - first + 1, 14).sort([{ column: 12, ascending: true }, { column: 1, ascending: true }]);
 }

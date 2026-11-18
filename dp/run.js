@@ -1,6 +1,8 @@
 (function(){'use strict';
   const K_API = 'dangphi.api';
   const K_PW = 'dangphi.token';
+  const K_03 = 'tthc03.code';   /* mã truy cập chung của dự án Apps Script "03 thủ tục" */
+  const API03 = 'https://script.google.com/macros/s/AKfycbym3FHqtE20kg8F3SCuc6LizXSwGhSFT-KBY90c58BuOuRigFbOdyruPkTx4uBscZ-ibw/exec';
 
   function normApi(v) {
     v = (v || '').trim();
@@ -131,8 +133,10 @@
         const t03 = {}; ids3.forEach((id, i) => { t03[id] = res3[i]; });
         if (!res3.every(l => l.length > 50)) throw new Error('API trả thiếu đơn vị (' + res3.map(l => l.length).join('/') + ')');
         const sync3 = 's3' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        let code3 = ''; try { code3 = localStorage.getItem(K_03) || ''; } catch (e) {}
+        if (!code3) { if (auto) throw new Error('chưa lưu mã truy cập 03 thủ tục — bấm nút ĐP tay 1 lần để nhập.'); code3 = (prompt('Mã truy cập chung để ghi số liệu 03 thủ tục lên Google Sheet:') || '').trim(); if (!code3) throw new Error('chưa nhập mã truy cập 03 thủ tục.'); }
         say('Đang ghi 03 thủ tục lên Google Sheet…', false, true);
-        await fetch(API, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify({ token: pw, syncId: sync3, source: 'tthc03', period: per + ' - ' + den, tthc03: t03 }) }) });
+        await fetch(API03, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify({ action: 'tthc03', accessCode: code3, syncId: sync3, period: per + ' - ' + den, tthc03: t03 }) }) });
         let ok3 = null;
         for (let k = 0; k < 12 && !ok3; k++) {
           ok3 = await new Promise(res => {
@@ -140,10 +144,10 @@
             const t3 = setTimeout(() => { delete window[cb]; s3.remove(); res(null); }, 9000);
             window[cb] = v => { clearTimeout(t3); delete window[cb]; s3.remove(); res(v); };
             s3.onerror = () => { clearTimeout(t3); res(null); };
-            s3.src = API + '?action=status&callback=' + cb + '&_=' + Date.now();
+            s3.src = API03 + '?action=tthc03_status&callback=' + cb + '&_=' + Date.now();
             document.head.appendChild(s3);
           });
-          if (ok3 && ok3.lastError && ok3.lastError.syncId === sync3) throw new Error(ok3.lastError.error);
+          if (ok3 && ok3.last03 && ok3.last03.syncId === sync3 && ok3.last03.ok === false) { try { localStorage.removeItem(K_03); } catch (e) {} throw new Error(ok3.last03.error); }
           if (!(ok3 && ok3.last03 && ok3.last03.syncId === sync3)) { ok3 = null; await new Promise(r2 => setTimeout(r2, 1000)); }
         }
         m03 = ok3 ? '\n03 thủ tục: đã ghi ' + ids3.map(id => (ok3.last03.tabs[id] || {}).hit || 0).join('/') + ' đơn vị (nhận xét/chính thức/tạm thời) lúc ' + ok3.last03.at : '\n03 thủ tục: đã gửi, chưa xác nhận được (kiểm tra Sheet "Theo dõi 03 thủ tục"; cần triển khai Apps Script bản mới).';
