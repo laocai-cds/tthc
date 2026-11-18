@@ -6540,7 +6540,26 @@ html.is-admin #adminBtn{display:inline-flex!important}
 <div class="admpane" data-grp="pq"><table><thead><tr><th>Gmail</th><th>Quyền</th><th></th></tr></thead><tbody id="admBody"><tr><td colspan="3">Đang tải…</td></tr></tbody></table>
 <div class="row"><input id="admEmail" type="email" placeholder="Thêm Gmail quản trị" autocomplete="off"><button type="button" class="btn" id="admAdd">Thêm</button><button type="button" class="btn" id="admReload">Tải lại</button></div>
 <div id="admNewPerm" class="pgrow"><span>Quyền khi thêm:</span><label class="pg"><input type="checkbox" data-nk="bc" checked>Báo cáo</label><label class="pg"><input type="checkbox" data-nk="dp" checked>Thu đảng phí</label><label class="pg"><input type="checkbox" data-nk="dl">Dữ liệu</label><label class="pg"><input type="checkbox" data-nk="nd" checked>Nội dung & đơn vị</label><label class="pg full"><input type="checkbox" data-nk="all">Toàn quyền</label></div>
-<div id="admMsg"></div></div></div></div><script id="sheetBarToAdmin">(function(){var h=document.getElementById('admSheetHost'),b=document.querySelector('.sheet-bar');if(h&&b)h.appendChild(b)})();</script><script id="authJs">
+<div id="admMsg"></div></div></div></div><style id="sync03Css">#sync03{margin:14px 0 4px;padding:12px 14px;border:1px solid #d7dee8;border-radius:12px;background:#f6f9ff}#sync03 h4{margin:0 0 6px;font-size:15px}#sync03 p{margin:4px 0;font-size:12.5px;color:#4a5566}#sync03 .r{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}#sync03 a.bm{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;background:#8f0b12;color:#fff;font-weight:700;font-size:14px;text-decoration:none;cursor:grab;box-shadow:0 2px 8px rgba(143,11,18,.35)}#sync03 a.bm:active{cursor:grabbing}#sync03 .st{font-size:12.5px;font-weight:600}#sync03 .st.ok{color:#0f8a3c}#sync03 .st.bad{color:#a50d26}</style>
+<script id="sync03Js">(function(){
+var host=document.getElementById('admSheetHost');if(!host||!host.parentNode)return;
+var API03='https://script.google.com/macros/s/AKfycbym3FHqtE20kg8F3SCuc6LizXSwGhSFT-KBY90c58BuOuRigFbOdyruPkTx4uBscZ-ibw/exec';
+var BM="javascript:(function(){var s=document.createElement('script');s.src='https://laocai-tthc.pages.dev/dp/run03.js?'+Date.now();s.onerror=function(){alert('gqtthc chặn tải mã ngoài')};document.head.appendChild(s)})()";
+var d=document.createElement('div');d.id='sync03';
+d.innerHTML='<h4>🔄 Đồng bộ 03 thủ tục từ gqtthc.dcs.vn</h4><p>Lấy số liệu 103 đơn vị (chuyển SH chính thức, tạm thời, nhận xét nơi cư trú) ghi vào Sheet “Theo dõi 03 thủ tục”. Số mới thay số cũ.</p><div class="r"><a class="bm" id="bm03" draggable="true" title="Kéo nút này lên thanh dấu trang">🔖 Đồng bộ 03</a><a class="btn" href="https://gqtthc.dcs.vn/" target="_blank" rel="noopener">Mở gqtthc.dcs.vn</a></div><p><b>Cách dùng:</b> kéo nút đỏ lên thanh dấu trang (làm 1 lần) → mở gqtthc.dcs.vn, đăng nhập → bấm dấu trang “Đồng bộ 03” → chờ thông báo xanh. Lần đầu nhập mã truy cập chung.</p><div class="st" id="st03">Đang kiểm tra lần đồng bộ gần nhất…</div>';
+host.parentNode.insertBefore(d,host);
+var a=d.querySelector('#bm03');a.setAttribute('href',BM);
+a.addEventListener('click',function(e){e.preventDefault();alert('Hãy KÉO nút này lên thanh dấu trang của trình duyệt (không bấm trực tiếp tại đây). Sau đó mở gqtthc.dcs.vn và bấm dấu trang.')});
+var st=d.querySelector('#st03'),cb='__s03'+Date.now(),sc=document.createElement('script');
+var t=setTimeout(function(){delete window[cb];sc.remove();st.textContent='Không đọc được trạng thái.';st.className='st bad'},20000);
+window[cb]=function(v){clearTimeout(t);delete window[cb];sc.remove();var l=v&&v.last03;
+ if(l&&l.ok!==false){st.textContent='✅ Lần đồng bộ gần nhất: '+(l.at||'—');st.className='st ok'}
+ else if(l){st.textContent='✕ Lần gần nhất lỗi: '+l.error;st.className='st bad'}
+ else st.textContent='Chưa có lần đồng bộ nào.'};
+sc.onerror=function(){clearTimeout(t);st.textContent='Không đọc được trạng thái.';st.className='st bad'};
+sc.src=API03+'?action=tthc03_status&callback='+cb+'&_='+Date.now();document.head.appendChild(sc);
+})();</script>
+<script id="sheetBarToAdmin">(function(){var h=document.getElementById('admSheetHost'),b=document.querySelector('.sheet-bar');if(h&&b)h.appendChild(b)})();</script><script id="authJs">
 window.AUTH=(function(){
   const CFG={apiKey:"AIzaSyCZ9gzT18b1QovsS0y4-SgmUFqtyMvkR0A",authDomain:"laocai-tthc.firebaseapp.com",projectId:"laocai-tthc",appId:"1:836624022047:web:7ee3c80e5e44b8ed3d732a"};
   const V='https://www.gstatic.com/firebasejs/10.12.2/',EP=GS_ENDPOINT_URL;
