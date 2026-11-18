@@ -5,6 +5,8 @@
  * do Apps Script (LichSu.gs) lưu vào tab "LICH SU TIEN DO" (đọc qua ?action=history&from=&to=):
  *  - Số cuối kỳ  = ảnh chụp ngày cuối kỳ (kỳ đang diễn ra: số liệu trực tiếp lúc lập báo cáo);
  *  - Phát sinh   = số cuối kỳ − ảnh chụp ngày cuối kỳ trước (chưa có thì lấy ngày lưu đầu tiên trong kỳ, có ghi chú).
+ * Kỳ "theo tháng": số liệu hồ sơ của 3 thủ tục lấy trực tiếp từ tab "03 THANG mm-yyyy" của bảng 03 thủ tục
+ * (số của chính tháng đó; so tiến độ với tab tháng trước nếu có). Chưa có tab thì quay về cách ảnh chụp ở trên.
  * Thu nộp đảng phí lấy theo tab tháng của bảng đảng phí (Thang{M}); quý = tháng cuối có số liệu, tiền cộng 3 tháng.
  *
  * Bọc các hàm sẵn có của trang (buildReportModel, rptHTML, rptNarrative, rptProcText, exportReportXlsx/Docx),
@@ -53,7 +55,7 @@
   const cellText = c => String(c ? (c.v != null ? c.v : (c.f != null ? c.f : '')) : '').trim();
   const cellNum = c => { if (!c) return 0; if (typeof c.v === 'number') return c.v; const s = String(c.f != null ? c.f : (c.v != null ? c.v : '')).replace(/[^\d-]/g, ''); return s ? parseInt(s, 10) : 0; };
   /* gviz cần responseHandler nằm trong tqx → dựng URL riêng */
-  function gvizTab(tab, hdr) {
+  function gvizTab(tab, hdr, sid) {
     return new Promise(resolve => {
       const cb = '__rptDues_' + Date.now() + '_' + Math.random().toString(36).slice(2), sc = document.createElement('script');
       let ended = false;
@@ -61,10 +63,32 @@
       const timer = setTimeout(() => finish(null), 20000);
       root[cb] = p => finish(p && p.table ? p : null);
       sc.onerror = () => finish(null);
-      sc.src = 'https://docs.google.com/spreadsheets/d/' + DUES_SHEET_ID + '/gviz/tq?tqx=out:json;responseHandler:' + cb + '&sheet=' + encodeURIComponent(tab) + '&headers=' + (hdr || 2) + '&_=' + Date.now();
+      sc.src = 'https://docs.google.com/spreadsheets/d/' + (sid || DUES_SHEET_ID) + '/gviz/tq?tqx=out:json;responseHandler:' + cb + '&sheet=' + encodeURIComponent(tab) + '&headers=' + (hdr || 2) + '&_=' + Date.now();
       sc.async = true; document.head.appendChild(sc);
     });
   }
+  /* ---------- Số liệu hồ sơ theo tháng: tab "03 THANG mm-yyyy" (cột: tên đơn vị; [đang chờ, đang xử lý, hoàn thành] × Chuyển chính thức, Chuyển tạm thời, Nhận xét) ---------- */
+  const SH03 = '1zWKZy2rMCsahX-f96bk9tMJuLcDp13OfKNcQq3T5oXA', M03COL = [['chinh-thuc', 1], ['tam-thoi', 4], ['nhan-xet', 7]];
+  const nf03 = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  async function loadMonth03(y, m) {
+    const p = await gvizTab('03 THANG ' + String(m).padStart(2, '0') + '-' + y, 1, SH03);
+    const c0 = p && (p.table.cols || [])[0];
+    if (!c0 || String(c0.label || c0.id).trim() !== 'TEN DON VI') return null;   // tab chưa có: gviz trả về trang đầu tiên
+    const o = {};
+    (p.table.rows || []).forEach(rw => {
+      const c = rw.c || []; if (!c[0] || !c[0].v) return;
+      const nm = nf03(c[0].v), g = i => Number(c[i] && c[i].v) || 0;
+      M03COL.forEach(([pid, i]) => { if (!c[i] && !c[i + 1] && !c[i + 2]) return; (o[pid] || (o[pid] = new Map())).set(nm, [g(i), g(i + 1), g(i + 2)]); });
+    });
+    return Object.keys(o).length ? o : null;
+  }
+  /* Thay số hồ sơ của các thủ tục dạng hồ sơ bằng số của tháng (cùng công thức với bảng xếp hạng theo tháng trên trang) */
+  function applyMonth03(procs, mp) {
+    return procs.map(p => p.kind === 'fee' ? p : Object.assign({}, p, {
+      units: p.units.map(u => { const a = ((mp[p.id]) || new Map()).get(nf03(u.unit)) || [0, 0, 0], rc = a[0] + a[1] + a[2]; return Object.assign({}, u, { received: rc, total: rc, processed: a[1] + a[2], need: rc - a[1], done: a[2] }); })
+    }));
+  }
+
   /* Đơn vị hoàn thành 100% đảng phí (tab HOAN THANH SOM do Apps Script ghi nhận); null = chưa có tab/không đọc được */
   async function loadFirstDone() {
     const p = await gvizTab('HOAN THANH SOM', 1);
@@ -127,13 +151,21 @@
     if (per.type === 'all') return null;
     const today = ymd(new Date());
     if (per.from > today) throw new Error('Kỳ ' + per.label + ' chưa bắt đầu.');
-    const live = per.to >= today;
-    const [h, dues] = await Promise.all([readHistory(per.from, per.to), duesForPeriod(per)]);
-    if (!live && !h.end) throw new Error('Chưa có số liệu lưu trữ cho ' + per.label + '. ' + (h.first ? 'Hệ thống bắt đầu lưu số liệu hằng ngày từ ngày ' + dmy(h.first) + '.' : 'Hệ thống chưa lưu ảnh chụp số liệu nào (chạy installDailySnapshotOnce() trong Apps Script).'));
+    const live = per.to >= today, isM = per.type === 'month', pY = per.n === 1 ? per.y - 1 : per.y, pM = per.n === 1 ? 12 : per.n - 1;
+    const [h0, dues, cur, prev] = await Promise.all([readHistory(per.from, per.to).catch(e => ({ err: e })), duesForPeriod(per), isM ? loadMonth03(per.y, per.n) : null, isM ? loadMonth03(pY, pM) : null]);
+    if (h0.err && !cur) throw h0.err;
+    const h = h0.err ? {} : h0;
+    if (!live && !h.end && !cur) throw new Error('Chưa có số liệu lưu trữ cho ' + per.label + '. ' + (h.first ? 'Hệ thống bắt đầu lưu số liệu hằng ngày từ ngày ' + dmy(h.first) + '.' : 'Hệ thống chưa lưu ảnh chụp số liệu nào (chạy installDailySnapshotOnce() trong Apps Script).'));
     let base = h.base || null;
-    if (base && !live && base.date >= h.end.date) base = null;   // đầu kỳ trùng cuối kỳ: không tính được phát sinh
-    const [endDues, baseDues] = await Promise.all([duesAt(live ? today : h.end.date), base ? duesAt(base.date) : null]);
-    return { per, live, endDate: live ? today : h.end.date, endProcs: live ? liveProcs(endDues) : procsFrom(h.end, endDues), base, baseProcs: base ? procsFrom(base, baseDues) : null, first: h.first || null, dues };
+    if (base && !live && (!h.end || base.date >= h.end.date)) base = null;   // đầu kỳ trùng cuối kỳ: không tính được phát sinh
+    const endDate = live ? today : (h.end ? h.end.date : per.to);
+    const [endDues, baseDues] = await Promise.all([duesAt(endDate), base ? duesAt(base.date) : null]);
+    let endProcs = live || !h.end ? liveProcs(endDues) : procsFrom(h.end, endDues), baseProcs = base ? procsFrom(base, baseDues) : null;
+    if (cur) {   // tháng có tab "03 THANG": hồ sơ lấy theo tab; đảng phí vẫn theo ảnh chụp đầu kỳ (nếu có)
+      const caseBase = prev ? applyMonth03(endProcs.filter(p => p.kind !== 'fee'), prev) : [], feeBase = baseProcs ? baseProcs.filter(p => p.kind === 'fee') : [];
+      endProcs = applyMonth03(endProcs, cur); baseProcs = caseBase.concat(feeBase); if (!baseProcs.length) baseProcs = null;
+    }
+    return { per, live, endDate, endProcs, base, baseProcs, first: h.first || null, dues, monthTab: cur ? { y: per.y, n: per.n } : null, prevTab: cur && prev ? { y: pY, n: pM } : null };
   }
 
   /* ---------- Mô hình báo cáo theo kỳ ---------- */
@@ -148,31 +180,34 @@
       m = orig.model();
     } finally { data.procedures = keepProcs; root.__duesDetailData = keepDues; }
     const per = ctx.per, N = v => Number(v || 0);
-    if (baseT) {
-      const bp = new Map(ctx.baseProcs.map(p => [p.id, p]));
-      m.procs.forEach(x => {
-        const b = baseT.get(x.p.id), bP = bp.get(x.p.id); if (!b || !bP) return;
-        const bu = new Map(bP.units.map(u => [Number(u.id), u]));
-        x.rows.forEach(r => {
-          const o = bu.get(Number(r.u.id)) || {};
-          r.v0 = bu.has(Number(r.u.id)) ? progress(bP, o) : 0;
-          r.d = x.p.kind === 'fee' ? { dvc: N(r.u.dvccreated) - N(o.dvccreated), bank: N(r.u.bankcreated) - N(o.bankcreated) }
-            : { received: N(r.u.received) - N(o.received), processed: N(r.u.processed) - N(o.processed), done: N(r.u.done) - N(o.done) };
-        });
-        x.base = b;
-        x.delta = x.p.kind === 'fee' ? { dvc: x.t.dvc - b.dvc, bank: x.t.bank - b.bank, paid: x.t.paid - b.paid, doneUnits: x.t.doneUnits - b.doneUnits, avg: x.t.average - b.average }
-          : { received: x.t.received - b.received, processed: x.t.processed - b.processed, done: x.t.done - b.done, doneUnits: x.t.doneUnits - b.doneUnits, avg: x.t.average - b.average };
+    const bp = new Map((ctx.baseProcs || []).map(p => [p.id, p])), MT = !!ctx.monthTab;
+    m.procs.forEach(x => {
+      const fee = x.p.kind === 'fee', mt = MT && !fee, b = baseT ? baseT.get(x.p.id) : null, bP = bp.get(x.p.id);
+      if (!mt && (!b || !bP)) return;
+      const bu = new Map((bP ? bP.units : []).map(u => [Number(u.id), u]));
+      x.rows.forEach(r => {
+        const o = bu.get(Number(r.u.id)) || {};
+        r.v0 = bP ? (bu.has(Number(r.u.id)) ? progress(bP, o) : 0) : null;
+        r.d = fee ? { dvc: N(r.u.dvccreated) - N(o.dvccreated), bank: N(r.u.bankcreated) - N(o.bankcreated) }
+          : mt ? { received: N(r.u.received), processed: N(r.u.processed), done: N(r.u.done) }   // tháng: số của chính tháng đó
+          : { received: N(r.u.received) - N(o.received), processed: N(r.u.processed) - N(o.processed), done: N(r.u.done) - N(o.done) };
       });
-    }
-    const hasBase = m.procs.some(x => x.delta);
+      x.base = b || null; x.mt = mt;
+      x.delta = fee ? { dvc: x.t.dvc - b.dvc, bank: x.t.bank - b.bank, paid: x.t.paid - b.paid, doneUnits: x.t.doneUnits - b.doneUnits, avg: x.t.average - b.average }
+        : mt ? { received: x.t.received, processed: x.t.processed, done: x.t.done, doneUnits: b ? x.t.doneUnits - b.doneUnits : null, avg: b ? x.t.average - b.average : null }
+        : { received: x.t.received - b.received, processed: x.t.processed - b.processed, done: x.t.done - b.done, doneUnits: x.t.doneUnits - b.doneUnits, avg: x.t.average - b.average };
+    });
+    const hasBase = m.procs.some(x => x.delta), cmp = m.procs.filter(x => x.delta && x.base), mean = a => a.reduce((s, v) => s + v, 0) / Math.max(1, a.length);
     m.period = Object.assign({}, per, {
       range: 'từ ngày ' + dmy(per.from) + ' đến ngày ' + dmy(per.to), live: ctx.live, endDate: ctx.endDate, first: ctx.first,
-      baseDate: ctx.base ? ctx.base.date : null, partial: !!(ctx.base && ctx.base.date >= per.from), hasBase,
-      baseAvg: hasBase ? m.procs.reduce((s, x) => s + (x.base ? x.base.average : 0), 0) / Math.max(1, m.procs.length) : null
+      baseDate: ctx.base ? ctx.base.date : null, partial: !MT && !!(ctx.base && ctx.base.date >= per.from), hasBase,
+      monthTab: MT, prevTab: ctx.prevTab, prevLabel: ctx.prevTab ? 'tháng ' + ctx.prevTab.n + ' năm ' + ctx.prevTab.y : (MT ? 'tháng ' + (per.n === 1 ? 12 : per.n - 1) + ' năm ' + (per.n === 1 ? per.y - 1 : per.y) : ''),
+      baseAvg: cmp.length ? mean(cmp.map(x => x.base.average)) : null, endAvg: cmp.length ? mean(cmp.map(x => x.t.average)) : null
     });
     m.asOf = ctx.live ? m.stamp : (ctx.endDate === per.to ? 'hết ngày ' : 'ngày ') + dmy(ctx.endDate);
-    if (!ctx.live) m.source = 'Google Sheets, số liệu lưu trữ ngày ' + dmy(ctx.endDate);
-    if (m.period.baseDate) m.source += '; số liệu đầu kỳ lưu ngày ' + dmy(m.period.baseDate);
+    if (!ctx.live && !MT) m.source = 'Google Sheets, số liệu lưu trữ ngày ' + dmy(ctx.endDate);
+    if (MT) m.source = 'Google Sheets, bảng theo dõi 03 thủ tục, tab "03 THANG ' + String(per.n).padStart(2, '0') + '-' + per.y + '"' + (ctx.prevTab ? ' (so với tab "03 THANG ' + String(ctx.prevTab.n).padStart(2, '0') + '-' + ctx.prevTab.y + '")' : '') + (ctx.live ? '; đảng phí và tình hình triển khai lập lúc ' + m.stamp : '');
+    if (m.period.baseDate && !MT) m.source += '; số liệu đầu kỳ lưu ngày ' + dmy(m.period.baseDate);
     if (m.dues) m.dues.month = ctx.dues && ctx.dues.months.length > 1 ? per.label : ctx.dues ? 'tháng ' + ctx.dues.months[0] + ' năm ' + per.y : m.dues.month;
     m.fileStamp = per.tag + '_' + m.fileStamp;
     return m;
@@ -181,16 +216,26 @@
   /* ---------- Nội dung phát sinh trong kỳ ---------- */
   const signed = n => { n = Number(n || 0); return (n > 0 ? '+' : '') + fmt(n); };
   const pts = v => { const n = Math.round(Number(v || 0) * 1000) / 10; return (n > 0 ? '+' : '') + n.toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + ' điểm %'; };
+  const sg = v => v == null ? '—' : signed(v);
   function periodText(m) {
     const P = m.period; if (!P) return [];
     if (!P.hasBase) return ['Chưa tính được kết quả phát sinh trong ' + P.label + ' do chưa có số liệu lưu trữ đầu kỳ' + (P.first ? ' (hệ thống bắt đầu lưu số liệu hằng ngày từ ngày ' + dmy(P.first) + ')' : '') + '; số liệu trong báo cáo là số lũy kế đến ' + m.asOf + '.'];
-    const c = m.procs.filter(x => x.delta && x.p.kind === 'case'), S = k => c.reduce((s, x) => s + x.delta[k], 0), du = m.procs.reduce((s, x) => s + (x.delta ? x.delta.doneUnits : 0), 0);
-    return ['Trong ' + P.label + ' (' + P.range + (P.partial ? '; số liệu đầu kỳ tính từ ngày lưu đầu tiên ' + dmy(P.baseDate) : '') + '), ' + fmt(c.length) + ' thủ tục về hồ sơ tiếp nhận mới ' + signed(S('received')) + ' hồ sơ, xử lý ' + signed(S('processed')) + ' hồ sơ, hoàn thành ' + signed(S('done')) + ' hồ sơ; số lượt đơn vị – thủ tục hoàn thành thay đổi ' + signed(du) + '. Tiến độ bình quân chung từ ' + rptPct(P.baseAvg) + ' đầu kỳ ' + (m.avg < P.baseAvg ? 'xuống ' : 'lên ') + rptPct(m.avg) + ' cuối kỳ (' + pts(m.avg - P.baseAvg) + ').'];
+    const c = m.procs.filter(x => x.delta && x.p.kind === 'case'), S = k => c.reduce((s, x) => s + x.delta[k], 0), du = m.procs.reduce((s, x) => s + (x.delta && x.delta.doneUnits != null ? x.delta.doneUnits : 0), 0);
+    if (P.monthTab) {
+      const cmp = P.baseAvg != null && P.endAvg != null;
+      return ['Trong ' + P.label + ' (' + P.range + '), ' + fmt(c.length) + ' thủ tục về hồ sơ ghi nhận ' + fmt(S('received')) + ' hồ sơ tiếp nhận, trong đó đã xử lý ' + fmt(S('processed')) + ' hồ sơ và hoàn thành ' + fmt(S('done')) + ' hồ sơ (theo số liệu của chính tháng, lấy từ bảng theo dõi 03 thủ tục).' +
+        (cmp ? ' So với ' + P.prevLabel + ', số lượt đơn vị – thủ tục hoàn thành thay đổi ' + signed(du) + '; tiến độ bình quân chung từ ' + rptPct(P.baseAvg) + ' ' + (P.endAvg < P.baseAvg ? 'xuống ' : 'lên ') + rptPct(P.endAvg) + ' (' + pts(P.endAvg - P.baseAvg) + ').'
+          : ' Chưa có số liệu ' + P.prevLabel + ' trên bảng theo dõi nên chưa so sánh được với tháng trước.')];
+    }
+    return ['Trong ' + P.label + ' (' + P.range + (P.partial ? '; số liệu đầu kỳ tính từ ngày lưu đầu tiên ' + dmy(P.baseDate) : '') + '), ' + fmt(c.length) + ' thủ tục về hồ sơ tiếp nhận mới ' + signed(S('received')) + ' hồ sơ, xử lý ' + signed(S('processed')) + ' hồ sơ, hoàn thành ' + signed(S('done')) + ' hồ sơ; số lượt đơn vị – thủ tục hoàn thành thay đổi ' + signed(du) + '. Tiến độ bình quân chung từ ' + rptPct(P.baseAvg) + ' đầu kỳ ' + (P.endAvg < P.baseAvg ? 'xuống ' : 'lên ') + rptPct(P.endAvg) + ' cuối kỳ (' + pts(P.endAvg - P.baseAvg) + ').'];
   }
   const HEAD = ['TT', 'Thủ tục', 'Tiến độ đầu kỳ', 'Tiến độ cuối kỳ', 'Tăng/giảm (điểm %)', 'Tiếp nhận mới', 'Hoàn thành mới', 'ĐV hoàn thành thay đổi'];
+  const HEAD_M = ['TT', 'Thủ tục', 'Tiến độ tháng trước', 'Tiến độ trong tháng', 'Tăng/giảm (điểm %)', 'Hồ sơ tiếp nhận', 'Hồ sơ hoàn thành', 'ĐV hoàn thành thay đổi'];
+  const headOf = m => m.period && m.period.monthTab ? HEAD_M : HEAD;
+  const capOf = m => 'Bảng 1a. ' + (m.period.monthTab ? 'Kết quả hồ sơ trong ' + m.period.label + (m.period.prevTab ? ' (so với ' + m.period.prevLabel + ')' : ' (chưa có số liệu tháng trước để so sánh)') : 'Kết quả phát sinh trong ' + m.period.label);
   const WID = [450, 2671, 1000, 1000, 900, 1000, 1000, 1050];
-  const periodRows = m => m.procs.filter(x => x.delta).map((x, i) => [i + 1, x.p.short, rptPct(x.base.average), rptPct(x.t.average), pts(x.delta.avg).replace(' điểm %', ''),
-    x.p.kind === 'fee' ? '—' : signed(x.delta.received), x.p.kind === 'fee' ? '—' : signed(x.delta.done), signed(x.delta.doneUnits)]);
+  const periodRows = m => { const MT = m.period.monthTab, cnt = v => MT ? fmt(v) : signed(v); return m.procs.filter(x => x.delta).map((x, i) => [i + 1, x.p.short, x.base ? rptPct(x.base.average) : '—', rptPct(x.t.average), x.delta.avg == null ? '—' : pts(x.delta.avg).replace(' điểm %', ''),
+    x.p.kind === 'fee' ? '—' : cnt(x.delta.received), x.p.kind === 'fee' ? '—' : cnt(x.delta.done), sg(x.delta.doneUnits)]); };
 
   root.rptNarrative = function (m) {
     const out = orig.narrative(m);
@@ -200,8 +245,9 @@
   };
   root.rptProcText = function (x) {
     const s = orig.procText(x), d = x && x.delta; if (!d) return s;
-    return s + (x.p.kind === 'fee'
-      ? ' Trong kỳ: tạo mới ' + signed(d.dvc) + ' tài khoản DVC, ' + signed(d.bank) + ' tài khoản ngân hàng; số đơn vị đã nộp thay đổi ' + signed(d.paid) + '; tiến độ ' + pts(d.avg) + '.'
+    if (x.p.kind === 'fee') return s + ' Trong kỳ: tạo mới ' + signed(d.dvc) + ' tài khoản DVC, ' + signed(d.bank) + ' tài khoản ngân hàng; số đơn vị đã nộp thay đổi ' + signed(d.paid) + '; tiến độ ' + pts(d.avg) + '.';
+    if (x.mt && d.doneUnits == null) return s + ' Trong tháng: tiếp nhận ' + fmt(d.received) + ', xử lý ' + fmt(d.processed) + ', hoàn thành ' + fmt(d.done) + ' hồ sơ (chưa có số liệu tháng trước để so sánh).';
+    return s + (x.mt ? ' Trong tháng: tiếp nhận ' + fmt(d.received) + ', xử lý ' + fmt(d.processed) + ', hoàn thành ' + fmt(d.done) + ' hồ sơ; so với tháng trước, số đơn vị hoàn thành thay đổi ' + signed(d.doneUnits) + '; tiến độ ' + pts(d.avg) + '.'
       : ' Trong kỳ: tiếp nhận mới ' + signed(d.received) + ', xử lý ' + signed(d.processed) + ', hoàn thành ' + signed(d.done) + ' hồ sơ; số đơn vị hoàn thành thay đổi ' + signed(d.doneUnits) + '; tiến độ ' + pts(d.avg) + '.');
   };
 
@@ -218,8 +264,8 @@
     h = h.replace('</style>', PICKER_CSS + '</style>').replace('<span class="sp"></span>', PICKER + '<span class="sp"></span>');
     const P = m.period; if (!P) return h;
     h = h.replace('môi trường điện tử</p><p class="t2">-----</p>', 'môi trường điện tử ' + esc(P.label) + '</p><p class="meta" style="margin:0 0 1pt;font-size:12pt;color:#000">(' + esc(P.range) + ')</p><p class="t2">-----</p>');
-    h = h.replace('Bảng 1. Tổng hợp tiến độ theo thủ tục', 'Bảng 1. Tổng hợp tiến độ theo thủ tục (lũy kế đến ' + esc(m.asOf) + ')');
-    if (P.hasBase) h = h.replace('<h2>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC</h2>', '<p class="cap">' + esc('Bảng 1a. Kết quả phát sinh trong ' + P.label) + '</p>' + htmlTable(HEAD, periodRows(m), WID) + '<h2>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC</h2>');
+    h = h.replace('Bảng 1. Tổng hợp tiến độ theo thủ tục', 'Bảng 1. Tổng hợp tiến độ theo thủ tục (' + (P.monthTab ? 'số liệu hồ sơ ' + esc(P.label) : 'lũy kế đến ' + esc(m.asOf)) + ')');
+    if (P.hasBase) h = h.replace('<h2>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC</h2>', '<p class="cap">' + esc(capOf(m)) + '</p>' + htmlTable(headOf(m), periodRows(m), WID) + '<h2>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC</h2>');
     return h;
   };
 
@@ -238,10 +284,10 @@
     const P = m.period;
     const title = '>tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử</w:t></w:r></w:p>';
     doc = doc.replace(title, '>tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử ' + X(P.label) + '</w:t></w:r></w:p>' + wPara('(' + P.range + ')', { i: true, sz: 24, jc: 'center', after: 20 }));
-    doc = doc.replace('>Bảng 1. Tổng hợp tiến độ theo thủ tục<', '>Bảng 1. Tổng hợp tiến độ theo thủ tục (lũy kế đến ' + X(m.asOf) + ')<');
+    doc = doc.replace('>Bảng 1. Tổng hợp tiến độ theo thủ tục<', '>Bảng 1. Tổng hợp tiến độ theo thủ tục (' + (P.monthTab ? 'số liệu hồ sơ ' + X(P.label) : 'lũy kế đến ' + X(m.asOf)) + ')<');
     if (P.hasBase) {
       const at = doc.indexOf('>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC<'), p0 = at < 0 ? -1 : doc.lastIndexOf('<w:p>', at);
-      if (p0 >= 0) doc = doc.slice(0, p0) + wPara('Bảng 1a. Kết quả phát sinh trong ' + P.label, { b: true, sz: 24, keep: true, before: 80 }) + wTable(HEAD, periodRows(m), WID) + doc.slice(p0);
+      if (p0 >= 0) doc = doc.slice(0, p0) + wPara(capOf(m), { b: true, sz: 24, keep: true, before: 80 }) + wTable(headOf(m), periodRows(m), WID) + doc.slice(p0);
     }
     return doc;
   }
@@ -255,16 +301,16 @@
   /* ---------- Excel: tiêu đề có kỳ + thêm trang "Phát sinh trong kỳ" ---------- */
   function periodSheet(m) {
     const P = m.period, T = v => ({ v, s: 4 }), N = v => ({ v: Number(v) || 0, s: 5 }), PC = v => ({ v: Number(v) || 0, s: 6 }), B = v => ({ v, s: 7 }), H = v => ({ v, s: 3 });
-    const head = ['TT', 'Thủ tục', 'Đơn vị', 'Tiến độ đầu kỳ', 'Tiến độ cuối kỳ', 'Tăng/giảm tiến độ', 'HS tiếp nhận mới / TK DVC tạo mới', 'HS xử lý mới / TK ngân hàng tạo mới', 'HS hoàn thành mới'];
+    const MT = P.monthTab, head = MT ? ['TT', 'Thủ tục', 'Đơn vị', 'Tiến độ tháng trước', 'Tiến độ trong tháng', 'Tăng/giảm tiến độ', 'HS tiếp nhận / TK DVC tạo mới', 'HS xử lý / TK ngân hàng tạo mới', 'HS hoàn thành'] : ['TT', 'Thủ tục', 'Đơn vị', 'Tiến độ đầu kỳ', 'Tiến độ cuối kỳ', 'Tăng/giảm tiến độ', 'HS tiếp nhận mới / TK DVC tạo mới', 'HS xử lý mới / TK ngân hàng tạo mới', 'HS hoàn thành mới'], NA = T('—');
     const rows = [];
     m.procs.filter(x => x.delta).forEach(x => {
       const fee = x.p.kind === 'fee';
-      rows.push([B(''), B(x.p.short), B('Cộng thủ tục'), { v: x.base.average, s: 9 }, { v: x.t.average, s: 9 }, { v: x.delta.avg, s: 9 }, ...(fee ? [N(x.delta.dvc), N(x.delta.bank), T('—')] : [N(x.delta.received), N(x.delta.processed), N(x.delta.done)])]);
-      x.rows.forEach((r, k) => rows.push([N(k + 1), T(x.p.short), T(r.u.unit), PC(r.v0), PC(r.v), PC(r.v - r.v0), ...(fee ? [N(r.d.dvc), N(r.d.bank), T('—')] : [N(r.d.received), N(r.d.processed), N(r.d.done)])]));
+      rows.push([B(''), B(x.p.short), B('Cộng thủ tục'), x.base ? { v: x.base.average, s: 9 } : NA, { v: x.t.average, s: 9 }, x.delta.avg == null ? NA : { v: x.delta.avg, s: 9 }, ...(fee ? [N(x.delta.dvc), N(x.delta.bank), T('—')] : [N(x.delta.received), N(x.delta.processed), N(x.delta.done)])]);
+      x.rows.forEach((r, k) => rows.push([N(k + 1), T(x.p.short), T(r.u.unit), r.v0 == null ? NA : PC(r.v0), PC(r.v), r.v0 == null ? NA : PC(r.v - r.v0), ...(fee ? [N(r.d.dvc), N(r.d.bank), T('—')] : [N(r.d.received), N(r.d.processed), N(r.d.done)])]));
     });
     return {
-      name: 'Phát sinh trong kỳ', cols: [6, 28, 40, 13, 13, 13, 18, 18, 14], freeze: 5, filter: 'A5:I' + (5 + rows.length), merges: ['A1:I1', 'A2:I2', 'A3:I3'], heights: { 0: 30, 4: 36 },
-      rows: [[{ v: 'KẾT QUẢ PHÁT SINH TRONG ' + P.label.toUpperCase(), s: 1 }], [{ v: P.range + ' — số cuối kỳ trừ số đầu kỳ', s: 2 }], [{ v: 'Lập lúc: ' + m.stamp + ' · Nguồn số liệu: ' + m.source, s: 8 }], [], head.map(H), ...rows]
+      name: MT ? 'Hồ sơ trong tháng' : 'Phát sinh trong kỳ', cols: [6, 28, 40, 13, 13, 13, 18, 18, 14], freeze: 5, filter: 'A5:I' + (5 + rows.length), merges: ['A1:I1', 'A2:I2', 'A3:I3'], heights: { 0: 30, 4: 36 },
+      rows: [[{ v: (MT ? 'KẾT QUẢ HỒ SƠ TRONG ' : 'KẾT QUẢ PHÁT SINH TRONG ') + P.label.toUpperCase(), s: 1 }], [{ v: P.range + (MT ? ' — số hồ sơ của chính tháng; tiến độ so với ' + (P.prevTab ? P.prevLabel : 'tháng trước (chưa có số liệu)') : ' — số cuối kỳ trừ số đầu kỳ'), s: 2 }], [{ v: 'Lập lúc: ' + m.stamp + ' · Nguồn số liệu: ' + m.source, s: 8 }], [], head.map(H), ...rows]
     };
   }
   root.exportReportXlsx = function (m, w) {
