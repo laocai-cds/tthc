@@ -62,11 +62,11 @@
       };
       const errs = {}, byMonth = { 10001: {}, 10002: {}, 10003: {} };
       const get = async id => { try {
-        let done = 0;
+        let done = 0, uTot = 0, uDone = 0;
         await Promise.all(months.map(async mo => {
           let rows = await monthTop(id, mo);
-          if (id === 10001) rows = await kidsMonth(rows, mo, () => { st[id] = '⏳ (cộng đơn vị con)'; });
-          byMonth[id][mo] = rows; done++; st[id] = '⏳ (' + done + '/' + months.length + ' tháng)'; show();
+          if (id === 10001) { uTot += rows.length; rows = await kidsMonth(rows, mo, () => { uDone++; st[id] = '⏳ ' + uDone + '/' + uTot + ' đơn vị · ' + done + '/' + months.length + ' tháng'; }); }
+          byMonth[id][mo] = rows; done++; st[id] = id === 10001 ? '⏳ ' + uDone + '/' + uTot + ' đơn vị · ' + done + '/' + months.length + ' tháng' : '⏳ (' + done + '/' + months.length + ' tháng)'; show();
         }));
         if (id === 10001 && kidFail > 25) throw new Error('lấy đơn vị con lỗi ' + kidFail + ' lượt');
         st[id] = '✓'; show(); return true;
