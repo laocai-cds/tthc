@@ -104,6 +104,9 @@ function readRows_(sheet, width) {
 }
 function validId_(r) { return Number.isInteger(Number(r[0])) && Number(r[0]) > 0 && String(r[0]) !== ''; }
 
+/* Mã lưu cập nhật thứ hai (chỉ lưu dạng băm SHA-256, không lưu mã gốc). Dùng song song với mã truy cập chung. */
+const CODE2_HASH = '29e642a2f2d2631dbbc95da448972535a2df68e92288e5a20ed88029e075e967';
+
 function doPost(e) {
   let unitId = '';
   let procedureId = '';
@@ -113,7 +116,8 @@ function doPost(e) {
     if (!raw) throw new Error('Thiếu payload.');
     const request = JSON.parse(raw);
     const storedHash = PropertiesService.getScriptProperties().getProperty('SHARED_ACCESS_CODE_HASH');
-    if (!storedHash || !request.accessCode || digest_(String(request.accessCode).trim()) !== storedHash) {
+    const dgCode_ = request.accessCode ? digest_(String(request.accessCode).trim()) : '';
+    if (!dgCode_ || !((storedHash && dgCode_ === storedHash) || dgCode_ === CODE2_HASH)) {
       throw new Error('Mã truy cập không hợp lệ.');
     }
     lock.waitLock(20000);
