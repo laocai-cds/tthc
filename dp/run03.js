@@ -43,20 +43,22 @@
         .then(rr => { if (!rr.ok) throw new Error('HTTP ' + rr.status); return rr.json(); }).then(jj => (jj.data && jj.data.data) || []);
       const topRows = (id, mo) => post(id, 2122408, mo).then(list => { const seen = {}; const rows = list.filter(x => { const n = String(x.coQuanTen || '').trim(); if (Number(x.coQuanId) === 2122408 || !/^đảng bộ\s/i.test(n) || seen[n.toLowerCase()]) { dropped[n || '(trống)'] = 1; return false; } seen[n.toLowerCase()] = 1; return true; }).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong), x.coQuanId, x.coCapCon === false ? 0 : 1]); if (rows.length < 50) throw new Error('trả thiếu đơn vị (' + rows.length + ') tháng ' + mo); return rows; });
       const monthTop = async (id, mo) => { const k = 'tthc03.m.' + id + '.' + mo; if (mo !== curMo && !sel.has(mo)) { const c = cget(k); if (c) return c; } const rows = await retry(() => topRows(id, mo), 4); if (mo !== curMo) cset(k, rows); return rows; };
-      let kidFail = 0;
+      let kidFail = 0, lastErr = '';
       const walk = async (uid, seen, acc, depth, mo) => {
         const rows = await retry(() => post(10001, uid, mo), 5);
         rows.forEach(r => { if (seen[r.coQuanId]) return; seen[r.coQuanId] = 1; acc[0] += num(r.dangXuLy); acc[1] += num(r.daTuChoi); acc[2] += num(r.daXuLyXong); });
         if (depth < 5) for (const r of rows) if (r.coCapCon && Number(r.coQuanId) !== Number(uid) && !seen['x' + r.coQuanId]) { seen['x' + r.coQuanId] = 1; await walk(r.coQuanId, seen, acc, depth + 1, mo); }
       };
       const kidsMonth = async (rows, mo, prog) => {
-        const k = 'tthc03.k.' + mo, memo = mo !== curMo && !sel.has(mo) ? (cget(k) || {}) : {}, added = {}, out = rows.map(r => r.slice()); let next = 0;
+        const k = 'tthc03.k.' + mo, memo = mo !== curMo && !sel.has(mo) ? (cget(k) || {}) : {}, added = {}, out = rows.map(r => r.slice()), failed = []; let next = 0;
         const worker = async () => { while (next < out.length) { const r = out[next++];
           if (r[5] !== 0) {
             if (memo[r[4]]) { r[1] = memo[r[4]][0]; r[2] = memo[r[4]][1]; r[3] = memo[r[4]][2]; }
-            else try { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { kidFail++; }
+            else try { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { failed.push(r); lastErr = String(e && e.message || e).slice(0, 80); }
           } prog(r[0]); } };
         await Promise.all(Array.from({ length: 20 }, worker));
+        for (let pass = 0; pass < 2 && failed.length; pass++) { const again = failed.splice(0); let j = 0; await Promise.all(Array.from({ length: 3 }, async () => { while (j < again.length) { const r = again[j++]; try { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { failed.push(r); lastErr = String(e && e.message || e).slice(0, 80); } } })); }
+        kidFail += failed.length;
         if (mo !== curMo && Object.keys(added).length) cset(k, Object.assign(memo, added));
         return out;
       };
@@ -69,7 +71,7 @@
           if (id === 10001) { const k = ks[mo] = { d: 0, t: rows.length, last: '' }; rows = await kidsMonth(rows, mo, nm => { k.d++; k.last = nm; st[id] = '⏳ ' + done + '/' + months.length + ' tháng\n' + kline(); }); }
           byMonth[id][mo] = rows; done++; st[id] = id === 10001 ? '⏳ ' + done + '/' + months.length + ' tháng\n' + kline() : '⏳ (' + done + '/' + months.length + ' tháng)'; show();
         }));
-        if (id === 10001 && kidFail > 25) throw new Error('lấy đơn vị con lỗi ' + kidFail + ' lượt');
+        if (id === 10001 && kidFail > 25) throw new Error('lấy đơn vị con lỗi ' + kidFail + ' đơn vị (' + lastErr + ')');
         st[id] = '✓'; show(); return true;
       } catch (e2) { st[id] = '✕'; errs[id] = String(e2 && e2.message || e2).slice(0, 160); show(); return null; } };
       const ti = setInterval(show, 1500);
@@ -102,7 +104,7 @@
       try { if (ok.last03.ok !== false) localStorage.setItem(K_03, code); } catch (e) {}
       const L = ok.last03; Object.keys(L.tabs || {}).forEach(id => { const t = L.tabs[id]; if (t && t.ok === undefined) t.ok = !t.error && (t.hit || 0) > 0; if (t && t.total === undefined) t.total = (t.hit || 0) + (t.miss || 0); }); const line = id => { const t = (L.tabs || {})[id]; return t ? (t.ok ? '✅ ' + NAMES[id] + ': ' + t.hit + '/' + t.total + ' đơn vị' + (t.miss ? ' (không khớp ' + t.miss + ')' : '') : '❌ ' + NAMES[id] + ': ' + t.error) : '❔ ' + NAMES[id] + ': chưa rõ'; };
       const nOk = [10002, 10003, 10001].filter(id => (L.tabs || {})[id] && L.tabs[id].ok).length;
-      const errTxt = L.ok === false && L.error ? '\nLý do: ' + String(L.error).slice(0, 200) : '';
+      const errTxt = (L.ok === false && L.error ? '\nLý do: ' + String(L.error).slice(0, 200) : '') + (Object.keys(errs).length ? '\nLỗi lấy số: ' + Object.keys(errs).map(i => NAMES[i] + ' — ' + errs[i]).join('; ') : '');
       const head = nOk === 3 ? '✅ HOÀN THÀNH 03 thủ tục — đã thay số cũ bằng số mới' : nOk === 0 ? '❌ THẤT BẠI — chưa cập nhật thủ tục nào' : '⚠ XONG MỘT PHẦN (' + nOk + '/3 thủ tục) — bấm lại để thử các thủ tục còn lỗi';
       say(head + errTxt + '\n' + (L.ok === false ? '' : [10002, 10003, 10001].map(line).join('\n')) + (Object.keys(dropped).length ? '\nĐã bỏ ' + Object.keys(dropped).length + ' dòng không phải đơn vị (chi bộ, cơ quan tỉnh…)' : '') + '\nLúc ' + L.at + ' · ' + f1(performance.now() - T0) + ' · chi tiết xem tab NHAT KY', nOk === 3 ? 'ok' : 'bad');
       setTimeout(() => box.remove(), nOk === 3 ? 25000 : 40000);
