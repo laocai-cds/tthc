@@ -17,31 +17,50 @@
       const tk = localStorage.getItem('token');
       if (!tk) { alert('Chưa đăng nhập gqtthc.dcs.vn.'); return; }
       const now = new Date(), per = '01/' + now.getFullYear(), den = p2(now.getMonth() + 1) + '/' + now.getFullYear();
-      /* Chạy song song 3 thủ tục; mỗi thủ tục "đua" nhiều yêu cầu: nếu sau 15 giây chưa có kết quả thì gửi thêm yêu cầu dự phòng (tối đa 4), lấy cái về trước. */
+      /* Cách 1 (nhanh): hỏi cả tỉnh một lần, 3 thủ tục song song, có yêu cầu dự phòng sau 15s.
+         Cách 2 (khi máy chủ báo 504 vì tháng hiện tại quá nhiều hồ sơ): chia nhỏ — các tháng trước hỏi từng tháng; tháng hiện tại hỏi từng đơn vị (nhiều luồng) rồi cộng lại. */
       const st = { 10001: '⏳', 10002: '⏳', 10003: '⏳' };
       const show = () => say('Đang lấy số liệu 03 thủ tục (chạy song song)\n' + [10002, 10003, 10001].map(id => st[id] + ' ' + NAMES[id]).join('\n'));
-      const one = (id, ac) => fetch(G3, { signal: ac.signal, method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ tuThang: per, denThang: den, dvcId: id, coQuanId: 2122408, page: 0, size: 300 }) })
+      const call = (id, body, ac) => fetch(G3, { signal: ac && ac.signal, method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(Object.assign({ dvcId: id, coQuanId: 2122408, page: 0, size: 300 }, body)) })
         .then(rr => { if (!rr.ok) throw new Error('HTTP ' + rr.status); return rr.json(); })
-        .then(jj => { const rows = ((jj.data && jj.data.data) || []).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong)]); if (rows.length < 50) throw new Error('trả thiếu đơn vị (' + rows.length + ')'); return rows; });
-      const get = id => new Promise((resolve, reject) => {
+        .then(jj => ((jj.data && jj.data.data) || []).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong), x.coQuanId]));
+      const retry = async (fn, n) => { let le; for (let a = 0; a < n; a++) { try { return await fn(); } catch (e) { le = e; await new Promise(r => setTimeout(r, 600)); } } throw le; };
+      const fast = id => new Promise((resolve, reject) => {
         const acs = []; let launched = 0, failed = 0, done = false, timer = null, lastErr = null;
-        const MAX = 4, HEDGE = 15000, HARD = 150000, t0 = Date.now();
+        const MAX = 3, HEDGE = 15000, HARD = 50000, t0 = Date.now();
         const finish = (fn, v) => { if (done) return; done = true; clearInterval(timer); acs.forEach(a => { try { a.abort(); } catch (e) {} }); fn(v); };
         const launch = () => {
           if (done || launched >= MAX) return; launched++;
           const ac = new AbortController(); acs.push(ac);
-          one(id, ac).then(rows => { st[id] = '✓'; show(); finish(resolve, rows); }, e => {
+          call(id, { tuThang: per, denThang: den }, ac).then(rows => { if (rows.length < 50) throw new Error('trả thiếu đơn vị (' + rows.length + ')'); finish(resolve, rows); }, e => {
             if (done) return; lastErr = e; failed++;
-            if (launched < MAX) launch();                       /* lỗi (vd 504) thì thử lại NGAY, không chờ */
-            else if (failed >= launched) finish(reject, new Error(NAMES[id] + ': ' + (lastErr && lastErr.message || lastErr) + '. Bấm lại sau ít phút.'));
-          });
+            if (launched < MAX) launch(); else if (failed >= launched) finish(reject, lastErr);
+          }).catch(e => finish(reject, e));
         };
-        timer = setInterval(() => { const el = Date.now() - t0; if (el > HARD) finish(reject, new Error(NAMES[id] + ': máy chủ gqtthc phản hồi quá chậm. Bấm lại sau ít phút.')); else if (el > HEDGE * launched) launch(); }, 1000);
+        timer = setInterval(() => { const el = Date.now() - t0; if (el > HARD) finish(reject, new Error('quá chậm')); else if (el > HEDGE * launched) launch(); }, 1000);
         launch();
       });
+      const split = async id => {
+        const y = now.getFullYear(), cm = now.getMonth() + 1, mk = m => p2(m) + '/' + y;
+        st[id] = '⏳ (chia nhỏ)'; show();
+        const prev = [];
+        for (let m = 1; m < cm; m++) prev.push(retry(() => call(id, { tuThang: mk(m), denThang: mk(m) }), 4));
+        const prevRes = await Promise.all(prev);
+        const base = prevRes[0] || await retry(() => call(id, { tuThang: mk(1), denThang: mk(1) }), 4);
+        if (base.length < 50) throw new Error('trả thiếu đơn vị (' + base.length + ')');
+        const acc = {}; base.forEach(r => { acc[r[4]] = [r[0], 0, 0, 0, r[4]]; });
+        prevRes.forEach(rows => rows.forEach(r => { const a = acc[r[4]]; if (a) { a[1] += r[1]; a[2] += r[2]; a[3] += r[3]; } }));
+        const ids = Object.keys(acc); let next = 0, doneN = 0;
+        const worker = async () => { while (next < ids.length) { const u = ids[next++]; const rows = await retry(() => call(id, { coQuanId: Number(u), tuThang: mk(cm), denThang: mk(cm) }), 4); const r = rows.find(x => String(x[4]) === u) || rows[0]; if (r) { acc[u][1] += r[1]; acc[u][2] += r[2]; acc[u][3] += r[3]; } doneN++; st[id] = '⏳ (chia nhỏ ' + doneN + '/' + ids.length + ')'; } };
+        await Promise.all(Array.from({ length: 12 }, worker));
+        return ids.map(u => acc[u]);
+      };
+      const get = async id => { let rows; try { rows = await fast(id); } catch (e1) { try { rows = await split(id); } catch (e2) { throw new Error(NAMES[id] + ': ' + (e2 && e2.message || e2) + '. Bấm lại sau ít phút.'); } } st[id] = '✓'; show(); return rows; };
+      const ti = setInterval(show, 1500);
       show();
-      const ids = [10002, 10003, 10001], got = await Promise.all(ids.map(id => get(id)));
-      const t03 = {}; ids.forEach((id, k) => { t03[id] = got[k]; });
+      const ids = [10002, 10003, 10001];
+      let got; try { got = await Promise.all(ids.map(id => get(id))); } finally { clearInterval(ti); }
+      const t03 = {}; ids.forEach((id, k) => { t03[id] = got[k].map(r => [r[0], r[1], r[2], r[3]]); });
       let code = ''; try { code = localStorage.getItem(K_03) || ''; } catch (e) {}
       if (!code) { code = (prompt('Mã truy cập chung để ghi số liệu 03 thủ tục lên Google Sheet:') || '').trim(); if (!code) { say('Đã hủy: chưa nhập mã truy cập.', 'bad'); setTimeout(() => box.remove(), 8000); return; } }
       say('Đang ghi lên Google Sheet…');
