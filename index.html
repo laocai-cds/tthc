@@ -3972,7 +3972,7 @@ body .overlay{z-index:10060!important}
  const M03ID={'10001':'nhan-xet','10002':'chinh-thuc','10003':'tam-thoi'},SH03='1zWKZy2rMCsahX-f96bk9tMJuLcDp13OfKNcQq3T5oXA';
  function load03(k){return new Promise(res=>{const NF=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   const cb='__m03'+Date.now(),sc=document.createElement('script'),to=setTimeout(()=>{delete window[cb];sc.remove();res(null)},15000);
-  window[cb]=j=>{clearTimeout(to);delete window[cb];sc.remove();try{if(!j||j.status==='error'||!j.table){res(null);return}const o={};
+  window[cb]=j=>{clearTimeout(to);delete window[cb];sc.remove();try{if(!j||j.status==='error'||!j.table){res(null);return}const c0=(j.table.cols||[])[0];if(!c0||String(c0.label||c0.id).trim()!=='THANG'){res(null);return}const o={};
    (j.table.rows||[]).forEach(rw=>{const c=rw.c||[],pid=M03ID[String(c[1]&&c[1].v)];if(!pid||!c[2])return;(o[pid]||(o[pid]=new Map())).set(NF(c[2].v),[Number(c[3]&&c[3].v)||0,Number(c[4]&&c[4].v)||0,Number(c[5]&&c[5].v)||0])});
    res(o)}catch(e){res(null)}};
   sc.onerror=()=>{clearTimeout(to);res(null)};
