@@ -111,42 +111,57 @@ function tthc03RecalcAll() {
 
 /* Ghi chú 18/11: tthc03Write_ trong dự án Apps Script đã đổi sang xử lý ĐỘC LẬP từng thủ tục, ghi NHAT KY 'Đồng bộ 03 · <thủ tục> · THÀNH CÔNG/THẤT BẠI' và nhận b.errors từ dp/run03.js. Bản đầy đủ nằm trong dự án "03 thủ tục". */
 
-/* ===== SỐ LIỆU THEO THÁNG – tab "03 THEO THANG" =====
+/* ===== SỐ LIỆU THEO THÁNG – mỗi tháng một tab "03 THANG MM-YYYY" =====
  * b.months03 = { '10001': { '10/2026': [[tenDonVi, dangXuLy, daTuChoi, daXuLyXong], ...], '11/2026': [...] }, '10002': {...}, '10003': {...} }
- * Mỗi lần đồng bộ ghi đè các (tháng, thủ tục) được gửi, giữ nguyên các tháng khác. Cột: THANG (yyyy-MM) | THU TUC (id) | TEN DON VI | DANG XU LY | TU CHOI | XONG | CAP NHAT
- * Web đọc tab này để xem tiến độ 03 thủ tục theo tháng. */
-const TTHC03_MONTH_TAB = '03 THEO THANG';
+ * Mỗi tab một tháng, mỗi dòng một đơn vị: TEN DON VI | CT (chính thức) DANG XU LY, TU CHOI, XONG | TT (tạm thời) ... | NX (nhận xét) ... | CAP NHAT
+ * Mỗi lần đồng bộ chỉ ghi đè tab của các tháng được gửi; thủ tục nào không gửi thì giữ nguyên cột cũ. Web đọc các tab này để xem tiến độ theo tháng. */
+const TTHC03_COLS = { '10002': 1, '10003': 4, '10001': 7 };
+function tthc03MonthTab_(key) { return '03 THANG ' + key.slice(5) + '-' + key.slice(0, 4); }
 function tthc03Months_(b) {
   const m = b && b.months03;
   if (!m || typeof m !== 'object') return 0;
   const book = SpreadsheetApp.openById(CONFIG.procedureSpreadsheetId);
-  let sh = book.getSheetByName(TTHC03_MONTH_TAB);
-  if (!sh) {
-    sh = book.insertSheet(TTHC03_MONTH_TAB);
-    sh.getRange(1, 1, 1, 7).setValues([['THANG', 'THU TUC', 'TEN DON VI', 'DANG XU LY', 'TU CHOI', 'XONG', 'CAP NHAT']]);
-    sh.setFrozenRows(1);
-    sh.getRange('A:B').setNumberFormat('@');
-  }
   const at = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss');
-  const sent = {}, add = [];
+  const head = ['TEN DON VI', 'CT DANG XU LY', 'CT TU CHOI', 'CT XONG', 'TT DANG XU LY', 'TT TU CHOI', 'TT XONG', 'NX DANG XU LY', 'NX TU CHOI', 'NX XONG', 'CAP NHAT'];
+  const byMonth = {};
   Object.keys(m).forEach(id => {
-    if (!TTHC03_TABS[id]) return;
+    if (TTHC03_COLS[id] === undefined) return;
     Object.keys(m[id] || {}).forEach(mo => {
       const mm = /^(\d{2})\/(\d{4})$/.exec(mo);
       const list = m[id][mo];
       if (!mm || !Array.isArray(list) || list.length < 50) return;
-      const key = mm[2] + '-' + mm[1];
-      sent[key + '|' + id] = 1;
-      list.forEach(r => add.push([key, String(id), String(r[0]), Math.max(0, Number(r[1]) || 0), Math.max(0, Number(r[2]) || 0), Math.max(0, Number(r[3]) || 0), at]));
+      (byMonth[mm[2] + '-' + mm[1]] = byMonth[mm[2] + '-' + mm[1]] || {})[id] = list;
     });
   });
-  if (!add.length) return 0;
-  const last = sh.getLastRow();
-  const old = last > 1 ? sh.getRange(2, 1, last - 1, 7).getValues() : [];
-  const keep = old.filter(r => !sent[String(r[0]) + '|' + String(r[1])]);
-  const all = keep.concat(add);
-  if (last > 1) sh.getRange(2, 1, last - 1, 7).clearContent();
-  sh.getRange('A:B').setNumberFormat('@');
-  sh.getRange(2, 1, all.length, 7).setValues(all);
-  return add.length;
+  let n = 0;
+  Object.keys(byMonth).forEach(key => {
+    const name = tthc03MonthTab_(key);
+    let sh = book.getSheetByName(name);
+    const rows = {}, order = [];
+    if (!sh) {
+      sh = book.insertSheet(name);
+      sh.getRange(1, 1, 1, head.length).setValues([head]);
+      sh.setFrozenRows(1);
+    } else {
+      const last = sh.getLastRow();
+      if (last > 1) sh.getRange(2, 1, last - 1, head.length).getValues().forEach(r => { const k = String(r[0]); if (k) { rows[k] = r.slice(); order.push(k); } });
+    }
+    Object.keys(byMonth[key]).forEach(id => {
+      const c = TTHC03_COLS[id];
+      byMonth[key][id].forEach(r => {
+        const k = String(r[0]);
+        if (!rows[k]) { rows[k] = [k, '', '', '', '', '', '', '', '', '', '']; order.push(k); }
+        rows[k][c] = Math.max(0, Number(r[1]) || 0);
+        rows[k][c + 1] = Math.max(0, Number(r[2]) || 0);
+        rows[k][c + 2] = Math.max(0, Number(r[3]) || 0);
+        rows[k][10] = at;
+        n++;
+      });
+    });
+    const all = order.map(k => rows[k]);
+    const last2 = sh.getLastRow();
+    if (last2 > 1) sh.getRange(2, 1, last2 - 1, head.length).clearContent();
+    if (all.length) sh.getRange(2, 1, all.length, head.length).setValues(all);
+  });
+  return n;
 }
