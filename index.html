@@ -3957,7 +3957,7 @@ body .overlay{z-index:10060!important}
  const lvOf=v=>LV.find(l=>v>=l.min);
  const typeOf=u=>/^Đảng bộ xã /.test(u)?'xa':/^Đảng bộ phường /.test(u)?'phuong':'khoi';
  const P=()=>data.procedures;
- let st={q:'',lv:'',type:'all',sort:'avg',dir:-1,month:'',rates:null,m03:null},rows=[],view=[],rankMap=new Map(),ownerOf=new Map(),avgAll=0,lastFocus=null;
+ let st={q:'',lv:'',type:'all',sort:'avg',dir:-1,month:'',rates:null,m03:null,all:false},rows=[],view=[],rankMap=new Map(),ownerOf=new Map(),avgAll=0,lastFocus=null;
 
  function rowsFor(){
   const rs=getOverallRankingRows();if(!st.rates&&!st.m03)return rs;
@@ -3977,9 +3977,11 @@ body .overlay{z-index:10060!important}
    res(Object.keys(o).length?o:null)}catch(e){res(null)}};
   sc.onerror=()=>{clearTimeout(to);res(null)};
   sc.src='https://docs.google.com/spreadsheets/d/'+SH03+'/gviz/tq?tqx=out:json;responseHandler:'+cb+'&sheet='+encodeURIComponent('03 THEO THANG')+'&headers=1&tq='+encodeURIComponent("select * where A='"+k+"'")+'&_='+Date.now();document.head.appendChild(sc)})}
+ const curKey=()=>{const d=window.DuesMonth&&DuesMonth.currentKey&&DuesMonth.currentKey();if(d)return d;const t=new Date();return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')};
+ const mLab=()=>{const k=st.month||curKey();return ' T'+(+k.slice(5))+'/'+k.slice(0,4)};
  function monthOpts(){
   const dm=window.DuesMonth,cur=dm?dm.currentKey():'',keys=(dm&&dm.available?dm.available():[cur]).filter(k=>k<=cur).sort().reverse();
-  $('tpMonth').innerHTML=keys.map(k=>`<option value="${k===cur?'':k}">Tháng ${+k.slice(5)}/${k.slice(0,4)}${k===cur?' (hiện tại)':''}</option>`).join('');$('tpMonth').value=st.month;
+  $('tpMonth').innerHTML=keys.map(k=>`<option value="${k===cur?'':k}">Tháng ${+k.slice(5)}/${k.slice(0,4)}${k===cur?' (hiện tại)':''}</option>`).join('')+'<option value="__all">Lũy kế các tháng</option>';$('tpMonth').value=st.all?'__all':st.month;
  }
  function build(){
   rows=rowsFor().map((r,i)=>{const done=r.values.filter(v=>v!=null&&v>=.999).length,run=r.values.filter(v=>v!=null&&v>0&&v<.999).length;return{...r,rank:i+1,done,run,type:typeOf(r.unit)}});
@@ -4003,7 +4005,7 @@ body .overlay{z-index:10060!important}
   $('tpDistNote').textContent=st.lv?'Đang lọc – bấm lại để bỏ lọc':'Bấm vào nhóm để lọc';
  }
  function head(){
-  const cols=[['rank','Hạng',''],['unit','Đơn vị','l'],['avg','Tiến độ tổng',''],...P().map((p,i)=>['p'+i,p.kind==='fee'?p.short+(st.month?' T'+(+st.month.slice(5))+'/'+st.month.slice(0,4):' kỳ hiện tại'):(st.m03&&st.month?p.short+' T'+(+st.month.slice(5))+'/'+st.month.slice(0,4):p.short),'']),['diff','So với BQ',''],['status','Trạng thái','']];
+  const cols=[['rank','Hạng',''],['unit','Đơn vị','l'],['avg','Tiến độ tổng',''],...P().map((p,i)=>['p'+i,p.kind==='fee'?p.short+(st.month?' T'+(+st.month.slice(5))+'/'+st.month.slice(0,4):' kỳ hiện tại'):(st.m03?p.short+mLab():p.short+(st.all?' (lũy kế)':'')),'']),['diff','So với BQ',''],['status','Trạng thái','']];
   $('tpCols').innerHTML='<col class="c-rk"><col class="c-u"><col class="c-tot">'+P().map(()=>'<col class="c-p">').join('')+'<col class="c-df"><col class="c-st">';
   $('tpHead').innerHTML='<tr>'+cols.map(c=>`<th data-k="${c[0]}" class="${c[2]} ${st.sort===c[0]?(st.dir>0?'s-asc':'s-desc'):''}" scope="col">${esc(c[1])}</th>`).join('')+'</tr>';
   $('tpSort').innerHTML=cols.filter(c=>c[0]!=='status').map(c=>`<option value="${c[0]}">Xếp theo: ${esc(c[1])}</option>`).join('');
@@ -4035,7 +4037,8 @@ body .overlay{z-index:10060!important}
   sc.onerror=()=>{clearTimeout(to);sy.className='tp-sync bad';sy.textContent='🔄 Không đọc được thời điểm đồng bộ 03 thủ tục.';lastT=0};
   sc.src=A03+'?action=tthc03_status&callback='+cb+'&_='+Date.now();document.head.appendChild(sc)}
  function refresh(){build();kpis();render()}
- function open(){lastFocus=document.activeElement;monthOpts();refresh();loadSync();ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.documentElement.style.overflow='hidden';setTimeout(()=>$('tpQ').focus(),40)}
+ async function ensure03(){if(st.all||st.m03||st.month)return;const m=await load03(curKey());if(m&&!st.all&&!st.month){st.m03=m;refresh()}}
+ function open(){lastFocus=document.activeElement;monthOpts();refresh();ensure03();loadSync();ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.documentElement.style.overflow='hidden';setTimeout(()=>$('tpQ').focus(),40)}
  function close(){ov.classList.remove('open');ov.setAttribute('aria-hidden','true');document.documentElement.style.overflow='';try{lastFocus&&lastFocus.focus({preventScroll:true})}catch(e){}}
  const isOpen=()=>ov.classList.contains('open');
  function exportRows(kind){
@@ -4052,7 +4055,12 @@ body .overlay{z-index:10060!important}
  $('tpClose').onclick=close;
  {const dlg=ov.querySelector('.tp-dlg'),tg=$('tpTog');const setT=c=>{dlg.classList.toggle('cmp',c);tg.textContent=c?'▾ Hiện phân bố':'▴ Ẩn phân bố';try{localStorage.setItem('tpCmp',c?'1':'0')}catch(e){}};let c0=true;try{const v=localStorage.getItem('tpCmp');if(v!==null)c0=v==='1'}catch(e){}setT(c0);tg.onclick=()=>setT(!dlg.classList.contains('cmp'))}
  ov.addEventListener('mousedown',e=>{if(e.target===ov)close()});
- $('tpMonth').addEventListener('change',async e=>{const k=e.target.value;if(!k){st.month='';st.rates=null;st.m03=null;refresh();return}$('tpCount').textContent='Đang tải số liệu tháng '+(+k.slice(5))+'/'+k.slice(0,4)+'…';let r=null,m=null;try{[r,m]=await Promise.all([window.DuesRanking.rates(k).catch(()=>null),load03(k)])}catch(_){}if(!r&&!m){st.month='';st.rates=null;st.m03=null;monthOpts();refresh();try{toast('Chưa đọc được số liệu tháng '+(+k.slice(5))+'/'+k.slice(0,4))}catch(_){}return}st.month=k;st.rates=r;st.m03=m;if(!m){try{toast('Chưa có số liệu 03 thủ tục theo tháng '+(+k.slice(5))+'/'+k.slice(0,4)+' – các cột 03 thủ tục giữ số lũy kế')}catch(_){}}refresh()});
+ $('tpMonth').addEventListener('change',async e=>{const k=e.target.value;
+  if(k==='__all'){st.all=true;st.month='';st.rates=null;st.m03=null;refresh();return}
+  st.all=false;const key=k||curKey();$('tpCount').textContent='Đang tải số liệu tháng '+(+key.slice(5))+'/'+key.slice(0,4)+'…';
+  let r=null,m=null;try{[r,m]=await Promise.all([k?window.DuesRanking.rates(k).catch(()=>null):Promise.resolve(null),load03(key)])}catch(_){}
+  if(k&&!r&&!m){st.month='';st.rates=null;st.m03=null;monthOpts();refresh();try{toast('Chưa đọc được số liệu tháng '+(+k.slice(5))+'/'+k.slice(0,4))}catch(_){}return}
+  st.month=k;st.rates=k?r:null;st.m03=m;if(!m){try{toast('Chưa có số liệu 03 thủ tục theo tháng '+(+key.slice(5))+'/'+key.slice(0,4)+' – các cột 03 thủ tục tạm hiện số lũy kế')}catch(_){}}refresh()});
  $('tpQ').addEventListener('input',e=>{st.q=e.target.value;render()});
  $('tpSort').addEventListener('change',e=>{st.sort=e.target.value;st.dir=(st.sort==='unit'||st.sort==='rank')?1:-1;render()});
  $('tpHead').addEventListener('click',e=>{const th=e.target.closest('th[data-k]');if(!th)return;const k=th.dataset.k==='status'?'avg':th.dataset.k;if(st.sort===k)st.dir=-st.dir;else{st.sort=k;st.dir=(k==='unit'||k==='rank')?1:-1}render()});
