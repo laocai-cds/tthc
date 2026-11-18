@@ -197,7 +197,7 @@
         : mt ? { received: x.t.received, processed: x.t.processed, done: x.t.done, doneUnits: b ? x.t.doneUnits - b.doneUnits : null, avg: b ? x.t.average - b.average : null }
         : { received: x.t.received - b.received, processed: x.t.processed - b.processed, done: x.t.done - b.done, doneUnits: x.t.doneUnits - b.doneUnits, avg: x.t.average - b.average };
     });
-    const hasBase = m.procs.some(x => x.delta), cmp = m.procs.filter(x => x.delta && x.base), mean = a => a.reduce((s, v) => s + v, 0) / Math.max(1, a.length);
+    const hasBase = m.procs.some(x => x.delta), cmp = m.procs.filter(x => x.delta && x.base && (!MT || x.p.kind === 'case')), mean = a => a.reduce((s, v) => s + v, 0) / Math.max(1, a.length);
     m.period = Object.assign({}, per, {
       range: 'từ ngày ' + dmy(per.from) + ' đến ngày ' + dmy(per.to), live: ctx.live, endDate: ctx.endDate, first: ctx.first,
       baseDate: ctx.base ? ctx.base.date : null, partial: !MT && !!(ctx.base && ctx.base.date >= per.from), hasBase,
@@ -220,11 +220,11 @@
   function periodText(m) {
     const P = m.period; if (!P) return [];
     if (!P.hasBase) return ['Chưa tính được kết quả phát sinh trong ' + P.label + ' do chưa có số liệu lưu trữ đầu kỳ' + (P.first ? ' (hệ thống bắt đầu lưu số liệu hằng ngày từ ngày ' + dmy(P.first) + ')' : '') + '; số liệu trong báo cáo là số lũy kế đến ' + m.asOf + '.'];
-    const c = m.procs.filter(x => x.delta && x.p.kind === 'case'), S = k => c.reduce((s, x) => s + x.delta[k], 0), du = m.procs.reduce((s, x) => s + (x.delta && x.delta.doneUnits != null ? x.delta.doneUnits : 0), 0);
+    const c = m.procs.filter(x => x.delta && x.p.kind === 'case'), S = k => c.reduce((s, x) => s + x.delta[k], 0), du = m.procs.reduce((s, x) => s + (x.delta && x.delta.doneUnits != null && (!P.monthTab || x.p.kind === 'case') ? x.delta.doneUnits : 0), 0);
     if (P.monthTab) {
       const cmp = P.baseAvg != null && P.endAvg != null;
       return ['Trong ' + P.label + ' (' + P.range + '), ' + fmt(c.length) + ' thủ tục về hồ sơ ghi nhận ' + fmt(S('received')) + ' hồ sơ tiếp nhận, trong đó đã xử lý ' + fmt(S('processed')) + ' hồ sơ và hoàn thành ' + fmt(S('done')) + ' hồ sơ (theo số liệu của chính tháng, lấy từ bảng theo dõi 03 thủ tục).' +
-        (cmp ? ' So với ' + P.prevLabel + ', số lượt đơn vị – thủ tục hoàn thành thay đổi ' + signed(du) + '; tiến độ bình quân chung từ ' + rptPct(P.baseAvg) + ' ' + (P.endAvg < P.baseAvg ? 'xuống ' : 'lên ') + rptPct(P.endAvg) + ' (' + pts(P.endAvg - P.baseAvg) + ').'
+        (cmp ? ' So với ' + P.prevLabel + ', số lượt đơn vị – thủ tục hoàn thành thay đổi ' + signed(du) + '; tiến độ bình quân chung của ba thủ tục hồ sơ từ ' + rptPct(P.baseAvg) + ' ' + (P.endAvg < P.baseAvg ? 'xuống ' : 'lên ') + rptPct(P.endAvg) + ' (' + pts(P.endAvg - P.baseAvg) + ').'
           : ' Chưa có số liệu ' + P.prevLabel + ' trên bảng theo dõi nên chưa so sánh được với tháng trước.')];
     }
     return ['Trong ' + P.label + ' (' + P.range + (P.partial ? '; số liệu đầu kỳ tính từ ngày lưu đầu tiên ' + dmy(P.baseDate) : '') + '), ' + fmt(c.length) + ' thủ tục về hồ sơ tiếp nhận mới ' + signed(S('received')) + ' hồ sơ, xử lý ' + signed(S('processed')) + ' hồ sơ, hoàn thành ' + signed(S('done')) + ' hồ sơ; số lượt đơn vị – thủ tục hoàn thành thay đổi ' + signed(du) + '. Tiến độ bình quân chung từ ' + rptPct(P.baseAvg) + ' đầu kỳ ' + (P.endAvg < P.baseAvg ? 'xuống ' : 'lên ') + rptPct(P.endAvg) + ' cuối kỳ (' + pts(P.endAvg - P.baseAvg) + ').'];
