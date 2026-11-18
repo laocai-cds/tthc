@@ -56,6 +56,18 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
   </div>
 
   <div class="card">
+    <h2>Nút “03” – đồng bộ 03 thủ tục</h2>
+    <div id="stat03" class="stat">Đang kiểm tra…</div>
+    <ol>
+      <li>Mở <b>gqtthc.dcs.vn</b>, đăng nhập.</li>
+      <li>Gõ <b>03</b> vào thanh địa chỉ, chạm mục ★ (dấu trang <b>03</b>). Lần đầu nhập mã truy cập chung.</li>
+      <li>Chờ thông báo xanh. Số mới ghi đè số cũ trong Sheet “Theo dõi 03 thủ tục”.</li>
+    </ol>
+    <button class="go" id="bm03" type="button" style="font-size:16px;padding:13px">Chép dấu trang “03”</button>
+    <p class="hint">Lập dấu trang giống “dp” ở dưới, nhưng ô <b>Tên</b> gõ <b>03</b>.</p>
+  </div>
+
+  <div class="card">
     <details id="bmhelp">
       <summary>Lập dấu trang “dp” (làm 1 lần)</summary>
       <ol>
@@ -138,6 +150,16 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
       copyText('javascript:' + encodeURIComponent(c), '✅ Đã chép dấu trang đầy đủ (' + Math.round(c.length / 1024) + ' KB). Dán vào ô URL của dấu trang “dp”.');
     }, function () { $('bmMsg').textContent = 'Không tải được mã. Kiểm tra mạng.'; });
   };
+
+  var API03 = 'https://script.google.com/macros/s/AKfycbym3FHqtE20kg8F3SCuc6LizXSwGhSFT-KBY90c58BuOuRigFbOdyruPkTx4uBscZ-ibw/exec';
+  $('bm03').onclick = function () { copyText("javascript:(function(){var s=document.createElement('script');s.src='https://laocai-tthc.pages.dev/dp/run03.js?'+Date.now();s.onerror=function(){alert('gqtthc chặn tải mã ngoài')};document.head.appendChild(s)})()", '✅ Đã chép dấu trang “03”. Dán vào ô URL của dấu trang tên 03.'); };
+  (function () {
+    var cb = '__dp03s' + Date.now(), s = document.createElement('script'), e = $('stat03');
+    var t = setTimeout(function () { delete window[cb]; s.remove(); e.textContent = 'Không đọc được trạng thái 03 thủ tục.'; e.className = 'stat bad'; }, 20000);
+    window[cb] = function (v) { clearTimeout(t); delete window[cb]; s.remove(); var l = v && v.last03; if (l && l.ok !== false) { e.textContent = '✅ Lần gần nhất: ' + (l.at || '—'); e.className = 'stat ok'; } else if (l) { e.textContent = '✕ Lần gần nhất lỗi: ' + l.error; e.className = 'stat bad'; } else { e.textContent = 'Chưa có lần đồng bộ nào.'; } };
+    s.onerror = function () { clearTimeout(t); e.textContent = 'Không đọc được trạng thái 03 thủ tục.'; e.className = 'stat bad'; };
+    s.src = API03 + '?action=tthc03_status&callback=' + cb + '&_=' + Date.now(); document.head.appendChild(s);
+  })();
 
   check();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
