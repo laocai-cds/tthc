@@ -3940,7 +3940,7 @@ body .overlay{z-index:10060!important}
    <div class="tp-dist"><div class="tp-dist-h"><span>Phân bố đơn vị theo mức tiến độ tổng</span><span id="tpDistNote"></span></div><div class="tp-stack" id="tpStack"></div><div class="tp-leg" id="tpLeg"></div></div>
    <div class="tp-tools">
     <input type="search" class="tp-q" id="tpQ" placeholder="Tìm đơn vị…  (phím /)" aria-label="Tìm đơn vị">
-    <select class="tp-sel" id="tpMonth" aria-label="Chọn tháng thu nộp đảng phí" title="Chọn tháng cho cột Thu nộp đảng phí"></select><select class="tp-sel" id="tpSort" aria-label="Xếp theo"></select>
+    <select class="tp-sel" id="tpMonth" aria-label="Chọn tháng" title="Chọn tháng cho các cột thủ tục và thu nộp đảng phí"></select><select class="tp-sel" id="tpSort" aria-label="Xếp theo"></select>
     <div class="tp-seg" id="tpType" role="group" aria-label="Loại đơn vị"><button type="button" class="on" data-t="all">Tất cả</button><button type="button" data-t="xa">Xã</button><button type="button" data-t="phuong">Phường</button><button type="button" data-t="khoi">Khối tỉnh</button></div>
     <button type="button" class="tp-tog" id="tpTog" title="Ẩn/hiện phần tổng quan để xem được nhiều đơn vị hơn">▴ Thu gọn tổng quan</button><span class="tp-count" id="tpCount"></span>
    </div>
@@ -3957,15 +3957,26 @@ body .overlay{z-index:10060!important}
  const lvOf=v=>LV.find(l=>v>=l.min);
  const typeOf=u=>/^Đảng bộ xã /.test(u)?'xa':/^Đảng bộ phường /.test(u)?'phuong':'khoi';
  const P=()=>data.procedures;
- let st={q:'',lv:'',type:'all',sort:'avg',dir:-1,month:'',rates:null},rows=[],view=[],rankMap=new Map(),ownerOf=new Map(),avgAll=0,lastFocus=null;
+ let st={q:'',lv:'',type:'all',sort:'avg',dir:-1,month:'',rates:null,m03:null},rows=[],view=[],rankMap=new Map(),ownerOf=new Map(),avgAll=0,lastFocus=null;
 
  function rowsFor(){
-  const rs=getOverallRankingRows();if(!st.rates)return rs;
+  const rs=getOverallRankingRows();if(!st.rates&&!st.m03)return rs;
   const NF=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-  const pi=data.procedures.findIndex(p=>p.kind==='fee');if(pi<0)return rs;const fp=data.procedures[pi],um=new Map(fp.units.map(u=>[String(u.unit||'').trim(),u]));
-  rs.forEach(r=>{const u=um.get(r.unit);if(!u||r.values[pi]==null)return;const rt=st.rates.get(NF(r.unit));const v=progress(fp,{...u,collected:(rt==null?0:rt)+'%'});r.sum+=v-r.values[pi];r.values[pi]=v;r.average=r.count?r.sum/r.count:0});
+  if(st.rates){const pi=data.procedures.findIndex(p=>p.kind==='fee');if(pi>=0){const fp=data.procedures[pi],um=new Map(fp.units.map(u=>[String(u.unit||'').trim(),u]));
+   rs.forEach(r=>{const u=um.get(r.unit);if(!u||r.values[pi]==null)return;const rt=st.rates.get(NF(r.unit));const v=progress(fp,{...u,collected:(rt==null?0:rt)+'%'});r.sum+=v-r.values[pi];r.values[pi]=v;r.average=r.count?r.sum/r.count:0})}}
+  if(st.m03){data.procedures.forEach((p,pi)=>{if(p.kind!=='case')return;const mp=st.m03[p.id]||new Map(),um=new Map(p.units.map(u=>[String(u.unit||'').trim(),u]));
+   rs.forEach(r=>{const u=um.get(r.unit);if(!u||r.values[pi]==null)return;const a=mp.get(NF(r.unit))||[0,0,0],rc=a[0]+a[1]+a[2],v=progress(p,{...u,received:rc,processed:a[1]+a[2],need:rc-a[1],done:a[2]});
+    (r.mi||(r.mi={}))[pi]={e:rc,x:a[2]};r.sum+=v-r.values[pi];r.values[pi]=v;r.average=r.count?r.sum/r.count:0})})}
   return rs.sort((a,b)=>b.average-a.average||a.unit.localeCompare(b.unit,'vi'));
  }
+ const M03ID={'10001':'nhan-xet','10002':'chinh-thuc','10003':'tam-thoi'},SH03='1zWKZy2rMCsahX-f96bk9tMJuLcDp13OfKNcQq3T5oXA';
+ function load03(k){return new Promise(res=>{const NF=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const cb='__m03'+Date.now(),sc=document.createElement('script'),to=setTimeout(()=>{delete window[cb];sc.remove();res(null)},15000);
+  window[cb]=j=>{clearTimeout(to);delete window[cb];sc.remove();try{if(!j||j.status==='error'||!j.table){res(null);return}const o={};
+   (j.table.rows||[]).forEach(rw=>{const c=rw.c||[],pid=M03ID[String(c[1]&&c[1].v)];if(!pid||!c[2])return;(o[pid]||(o[pid]=new Map())).set(NF(c[2].v),[Number(c[3]&&c[3].v)||0,Number(c[4]&&c[4].v)||0,Number(c[5]&&c[5].v)||0])});
+   res(Object.keys(o).length?o:null)}catch(e){res(null)}};
+  sc.onerror=()=>{clearTimeout(to);res(null)};
+  sc.src='https://docs.google.com/spreadsheets/d/'+SH03+'/gviz/tq?tqx=out:json;responseHandler:'+cb+'&sheet='+encodeURIComponent('03 THEO THANG')+'&headers=1&tq='+encodeURIComponent("select * where A='"+k+"'")+'&_='+Date.now();document.head.appendChild(sc)})}
  function monthOpts(){
   const dm=window.DuesMonth,cur=dm?dm.currentKey():'',keys=(dm&&dm.available?dm.available():[cur]).filter(k=>k<=cur).sort().reverse();
   $('tpMonth').innerHTML=keys.map(k=>`<option value="${k===cur?'':k}">Tháng ${+k.slice(5)}/${k.slice(0,4)}${k===cur?' (hiện tại)':''}</option>`).join('');$('tpMonth').value=st.month;
@@ -3992,7 +4003,7 @@ body .overlay{z-index:10060!important}
   $('tpDistNote').textContent=st.lv?'Đang lọc – bấm lại để bỏ lọc':'Bấm vào nhóm để lọc';
  }
  function head(){
-  const cols=[['rank','Hạng',''],['unit','Đơn vị','l'],['avg','Tiến độ tổng',''],...P().map((p,i)=>['p'+i,p.kind==='fee'?p.short+(st.month?' T'+(+st.month.slice(5))+'/'+st.month.slice(0,4):' kỳ hiện tại'):p.short,'']),['diff','So với BQ',''],['status','Trạng thái','']];
+  const cols=[['rank','Hạng',''],['unit','Đơn vị','l'],['avg','Tiến độ tổng',''],...P().map((p,i)=>['p'+i,p.kind==='fee'?p.short+(st.month?' T'+(+st.month.slice(5))+'/'+st.month.slice(0,4):' kỳ hiện tại'):(st.m03&&st.month?p.short+' T'+(+st.month.slice(5))+'/'+st.month.slice(0,4):p.short),'']),['diff','So với BQ',''],['status','Trạng thái','']];
   $('tpCols').innerHTML='<col class="c-rk"><col class="c-u"><col class="c-tot">'+P().map(()=>'<col class="c-p">').join('')+'<col class="c-df"><col class="c-st">';
   $('tpHead').innerHTML='<tr>'+cols.map(c=>`<th data-k="${c[0]}" class="${c[2]} ${st.sort===c[0]?(st.dir>0?'s-asc':'s-desc'):''}" scope="col">${esc(c[1])}</th>`).join('')+'</tr>';
   $('tpSort').innerHTML=cols.filter(c=>c[0]!=='status').map(c=>`<option value="${c[0]}">Xếp theo: ${esc(c[1])}</option>`).join('');
@@ -4004,7 +4015,7 @@ body .overlay{z-index:10060!important}
   view=rows.filter(r=>(!q||normalizeRankingSearch(r.unit).includes(q))&&(!st.lv||lvOf(r.average).k===st.lv)&&(st.type==='all'||r.type===st.type));
   view.sort((a,b)=>{const x=val(a,st.sort),y=val(b,st.sort);return(typeof x==='string'?x.localeCompare(y,'vi'):x-y)*st.dir||a.rank-b.rank});
   head();
-  const chip=(v,i,r)=>{const p=P()[i],u=p&&p.units.find(x=>x.unit===r.unit);if(v==null||!u)return'<td><span class="tp-ch">—</span></td>';const sub=p.kind==='fee'?`<span>DVC ${fmt(u.dvccreated)}/${fmt(u.dvctotal)}</span> <span>· NH ${fmt(u.bankcreated)}/${fmt(u.banktotal)}</span>${u.paid==='☑'?' <span>· Đã nộp</span>':''}`:`<span>${fmt(u.received)} tiếp nhận</span> <span>· ${fmt(u.done)} xong</span>${isChecked(u.done10)?' <span>· ✓10</span>':''}`;return`<td><button type="button" class="tp-cb" data-edit="${p.id}:${u.id}" title="Bấm để cập nhật"><span class="tp-ch ${lvOf(v).k}">${pct(v)}</span><small>${sub}</small></button></td>`};
+  const chip=(v,i,r)=>{const p=P()[i],u=p&&p.units.find(x=>x.unit===r.unit),mi=r.mi&&r.mi[i];if(v==null||!u)return'<td><span class="tp-ch">—</span></td>';const sub=p.kind==='fee'?`<span>DVC ${fmt(u.dvccreated)}/${fmt(u.dvctotal)}</span> <span>· NH ${fmt(u.bankcreated)}/${fmt(u.banktotal)}</span>${u.paid==='☑'?' <span>· Đã nộp</span>':''}`:`<span>${fmt(mi?mi.e:u.received)} tiếp nhận</span> <span>· ${fmt(mi?mi.x:u.done)} xong</span>${(mi?mi.x>=10:isChecked(u.done10))?' <span>· ✓10</span>':''}`;return`<td><button type="button" class="tp-cb" data-edit="${p.id}:${u.id}" title="Bấm để cập nhật"><span class="tp-ch ${lvOf(v).k}">${pct(v)}</span><small>${sub}</small></button></td>`};
   $('tpBody').innerHTML=view.map(r=>{const l=lvOf(r.average),d=(r.average-avgAll)*100,stt=r.average>=.999?['ok','Hoàn thành']:r.average>0?['run','Đang triển khai']:['no','Chưa triển khai'];
    return `<tr tabindex="0" data-u="${esc(r.unit)}"><td><span class="tp-rk ${r.rank<=3?'r'+r.rank:''}">${String(r.rank).padStart(2,'0')}</span></td><td class="u">${esc(r.unit)}<small title="${r.done} thủ tục hoàn thành · ${r.run} đang triển khai">${esc(ownerOf.get(r.unit)||'Chưa có cán bộ phụ trách')}</small></td><td><span class="tp-tot" style="--c:${l.c}"><b>${pct(r.average)}</b><span class="tr"><i style="width:${Math.min(100,r.average*100).toFixed(1)}%"></i></span></span></td>${r.values.map((v,i)=>chip(v,i,r)).join('')}<td><span class="tp-diff ${d>=0?'up':'dn'}" title="Chênh lệch so với tiến độ bình quân chung (điểm %)">${d>=0?'▲ +':'▼ '}${d.toLocaleString('vi-VN',{maximumFractionDigits:1})}%</span></td><td><span class="tp-st ${stt[0]}">${stt[1]}</span></td></tr>`}).join('')||`<tr><td colspan="${5+P().length}" class="tp-empty">Không có đơn vị phù hợp</td></tr>`;
   if(view.length){const avgOf=f=>{const xs=view.map(f).filter(v=>v!=null);return xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:null};
@@ -4041,7 +4052,7 @@ body .overlay{z-index:10060!important}
  $('tpClose').onclick=close;
  {const dlg=ov.querySelector('.tp-dlg'),tg=$('tpTog');const setT=c=>{dlg.classList.toggle('cmp',c);tg.textContent=c?'▾ Hiện phân bố':'▴ Ẩn phân bố';try{localStorage.setItem('tpCmp',c?'1':'0')}catch(e){}};let c0=true;try{const v=localStorage.getItem('tpCmp');if(v!==null)c0=v==='1'}catch(e){}setT(c0);tg.onclick=()=>setT(!dlg.classList.contains('cmp'))}
  ov.addEventListener('mousedown',e=>{if(e.target===ov)close()});
- $('tpMonth').addEventListener('change',async e=>{const k=e.target.value;if(!k){st.month='';st.rates=null;refresh();return}$('tpCount').textContent='Đang tải số liệu tháng '+(+k.slice(5))+'/'+k.slice(0,4)+'…';let r=null;try{r=await window.DuesRanking.rates(k)}catch(_){}if(!r){st.month='';st.rates=null;monthOpts();refresh();try{toast('Chưa đọc được số liệu đảng phí tháng '+(+k.slice(5))+'/'+k.slice(0,4))}catch(_){}return}st.month=k;st.rates=r;refresh()});
+ $('tpMonth').addEventListener('change',async e=>{const k=e.target.value;if(!k){st.month='';st.rates=null;st.m03=null;refresh();return}$('tpCount').textContent='Đang tải số liệu tháng '+(+k.slice(5))+'/'+k.slice(0,4)+'…';let r=null,m=null;try{[r,m]=await Promise.all([window.DuesRanking.rates(k).catch(()=>null),load03(k)])}catch(_){}if(!r&&!m){st.month='';st.rates=null;st.m03=null;monthOpts();refresh();try{toast('Chưa đọc được số liệu tháng '+(+k.slice(5))+'/'+k.slice(0,4))}catch(_){}return}st.month=k;st.rates=r;st.m03=m;if(!m){try{toast('Chưa có số liệu 03 thủ tục theo tháng '+(+k.slice(5))+'/'+k.slice(0,4)+' – các cột 03 thủ tục giữ số lũy kế')}catch(_){}}refresh()});
  $('tpQ').addEventListener('input',e=>{st.q=e.target.value;render()});
  $('tpSort').addEventListener('change',e=>{st.sort=e.target.value;st.dir=(st.sort==='unit'||st.sort==='rank')?1:-1;render()});
  $('tpHead').addEventListener('click',e=>{const th=e.target.closest('th[data-k]');if(!th)return;const k=th.dataset.k==='status'?'avg':th.dataset.k;if(st.sort===k)st.dir=-st.dir;else{st.sort=k;st.dir=(k==='unit'||k==='rank')?1:-1}render()});

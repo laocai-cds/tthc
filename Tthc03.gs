@@ -59,6 +59,7 @@ function tthc03Write_(b) {
     plan.forEach(p => { p.sh.getRange(4, 5, p.last - 3, 5).setValues(p.vals); });
     SpreadsheetApp.flush();
     plan.forEach(p => { try { sortUnitRows_(p.sh); } catch (err) { console.error('sort03 ' + err); } });
+    try { res.months = tthc03Months_(b); } catch (err) { console.error('months03 ' + err); res.monthsError = String(err && err.message || err); }
     props.setProperty('LAST_TTHC03', JSON.stringify(res));
     try { nkAdd_('gqtthc-api', 'Đồng bộ 03 thủ tục từ API', res.period, 'api'); } catch (_) {}
     return json_({ ok: true });
@@ -109,3 +110,43 @@ function tthc03RecalcAll() {
 
 
 /* Ghi chú 18/11: tthc03Write_ trong dự án Apps Script đã đổi sang xử lý ĐỘC LẬP từng thủ tục, ghi NHAT KY 'Đồng bộ 03 · <thủ tục> · THÀNH CÔNG/THẤT BẠI' và nhận b.errors từ dp/run03.js. Bản đầy đủ nằm trong dự án "03 thủ tục". */
+
+/* ===== SỐ LIỆU THEO THÁNG – tab "03 THEO THANG" =====
+ * b.months03 = { '10001': { '10/2026': [[tenDonVi, dangXuLy, daTuChoi, daXuLyXong], ...], '11/2026': [...] }, '10002': {...}, '10003': {...} }
+ * Mỗi lần đồng bộ ghi đè các (tháng, thủ tục) được gửi, giữ nguyên các tháng khác. Cột: THANG (yyyy-MM) | THU TUC (id) | TEN DON VI | DANG XU LY | TU CHOI | XONG | CAP NHAT
+ * Web đọc tab này để xem tiến độ 03 thủ tục theo tháng. */
+const TTHC03_MONTH_TAB = '03 THEO THANG';
+function tthc03Months_(b) {
+  const m = b && b.months03;
+  if (!m || typeof m !== 'object') return 0;
+  const book = SpreadsheetApp.openById(CONFIG.procedureSpreadsheetId);
+  let sh = book.getSheetByName(TTHC03_MONTH_TAB);
+  if (!sh) {
+    sh = book.insertSheet(TTHC03_MONTH_TAB);
+    sh.getRange(1, 1, 1, 7).setValues([['THANG', 'THU TUC', 'TEN DON VI', 'DANG XU LY', 'TU CHOI', 'XONG', 'CAP NHAT']]);
+    sh.setFrozenRows(1);
+    sh.getRange('A:B').setNumberFormat('@');
+  }
+  const at = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss');
+  const sent = {}, add = [];
+  Object.keys(m).forEach(id => {
+    if (!TTHC03_TABS[id]) return;
+    Object.keys(m[id] || {}).forEach(mo => {
+      const mm = /^(\d{2})\/(\d{4})$/.exec(mo);
+      const list = m[id][mo];
+      if (!mm || !Array.isArray(list) || list.length < 50) return;
+      const key = mm[2] + '-' + mm[1];
+      sent[key + '|' + id] = 1;
+      list.forEach(r => add.push([key, String(id), String(r[0]), Math.max(0, Number(r[1]) || 0), Math.max(0, Number(r[2]) || 0), Math.max(0, Number(r[3]) || 0), at]));
+    });
+  });
+  if (!add.length) return 0;
+  const last = sh.getLastRow();
+  const old = last > 1 ? sh.getRange(2, 1, last - 1, 7).getValues() : [];
+  const keep = old.filter(r => !sent[String(r[0]) + '|' + String(r[1])]);
+  const all = keep.concat(add);
+  if (last > 1) sh.getRange(2, 1, last - 1, 7).clearContent();
+  sh.getRange('A:B').setNumberFormat('@');
+  sh.getRange(2, 1, all.length, 7).setValues(all);
+  return add.length;
+}
