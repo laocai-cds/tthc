@@ -19,11 +19,12 @@
       const now = new Date(), per = '01/' + now.getFullYear(), den = p2(now.getMonth() + 1) + '/' + now.getFullYear();
       /* Cách 1 (nhanh): hỏi cả tỉnh một lần, 3 thủ tục song song, có yêu cầu dự phòng sau 15s.
          Cách 2 (khi máy chủ báo 504 vì tháng hiện tại quá nhiều hồ sơ): chia nhỏ — các tháng trước hỏi từng tháng; tháng hiện tại hỏi từng đơn vị (nhiều luồng) rồi cộng lại. */
+      const dropped = {};
       const st = { 10001: '⏳', 10002: '⏳', 10003: '⏳' };
       const show = () => say('Đang lấy số liệu 03 thủ tục (chạy song song)\n' + [10002, 10003, 10001].map(id => st[id] + ' ' + NAMES[id]).join('\n'));
       const call = (id, body, ac) => fetch(G3, { signal: ac && ac.signal, method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(Object.assign({ dvcId: id, coQuanId: 2122408, page: 0, size: 300 }, body)) })
         .then(rr => { if (!rr.ok) throw new Error('HTTP ' + rr.status); return rr.json(); })
-        .then(jj => ((jj.data && jj.data.data) || []).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong), x.coQuanId]));
+        .then(jj => { const seen = {}; return ((jj.data && jj.data.data) || []).filter(x => { const n = String(x.coQuanTen || '').trim(); if (Number(x.coQuanId) === 2122408 || !/^đảng bộ\s/i.test(n) || seen[n.toLowerCase()]) { dropped[n || '(trống)'] = 1; return false; } seen[n.toLowerCase()] = 1; return true; }).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong), x.coQuanId]); });
       const retry = async (fn, n) => { let le; for (let a = 0; a < n; a++) { try { return await fn(); } catch (e) { le = e; await new Promise(r => setTimeout(r, 600)); } } throw le; };
       const fast = id => new Promise((resolve, reject) => {
         const acs = []; let launched = 0, failed = 0, done = false, timer = null, lastErr = null;
@@ -84,7 +85,7 @@
       const L = ok.last03, line = id => { const t = (L.tabs || {})[id]; return t ? (t.ok ? '✅ ' + NAMES[id] + ': ' + t.hit + '/' + t.total + ' đơn vị' + (t.miss ? ' (không khớp ' + t.miss + ')' : '') : '❌ ' + NAMES[id] + ': ' + t.error) : '❔ ' + NAMES[id] + ': chưa rõ'; };
       const nOk = [10002, 10003, 10001].filter(id => (L.tabs || {})[id] && L.tabs[id].ok).length;
       const head = nOk === 3 ? '✅ HOÀN THÀNH 03 thủ tục — đã thay số cũ bằng số mới' : nOk === 0 ? '❌ THẤT BẠI — chưa cập nhật thủ tục nào' : '⚠ XONG MỘT PHẦN (' + nOk + '/3 thủ tục) — bấm lại để thử các thủ tục còn lỗi';
-      say(head + '\n' + [10002, 10003, 10001].map(line).join('\n') + '\nLúc ' + L.at + ' · ' + f1(performance.now() - T0) + ' · chi tiết xem tab NHAT KY', nOk === 3 ? 'ok' : 'bad');
+      say(head + '\n' + [10002, 10003, 10001].map(line).join('\n') + (Object.keys(dropped).length ? '\nĐã bỏ khỏi danh sách (không phải đơn vị): ' + Object.keys(dropped).join('; ') : '') + '\nLúc ' + L.at + ' · ' + f1(performance.now() - T0) + ' · chi tiết xem tab NHAT KY', nOk === 3 ? 'ok' : 'bad');
       setTimeout(() => box.remove(), nOk === 3 ? 25000 : 40000);
     } catch (e) { say('✕ ' + (e && e.message || e), 'bad'); setTimeout(() => box.remove(), 20000); }
   })();
