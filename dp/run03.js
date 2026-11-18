@@ -35,7 +35,7 @@
       if (!sel.size) { alert('Không có tháng hợp lệ (' + first + '–' + cm + '). Đã hủy.'); say('Đã hủy: tháng không hợp lệ.', 'bad'); setTimeout(() => box.remove(), 6000); return; }
       const dropped = {};
       const st = { 10001: '⏳', 10002: '⏳', 10003: '⏳' };
-      const show = () => say('Đang lấy số liệu 03 thủ tục · làm mới tháng ' + [...sel].map(m => +m.slice(0, 2)).join(', ') + '\n' + [10002, 10003, 10001].map(id => { const q = String(kShows[id] && /^⏳/.test(st[id]) ? kShows[id]() : st[id]).split('\n'); return q[0] + ' ' + NAMES[id] + (q.length > 1 ? '\n' + q.slice(1).join('\n') : ''); }).join('\n'));
+      const show = () => say('Đang lấy số liệu 03 thủ tục · làm mới tháng ' + [...sel].map(m => +m.slice(0, 2)).join(', ') + modeTxt + '\n' + [10002, 10003, 10001].map(id => { const q = String(kShows[id] && /^⏳/.test(st[id]) ? kShows[id]() : st[id]).split('\n'); return q[0] + ' ' + NAMES[id] + (q.length > 1 ? '\n' + q.slice(1).join('\n') : ''); }).join('\n'));
       const retry = async (fn, n) => { let le; for (let a = 0; a < n; a++) { try { return await fn(); } catch (e) { le = e; if (a < n - 1) await new Promise(r => setTimeout(r, 800 + 1500 * a * a)); } } throw le; };
       const cget = k => { try { const c = JSON.parse(localStorage.getItem(k) || 'null'); if (c && c.t && Date.now() - c.t < 864e5) return c.d; } catch (e) {} return null; };
       const cset = (k, d) => { try { localStorage.setItem(k, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {} };
@@ -55,15 +55,31 @@
         rows.forEach(r => { if (seen[r.coQuanId]) return; seen[r.coQuanId] = 1; acc[0] += num(r.dangXuLy); acc[1] += num(r.daTuChoi); acc[2] += num(r.daXuLyXong); });
         if (depth < 5) for (const r of rows) if (r.coCapCon && Number(r.coQuanId) !== Number(uid) && !seen['x' + r.coQuanId]) { seen['x' + r.coQuanId] = 1; await walk(r.coQuanId, seen, acc, depth + 1, mo, pid); }
       };
+      /* ĐƯỜNG NHANH: API theo-tthc trả luôn số của cả 3 thủ tục (đã cộng đơn vị con nếu gqtthc làm vậy) trong MỘT lần gọi cho mỗi đơn vị.
+         Chỉ dùng khi kiểm tra thấy khớp 100% với cách cộng từng đơn vị con; không khớp / lỗi thì tự dùng cách cũ. */
+      const G3T = 'https://gateway-gqtthc.dcs.vn/report/api/v1/thong-ke-ho-so/theo-tthc';
+      let FAST = false, modeTxt = '';
+      const postT = (uid, mo) => gSlot().then(() => fetch(G3T, { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ tuThang: mo, denThang: mo, coQuanId: uid, page: 0, size: 1000 }) })
+        .then(rr => { if (!rr.ok) throw new Error('HTTP ' + rr.status); return rr.json(); }).then(jj => (jj.data && jj.data.data) || [])).finally(gFree);
+      const fm = {};
+      const fastRows = (uid, mo) => { const k = uid + '|' + mo; if (!fm[k]) { fm[k] = retry(() => postT(uid, mo), 4).then(list => { const o = {}; list.forEach(x => { const d = Number(x.dvcId); if (d === 10001 || d === 10002 || d === 10003) o[d] = [num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong)]; }); return o; }); fm[k].catch(() => { delete fm[k]; }); } return fm[k]; };
+      const fastAgg = async (uid, mo, pid, acc) => { const o = await fastRows(uid, mo); const v = o[pid] || [0, 0, 0]; acc[0] = v[0]; acc[1] = v[1]; acc[2] = v[2]; };
+      const aggOf = (uid, mo, pid, acc) => FAST ? fastAgg(uid, mo, pid, acc).catch(() => walk(uid, {}, acc, 0, mo, pid)) : walk(uid, {}, acc, 0, mo, pid);
+      const detectFast = async mo => { try {
+        say('Đang kiểm tra đường lấy số nhanh (1 lần gọi/đơn vị)…');
+        const base = await retry(() => topRows(10002, mo), 5); const samp = base.filter(r => r[5] !== 0).slice(0, 6); if (samp.length < 3) return false; let informative = 0;
+        for (const r of samp) { const t = await fastRows(r[4], mo); for (const pid of [10002, 10003, 10001]) { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo, pid); const v = t[pid] || [0, 0, 0]; if (acc[0] !== v[0] || acc[1] !== v[1] || acc[2] !== v[2]) return false; if (pid === 10002 && (acc[0] !== r[1] || acc[1] !== r[2] || acc[2] !== r[3])) informative++; } }
+        return informative > 0;
+      } catch (e) { return false; } };
       const kidsMonth = async (rows, mo, prog, pid) => {
         const k = pid === 10001 ? 'tthc03.k.' + mo : 'tthc03.k.' + pid + '.' + mo, memo = mo !== curMo && !sel.has(mo) ? (cget(k) || {}) : {}, added = {}, out = rows.map(r => r.slice()), failed = []; let next = 0;
         const worker = async () => { while (next < out.length) { const r = out[next++];
           if (r[5] !== 0) {
             if (memo[r[4]]) { r[1] = memo[r[4]][0]; r[2] = memo[r[4]][1]; r[3] = memo[r[4]][2]; }
-            else try { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo, pid); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { failed.push(r); lastErr[pid] = String(e && e.message || e).slice(0, 80); }
+            else try { const acc = [0, 0, 0]; await aggOf(r[4], mo, pid, acc); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { failed.push(r); lastErr[pid] = String(e && e.message || e).slice(0, 80); }
           } prog(r[0]); } };
         await Promise.all(Array.from({ length: 10 }, worker));
-        for (let pass = 0; pass < 2 && failed.length; pass++) { const again = failed.splice(0); let j = 0; await Promise.all(Array.from({ length: 3 }, async () => { while (j < again.length) { const r = again[j++]; try { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo, pid); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { failed.push(r); lastErr[pid] = String(e && e.message || e).slice(0, 80); } } })); }
+        for (let pass = 0; pass < 2 && failed.length; pass++) { const again = failed.splice(0); let j = 0; await Promise.all(Array.from({ length: 3 }, async () => { while (j < again.length) { const r = again[j++]; try { const acc = [0, 0, 0]; await aggOf(r[4], mo, pid, acc); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { failed.push(r); lastErr[pid] = String(e && e.message || e).slice(0, 80); } } })); }
         kidFail[pid] = (kidFail[pid] || 0) + failed.length;
         if (mo !== curMo && Object.keys(added).length) cset(k, Object.assign(memo, added));
         return out;
@@ -81,6 +97,7 @@
         if ((kidFail[id] || 0) > 25) throw new Error('lấy đơn vị con lỗi ' + kidFail[id] + ' đơn vị (' + lastErr[id] + ')');
         st[id] = '✓'; show(); return true;
       } catch (e2) { st[id] = '✕'; errs[id] = String(e2 && e2.message || e2).slice(0, 160); show(); return null; } };
+      { const dm = sel.has(curMo) ? curMo : [...sel][0]; FAST = await detectFast(dm); modeTxt = FAST ? '  ⚡ đường nhanh' : '  (đường chi tiết)'; }
       const ti = setInterval(show, 1500);
       show();
       const ids = [10002, 10003, 10001];
