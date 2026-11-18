@@ -35,7 +35,7 @@
       if (!sel.size) { alert('Không có tháng hợp lệ (' + first + '–' + cm + '). Đã hủy.'); say('Đã hủy: tháng không hợp lệ.', 'bad'); setTimeout(() => box.remove(), 6000); return; }
       const dropped = {};
       const st = { 10001: '⏳', 10002: '⏳', 10003: '⏳' };
-      const show = () => say('Đang lấy số liệu 03 thủ tục · làm mới tháng ' + [...sel].map(m => +m.slice(0, 2)).join(', ') + '\n' + [10002, 10003, 10001].map(id => st[id] + ' ' + NAMES[id]).join('\n'));
+      const show = () => say('Đang lấy số liệu 03 thủ tục · làm mới tháng ' + [...sel].map(m => +m.slice(0, 2)).join(', ') + '\n' + [10002, 10003, 10001].map(id => { const q = String(st[id]).split('\n'); return q[0] + ' ' + NAMES[id] + (q.length > 1 ? '\n' + q.slice(1).join('\n') : ''); }).join('\n'));
       const retry = async (fn, n) => { let le; for (let a = 0; a < n; a++) { try { return await fn(); } catch (e) { le = e; await new Promise(r => setTimeout(r, 600)); } } throw le; };
       const cget = k => { try { const c = JSON.parse(localStorage.getItem(k) || 'null'); if (c && c.t && Date.now() - c.t < 864e5) return c.d; } catch (e) {} return null; };
       const cset = (k, d) => { try { localStorage.setItem(k, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {} };
@@ -55,18 +55,19 @@
           if (r[5] !== 0) {
             if (memo[r[4]]) { r[1] = memo[r[4]][0]; r[2] = memo[r[4]][1]; r[3] = memo[r[4]][2]; }
             else try { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo); r[1] = acc[0]; r[2] = acc[1]; r[3] = acc[2]; added[r[4]] = acc; } catch (e) { kidFail++; }
-          } prog(); } };
+          } prog(r[0]); } };
         await Promise.all(Array.from({ length: 20 }, worker));
         if (mo !== curMo && Object.keys(added).length) cset(k, Object.assign(memo, added));
         return out;
       };
       const errs = {}, byMonth = { 10001: {}, 10002: {}, 10003: {} };
       const get = async id => { try {
-        let done = 0, uTot = 0, uDone = 0;
+        let done = 0; const ks = {};
+        const kline = () => months.filter(m => ks[m]).map(m => '   · T' + (+m.slice(0, 2)) + ': ' + (ks[m].d >= ks[m].t ? '✓ xong ' + ks[m].t + ' đơn vị' : ks[m].d + '/' + ks[m].t + ' đơn vị' + (ks[m].last ? ' — vừa xong: ' + String(ks[m].last).replace(/^đảng bộ\s*/i, '').slice(0, 40) : ''))).join('\n');
         await Promise.all(months.map(async mo => {
           let rows = await monthTop(id, mo);
-          if (id === 10001) { uTot += rows.length; rows = await kidsMonth(rows, mo, () => { uDone++; st[id] = '⏳ ' + uDone + '/' + uTot + ' đơn vị · ' + done + '/' + months.length + ' tháng'; }); }
-          byMonth[id][mo] = rows; done++; st[id] = id === 10001 ? '⏳ ' + uDone + '/' + uTot + ' đơn vị · ' + done + '/' + months.length + ' tháng' : '⏳ (' + done + '/' + months.length + ' tháng)'; show();
+          if (id === 10001) { const k = ks[mo] = { d: 0, t: rows.length, last: '' }; rows = await kidsMonth(rows, mo, nm => { k.d++; k.last = nm; st[id] = '⏳ ' + done + '/' + months.length + ' tháng\n' + kline(); }); }
+          byMonth[id][mo] = rows; done++; st[id] = id === 10001 ? '⏳ ' + done + '/' + months.length + ' tháng\n' + kline() : '⏳ (' + done + '/' + months.length + ' tháng)'; show();
         }));
         if (id === 10001 && kidFail > 25) throw new Error('lấy đơn vị con lỗi ' + kidFail + ' lượt');
         st[id] = '✓'; show(); return true;
