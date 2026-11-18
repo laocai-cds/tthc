@@ -65,12 +65,17 @@
       const fastRows = (uid, mo) => { const k = uid + '|' + mo; if (!fm[k]) { fm[k] = retry(() => postT(uid, mo), 4).then(list => { const o = {}; list.forEach(x => { const d = Number(x.dvcId); if (d === 10001 || d === 10002 || d === 10003) o[d] = [num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong)]; }); return o; }); fm[k].catch(() => { delete fm[k]; }); } return fm[k]; };
       const fastAgg = async (uid, mo, pid, acc) => { const o = await fastRows(uid, mo); const v = o[pid] || [0, 0, 0]; acc[0] = v[0]; acc[1] = v[1]; acc[2] = v[2]; };
       const aggOf = (uid, mo, pid, acc) => FAST ? fastAgg(uid, mo, pid, acc).catch(() => walk(uid, {}, acc, 0, mo, pid)) : walk(uid, {}, acc, 0, mo, pid);
+      let fastWhy = '';
       const detectFast = async mo => { try {
         say('Đang kiểm tra đường lấy số nhanh (1 lần gọi/đơn vị)…');
-        const base = await retry(() => topRows(10002, mo), 5); const samp = base.filter(r => r[5] !== 0).slice(0, 6); if (samp.length < 3) return false; let informative = 0;
-        for (const r of samp) { const t = await fastRows(r[4], mo); for (const pid of [10002, 10003, 10001]) { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo, pid); const v = t[pid] || [0, 0, 0]; if (acc[0] !== v[0] || acc[1] !== v[1] || acc[2] !== v[2]) return false; if (pid === 10002 && (acc[0] !== r[1] || acc[1] !== r[2] || acc[2] !== r[3])) informative++; } }
-        return informative > 0;
-      } catch (e) { return false; } };
+        const base = await retry(() => topRows(10002, mo), 5); const samp = base.filter(r => r[5] !== 0).slice(0, 6); if (samp.length < 3) { fastWhy = 'có ít hơn 3 đơn vị có đơn vị con để thử'; return false; } let informative = 0;
+        for (const r of samp) { const t = await fastRows(r[4], mo); const got = Object.keys(t).join('/') || 'không có thủ tục nào';
+          for (const pid of [10002, 10003, 10001]) { const acc = [0, 0, 0]; await walk(r[4], {}, acc, 0, mo, pid); const v = t[pid] || [0, 0, 0];
+            if (acc[0] !== v[0] || acc[1] !== v[1] || acc[2] !== v[2]) { fastWhy = 'số theo-tthc lệch: ' + String(r[0]).replace(/^đảng bộ\s*/i, '') + ' · ' + NAMES[pid] + ' · theo-tthc ' + v.join('/') + ' ≠ cộng con ' + acc.join('/') + ' (đơn vị riêng ' + [r[1], r[2], r[3]].join('/') + ') · có: ' + got; try { console.log('[03] kiểm tra đường nhanh', { donVi: r[0], thuTuc: pid, theoTthc: v, congDonViCon: acc, rieng: [r[1], r[2], r[3]], theoTthcTraVe: t }); } catch (e) {} return false; }
+            if (pid === 10002 && (acc[0] !== r[1] || acc[1] !== r[2] || acc[2] !== r[3])) informative++; } }
+        if (!informative) { fastWhy = 'chưa chứng minh được theo-tthc có cộng đơn vị con (6 đơn vị thử đều bằng số riêng)'; return false; }
+        return true;
+      } catch (e) { fastWhy = 'lỗi khi thử: ' + String(e && e.message || e).slice(0, 80); return false; } };
       const kidsMonth = async (rows, mo, prog, pid) => {
         const k = pid === 10001 ? 'tthc03.k.' + mo : 'tthc03.k.' + pid + '.' + mo, memo = mo !== curMo && !sel.has(mo) ? (cget(k) || {}) : {}, added = {}, out = rows.map(r => r.slice()), failed = []; let next = 0;
         const worker = async () => { while (next < out.length) { const r = out[next++];
@@ -97,7 +102,7 @@
         if ((kidFail[id] || 0) > 25) throw new Error('lấy đơn vị con lỗi ' + kidFail[id] + ' đơn vị (' + lastErr[id] + ')');
         st[id] = '✓'; show(); return true;
       } catch (e2) { st[id] = '✕'; errs[id] = String(e2 && e2.message || e2).slice(0, 160); show(); return null; } };
-      { const dm = sel.has(curMo) ? curMo : [...sel][0]; FAST = await detectFast(dm); modeTxt = FAST ? '  ⚡ đường nhanh' : '  (đường chi tiết)'; }
+      { const dm = sel.has(curMo) ? curMo : [...sel][0]; FAST = await detectFast(dm); modeTxt = FAST ? '  ⚡ đường nhanh' : '  (đường chi tiết' + (fastWhy ? ' — ' + fastWhy : '') + ')'; }
       const ti = setInterval(show, 1500);
       show();
       const ids = [10002, 10003, 10001];
