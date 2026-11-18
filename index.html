@@ -4043,7 +4043,7 @@ body .overlay{z-index:10060!important}
   sc.src=A03+'?action=tthc03_status&callback='+cb+'&_='+Date.now();document.head.appendChild(sc)}
  function refresh(){build();kpis();render()}
  (async()=>{const w=()=>new Promise(r=>setTimeout(r,600));for(let i=0;i<80&&!(typeof data!=='undefined'&&data&&data.procedures&&data.procedures.length);i++)await w();const k=curKey(),m=await load03(k);if(m){window.__m03cur=m;window.__m03key=k;try{renderOverview()}catch(e){}}})();
- async function ensure03(){if(st.m03||st.month)return;const m=await load03(curKey());if(!st.month){st.m03=m;st.nodata=!m;refresh()}}
+ async function ensure03(){if(st.m03||st.month)return;const m=await load03(curKey());if(!st.month){st.m03=m;st.nodata=false;refresh()}}
  function open(){lastFocus=document.activeElement;monthOpts();refresh();ensure03();loadSync();ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.documentElement.style.overflow='hidden';setTimeout(()=>$('tpQ').focus(),40)}
  function close(){ov.classList.remove('open');ov.setAttribute('aria-hidden','true');document.documentElement.style.overflow='';try{lastFocus&&lastFocus.focus({preventScroll:true})}catch(e){}}
  const isOpen=()=>ov.classList.contains('open');
@@ -4064,7 +4064,7 @@ body .overlay{z-index:10060!important}
  $('tpMonth').addEventListener('change',async e=>{const k=e.target.value,key=k||curKey();$('tpCount').textContent='Đang tải số liệu tháng '+(+key.slice(5))+'/'+key.slice(0,4)+'…';
   let r=null,m=null;try{[r,m]=await Promise.all([k?window.DuesRanking.rates(k).catch(()=>null):Promise.resolve(null),load03(key)])}catch(_){}
   if(k&&!r&&!m){st.month='';st.rates=null;st.m03=null;st.nodata=false;monthOpts();refresh();ensure03();try{toast('Chưa đọc được số liệu tháng '+(+k.slice(5))+'/'+k.slice(0,4))}catch(_){}return}
-  st.month=k;st.rates=k?r:null;st.m03=m;st.nodata=!m;if(!m){try{toast('Chưa có số liệu 03 thủ tục của tháng '+(+key.slice(5))+'/'+key.slice(0,4)+' (cần đồng bộ tháng này)')}catch(_){}}refresh()});
+  st.month=k;st.rates=k?r:null;st.m03=m;const cur=key===curKey();st.nodata=!m&&!cur;if(!m){try{toast(cur?'Tháng '+(+key.slice(5))+' chưa đồng bộ riêng — đang hiện số 03 thủ tục của lần đồng bộ gần nhất':'Chưa có số liệu 03 thủ tục của tháng '+(+key.slice(5))+'/'+key.slice(0,4)+' (cần đồng bộ tháng này)')}catch(_){}}refresh()});
  $('tpQ').addEventListener('input',e=>{st.q=e.target.value;render()});
  $('tpSort').addEventListener('change',e=>{st.sort=e.target.value;st.dir=(st.sort==='unit'||st.sort==='rank')?1:-1;render()});
  $('tpHead').addEventListener('click',e=>{const th=e.target.closest('th[data-k]');if(!th)return;const k=th.dataset.k==='status'?'avg':th.dataset.k;if(st.sort===k)st.dir=-st.dir;else{st.sort=k;st.dir=(k==='unit'||k==='rank')?1:-1}render()});
