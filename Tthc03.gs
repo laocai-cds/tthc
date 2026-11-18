@@ -69,3 +69,40 @@ function tthc03Write_(b) {
     try { cacheClear_(); } catch (_) {}
   }
 }
+
+
+/* ===== % TIẾN ĐỘ 03 THỦ TỤC – Apps Script tính, ghi giá trị vào cột J, K, L =====
+ * Phải trùng công thức progress() trong index.html.
+ * Hook: gọi tthc03Recalc_(sheet) trước sortUnitRows_ trong sortTouchedTabs_ và tthc03Write_. */
+function tthc03Pct_(owner, guided, received, processed, need, done) {
+  const E = Math.max(0, Number(received) || 0), G = Math.max(0, Number(processed) || 0), H = Math.max(0, Number(need) || 0), I = Math.max(0, Number(done) || 0);
+  let p = (String(owner || '').trim() !== '' ? 0.05 : 0) + (String(guided) === 'Có' ? 0.05 : 0) + 0.20 * Math.min(1, E / 10) + 0.50 * Math.min(1, I / 10);
+  if (E > 0) p += 0.10 * Math.min(1, G / E) + (H > 0 ? 0.10 * Math.min(1, I / H) : 0);
+  return Math.round(Math.min(1, Math.max(0, p)) * 1e6) / 1e6;
+}
+function tthc03Recalc_(sheet) {
+  if (!sheet) return;
+  const last = sheet.getLastRow();
+  if (last < 4) return;
+  const n = last - 3;
+  const v = sheet.getRange(4, 1, n, 9).getValues();
+  const rows = [];
+  v.forEach((r, i) => { if (validId_([r[0]])) rows.push({ i: i, id: Number(r[0]), pct: tthc03Pct_(r[2], r[3], r[4], r[6], r[7], r[8]) }); });
+  if (!rows.length) return;
+  const order = rows.slice().sort((a, b) => b.pct - a.pct || a.id - b.id), rank = {};
+  order.forEach((o, k) => { rank[o.i] = k + 1; });
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(['', '', '']);
+  rows.forEach(o => { out[o.i] = [Number(v[o.i][8]) >= 10, o.pct, rank[o.i]]; });
+  sheet.getRange(4, 10, n, 3).setValues(out);
+  try { sheet.getRange(4, 11, n, 1).setNumberFormat('0.0%'); } catch (_) {}
+}
+function tthc03RecalcAll() {
+  const book = SpreadsheetApp.openById(CONFIG.procedureSpreadsheetId);
+  Object.keys(CONFIG.procedureTabs).forEach(id => {
+    const sh = book.getSheetByName(CONFIG.procedureTabs[id]);
+    tthc03Recalc_(sh);
+    sortUnitRows_(sh);
+  });
+  CacheService.getScriptCache().removeAll(['read_v3_n']);
+}
