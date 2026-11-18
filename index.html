@@ -7285,6 +7285,7 @@ if(!/[?&]ai=1(&|$)/.test(location.search)&&location.hash!=='#ai')return;var n=0,
 #tpuBackdrop{position:fixed;inset:0;z-index:69;background:rgba(13,25,48,.72);display:none}
 body.tpu-open #tpuBackdrop{display:block}
 body.tpu-open{overflow:hidden}
+.tpu-sync{margin-top:4px;font-size:12.5px;font-weight:700;color:#4a5a73}.tpu-sync.ok{color:#0f8a3c}.tpu-sync.warn{color:#c27a07}.tpu-sync.bad{color:#a50d26}
 .tpu-close{position:absolute;top:14px;right:16px;z-index:5;width:36px;height:36px;border-radius:50%;border:1px solid #d5dbea;background:#fff;color:#14284d;font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center;transition:.16s}
 .tpu-close:hover{background:#c51620;border-color:#c51620;color:#fff;transform:rotate(90deg)}
 .overlay{z-index:80!important}
@@ -7305,7 +7306,19 @@ body.tpu-open .overlay,body.tpu-open .overlay *,body.tpu-open .table-panel,body.
  var panel=document.querySelector('.table-panel');if(!panel)return;
  var bd=document.createElement('div');bd.id='tpuBackdrop';document.body.appendChild(bd);
  var head=panel.querySelector('.table-head');var x=document.createElement('button');x.type='button';x.className='tpu-close';x.setAttribute('aria-label','Đóng');x.textContent='×';(head||panel).appendChild(x);
- function open(){panel.classList.add('tp-pop');document.body.classList.add('tpu-open');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');var w=panel.querySelector('.table-wrap');if(w)w.scrollTop=0}
+ var sy=document.createElement('div');sy.id='tpuSync';sy.className='tpu-sync';var sub=panel.querySelector('#tableSub');if(sub)sub.insertAdjacentElement('afterend',sy);else(head||panel).appendChild(sy);
+ var A03='https://script.google.com/macros/s/AKfycbym3FHqtE20kg8F3SCuc6LizXSwGhSFT-KBY90c58BuOuRigFbOdyruPkTx4uBscZ-ibw/exec',NM={'10001':'Nhận xét nơi cư trú','10002':'Chuyển SH chính thức','10003':'Chuyển SH tạm thời'},lastT=0;
+ function loadSync(){if(Date.now()-lastT<15000)return;lastT=Date.now();sy.className='tpu-sync';sy.textContent='🔄 Đang đọc thời điểm đồng bộ 03 thủ tục…';
+  var cb='__tpus'+Date.now(),sc=document.createElement('script'),to=setTimeout(function(){delete window[cb];sc.remove();sy.className='tpu-sync bad';sy.textContent='🔄 Không đọc được thời điểm đồng bộ 03 thủ tục.';lastT=0},15000);
+  window[cb]=function(v){clearTimeout(to);delete window[cb];sc.remove();var l=v&&v.last03;
+   if(!l){sy.className='tpu-sync';sy.textContent='🔄 Đồng bộ 03 thủ tục: chưa có lần nào';return}
+   var f=(l.failed||[]).map(function(i){return NM[i]||i});
+   if(l.ok===false){sy.className='tpu-sync bad';sy.textContent='🔄 Đồng bộ 03 thủ tục lần gần nhất THẤT BẠI lúc '+(l.at||'—')+(l.error?' · '+l.error:'')}
+   else if(f.length){sy.className='tpu-sync warn';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.at||'—')+' · ⚠ lỗi: '+f.join(', ')}
+   else{sy.className='tpu-sync ok';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.at||'—')+' · thành công cả 3 thủ tục'}};
+  sc.onerror=function(){clearTimeout(to);sy.className='tpu-sync bad';sy.textContent='🔄 Không đọc được thời điểm đồng bộ 03 thủ tục.';lastT=0};
+  sc.src=A03+'?action=tthc03_status&callback='+cb+'&_='+Date.now();document.head.appendChild(sc)}
+ function open(){loadSync();panel.classList.add('tp-pop');document.body.classList.add('tpu-open');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');var w=panel.querySelector('.table-wrap');if(w)w.scrollTop=0}
  function close(){panel.classList.remove('tp-pop');document.body.classList.remove('tpu-open');panel.removeAttribute('role');panel.removeAttribute('aria-modal')}
  document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-open-update]');if(b){e.preventDefault();open()}});
  x.addEventListener('click',close);bd.addEventListener('click',close);
