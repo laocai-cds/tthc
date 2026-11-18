@@ -20,14 +20,14 @@
       if (!code) { say('Đã hủy: chưa nhập mã truy cập.', 'bad'); setTimeout(() => box.remove(), 6000); return; }
       const tk = localStorage.getItem('token');
       if (!tk) { alert('Chưa đăng nhập gqtthc.dcs.vn.'); return; }
-      /* Lấy số liệu THEO TỪNG THÁNG (từ tháng bắt đầu có hồ sơ). Tháng đã qua nhớ trong trình duyệt 24 giờ; tổng lũy kế = cộng các tháng.
+      /* Lấy số liệu THEO TỪNG THÁNG (từ tháng bắt đầu có hồ sơ). Tháng đã qua nhớ trong trình duyệt 7 ngày; tổng lũy kế = cộng các tháng.
          Nhận xét nơi cư trú: mỗi đơn vị cộng cả đơn vị con (nhiều cấp); đơn vị không có con dùng luôn số lần hỏi đầu. */
       const now = new Date(), y = now.getFullYear(), cm = now.getMonth() + 1, first = y === 2026 ? 10 : 1;
       const months = []; for (let m = first; m <= cm; m++) months.push(p2(m) + '/' + y);
       const per = months[0], den = months[months.length - 1], curMo = p2(cm) + '/' + y;
       /* Chọn tháng cần LẤY MỚI (các tháng còn lại dùng số đã nhớ trong trình duyệt, chưa có thì tự lấy). Ví dụ: 11 · 10-11 · 10,11 · * (tất cả). Mặc định: tháng hiện tại. */
       const lastSel = (() => { try { return localStorage.getItem('tthc03.sel') || ''; } catch (e) { return ''; } })();
-      const ans = prompt('Chọn tháng cần lấy số liệu mới (từ ' + p2(first) + ' đến ' + p2(cm) + '/' + y + ').\nVí dụ: ' + cm + '   hoặc   ' + first + '-' + cm + '   hoặc   *  (tất cả tháng)\nCác tháng không chọn dùng số đã nhớ (chưa có thì tự lấy).', lastSel && lastSel !== '*' && !/^\d/.test(lastSel) ? String(cm) : String(cm));
+      const ans = prompt('Chọn tháng cần lấy số liệu mới (từ ' + p2(first) + ' đến ' + p2(cm) + '/' + y + ').\nVí dụ: ' + cm + '   hoặc   ' + first + '-' + cm + '   hoặc   *  (tất cả tháng)\nCác tháng không chọn dùng số đã nhớ tối đa 7 ngày (chưa có hoặc quá 7 ngày thì tự lấy). Muốn làm mới tháng cũ: chọn đúng tháng đó hoặc *.', lastSel && lastSel !== '*' && !/^\d/.test(lastSel) ? String(cm) : String(cm));
       if (ans === null) { say('Đã hủy.', 'bad'); setTimeout(() => box.remove(), 4000); return; }
       const sel = new Set(), txt = String(ans).trim() || String(cm);
       if (txt === '*') months.forEach(m => sel.add(m));
@@ -37,7 +37,7 @@
       const st = { 10001: '⏳', 10002: '⏳', 10003: '⏳' };
       const show = () => say('Đang lấy số liệu 03 thủ tục · làm mới tháng ' + [...sel].map(m => +m.slice(0, 2)).join(', ') + modeTxt + '\n' + [10002, 10003, 10001].map(id => { const q = String(kShows[id] && /^⏳/.test(st[id]) ? kShows[id]() : st[id]).split('\n'); return q[0] + ' ' + NAMES[id] + (q.length > 1 ? '\n' + q.slice(1).join('\n') : ''); }).join('\n'));
       const retry = async (fn, n) => { let le; for (let a = 0; a < n; a++) { try { return await fn(); } catch (e) { le = e; if (a < n - 1) await new Promise(r => setTimeout(r, 800 + 1500 * a * a)); } } throw le; };
-      const cget = k => { try { const c = JSON.parse(localStorage.getItem(k) || 'null'); if (c && c.t && Date.now() - c.t < 864e5) return c.d; } catch (e) {} return null; };
+      const cget = k => { try { const c = JSON.parse(localStorage.getItem(k) || 'null'); if (c && c.t && Date.now() - c.t < 6048e5) return c.d; } catch (e) {} return null; };
       const cset = (k, d) => { try { localStorage.setItem(k, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {} };
       let gAct = 0; const gQ = []; const gSlot = () => new Promise(res => { const go = () => { if (gAct < 14) { gAct++; res(); } else gQ.push(go); }; go(); }); const gFree = () => { gAct--; const n = gQ.shift(); if (n) n(); };
       const post = (id, uid, mo) => gSlot().then(() => fetch(G3, { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ dvcId: id, coQuanId: uid, page: 0, size: 300, tuThang: mo, denThang: mo }) })
