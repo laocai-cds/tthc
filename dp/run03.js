@@ -35,7 +35,7 @@
       if (!sel.size) { alert('Không có tháng hợp lệ (' + first + '–' + cm + '). Đã hủy.'); say('Đã hủy: tháng không hợp lệ.', 'bad'); setTimeout(() => box.remove(), 6000); return; }
       const dropped = {};
       const st = { 10001: '⏳', 10002: '⏳', 10003: '⏳' };
-      const show = () => say('Đang lấy số liệu 03 thủ tục · làm mới tháng ' + [...sel].map(m => +m.slice(0, 2)).join(', ') + '\n' + [10002, 10003, 10001].map(id => { const q = String(st[id]).split('\n'); return q[0] + ' ' + NAMES[id] + (q.length > 1 ? '\n' + q.slice(1).join('\n') : ''); }).join('\n'));
+      const show = () => say('Đang lấy số liệu 03 thủ tục · làm mới tháng ' + [...sel].map(m => +m.slice(0, 2)).join(', ') + '\n' + [10002, 10003, 10001].map(id => { const q = String(id === 10001 && kShow && /^⏳/.test(st[id]) ? kShow() : st[id]).split('\n'); return q[0] + ' ' + NAMES[id] + (q.length > 1 ? '\n' + q.slice(1).join('\n') : ''); }).join('\n'));
       const retry = async (fn, n) => { let le; for (let a = 0; a < n; a++) { try { return await fn(); } catch (e) { le = e; await new Promise(r => setTimeout(r, 600)); } } throw le; };
       const cget = k => { try { const c = JSON.parse(localStorage.getItem(k) || 'null'); if (c && c.t && Date.now() - c.t < 864e5) return c.d; } catch (e) {} return null; };
       const cset = (k, d) => { try { localStorage.setItem(k, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {} };
@@ -43,7 +43,7 @@
         .then(rr => { if (!rr.ok) throw new Error('HTTP ' + rr.status); return rr.json(); }).then(jj => (jj.data && jj.data.data) || []);
       const topRows = (id, mo) => post(id, 2122408, mo).then(list => { const seen = {}; const rows = list.filter(x => { const n = String(x.coQuanTen || '').trim(); if (Number(x.coQuanId) === 2122408 || !/^đảng bộ\s/i.test(n) || seen[n.toLowerCase()]) { dropped[n || '(trống)'] = 1; return false; } seen[n.toLowerCase()] = 1; return true; }).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong), x.coQuanId, x.coCapCon === false ? 0 : 1]); if (rows.length < 50) throw new Error('trả thiếu đơn vị (' + rows.length + ') tháng ' + mo); return rows; });
       const monthTop = async (id, mo) => { const k = 'tthc03.m.' + id + '.' + mo; if (mo !== curMo && !sel.has(mo)) { const c = cget(k); if (c) return c; } const rows = await retry(() => topRows(id, mo), 4); if (mo !== curMo) cset(k, rows); return rows; };
-      let kidFail = 0, lastErr = '';
+      let kidFail = 0, lastErr = '', kShow = null;
       const walk = async (uid, seen, acc, depth, mo) => {
         const rows = await retry(() => post(10001, uid, mo), 5);
         rows.forEach(r => { if (seen[r.coQuanId]) return; seen[r.coQuanId] = 1; acc[0] += num(r.dangXuLy); acc[1] += num(r.daTuChoi); acc[2] += num(r.daXuLyXong); });
@@ -64,11 +64,12 @@
       };
       const errs = {}, byMonth = { 10001: {}, 10002: {}, 10003: {} };
       const get = async id => { try {
-        let done = 0; const ks = {};
-        const kline = () => months.filter(m => ks[m]).map(m => '   · T' + (+m.slice(0, 2)) + ': ' + (ks[m].d >= ks[m].t ? '✓ xong ' + ks[m].t + ' đơn vị' : ks[m].d + '/' + ks[m].t + ' đơn vị' + (ks[m].last ? ' — vừa xong: ' + String(ks[m].last).replace(/^đảng bộ\s*/i, '').slice(0, 40) : ''))).join('\n');
+        let done = 0; const ks = {}; if (id === 10001) months.forEach(m => { ks[m] = { d: 0, t: 0, last: '', wait: true }; });
+        const kline = () => months.filter(m => ks[m]).map(m => '   · T' + (+m.slice(0, 2)) + ': ' + (ks[m].wait ? 'đang tải danh sách đơn vị…' : ks[m].d >= ks[m].t ? '✓ ' + ks[m].t + '/' + ks[m].t + ' đơn vị' : ks[m].d + '/' + ks[m].t + ' đơn vị' + (ks[m].last ? ' — vừa xong: ' + String(ks[m].last).replace(/^đảng bộ\s*/i, '').slice(0, 40) : ''))).join('\n');
+        if (id === 10001) kShow = () => '⏳ ' + done + '/' + months.length + ' tháng\n' + kline();
         await Promise.all(months.map(async mo => {
           let rows = await monthTop(id, mo);
-          if (id === 10001) { const k = ks[mo] = { d: 0, t: rows.length, last: '' }; rows = await kidsMonth(rows, mo, nm => { k.d++; k.last = nm; st[id] = '⏳ ' + done + '/' + months.length + ' tháng\n' + kline(); }); }
+          if (id === 10001) { const k = ks[mo]; k.t = rows.length; k.wait = false; rows = await kidsMonth(rows, mo, nm => { k.d++; k.last = nm; st[id] = '⏳ ' + done + '/' + months.length + ' tháng\n' + kline(); }); }
           byMonth[id][mo] = rows; done++; st[id] = id === 10001 ? '⏳ ' + done + '/' + months.length + ' tháng\n' + kline() : '⏳ (' + done + '/' + months.length + ' tháng)'; show();
         }));
         if (id === 10001 && kidFail > 25) throw new Error('lấy đơn vị con lỗi ' + kidFail + ' đơn vị (' + lastErr + ')');
