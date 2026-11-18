@@ -3904,11 +3904,21 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
 @media(max-width:900px){.tp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media print{.tp-dlg{height:auto}.tp-t{table-layout:auto}.tp-t td.u{white-space:normal}}
 </style>
+<style id="tp-merge">
+.tp-cb{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:2px 4px;cursor:pointer;font:inherit;border-radius:8px;width:100%}
+.tp-cb:hover{background:#f1f5fc}
+.tp-cb small{font-size:10px;font-weight:500;color:var(--mut);white-space:nowrap;line-height:1.2}
+.tp-t td.u small{display:block!important;margin:1px 0 0!important}
+.tp-t tbody td{height:auto}
+.tp-sync{padding:4px 18px 0;font:600 12px "Segoe UI",Arial,sans-serif;color:#51607a}
+.tp-sync.ok{color:#0d8a62}.tp-sync.warn{color:#92620e}.tp-sync.bad{color:#b4232d}
+body .overlay{z-index:10060!important}
+</style>
 <div class="tp-ov" id="tpOverlay" role="dialog" aria-modal="true" aria-labelledby="tpTitle" aria-hidden="true">
  <section class="tp-dlg">
   <header class="tp-head">
    <span class="tp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></span>
-   <div class="tp-title"><h2 id="tpTitle">Bảng xếp hạng tiến độ tổng</h2><p id="tpSub">Xếp hạng theo tiến độ bình quân các thủ tục có dữ liệu tại từng đơn vị</p></div>
+   <div class="tp-title"><h2 id="tpTitle">Tiến độ đơn vị</h2><p id="tpSub">Xếp hạng theo tiến độ bình quân các thủ tục · bấm vào ô thủ tục để cập nhật cán bộ phụ trách và quy trình</p></div>
    <div class="tp-acts">
     <button type="button" class="tp-b g" id="tpXlsx">⬇ Xuất Excel</button>
     <button type="button" class="tp-b" id="tpCsv">⬇ CSV</button>
@@ -3926,6 +3936,7 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
     <button type="button" class="tp-tog" id="tpTog" title="Ẩn/hiện phần tổng quan để xem được nhiều đơn vị hơn">▴ Thu gọn tổng quan</button><span class="tp-count" id="tpCount"></span>
    </div>
    <div class="tp-wrap"><table class="tp-t"><colgroup id="tpCols"></colgroup><thead id="tpHead"></thead><tbody id="tpBody"></tbody><tfoot id="tpFoot"></tfoot></table></div>
+   <div class="tp-sync" id="tpSync"></div>
    <div class="tp-foot"><span id="tpSrc"></span><span>Bấm vào đơn vị để xem chi tiết · bấm tiêu đề cột để sắp xếp · <kbd>Esc</kbd> để đóng</span></div>
   </div>
  </section>
@@ -3937,7 +3948,7 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
  const lvOf=v=>LV.find(l=>v>=l.min);
  const typeOf=u=>/^Đảng bộ xã /.test(u)?'xa':/^Đảng bộ phường /.test(u)?'phuong':'khoi';
  const P=()=>data.procedures;
- let st={q:'',lv:'',type:'all',sort:'avg',dir:-1,month:'',rates:null},rows=[],view=[],rankMap=new Map(),avgAll=0,lastFocus=null;
+ let st={q:'',lv:'',type:'all',sort:'avg',dir:-1,month:'',rates:null},rows=[],view=[],rankMap=new Map(),ownerOf=new Map(),avgAll=0,lastFocus=null;
 
  function rowsFor(){
   const rs=getOverallRankingRows();if(!st.rates)return rs;
@@ -3953,6 +3964,7 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
  function build(){
   rows=rowsFor().map((r,i)=>{const done=r.values.filter(v=>v!=null&&v>=.999).length,run=r.values.filter(v=>v!=null&&v>0&&v<.999).length;return{...r,rank:i+1,done,run,type:typeOf(r.unit)}});
   rankMap=new Map(rows.map(r=>[r.unit,r.rank]));
+  ownerOf=new Map();P().forEach(p=>p.units.forEach(u=>{if(u.owner&&!ownerOf.has(u.unit))ownerOf.set(u.unit,u.owner)}));
   avgAll=rows.length?rows.reduce((t,r)=>t+r.average,0)/rows.length:0;
  }
  function kpis(){
@@ -3983,17 +3995,27 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
   view=rows.filter(r=>(!q||normalizeRankingSearch(r.unit).includes(q))&&(!st.lv||lvOf(r.average).k===st.lv)&&(st.type==='all'||r.type===st.type));
   view.sort((a,b)=>{const x=val(a,st.sort),y=val(b,st.sort);return(typeof x==='string'?x.localeCompare(y,'vi'):x-y)*st.dir||a.rank-b.rank});
   head();
-  const chip=v=>v==null?'<td><span class="tp-ch">—</span></td>':`<td><span class="tp-ch ${lvOf(v).k}">${pct(v)}</span></td>`;
+  const chip=(v,i,r)=>{const p=P()[i],u=p&&p.units.find(x=>x.unit===r.unit);if(v==null||!u)return'<td><span class="tp-ch">—</span></td>';const sub=p.kind==='fee'?`DVC ${fmt(u.dvccreated)}/${fmt(u.dvctotal)} · NH ${fmt(u.bankcreated)}/${fmt(u.banktotal)}${u.paid==='☑'?' · Đã nộp':''}`:`${fmt(u.received)} tiếp nhận · ${fmt(u.done)} xong${isChecked(u.done10)?' · ✓10':''}`;return`<td><button type="button" class="tp-cb" data-edit="${p.id}:${u.id}" title="Bấm để cập nhật"><span class="tp-ch ${lvOf(v).k}">${pct(v)}</span><small>${sub}</small></button></td>`};
   $('tpBody').innerHTML=view.map(r=>{const l=lvOf(r.average),d=(r.average-avgAll)*100,stt=r.average>=.999?['ok','Hoàn thành']:r.average>0?['run','Đang triển khai']:['no','Chưa triển khai'];
-   return `<tr tabindex="0" data-u="${esc(r.unit)}"><td><span class="tp-rk ${r.rank<=3?'r'+r.rank:''}">${String(r.rank).padStart(2,'0')}</span></td><td class="u">${esc(r.unit)}<small>${r.done} hoàn thành · ${r.run} đang triển khai</small></td><td><span class="tp-tot" style="--c:${l.c}"><b>${pct(r.average)}</b><span class="tr"><i style="width:${Math.min(100,r.average*100).toFixed(1)}%"></i></span></span></td>${r.values.map(chip).join('')}<td><span class="tp-diff ${d>=0?'up':'dn'}" title="Chênh lệch so với tiến độ bình quân chung (điểm %)">${d>=0?'▲ +':'▼ '}${d.toLocaleString('vi-VN',{maximumFractionDigits:1})}%</span></td><td><span class="tp-st ${stt[0]}">${stt[1]}</span></td></tr>`}).join('')||`<tr><td colspan="${5+P().length}" class="tp-empty">Không có đơn vị phù hợp</td></tr>`;
+   return `<tr tabindex="0" data-u="${esc(r.unit)}"><td><span class="tp-rk ${r.rank<=3?'r'+r.rank:''}">${String(r.rank).padStart(2,'0')}</span></td><td class="u">${esc(r.unit)}<small title="${r.done} thủ tục hoàn thành · ${r.run} đang triển khai">${esc(ownerOf.get(r.unit)||'Chưa có cán bộ phụ trách')}</small></td><td><span class="tp-tot" style="--c:${l.c}"><b>${pct(r.average)}</b><span class="tr"><i style="width:${Math.min(100,r.average*100).toFixed(1)}%"></i></span></span></td>${r.values.map((v,i)=>chip(v,i,r)).join('')}<td><span class="tp-diff ${d>=0?'up':'dn'}" title="Chênh lệch so với tiến độ bình quân chung (điểm %)">${d>=0?'▲ +':'▼ '}${d.toLocaleString('vi-VN',{maximumFractionDigits:1})}%</span></td><td><span class="tp-st ${stt[0]}">${stt[1]}</span></td></tr>`}).join('')||`<tr><td colspan="${5+P().length}" class="tp-empty">Không có đơn vị phù hợp</td></tr>`;
   if(view.length){const avgOf=f=>{const xs=view.map(f).filter(v=>v!=null);return xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:null};
    $('tpFoot').innerHTML=`<tr><td></td><td class="u">Bình quân ${fmt(view.length)} đơn vị đang hiển thị</td><td>${pct(avgOf(r=>r.average))}</td>${P().map((_,i)=>`<td>${(v=>v==null?'—':pct(v))(avgOf(r=>r.values[i]))}</td>`).join('')}<td></td><td></td></tr>`}else $('tpFoot').innerHTML='';
   $('tpCount').textContent=view.length===rows.length?`${fmt(rows.length)} đơn vị`:`${fmt(view.length)} / ${fmt(rows.length)} đơn vị`;
   const s=typeof sheetsLastSyncedAt!=='undefined'&&sheetsLastSyncedAt?new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'}).format(sheetsLastSyncedAt):'';
   $('tpSrc').textContent='Nguồn: Google Sheets'+(s?' · đồng bộ lúc '+s:'');
  }
+ const A03='https://script.google.com/macros/s/AKfycbym3FHqtE20kg8F3SCuc6LizXSwGhSFT-KBY90c58BuOuRigFbOdyruPkTx4uBscZ-ibw/exec',NM03={'10001':'Nhận xét nơi cư trú','10002':'Chuyển SH chính thức','10003':'Chuyển SH tạm thời'};let lastT=0;
+ function loadSync(){const sy=$('tpSync');if(Date.now()-lastT<15000)return;lastT=Date.now();sy.className='tp-sync';sy.textContent='🔄 Đang đọc thời điểm đồng bộ 03 thủ tục…';
+  const cb='__tps'+Date.now(),sc=document.createElement('script'),to=setTimeout(()=>{delete window[cb];sc.remove();sy.className='tp-sync bad';sy.textContent='🔄 Không đọc được thời điểm đồng bộ 03 thủ tục.';lastT=0},15000);
+  window[cb]=v=>{clearTimeout(to);delete window[cb];sc.remove();const l=v&&v.last03;if(!l){sy.className='tp-sync';sy.textContent='🔄 Đồng bộ 03 thủ tục: chưa có lần nào';return}
+   const f=(l.failed||[]).map(i=>NM03[i]||i);
+   if(l.ok===false){sy.className='tp-sync bad';sy.textContent='🔄 Đồng bộ 03 thủ tục lần gần nhất THẤT BẠI lúc '+(l.at||'—')+(l.error?' · '+l.error:'')}
+   else if(f.length){sy.className='tp-sync warn';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.at||'—')+' · ⚠ lỗi: '+f.join(', ')}
+   else{sy.className='tp-sync ok';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.at||'—')+' · thành công cả 3 thủ tục'}};
+  sc.onerror=()=>{clearTimeout(to);sy.className='tp-sync bad';sy.textContent='🔄 Không đọc được thời điểm đồng bộ 03 thủ tục.';lastT=0};
+  sc.src=A03+'?action=tthc03_status&callback='+cb+'&_='+Date.now();document.head.appendChild(sc)}
  function refresh(){build();kpis();render()}
- function open(){lastFocus=document.activeElement;monthOpts();refresh();ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.documentElement.style.overflow='hidden';setTimeout(()=>$('tpQ').focus(),40)}
+ function open(){lastFocus=document.activeElement;monthOpts();refresh();loadSync();ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.documentElement.style.overflow='hidden';setTimeout(()=>$('tpQ').focus(),40)}
  function close(){ov.classList.remove('open');ov.setAttribute('aria-hidden','true');document.documentElement.style.overflow='';try{lastFocus&&lastFocus.focus({preventScroll:true})}catch(e){}}
  const isOpen=()=>ov.classList.contains('open');
  function exportRows(kind){
@@ -4016,8 +4038,8 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
  $('tpHead').addEventListener('click',e=>{const th=e.target.closest('th[data-k]');if(!th)return;const k=th.dataset.k==='status'?'avg':th.dataset.k;if(st.sort===k)st.dir=-st.dir;else{st.sort=k;st.dir=(k==='unit'||k==='rank')?1:-1}render()});
  $('tpLeg').addEventListener('click',e=>{const b=e.target.closest('[data-lv]');if(!b)return;st.lv=st.lv===b.dataset.lv?'':b.dataset.lv;kpis();render()});
  $('tpType').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;st.type=b.dataset.t;[...$('tpType').children].forEach(x=>x.classList.toggle('on',x===b));render()});
- $('tpBody').addEventListener('click',e=>{const tr=e.target.closest('tr[data-u]');if(tr&&window.openUnitDetail)openUnitDetail(tr.dataset.u)});
- $('tpBody').addEventListener('keydown',e=>{const tr=e.target.closest('tr[data-u]');if(!tr)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();window.openUnitDetail&&openUnitDetail(tr.dataset.u)}else if(e.key==='ArrowDown'){e.preventDefault();tr.nextElementSibling?.focus()}else if(e.key==='ArrowUp'){e.preventDefault();tr.previousElementSibling?.focus()}});
+ $('tpBody').addEventListener('click',e=>{const eb=e.target.closest('[data-edit]');if(eb){e.stopPropagation();const a=eb.dataset.edit.split(':');openEditor(a[0],Number(a[1]));return}const tr=e.target.closest('tr[data-u]');if(tr&&window.openUnitDetail)openUnitDetail(tr.dataset.u)});
+ $('tpBody').addEventListener('keydown',e=>{if(e.target.closest('[data-edit]'))return;const tr=e.target.closest('tr[data-u]');if(!tr)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();window.openUnitDetail&&openUnitDetail(tr.dataset.u)}else if(e.key==='ArrowDown'){e.preventDefault();tr.nextElementSibling?.focus()}else if(e.key==='ArrowUp'){e.preventDefault();tr.previousElementSibling?.focus()}});
  $('tpXlsx').onclick=()=>exportRows('xlsx');$('tpCsv').onclick=()=>exportRows('csv');$('tpPrint').onclick=()=>window.print();
  document.addEventListener('keydown',e=>{if(!isOpen())return;const ud=document.getElementById('unitDetailOverlay');if(ud&&ud.classList.contains('open'))return;if(e.key==='Escape')close();else if(e.key==='/'&&document.activeElement!==$('tpQ')){e.preventDefault();$('tpQ').focus()}},true);
  /* Tự làm mới khi dữ liệu đồng bộ lại */
@@ -7321,7 +7343,7 @@ body.tpu-open .overlay,body.tpu-open .overlay *,body.tpu-open .table-panel,body.
   sc.src=A03+'?action=tthc03_status&callback='+cb+'&_='+Date.now();document.head.appendChild(sc)}
  function open(){loadSync();panel.classList.add('tp-pop');document.body.classList.add('tpu-open');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');var w=panel.querySelector('.table-wrap');if(w)w.scrollTop=0}
  function close(){panel.classList.remove('tp-pop');document.body.classList.remove('tpu-open');panel.removeAttribute('role');panel.removeAttribute('aria-modal')}
- document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-open-update]');if(b){e.preventDefault();open()}});
+ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-open-update]');if(b){e.preventDefault();if(window.openProgressTable)window.openProgressTable();else open()}});
  x.addEventListener('click',close);bd.addEventListener('click',close);
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&panel.classList.contains('tp-pop')){var d=document.getElementById('overlay');if(d&&d.classList.contains('open'))return;close()}});
  window.openUpdatePopup=open;window.closeUpdatePopup=close;
