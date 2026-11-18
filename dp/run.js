@@ -109,9 +109,48 @@
       }
       const tF = performance.now();
       try { localStorage.setItem(K_PW, pw); } catch (e) {}
+      /* 03 thủ tục: số liệu từng đơn vị từ API thống kê theo cơ quan (tích lũy từ 01/2026 đến tháng hiện tại) → Sheet "Theo dõi 03 thủ tục". Lỗi bước này không làm hỏng đồng bộ chính. */
+      let m03 = '';
+      try {
+        say('Đang lấy số liệu 03 thủ tục của từng đơn vị…', false, true);
+        const G3 = 'https://gateway-gqtthc.dcs.vn/report/api/v1/thong-ke-ho-so/theo-co-quan';
+        const per = '01/' + now0.getFullYear(), den = p2(now0.getMonth() + 1) + '/' + now0.getFullYear();
+        const get3 = async id => {
+          for (let at = 1; at <= 2; at++) {
+            const ac = new AbortController(), to = setTimeout(() => ac.abort(), 90000);
+            try {
+              const rr = await fetch(G3, { signal: ac.signal, method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ tuThang: per, denThang: den, dvcId: id, coQuanId: 2122408, page: 0, size: 300 }) });
+              clearTimeout(to);
+              if (!rr.ok) throw new Error('HTTP ' + rr.status);
+              const jj = await rr.json();
+              return ((jj.data && jj.data.data) || []).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong)]);
+            } catch (e3) { clearTimeout(to); if (at >= 2) throw e3; }
+          }
+        };
+        const ids3 = [10001, 10002, 10003], res3 = await Promise.all(ids3.map(get3));
+        const t03 = {}; ids3.forEach((id, i) => { t03[id] = res3[i]; });
+        if (!res3.every(l => l.length > 50)) throw new Error('API trả thiếu đơn vị (' + res3.map(l => l.length).join('/') + ')');
+        const sync3 = 's3' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        say('Đang ghi 03 thủ tục lên Google Sheet…', false, true);
+        await fetch(API, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify({ token: pw, syncId: sync3, source: 'tthc03', period: per + ' - ' + den, tthc03: t03 }) }) });
+        let ok3 = null;
+        for (let k = 0; k < 12 && !ok3; k++) {
+          ok3 = await new Promise(res => {
+            const cb = '__dp03' + Date.now() + k, s3 = document.createElement('script');
+            const t3 = setTimeout(() => { delete window[cb]; s3.remove(); res(null); }, 9000);
+            window[cb] = v => { clearTimeout(t3); delete window[cb]; s3.remove(); res(v); };
+            s3.onerror = () => { clearTimeout(t3); res(null); };
+            s3.src = API + '?action=status&callback=' + cb + '&_=' + Date.now();
+            document.head.appendChild(s3);
+          });
+          if (ok3 && ok3.lastError && ok3.lastError.syncId === sync3) throw new Error(ok3.lastError.error);
+          if (!(ok3 && ok3.last03 && ok3.last03.syncId === sync3)) { ok3 = null; await new Promise(r2 => setTimeout(r2, 1000)); }
+        }
+        m03 = ok3 ? '\n03 thủ tục: đã ghi ' + ids3.map(id => (ok3.last03.tabs[id] || {}).hit || 0).join('/') + ' đơn vị (nhận xét/chính thức/tạm thời) lúc ' + ok3.last03.at : '\n03 thủ tục: đã gửi, chưa xác nhận được (kiểm tra Sheet "Theo dõi 03 thủ tục"; cần triển khai Apps Script bản mới).';
+      } catch (e3) { m03 = '\n⚠ 03 thủ tục chưa cập nhật: ' + (e3 && e3.message || e3); }
       const apiT = tC - tA, nc = navigator.connection || {};
       const speed = apiT < 2500 ? '🟢 Nhanh' : apiT < 6000 ? '🟡 Bình thường' : '🔴 Chậm';
-      const detail = s02Msg + '\n⏱ Tổng ' + f1(tF - T0) + ' · Kết nối ' + speed + '\nAPI ' + f1(apiT) + ' (chờ ' + f1(tB - tA) + ', tải ' + Math.max(1, Math.round(raw.length / 1024)) + ' KB) · Gửi Sheet ' + f1(tE - tD) + ' · Xác nhận ' + f1(tF - tE) + (nc.effectiveType ? '\nMạng ' + nc.effectiveType + (nc.rtt ? ' · RTT ' + nc.rtt + 'ms' : '') : '');
+      const detail = s02Msg + m03 + '\n⏱ Tổng ' + f1(tF - T0) + ' · Kết nối ' + speed + '\nAPI ' + f1(apiT) + ' (chờ ' + f1(tB - tA) + ', tải ' + Math.max(1, Math.round(raw.length / 1024)) + ' KB) · Gửi Sheet ' + f1(tE - tD) + ' · Xác nhận ' + f1(tF - tE) + (nc.effectiveType ? '\nMạng ' + nc.effectiveType + (nc.rtt ? ' · RTT ' + nc.rtt + 'ms' : '') : '');
       say((ok ? '✅ HOÀN THÀNH — đã đồng bộ ' + ok.last.rowCount + ' đơn vị kỳ tháng ' + SM + '/' + cy + (ok.last.tab ? ' (tab ' + ok.last.tab + ')' : '') + ' lúc ' + ok.last.updatedAtText + '.' : '✓ Đã gửi ' + rows.length + ' đơn vị. Chưa xác nhận được kết quả — hãy mở lại trang Đảng phí để xem “Lần đồng bộ gần nhất”.') + detail, false, false, !!ok);
       setTimeout(() => box.remove(), auto ? 6000 : 25000);
     } catch (e) {
