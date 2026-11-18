@@ -432,7 +432,7 @@ $('#rowCount').textContent=`Hiển thị ${totalRows?((page-1)*pageSize+1):0}–
 function renderUnitMatrix(ids){
  const procs=ids.map(procedure),map=new Map();
  procs.forEach(p=>p.units.forEach(u=>{if(!map.has(u.id))map.set(u.id,{id:u.id,unit:u.unit,owner:u.owner||'',cells:{}});const r=map.get(u.id);if(!r.owner&&u.owner)r.owner=u.owner;r.cells[p.id]=u}));
- let rows=[...map.values()].map(r=>{const v=procs.map(p=>r.cells[p.id]?progress(p,r.cells[p.id]):null).filter(x=>x!==null&&x>0);r.avg=v.length?v.reduce((a,b)=>a+b,0)/v.length:0;return r});
+ let rows=[...map.values()].map(r=>{const v=procs.map(p=>r.cells[p.id]?progress(p,r.cells[p.id]):null).filter(x=>x!==null);r.avg=v.length?v.reduce((a,b)=>a+b,0)/v.length:0;return r});
  const q=(query||'').toLocaleLowerCase('vi');
  rows=rows.filter(r=>(!q||`${r.unit} ${r.owner}`.toLocaleLowerCase('vi').includes(q))&&(status==='all'||(status==='complete'?r.avg>=0.999:status==='in-progress'?r.avg>0&&r.avg<0.999:r.avg===0)));
  if(sortBy!=='source')rows.sort((a,b)=>{if(sortBy.startsWith('progress')){const d=a.avg-b.avg;return sortBy==='progress-desc'?-d:d}const k=sortBy.startsWith('owner')?'owner':'unit',d=(a[k]||'').localeCompare(b[k]||'','vi');return sortBy.endsWith('-desc')?-d:d});
