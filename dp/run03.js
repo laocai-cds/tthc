@@ -25,16 +25,24 @@
       const now = new Date(), y = now.getFullYear(), cm = now.getMonth() + 1, first = y === 2026 ? 10 : 1;
       const months = []; for (let m = first; m <= cm; m++) months.push(p2(m) + '/' + y);
       const per = months[0], den = months[months.length - 1], curMo = p2(cm) + '/' + y;
+      /* Chọn tháng cần LẤY MỚI (các tháng còn lại dùng số đã nhớ trong trình duyệt, chưa có thì tự lấy). Ví dụ: 11 · 10-11 · 10,11 · * (tất cả). Mặc định: tháng hiện tại. */
+      const lastSel = (() => { try { return localStorage.getItem('tthc03.sel') || ''; } catch (e) { return ''; } })();
+      const ans = prompt('Chọn tháng cần lấy số liệu mới (từ ' + p2(first) + ' đến ' + p2(cm) + '/' + y + ').\nVí dụ: ' + cm + '   hoặc   ' + first + '-' + cm + '   hoặc   *  (tất cả tháng)\nCác tháng không chọn dùng số đã nhớ (chưa có thì tự lấy).', lastSel && lastSel !== '*' && !/^\d/.test(lastSel) ? String(cm) : String(cm));
+      if (ans === null) { say('Đã hủy.', 'bad'); setTimeout(() => box.remove(), 4000); return; }
+      const sel = new Set(), txt = String(ans).trim() || String(cm);
+      if (txt === '*') months.forEach(m => sel.add(m));
+      else txt.split(/[,;\s]+/).filter(Boolean).forEach(part => { const mm = /^(\d{1,2})(?:\s*[-–]\s*(\d{1,2}))?$/.exec(part); if (!mm) return; const a = +mm[1], b = mm[2] ? +mm[2] : a; for (let m = Math.min(a, b); m <= Math.max(a, b); m++) if (m >= first && m <= cm) sel.add(p2(m) + '/' + y); });
+      if (!sel.size) { alert('Không có tháng hợp lệ (' + first + '–' + cm + '). Đã hủy.'); say('Đã hủy: tháng không hợp lệ.', 'bad'); setTimeout(() => box.remove(), 6000); return; }
       const dropped = {};
       const st = { 10001: '⏳', 10002: '⏳', 10003: '⏳' };
-      const show = () => say('Đang lấy số liệu 03 thủ tục theo tháng (' + per + ' → ' + den + ')\n' + [10002, 10003, 10001].map(id => st[id] + ' ' + NAMES[id]).join('\n'));
+      const show = () => say('Đang lấy số liệu 03 thủ tục · làm mới tháng ' + [...sel].map(m => +m.slice(0, 2)).join(', ') + '\n' + [10002, 10003, 10001].map(id => st[id] + ' ' + NAMES[id]).join('\n'));
       const retry = async (fn, n) => { let le; for (let a = 0; a < n; a++) { try { return await fn(); } catch (e) { le = e; await new Promise(r => setTimeout(r, 600)); } } throw le; };
       const cget = k => { try { const c = JSON.parse(localStorage.getItem(k) || 'null'); if (c && c.t && Date.now() - c.t < 864e5) return c.d; } catch (e) {} return null; };
       const cset = (k, d) => { try { localStorage.setItem(k, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {} };
       const post = (id, uid, mo) => fetch(G3, { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ dvcId: id, coQuanId: uid, page: 0, size: 300, tuThang: mo, denThang: mo }) })
         .then(rr => { if (!rr.ok) throw new Error('HTTP ' + rr.status); return rr.json(); }).then(jj => (jj.data && jj.data.data) || []);
       const topRows = (id, mo) => post(id, 2122408, mo).then(list => { const seen = {}; const rows = list.filter(x => { const n = String(x.coQuanTen || '').trim(); if (Number(x.coQuanId) === 2122408 || !/^đảng bộ\s/i.test(n) || seen[n.toLowerCase()]) { dropped[n || '(trống)'] = 1; return false; } seen[n.toLowerCase()] = 1; return true; }).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong), x.coQuanId, x.coCapCon === false ? 0 : 1]); if (rows.length < 50) throw new Error('trả thiếu đơn vị (' + rows.length + ') tháng ' + mo); return rows; });
-      const monthTop = async (id, mo) => { const k = 'tthc03.m.' + id + '.' + mo; if (mo !== curMo) { const c = cget(k); if (c) return c; } const rows = await retry(() => topRows(id, mo), 4); if (mo !== curMo) cset(k, rows); return rows; };
+      const monthTop = async (id, mo) => { const k = 'tthc03.m.' + id + '.' + mo; if (mo !== curMo && !sel.has(mo)) { const c = cget(k); if (c) return c; } const rows = await retry(() => topRows(id, mo), 4); if (mo !== curMo) cset(k, rows); return rows; };
       let kidFail = 0;
       const walk = async (uid, seen, acc, depth, mo) => {
         const rows = await retry(() => post(10001, uid, mo), 5);
@@ -42,7 +50,7 @@
         if (depth < 5) for (const r of rows) if (r.coCapCon && Number(r.coQuanId) !== Number(uid) && !seen['x' + r.coQuanId]) { seen['x' + r.coQuanId] = 1; await walk(r.coQuanId, seen, acc, depth + 1, mo); }
       };
       const kidsMonth = async (rows, mo, prog) => {
-        const k = 'tthc03.k.' + mo, memo = mo !== curMo ? (cget(k) || {}) : {}, added = {}, out = rows.map(r => r.slice()); let next = 0;
+        const k = 'tthc03.k.' + mo, memo = mo !== curMo && !sel.has(mo) ? (cget(k) || {}) : {}, added = {}, out = rows.map(r => r.slice()); let next = 0;
         const worker = async () => { while (next < out.length) { const r = out[next++];
           if (r[5] !== 0) {
             if (memo[r[4]]) { r[1] = memo[r[4]][0]; r[2] = memo[r[4]][1]; r[3] = memo[r[4]][2]; }
@@ -71,7 +79,7 @@
       ids.forEach((id, k) => { if (!got[k]) return;
         const acc = {}; months.forEach(mo => (byMonth[id][mo] || []).forEach(r => { const a = acc[r[4]] || (acc[r[4]] = [r[0], 0, 0, 0]); a[0] = r[0]; a[1] += r[1]; a[2] += r[2]; a[3] += r[3]; }));
         t03[id] = Object.keys(acc).map(u => acc[u]);
-        m03[id] = {}; months.forEach(mo => { m03[id][mo] = (byMonth[id][mo] || []).map(r => [r[0], r[1], r[2], r[3]]); });
+        m03[id] = {}; months.filter(mo => sel.has(mo)).forEach(mo => { m03[id][mo] = (byMonth[id][mo] || []).map(r => [r[0], r[1], r[2], r[3]]); });
       });
       say('Đang ghi lên Google Sheet…');
       const sync = 's3' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
