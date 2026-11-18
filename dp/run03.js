@@ -17,31 +17,38 @@
       const tk = localStorage.getItem('token');
       if (!tk) { alert('Chưa đăng nhập gqtthc.dcs.vn.'); return; }
       const now = new Date(), per = '01/' + now.getFullYear(), den = p2(now.getMonth() + 1) + '/' + now.getFullYear();
-      const get = async id => {
-        let last;
-        for (let at = 1; at <= 3; at++) {
-          const ac = new AbortController(), to = setTimeout(() => ac.abort(), 120000);
-          try {
-            say('Đang lấy số liệu: ' + NAMES[id] + (at > 1 ? ' (thử lần ' + at + ')' : '') + '…');
-            const rr = await fetch(G3, { signal: ac.signal, method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ tuThang: per, denThang: den, dvcId: id, coQuanId: 2122408, page: 0, size: 300 }) });
-            clearTimeout(to);
-            if (!rr.ok) throw new Error('HTTP ' + rr.status);
-            const jj = await rr.json(), rows = ((jj.data && jj.data.data) || []).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong)]);
-            if (rows.length < 50) throw new Error('trả thiếu đơn vị (' + rows.length + ')');
-            return rows;
-          } catch (e) { clearTimeout(to); last = e; await new Promise(r => setTimeout(r, 2000)); }
-        }
-        throw new Error(NAMES[id] + ': ' + (last && last.name === 'AbortError' ? 'máy chủ gqtthc phản hồi quá chậm' : (last && last.message || last)) + '. Bấm lại sau ít phút.');
-      };
-      const t03 = {};
-      for (const id of [10002, 10003, 10001]) t03[id] = await get(id);   /* lần lượt từng thủ tục để máy chủ đỡ quá tải */
+      /* Chạy song song 3 thủ tục; mỗi thủ tục "đua" nhiều yêu cầu: nếu sau 15 giây chưa có kết quả thì gửi thêm yêu cầu dự phòng (tối đa 4), lấy cái về trước. */
+      const st = { 10001: '⏳', 10002: '⏳', 10003: '⏳' };
+      const show = () => say('Đang lấy số liệu 03 thủ tục (chạy song song)\n' + [10002, 10003, 10001].map(id => st[id] + ' ' + NAMES[id]).join('\n'));
+      const one = (id, ac) => fetch(G3, { signal: ac.signal, method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ tuThang: per, denThang: den, dvcId: id, coQuanId: 2122408, page: 0, size: 300 }) })
+        .then(rr => { if (!rr.ok) throw new Error('HTTP ' + rr.status); return rr.json(); })
+        .then(jj => { const rows = ((jj.data && jj.data.data) || []).map(x => [x.coQuanTen, num(x.dangXuLy), num(x.daTuChoi), num(x.daXuLyXong)]); if (rows.length < 50) throw new Error('trả thiếu đơn vị (' + rows.length + ')'); return rows; });
+      const get = id => new Promise((resolve, reject) => {
+        const acs = []; let launched = 0, failed = 0, done = false, timer = null, lastErr = null;
+        const MAX = 4, HEDGE = 15000, HARD = 150000, t0 = Date.now();
+        const finish = (fn, v) => { if (done) return; done = true; clearInterval(timer); acs.forEach(a => { try { a.abort(); } catch (e) {} }); fn(v); };
+        const launch = () => {
+          if (done || launched >= MAX) return; launched++;
+          const ac = new AbortController(); acs.push(ac);
+          one(id, ac).then(rows => { st[id] = '✓'; show(); finish(resolve, rows); }, e => {
+            if (done) return; lastErr = e; failed++;
+            if (launched < MAX) launch();                       /* lỗi (vd 504) thì thử lại NGAY, không chờ */
+            else if (failed >= launched) finish(reject, new Error(NAMES[id] + ': ' + (lastErr && lastErr.message || lastErr) + '. Bấm lại sau ít phút.'));
+          });
+        };
+        timer = setInterval(() => { const el = Date.now() - t0; if (el > HARD) finish(reject, new Error(NAMES[id] + ': máy chủ gqtthc phản hồi quá chậm. Bấm lại sau ít phút.')); else if (el > HEDGE * launched) launch(); }, 1000);
+        launch();
+      });
+      show();
+      const ids = [10002, 10003, 10001], got = await Promise.all(ids.map(id => get(id)));
+      const t03 = {}; ids.forEach((id, k) => { t03[id] = got[k]; });
       let code = ''; try { code = localStorage.getItem(K_03) || ''; } catch (e) {}
       if (!code) { code = (prompt('Mã truy cập chung để ghi số liệu 03 thủ tục lên Google Sheet:') || '').trim(); if (!code) { say('Đã hủy: chưa nhập mã truy cập.', 'bad'); setTimeout(() => box.remove(), 8000); return; } }
       say('Đang ghi lên Google Sheet…');
       const sync = 's3' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       await fetch(API03, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ payload: JSON.stringify({ action: 'tthc03', accessCode: code, syncId: sync, period: per + ' - ' + den, tthc03: t03 }) }) });
       let ok = null;
-      for (let k = 0; k < 30 && !ok; k++) {
+      for (let k = 0; k < 45 && !ok; k++) {
         ok = await new Promise(res => {
           const cb = '__dp03' + Date.now() + k, s = document.createElement('script');
           const t = setTimeout(() => { delete window[cb]; s.remove(); res(null); }, 9000);
@@ -51,7 +58,7 @@
           document.head.appendChild(s);
         });
         if (ok && ok.last03 && ok.last03.syncId === sync && ok.last03.ok === false) { try { localStorage.removeItem(K_03); } catch (e) {} throw new Error(ok.last03.error); }
-        if (!(ok && ok.last03 && ok.last03.syncId === sync)) { ok = null; await new Promise(r => setTimeout(r, 1500)); }
+        if (!(ok && ok.last03 && ok.last03.syncId === sync)) { ok = null; await new Promise(r => setTimeout(r, 800)); }
       }
       if (!ok) { say('✓ Đã gửi, chưa xác nhận được. Kiểm tra Sheet "Theo dõi 03 thủ tục" (cần triển khai Apps Script bản mới).', 'bad'); setTimeout(() => box.remove(), 20000); return; }
       const h = id => (ok.last03.tabs[id] || {}).hit || 0;
