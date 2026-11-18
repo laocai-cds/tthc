@@ -73,7 +73,7 @@
       const kids = async rows => {
         const y = now.getFullYear(), cm = now.getMonth() + 1, mk = m => p2(m) + '/' + y;
         const pk = 'tthc03.past.' + y + '.' + (cm - 1); let past = {};
-        if (cm > 1) { try { past = JSON.parse(localStorage.getItem(pk) || '{}') || {}; } catch (e) { past = {}; } }
+        if (cm > 1) { try { const c = JSON.parse(localStorage.getItem(pk) || 'null'); if (c && c.t && Date.now() - c.t < 864e5) past = c.d || {}; } catch (e) { past = {}; } }
         const pastNew = {}, out = rows.map(r => r.slice()); let next = 0, doneN = 0;
         const worker = async () => { while (next < out.length) { const r = out[next++];
           if (r[5] === 0) kidSkip++;
@@ -85,7 +85,7 @@
           } catch (e) { kidFail++; }
           doneN++; st[10001] = '⏳ (cộng đơn vị con ' + doneN + '/' + out.length + ')'; } };
         await Promise.all(Array.from({ length: 20 }, worker));
-        if (cm > 1 && Object.keys(pastNew).length) { try { localStorage.setItem(pk, JSON.stringify(Object.assign(past, pastNew))); } catch (e) {} }
+        if (cm > 1 && Object.keys(pastNew).length) { try { localStorage.setItem(pk, JSON.stringify({ t: Date.now(), d: Object.assign(past, pastNew) })); } catch (e) {} }
         if (kidFail > out.length / 4) throw new Error('lấy đơn vị con lỗi ' + kidFail + '/' + out.length + ' đơn vị');
         return out;
       };
