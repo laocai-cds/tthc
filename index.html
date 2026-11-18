@@ -3913,10 +3913,12 @@ enhance();new MutationObserver(enhance).observe(box,{childList:true});})();
 .tp-sync{padding:4px 18px 0;font:600 12px "Segoe UI",Arial,sans-serif;color:#51607a}
 .tp-sync.ok{color:#0d8a62}.tp-sync.warn{color:#92620e}.tp-sync.bad{color:#b4232d}
 body .overlay{z-index:10060!important}
-.tp-t col.c-u{width:25%}.tp-t col.c-tot{width:140px}.tp-t col.c-p{width:15%}.tp-t col.c-df{width:96px}.tp-t col.c-st{width:122px}
-.tp-t{min-width:1180px}
+.tp-t col.c-rk{width:50px}.tp-t col.c-u{width:20%}.tp-t col.c-tot{width:130px}.tp-t col.c-p{width:15%}.tp-t col.c-df{width:88px}.tp-t col.c-st{width:112px}
+.tp-t{min-width:0!important}
 .tp-t tbody td{padding-top:3px;padding-bottom:3px}
-.tp-cb small{font-size:10.5px}
+.tp-cb small{font-size:10.5px;white-space:normal!important;text-align:center;line-height:1.25;max-width:100%}
+.tp-cb small span{white-space:nowrap}
+.tp-t td{overflow:visible}
 .tp-dlg.cmp .tp-kpis{display:grid!important}
 .tp-dlg.cmp .tp-dist{display:none!important}
 @media(max-height:900px){.tp-t td.u small{font-size:10.5px}}
@@ -4002,7 +4004,7 @@ body .overlay{z-index:10060!important}
   view=rows.filter(r=>(!q||normalizeRankingSearch(r.unit).includes(q))&&(!st.lv||lvOf(r.average).k===st.lv)&&(st.type==='all'||r.type===st.type));
   view.sort((a,b)=>{const x=val(a,st.sort),y=val(b,st.sort);return(typeof x==='string'?x.localeCompare(y,'vi'):x-y)*st.dir||a.rank-b.rank});
   head();
-  const chip=(v,i,r)=>{const p=P()[i],u=p&&p.units.find(x=>x.unit===r.unit);if(v==null||!u)return'<td><span class="tp-ch">—</span></td>';const sub=p.kind==='fee'?`DVC ${fmt(u.dvccreated)}/${fmt(u.dvctotal)} · NH ${fmt(u.bankcreated)}/${fmt(u.banktotal)}${u.paid==='☑'?' · Đã nộp':''}`:`${fmt(u.received)} tiếp nhận · ${fmt(u.done)} xong${isChecked(u.done10)?' · ✓10':''}`;return`<td><button type="button" class="tp-cb" data-edit="${p.id}:${u.id}" title="Bấm để cập nhật"><span class="tp-ch ${lvOf(v).k}">${pct(v)}</span><small>${sub}</small></button></td>`};
+  const chip=(v,i,r)=>{const p=P()[i],u=p&&p.units.find(x=>x.unit===r.unit);if(v==null||!u)return'<td><span class="tp-ch">—</span></td>';const sub=p.kind==='fee'?`<span>DVC ${fmt(u.dvccreated)}/${fmt(u.dvctotal)}</span> <span>· NH ${fmt(u.bankcreated)}/${fmt(u.banktotal)}</span>${u.paid==='☑'?' <span>· Đã nộp</span>':''}`:`<span>${fmt(u.received)} tiếp nhận</span> <span>· ${fmt(u.done)} xong</span>${isChecked(u.done10)?' <span>· ✓10</span>':''}`;return`<td><button type="button" class="tp-cb" data-edit="${p.id}:${u.id}" title="Bấm để cập nhật"><span class="tp-ch ${lvOf(v).k}">${pct(v)}</span><small>${sub}</small></button></td>`};
   $('tpBody').innerHTML=view.map(r=>{const l=lvOf(r.average),d=(r.average-avgAll)*100,stt=r.average>=.999?['ok','Hoàn thành']:r.average>0?['run','Đang triển khai']:['no','Chưa triển khai'];
    return `<tr tabindex="0" data-u="${esc(r.unit)}"><td><span class="tp-rk ${r.rank<=3?'r'+r.rank:''}">${String(r.rank).padStart(2,'0')}</span></td><td class="u">${esc(r.unit)}<small title="${r.done} thủ tục hoàn thành · ${r.run} đang triển khai">${esc(ownerOf.get(r.unit)||'Chưa có cán bộ phụ trách')}</small></td><td><span class="tp-tot" style="--c:${l.c}"><b>${pct(r.average)}</b><span class="tr"><i style="width:${Math.min(100,r.average*100).toFixed(1)}%"></i></span></span></td>${r.values.map((v,i)=>chip(v,i,r)).join('')}<td><span class="tp-diff ${d>=0?'up':'dn'}" title="Chênh lệch so với tiến độ bình quân chung (điểm %)">${d>=0?'▲ +':'▼ '}${d.toLocaleString('vi-VN',{maximumFractionDigits:1})}%</span></td><td><span class="tp-st ${stt[0]}">${stt[1]}</span></td></tr>`}).join('')||`<tr><td colspan="${5+P().length}" class="tp-empty">Không có đơn vị phù hợp</td></tr>`;
   if(view.length){const avgOf=f=>{const xs=view.map(f).filter(v=>v!=null);return xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:null};
