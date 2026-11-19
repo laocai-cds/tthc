@@ -3929,6 +3929,28 @@ body .overlay{z-index:10060!important}
 .tp-dlg.cmp .tp-dist{display:none!important}
 @media(max-height:900px){.tp-t td.u small{font-size:10.5px}}
 </style>
+<style id="tp-mobile-fix">
+/* Điện thoại/máy tính bảng: giữ bề rộng cột cố định, cuộn ngang; cột Hạng + Đơn vị đứng yên */
+@media(max-width:1100px){
+html body .tp-t{width:1070px!important;min-width:1070px!important;table-layout:fixed}
+html body .tp-t col.c-rk{width:50px!important}html body .tp-t col.c-u{width:210px!important}html body .tp-t col.c-tot{width:140px!important}html body .tp-t col.c-p{width:118px!important}html body .tp-t col.c-df{width:96px!important}html body .tp-t col.c-st{width:124px!important}
+html body .tp-t th:nth-child(1),html body .tp-t td:nth-child(1){position:sticky;left:0;z-index:3}
+html body .tp-t th:nth-child(2),html body .tp-t td:nth-child(2){position:sticky;left:50px;z-index:3;box-shadow:2px 0 4px rgba(23,44,74,.12)}
+html body .tp-t th:nth-child(1),html body .tp-t th:nth-child(2){z-index:5}
+html body .tp-t tfoot td:nth-child(1),html body .tp-t tfoot td:nth-child(2){z-index:4}
+html body .tp-t td:nth-child(2){overflow:hidden;text-overflow:ellipsis}
+html body .tp-t td.tp-empty{position:static;box-shadow:none}
+html body .tp-wrap{-webkit-overflow-scrolling:touch}
+}
+@media(max-width:640px){
+html body .tp-t{width:960px!important;min-width:960px!important}
+html body .tp-t col.c-rk{width:40px!important}html body .tp-t col.c-u{width:132px!important}
+html body .tp-t th:nth-child(2),html body .tp-t td:nth-child(2){left:40px}
+html body .tp-t td.u{white-space:normal;font-size:12px;line-height:1.25;padding-left:6px;padding-right:4px}
+html body .tp-t td.u small{font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body .tp-t th:nth-child(1),html body .tp-t td:nth-child(1){padding-left:2px;padding-right:2px}
+}
+</style>
 <div class="tp-ov" id="tpOverlay" role="dialog" aria-modal="true" aria-labelledby="tpTitle" aria-hidden="true">
  <section class="tp-dlg">
   <header class="tp-head">
