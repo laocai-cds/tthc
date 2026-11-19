@@ -7618,4 +7618,35 @@ html body::before{top:4px;left:4px;transform:scaleY(-1)}html body::after{top:4px
 </style>
 <style id="four-corner-ornaments-layer">html body::before,html body::after,html body .app::before,html body .app::after{z-index:6}</style>
 <style id="crestFlag">html body .app .sidebar:not(.is-collapsed) .brand .crest img{position:absolute!important;inset:auto!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:68%!important;height:auto!important;max-height:none!important;border-radius:6px;object-fit:contain!important}</style>
+<style id="mobile-popup-fit">
+/* Điện thoại: bảng trong popup vừa khung hình, không bị cắt cột */
+@media(max-width:640px){
+  html body .tp-t{min-width:0!important;width:100%!important;table-layout:fixed!important;font-size:12px!important}
+  html body .tp-wrap{overflow-x:hidden!important}
+  html body .tp-t col.c-rk{width:34px!important}
+  html body .tp-t col.c-u{width:auto!important}
+  html body .tp-t col.c-tot{width:58px!important}
+  html body .tp-t col.c-p{width:50px!important}
+  html body .tp-t col.c-df,html body .tp-t col.c-st,
+  html body .tp-t th:nth-child(n+8),html body .tp-t td:nth-child(n+8){display:none!important}
+  html body .tp-t th{padding:7px 2px!important;font-size:0!important;white-space:normal!important}
+  html body .tp-t th::before{font-size:9.5px;font-weight:800;line-height:1.2;letter-spacing:0;text-transform:none;display:inline-block}
+  html body .tp-t th[data-k="rank"]::before{content:"Hạng"}
+  html body .tp-t th[data-k="unit"]::before{content:"Đơn vị"}
+  html body .tp-t th[data-k="avg"]::before{content:"Tổng"}
+  html body .tp-t th[data-k="p0"]::before{content:"Chính thức"}
+  html body .tp-t th[data-k="p1"]::before{content:"Tạm thời"}
+  html body .tp-t th[data-k="p2"]::before{content:"Nhận xét"}
+  html body .tp-t th[data-k="p3"]::before{content:"Đảng phí"}
+  html body .tp-t td{padding:6px 2px!important;font-size:11.5px!important}
+  html body .tp-t td.u{padding-left:6px!important;font-size:12px!important;white-space:normal!important;word-break:break-word}
+  html body .tp-t td.u small{font-size:10px!important}
+  html body .tp-tot{gap:0;justify-content:center}
+  html body .tp-tot .tr{display:none}
+  html body .tp-tot b{min-width:0;text-align:center;font-size:11.5px}
+  html body .tp-cb small{display:none!important}
+  html body .tp-cb{padding:2px!important;min-width:0}
+  html body .tp-ch{font-size:11px!important;padding:2px 4px!important;min-width:0}
+}
+</style>
 </body></html>
