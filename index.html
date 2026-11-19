@@ -3966,6 +3966,32 @@ html body .tp-t td.u small{font-size:9.5px;white-space:nowrap;overflow:hidden;te
 html body .tp-t th:nth-child(1),html body .tp-t td:nth-child(1){padding-left:2px;padding-right:2px}
 }
 </style>
+<style id="dd-mobile-fix">
+@media(max-width:900px){
+html body .dd-tw{margin:0 8px!important;overflow:auto!important;-webkit-overflow-scrolling:touch}
+html body .dd-tw table{table-layout:fixed!important;width:1520px!important;min-width:1520px!important}
+html body .dd-tw colgroup col:nth-child(1){width:44px!important}
+html body .dd-tw colgroup col:nth-child(2){width:150px!important}
+html body .dd-tw th.nm{width:150px!important}
+html body .dd-tw th.c-stt{width:44px!important}
+html body .dd-tw th:nth-child(1),html body .dd-tw td:nth-child(1){position:sticky;left:0;z-index:3;background:#fff;padding:4px 2px!important}
+html body .dd-tw thead th:nth-child(1){background:#14294a!important;z-index:5}
+html body .dd-tw th:nth-child(2),html body .dd-tw td:nth-child(2){position:sticky;left:44px;z-index:3;box-shadow:2px 0 4px rgba(23,44,74,.15);background:#fff;font-size:12px!important;line-height:1.25!important;padding:4px 6px!important}
+html body .dd-tw thead th:nth-child(2){background:#14294a!important;z-index:5}
+html body .dd-tw tbody tr:nth-child(even) td:nth-child(-n+2){background:#fafbfd}
+html body .dd-tw tfoot td:nth-child(-n+2){background:#fdf3e1}
+html body .dd-tw thead th{font-size:10px!important;padding:6px 4px!important}
+html body .dd-ov{padding:6px!important;align-items:stretch!important}
+html body .dd-panel{height:100%!important;max-height:100%!important}
+html body .dd-head{flex-wrap:wrap;gap:8px;padding:12px 12px 8px!important}
+html body .dd-head h2{font-size:15px!important;line-height:1.3!important}
+html body .dd-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;padding:8px 10px 0!important}
+html body .dd-kpis>*{padding:6px 8px!important;min-width:0}
+html body .dd-kpis b{font-size:15px!important}
+html body .dd-warn{margin:0 10px 6px!important}
+html body .dd-tools{padding:0 10px 8px!important}
+}
+</style>
 <div class="tp-ov" id="tpOverlay" role="dialog" aria-modal="true" aria-labelledby="tpTitle" aria-hidden="true">
  <section class="tp-dlg">
   <header class="tp-head">
