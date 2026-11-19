@@ -1,3 +1,9 @@
-2026-11-19T10:18:08Z
-[xã Xuân Quang] lỗi: <urlopen error timed out>
+2026-11-19T19:07:29Z
+[xã Xuân Quang] trang chủ 247 ký tự
+  RSS https://xuanquang.laocai.gov.vn/rss: lỗi mismatched tag: line 1, column 235
+  RSS https://xuanquang.laocai.gov.vn/rss.xml: lỗi mismatched tag: line 1, column 235
+  RSS https://xuanquang.laocai.gov.vn/feed: lỗi mismatched tag: line 1, column 235
+  RSS https://xuanquang.laocai.gov.vn/rss/tin-tuc.rss: lỗi mismatched tag: line 1, column 235
+  RSS https://xuanquang.laocai.gov.vn/rss/home.rss: lỗi mismatched tag: line 1, column 235
+  trang chủ: 0 bài, 0 chuyên mục tin
 [xã Xuân Quang] giữ 0/0 bài có ngày đăng
