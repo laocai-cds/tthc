@@ -4048,9 +4048,9 @@ body .overlay{z-index:10060!important}
   const cb='__tps'+Date.now(),sc=document.createElement('script'),to=setTimeout(()=>{delete window[cb];sc.remove();sy.className='tp-sync bad';sy.textContent='🔄 Không đọc được thời điểm đồng bộ 03 thủ tục.';lastT=0},15000);
   window[cb]=v=>{clearTimeout(to);delete window[cb];sc.remove();const l=v&&v.last03;if(!l){sy.className='tp-sync';sy.textContent='🔄 Đồng bộ 03 thủ tục: chưa có lần nào';return}
    const f=(l.failed||[]).map(i=>NM03[i]||i);
-   if(l.ok===false){sy.className='tp-sync bad';sy.textContent='🔄 Đồng bộ 03 thủ tục lần gần nhất THẤT BẠI lúc '+(l.at||'—')+(l.error?' · '+l.error:'')}
-   else if(f.length){sy.className='tp-sync warn';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.at||'—')+' · ⚠ lỗi: '+f.join(', ')}
-   else{sy.className='tp-sync ok';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.at||'—')+' · thành công cả 3 thủ tục'}};
+   if(l.ok===false){sy.className='tp-sync bad';sy.textContent='🔄 Đồng bộ 03 thủ tục lần gần nhất THẤT BẠI lúc '+(l.monthsAt||l.at||'—')+(l.error?' · '+l.error:'')}
+   else if(f.length){sy.className='tp-sync warn';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.monthsAt||l.at||'—')+' · ⚠ lỗi: '+f.join(', ')}
+   else{sy.className='tp-sync ok';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.monthsAt||l.at||'—')+' · thành công cả 3 thủ tục'}};
   sc.onerror=()=>{clearTimeout(to);sy.className='tp-sync bad';sy.textContent='🔄 Không đọc được thời điểm đồng bộ 03 thủ tục.';lastT=0};
   sc.src=A03+'?action=tthc03_status&callback='+cb+'&_='+Date.now();document.head.appendChild(sc)}
  function refresh(){build();kpis();render()}
@@ -6641,7 +6641,7 @@ a.addEventListener('click',function(e){e.preventDefault();alert('Hãy KÉO nút 
 var st=d.querySelector('#st03'),cb='__s03'+Date.now(),sc=document.createElement('script');
 var t=setTimeout(function(){delete window[cb];sc.remove();st.textContent='Không đọc được trạng thái.';st.className='st bad'},20000);
 window[cb]=function(v){clearTimeout(t);delete window[cb];sc.remove();var l=v&&v.last03;
- if(l&&l.ok!==false){st.textContent='✅ Lần đồng bộ gần nhất: '+(l.at||'—');st.className='st ok'}
+ if(l&&l.ok!==false){st.textContent='✅ Lần đồng bộ gần nhất: '+(l.monthsAt||l.at||'—');st.className='st ok'}
  else if(l){st.textContent='✕ Lần gần nhất lỗi: '+l.error;st.className='st bad'}
  else st.textContent='Chưa có lần đồng bộ nào.'};
 sc.onerror=function(){clearTimeout(t);st.textContent='Không đọc được trạng thái.';st.className='st bad'};
@@ -7386,9 +7386,9 @@ body.tpu-open .overlay,body.tpu-open .overlay *,body.tpu-open .table-panel,body.
   window[cb]=function(v){clearTimeout(to);delete window[cb];sc.remove();var l=v&&v.last03;
    if(!l){sy.className='tpu-sync';sy.textContent='🔄 Đồng bộ 03 thủ tục: chưa có lần nào';return}
    var f=(l.failed||[]).map(function(i){return NM[i]||i});
-   if(l.ok===false){sy.className='tpu-sync bad';sy.textContent='🔄 Đồng bộ 03 thủ tục lần gần nhất THẤT BẠI lúc '+(l.at||'—')+(l.error?' · '+l.error:'')}
-   else if(f.length){sy.className='tpu-sync warn';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.at||'—')+' · ⚠ lỗi: '+f.join(', ')}
-   else{sy.className='tpu-sync ok';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.at||'—')+' · thành công cả 3 thủ tục'}};
+   if(l.ok===false){sy.className='tpu-sync bad';sy.textContent='🔄 Đồng bộ 03 thủ tục lần gần nhất THẤT BẠI lúc '+(l.monthsAt||l.at||'—')+(l.error?' · '+l.error:'')}
+   else if(f.length){sy.className='tpu-sync warn';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.monthsAt||l.at||'—')+' · ⚠ lỗi: '+f.join(', ')}
+   else{sy.className='tpu-sync ok';sy.textContent='🔄 Đồng bộ 03 thủ tục lúc '+(l.monthsAt||l.at||'—')+' · thành công cả 3 thủ tục'}};
   sc.onerror=function(){clearTimeout(to);sy.className='tpu-sync bad';sy.textContent='🔄 Không đọc được thời điểm đồng bộ 03 thủ tục.';lastT=0};
   sc.src=A03+'?action=tthc03_status&callback='+cb+'&_='+Date.now();document.head.appendChild(sc)}
  function open(){loadSync();panel.classList.add('tp-pop');document.body.classList.add('tpu-open');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');var w=panel.querySelector('.table-wrap');if(w)w.scrollTop=0}
