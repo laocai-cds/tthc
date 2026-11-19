@@ -79,8 +79,8 @@ function tthc03Write_(b) {
 function tthc03Pct_(owner, guided, received, processed, need, done, cap) {
   const E = Math.max(0, Number(received) || 0), G = Math.max(0, Number(processed) || 0), H = Math.max(0, Number(need) || 0), I = Math.max(0, Number(done) || 0);
   let p = (String(owner || '').trim() !== '' ? 0.05 : 0) + (String(guided) === 'Có' ? 0.05 : 0);
-  if (H > 0) p += 0.60 * Math.min(1, I / H);
-  p += 0.30 * Math.min(1, I / (Number(cap) > 0 ? Number(cap) : 10));
+  if (H > 0) p += 0.40 * Math.min(1, I / H);
+  p += 0.50 * Math.min(1, I / (Number(cap) > 0 ? Number(cap) : 10));
   return Math.round(Math.min(1, Math.max(0, p)) * 1e6) / 1e6;
 }
 function tthc03Recalc_(sheet) {
