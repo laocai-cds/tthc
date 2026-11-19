@@ -644,6 +644,7 @@ function rptNarrative(m){return[
  `Tính đến ${m.stamp}, hệ thống theo dõi tiến độ triển khai 04 thủ tục hành chính của Đảng trên môi trường điện tử tại ${fmt(m.units)} đảng bộ, chi bộ trực thuộc. Tiến độ bình quân chung đạt ${rptPct(m.avg)}.`,
  `Thủ tục có tiến độ cao nhất là “${m.best.p.short}” (${rptPct(m.best.t.average)}); thấp nhất là “${m.worst.p.short}” (${rptPct(m.worst.t.average)}). Trên tổng số ${fmt(m.all.records)} lượt đơn vị – thủ tục: ${fmt(m.all.done)} lượt hoàn thành, ${fmt(m.all.active)} lượt đang triển khai, ${fmt(m.all.none)} lượt chưa triển khai.`,
  `Tài khoản quản trị dịch vụ công: ${fmt(m.admin.activated)}/${fmt(m.admin.accounts)} tài khoản đã kích hoạt (${rptPct(rptRatio(m.admin.activated,m.admin.accounts))}).`]}
+function rptZeroShort(zero,i){return zero.length<=10?rptZeroList(zero,i):'xem danh sách tại Phụ lục 01 (cột Trạng thái).'}
 function rptZeroList(zero,i){const n=zero.map(r=>String(r.u.unit).replace(/^Đảng bộ (xã |phường )/,''));return n.join(', ')+'.'}
 function rptDownload(blob,name,w){w=w&&!w.closed?w:window;const d=w.document,U=w.URL||URL;
  try{if(w.navigator&&w.navigator.msSaveOrOpenBlob){w.navigator.msSaveOrOpenBlob(blob,name);return}}catch(e){}
@@ -701,11 +702,13 @@ function rptKeyShort(x){const t=x.t;return x.p.kind==='fee'?`DVC ${fmt(t.dvc)}/$
 function rptT1(m){const rows=m.procs.map((x,i)=>[i+1,x.p.short,fmt(x.t.count),rptPct(x.t.average),fmt(x.t.doneUnits),fmt(x.t.active),fmt(x.notStarted),rptKeyShort(x)]);
  rows.push(['','Chung 04 thủ tục',fmt(m.units),rptPct(m.avg),fmt(m.all.done),fmt(m.all.active),fmt(m.all.none),`Tính trên ${fmt(m.all.records)} lượt đơn vị – thủ tục`]);
  return{head:['TT','Thủ tục','Số đơn vị','Tiến độ BQ','Hoàn thành','Đang TK','Chưa TK','Số liệu chính'],rows,w:[400,1900,750,850,900,750,800,2721],c:[0,2,3,4,5,6]}}
-function rptSub(x,u){return x.p.kind==='fee'?`DVC ${fmt(u.dvccreated)}/${fmt(u.dvctotal)} · NH ${fmt(u.bankcreated)}/${fmt(u.banktotal)}`:`${fmt(u.received)} tiếp nhận · ${fmt(u.done)} xong`}
+function rptSub(x,u){return x.p.kind==='fee'?`DVC ${fmt(u.dvccreated)}/${fmt(u.dvctotal)} · NH ${fmt(u.bankcreated)}/${fmt(u.banktotal)} · thu ${collectedLabel(u.collected)}`:`${fmt(u.received)} tiếp nhận · ${fmt(u.done)} xong`}
 function rptUnitStatus(a){return a>=.999?'Hoàn thành':a>0?'Đang triển khai':'Chưa triển khai'}
+function rptUnitInfo(m,maps,unit){const its=maps.map(mp=>mp.get(unit)).filter(Boolean),ow=[...new Set(its.map(it=>String(it.u.owner||'').replace(/\n+/g,', ').trim()).filter(Boolean))];
+ return{owner:ow.length?ow.join('; '):'—',guided:its.filter(it=>it.u.guided==='Có').length+'/'+m.procs.length}}
 function rptUnitTable(m){const maps=m.procs.map(x=>new Map(x.rows.map(r=>[r.u.unit,r])));
- const rows=m.ranking.map((r,i)=>[i+1,r.unit,rptPct(r.average),...m.procs.map((x,k)=>{const v=r.values[k],it=maps[k].get(r.unit);return v===null||v===undefined?'—':rptPct(v)+(it?'\n'+rptSub(x,it.u):'')}),rptUnitStatus(r.average)]);
- return{head:['Hạng','Đơn vị','Tiến độ tổng',...m.procs.map(x=>x.p.short),'Trạng thái'],rows,w:[700,3000,1100,...m.procs.map(()=>2000),1500],c:[0,2,...m.procs.map((_,k)=>3+k),3+m.procs.length]}}
+ const rows=m.ranking.map((r,i)=>{const f=rptUnitInfo(m,maps,r.unit);return[i+1,r.unit,f.owner,rptPct(r.average),...m.procs.map((x,k)=>{const v=r.values[k],it=maps[k].get(r.unit);return v===null||v===undefined?'—':rptPct(v)+(it?'\n'+rptSub(x,it.u):'')}),f.guided,rptUnitStatus(r.average)]});
+ const n=m.procs.length;return{head:['Hạng','Đơn vị','Cán bộ phụ trách','Tiến độ tổng',...m.procs.map(x=>x.p.short),'Đã hướng dẫn','Trạng thái'],rows,w:[650,2200,1900,950,...m.procs.map(()=>1800),950,1250],c:[0,3,...m.procs.map((_,k)=>4+k),4+n,5+n]}}
 function rptRankMix(m){const R=m.ranking,f=(r,i)=>[i+1,r.unit,rptPct(r.average),...r.values.map(v=>v===null?'—':rptPct(v))];
  if(R.length<=20)return R.map(f);const n=m.procs.length+3;return[...R.slice(0,10).map(f),['…','… (các đơn vị ở giữa xem Phụ lục 01)',...Array(n-2).fill('…')],...R.slice(-10).map((r,i)=>f(r,R.length-10+i))]}
 function rptBands(D){const nm=(a,pc)=>a.length?a.map(x=>rptShortName(x.name)+(pc?' ('+rptPctD(x.r)+')':'')).join('; ')+'.':'—';
@@ -720,9 +723,9 @@ function rptHTML(m){
  body+=H('II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC');
  m.procs.forEach((x,i)=>{const top=x.rows.filter(r=>r.v>=.5).slice(0,5),zero=x.rows.filter(r=>r.v<=0);
   body+=`<h3>${i+1}. ${esc(x.p.short)} — tiến độ bình quân ${rptPct(x.t.average)}</h3>`;
-  body+=P(esc(`${rptProcText(x)} Có ${fmt(x.owners)}/${fmt(x.t.count)} đơn vị đã phân công cán bộ phụ trách, ${fmt(x.guided)} đơn vị đã hướng dẫn quy trình; ${fmt(x.t.doneUnits)} đơn vị hoàn thành, ${fmt(x.t.active)} đơn vị đang triển khai, ${fmt(x.notStarted)} đơn vị chưa triển khai.`));
+  body+=P(esc(`${rptProcText(x)} Có ${fmt(x.owners)}/${fmt(x.t.count)} đơn vị đã phân công cán bộ phụ trách, ${fmt(x.guided)} đơn vị đã hướng dẫn quy trình.`));
   body+=P(`<b>Đơn vị dẫn đầu (đạt từ 50% tiến độ): </b>${esc(top.length?top.map(r=>r.u.unit+' ('+rptPct(r.v)+')').join('; ')+'.':'chưa có đơn vị đạt từ 50% tiến độ trở lên.')}`);
-  if(zero.length)body+=P(`<b class="w"><i>Chưa triển khai (${zero.length}): </i></b>${esc(rptZeroList(zero,i))}`)});
+  if(zero.length)body+=P(`<b class="w"><i>Chưa triển khai (${zero.length}): </i></b>${esc(rptZeroShort(zero,i))}`)});
  body+=P(`<b class="g">Biểu dương: </b>${esc(rptPraise50(m))}`);
  const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
  if(D){body+=H(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>P(esc(t))).join('');
@@ -874,8 +877,8 @@ function exportReportXlsx(m,w){
   m.procs.map((x,i)=>[N(i+1),B(x.p.short),N(x.t.count),{v:x.t.average,s:9},N(x.t.doneUnits),N(x.t.active),N(x.notStarted),T(rptProcText(x))]),[6,30,10,14,12,14,14,70],
   [[{v:'Tiến độ bình quân chung',s:7},'' ,'',{v:m.avg,s:9}],[{v:'TK quản trị đã kích hoạt',s:7},'','',{v:rptRatio(m.admin.activated,m.admin.accounts),s:9},{v:fmt(m.admin.activated)+' / '+fmt(m.admin.accounts),s:4}],[],...rptNarrative(m).map(t=>[{v:t,s:8}])]));
  {const maps=m.procs.map(x=>new Map(x.rows.map(r=>[r.u.unit,r])));
-  sheets.push(sheet('PL01 Theo đơn vị',`Phụ lục 01. Tổng hợp tiến độ theo đơn vị (${m.ranking.length} đơn vị)`,['Hạng','Đơn vị','Tiến độ tổng',...m.procs.flatMap(x=>[x.p.short+' (%)',x.p.short+' – số liệu']),'Trạng thái'],
-   m.ranking.map((r,k)=>[N(k+1),T(r.unit),{v:r.average,s:9},...m.procs.flatMap((x,q)=>{const v=r.values[q],it=maps[q].get(r.unit);return v===null||v===undefined?[T('—'),T('')]:[P(v),T(it?rptSub(x,it.u):'')]}),T(rptUnitStatus(r.average))]),[7,40,13,...m.procs.flatMap(()=>[12,28]),16]))}
+  sheets.push(sheet('PL01 Theo đơn vị',`Phụ lục 01. Tổng hợp tiến độ theo đơn vị (${m.ranking.length} đơn vị)`,['Hạng','Đơn vị','Cán bộ phụ trách','Tiến độ tổng',...m.procs.flatMap(x=>[x.p.short+' (%)',x.p.short+' – số liệu']),'Đã hướng dẫn (số thủ tục)','Trạng thái'],
+   m.ranking.map((r,k)=>{const f=rptUnitInfo(m,maps,r.unit);return[N(k+1),T(r.unit),T(f.owner),{v:r.average,s:9},...m.procs.flatMap((x,q)=>{const v=r.values[q],it=maps[q].get(r.unit);return v===null||v===undefined?[T('—'),T('')]:[P(v),T(it?rptSub(x,it.u):'')]}),T(f.guided),T(rptUnitStatus(r.average))]}),[7,40,26,13,...m.procs.flatMap(()=>[12,34]),14,16]))}
  m.procs.forEach((x,i)=>{const fee=x.p.kind==='fee',own=u=>String(u.owner||'').replace(/\n+/g,', ');
   sheets.push(fee?sheet(`CT${i+1} ${['SH chính thức','SH tạm thời','Nhận xét cư trú','Đảng phí'][i]||x.p.short}`,`Chi tiết ${i+1}. ${x.p.short} — tiến độ bình quân ${rptPct(x.t.average)}`,['TT','STT gốc','Đơn vị','Cán bộ phụ trách','Đã hướng dẫn','TK DVC đã tạo','TK DVC phải tạo','TK ngân hàng đã tạo','TK ngân hàng phải tạo','Hoàn thành thu trong kỳ','Tiến độ','Trạng thái','Lưu ý'],
     x.rows.map(({u,v,st},k)=>[N(k+1),N(u.id),T(u.unit),T(own(u)),T(u.guided),N(u.dvccreated),N(u.dvctotal),N(u.bankcreated),N(u.banktotal),P(collectedRatio(u.collected)),P(v),T(st),T(u.note||'')]),[6,8,38,26,11,11,11,12,12,12,10,15,40])
@@ -1046,9 +1049,9 @@ function exportReportDocx(m,w){
  body+=h('II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC');
  m.procs.forEach((x,i)=>{const top=x.rows.filter(r=>r.v>=.5).slice(0,5),zero=x.rows.filter(r=>r.v<=0);
   body+=para([run(`${i+1}. ${x.p.short} — tiến độ bình quân ${rptPct(x.t.average)}`,{b:true})],{keep:true,before:80,jc:'left'});
-  body+=para(`${rptProcText(x)} Có ${fmt(x.owners)}/${fmt(x.t.count)} đơn vị đã phân công cán bộ phụ trách, ${fmt(x.guided)} đơn vị đã hướng dẫn quy trình; ${fmt(x.t.doneUnits)} đơn vị hoàn thành, ${fmt(x.t.active)} đơn vị đang triển khai, ${fmt(x.notStarted)} đơn vị chưa triển khai.`,{ind:true});
+  body+=para(`${rptProcText(x)} Có ${fmt(x.owners)}/${fmt(x.t.count)} đơn vị đã phân công cán bộ phụ trách, ${fmt(x.guided)} đơn vị đã hướng dẫn quy trình.`,{ind:true});
   body+=para([run('Đơn vị dẫn đầu (đạt từ 50% tiến độ): ',{b:true}),run(top.length?top.map(r=>r.u.unit+' ('+rptPct(r.v)+')').join('; ')+'.':'chưa có đơn vị đạt từ 50% tiến độ trở lên.')],{ind:true});
-  if(zero.length)body+=para([run(`Chưa triển khai (${zero.length}): `,{b:true,i:true,color:'8A3B12'}),run(rptZeroList(zero,i))],{ind:true})});
+  if(zero.length)body+=para([run(`Chưa triển khai (${zero.length}): `,{b:true,i:true,color:'8A3B12'}),run(rptZeroShort(zero,i))],{ind:true})});
  body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run(rptPraise50(m))],{ind:true});
  const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
  if(D){body+=h(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>para(t,{ind:true})).join('');
