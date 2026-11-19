@@ -139,9 +139,8 @@ mark{background:#fbe39a;color:inherit;border-radius:3px;padding:0 1px}
   .q{padding:13px 13px}
   .ans{padding:0 13px 14px 13px}
   .q .txt{font-size:15px}
-  .chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none}
-  .chips::-webkit-scrollbar{display:none}
-  .chip{flex:none}
+  .chips{flex-wrap:wrap;overflow:visible;margin:0;padding:0}
+  .chip{flex:none;max-width:100%;padding:5px 10px;font-size:13px}
 }
 @media print{
   .hero{background:none;color:var(--ink);padding:0}.hero::after,.back,.searchbox,.filters,.meta .tools,.totop,.copy{display:none}
