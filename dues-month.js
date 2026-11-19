@@ -134,7 +134,8 @@
 
   function refreshLabels() {
     const t = periodLabel();
-    document.querySelectorAll('[data-dues-period]').forEach(el => { if (el.textContent !== t) el.textContent = t; });
+    const tm = 'Tháng ' + monthNo(currentKey());
+    document.querySelectorAll('[data-dues-period]').forEach(el => { const w = el.closest('.dd-ov,.dr-ov,.dues-month-bar') ? t : tm; if (el.textContent !== w) el.textContent = w; });
     const cur = labelOf(currentKey());
     document.querySelectorAll('[data-dp-cur-month]').forEach(el => { if (el.textContent !== cur) el.textContent = cur; });
   }
@@ -183,8 +184,9 @@
    * Các trình đọc cũ gọi hàm này thay cho `script.src = …gviz…`.
    * Chế độ tháng: trả về đúng URL gviz của tab tương ứng. Chế độ lũy kế: gộp nhiều tab rồi gọi window[cb].
    */
-  function attach(script, cb) {
-    const snap = { month: state.month, mode: state.mode };
+  function attach(script, cb, scope) {
+    /* scope 'main': trang chính luôn đọc tháng hiện tại, không đổi theo lựa chọn tháng/lũy kế trong popup */
+    const snap = scope === 'main' ? { month: currentKey(), mode: 'month' } : { month: state.month, mode: state.mode };
     if (snap.mode === 'month') { script.src = gvizUrl(specFor(snap.month), cb); return; }
     script.src = 'data:text/javascript;charset=utf-8,0';      // script rỗng để phần còn lại của trình đọc chạy bình thường
     cumulativePayload(snap).then(p => {
@@ -285,7 +287,7 @@
   }
 
   root.DuesMonth = {
-    state, live, isCurrent, currentKey, labelOf, periodLabel, fullLabel, attach, mount, set,
+    state, mainLabel: () => 'Tháng ' + monthNo(currentKey()), live, isCurrent, currentKey, labelOf, periodLabel, fullLabel, attach, mount, set,
     mergeCumulative, available, hasData, _setMonths: (a, ok) => { months = a; registryOk = ok !== false; normalizeState(); }, sourceFor
   };
 
