@@ -1801,12 +1801,12 @@ window.openUnitDetail=open;
  function build(){
   if(ov)return;
   ov=document.createElement('div');ov.className='pu-ov';ov.id='procUnitsOverlay';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-labelledby','puTitle');
-  ov.innerHTML='<section class="pu-dlg"><button type="button" class="pu-x" aria-label="Đóng" data-pu-close>×</button><header class="pu-head"><span class="pu-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V8l7-4 7 4v13"/><path d="M9 21v-5h6v5"/></svg></span><div class="pu-ttl"><small>Các đơn vị thực hiện</small><h2 id="puTitle"></h2></div><div class="pu-avg"><b id="puAvg">0%</b><span>bình quân</span></div></header><div class="pu-bar"><input type="search" class="pu-search" id="puSearch" placeholder="Tìm tên đơn vị…" aria-label="Tìm đơn vị" autocomplete="off"><div class="pu-chips" id="puChips"></div></div><div class="pu-list" id="puList"></div><footer class="pu-foot"><span id="puCount"></span><button type="button" class="pu-go" data-pu-table>Xem bảng chi tiết thủ tục ›</button></footer></section>';
+  ov.innerHTML='<section class="pu-dlg"><button type="button" class="pu-x" aria-label="Đóng" data-pu-close>×</button><header class="pu-head"><span class="pu-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V8l7-4 7 4v13"/><path d="M9 21v-5h6v5"/></svg></span><div class="pu-ttl"><small>Các đơn vị thực hiện</small><h2 id="puTitle"></h2></div><div class="pu-avg"><b id="puAvg">0%</b><span>bình quân</span></div></header><div class="pu-bar"><input type="search" class="pu-search" id="puSearch" placeholder="Tìm tên đơn vị…" aria-label="Tìm đơn vị" autocomplete="off"><div class="pu-chips" id="puChips"></div></div><div class="pu-list" id="puList"></div><footer class="pu-foot"><span id="puCount"></span><button type="button" class="pu-go" data-pu-table>Xem bảng tiến độ tổng ›</button></footer></section>';
   document.body.appendChild(ov);dlg=ov.querySelector('.pu-dlg');
   ov.addEventListener('click',function(ev){
    var t=ev.target;
    if(t===ov||t.closest('[data-pu-close]'))return close();
-   var go=t.closest('[data-pu-table]');if(go){var id=cur&&cur.id;close();if(id)activate(id);return}
+   var go=t.closest('[data-pu-table]');if(go){close();var op=document.querySelector('[data-open-ranking]');if(op)op.click();return}
    var ch=t.closest('[data-pu-f]');if(ch){filt=ch.dataset.puF;paint();return}
    var r=t.closest('[data-pu-unit]');if(r&&window.openUnitDetail)window.openUnitDetail(r.dataset.puUnit);
   });
