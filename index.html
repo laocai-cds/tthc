@@ -2438,6 +2438,8 @@ render(rows.filter(r=>mv(r,2)>0||r.metrics.length<14))};window[cb]=payload=>fini
   if(changed){try{saveData()}catch(e){}if(!silent&&!(typeof editing!=='undefined'&&editing))try{window.render()}catch(e){console.warn(e)}}
  }
  window.applyFeeRatesFromDues=applyFeeRates;
+ /* Tải sẵn số liệu Sheet1 ngay khi vào trang để trang chính và bảng dùng chung một nguồn (không nhảy số khi mở bảng) */
+ setTimeout(()=>{try{load()}catch(e){console.warn(e)}},1200);
  /* Mỗi lần trang vẽ lại (kể cả sau khi Đồng bộ Sheets ghi đè dữ liệu) đều áp lại Tỉ lệ */
  if(typeof window.render==='function'&&!window.render.__feeRates){const origRender=window.render;const wrapped=function(...a){try{applyFeeRates(true)}catch(e){console.warn(e)}return origRender.apply(this,a)};wrapped.__feeRates=true;window.render=wrapped}
  /* ===== Form thông tin đơn vị ===== */
