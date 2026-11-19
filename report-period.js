@@ -85,7 +85,7 @@
   /* Thay số hồ sơ của các thủ tục dạng hồ sơ bằng số của tháng (cùng công thức với bảng xếp hạng theo tháng trên trang) */
   function applyMonth03(procs, mp) {
     return procs.map(p => p.kind === 'fee' ? p : Object.assign({}, p, {
-      units: p.units.map(u => { const a = ((mp[p.id]) || new Map()).get(nf03(u.unit)) || [0, 0, 0], rc = a[0] + a[1] + a[2]; return Object.assign({}, u, { received: rc, total: rc, processed: a[1] + a[2], need: rc - a[1], done: a[2] }); })
+      units: p.units.map(u => { const a = ((mp[p.id]) || new Map()).get(nf03(u.unit)) || [0, 0, 0], rc = a[0] + a[1] + a[2]; return Object.assign({}, u, { received: rc, total: rc, processed: a[2], need: rc - a[1], done: a[2] }); })
     }));
   }
 

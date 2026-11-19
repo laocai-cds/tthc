@@ -78,8 +78,9 @@ function tthc03Write_(b) {
  * Hook: gọi tthc03Recalc_(sheet) trước sortUnitRows_ trong sortTouchedTabs_ và tthc03Write_. */
 function tthc03Pct_(owner, guided, received, processed, need, done) {
   const E = Math.max(0, Number(received) || 0), G = Math.max(0, Number(processed) || 0), H = Math.max(0, Number(need) || 0), I = Math.max(0, Number(done) || 0);
-  let p = (String(owner || '').trim() !== '' ? 0.05 : 0) + (String(guided) === 'Có' ? 0.05 : 0) + 0.20 * Math.min(1, E / 10) + 0.50 * Math.min(1, I / 10);
-  if (E > 0) p += 0.10 * Math.min(1, I / E) + (H > 0 ? 0.10 * Math.min(1, I / H) : 0);
+  let p = (String(owner || '').trim() !== '' ? 0.05 : 0) + (String(guided) === 'Có' ? 0.05 : 0) + 0.10 * Math.min(1, E / 10);
+  if (H > 0) p += 0.60 * Math.min(1, I / H);
+  if (E > 0) p += 0.20 * Math.min(1, I / E);
   return Math.round(Math.min(1, Math.max(0, p)) * 1e6) / 1e6;
 }
 function tthc03Recalc_(sheet) {
