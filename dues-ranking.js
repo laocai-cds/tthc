@@ -172,20 +172,34 @@
       sc.async = true; document.head.appendChild(sc);
     });
   }
+  /* Trạng thái đồng bộ lấy từ Apps Script (action=status) – chính là nơi app ĐP / nút ĐP ghi kết quả mỗi lần chạy */
+  function fetchStatus(api) {
+    return new Promise(resolve => {
+      const cb = '__duesSt_' + Date.now() + '_' + Math.random().toString(36).slice(2), sc = document.createElement('script');
+      let ended = false;
+      const finish = v => { if (ended) return; ended = true; clearTimeout(timer); delete root[cb]; sc.remove(); resolve(v); };
+      const timer = setTimeout(() => finish(null), 15000);
+      root[cb] = v => finish(v || null);
+      sc.onerror = () => finish(null);
+      sc.src = api + (api.indexOf('?') < 0 ? '?' : '&') + 'action=status&callback=' + cb + '&_=' + Date.now();
+      sc.async = true; document.head.appendChild(sc);
+    });
+  }
+  const parseVN = t => { const m = /(\d{1,2})\/(\d{1,2})\/(\d{4})[ T]+(\d{1,2}):(\d{2})(?::(\d{2}))?/.exec(String(t || '')); return m ? new Date(+m[3], +m[2] - 1, +m[1], +m[4], +m[5], +(m[6] || 0)).getTime() : 0; };
   async function loadSyncs(k) {
     const box = $('drSyncs'); if (!box) return;
     box.textContent = 'Đang tải thời gian đồng bộ…';
-    const [reg, log] = await Promise.all([fetchSheet('DANH MUC THANG', 1), fetchSheet('Nhật ký đồng bộ', 1)]);
-    if (k !== (ui.month || k) && ui.month) return;
+    let api = ''; try { api = (localStorage.getItem('dangphi.api') || localStorage.getItem('dp.api') || '').trim(); } catch (_) {}
+    const [st, reg] = await Promise.all([api ? fetchStatus(api) : Promise.resolve(null), fetchSheet('DANH MUC THANG', 1)]);
+    if (ui.month && k !== ui.month) return;
+    const G = 'color:#0d8a62', R = 'color:#c5302a', put = (c, t) => { box.innerHTML = '<span style="' + c + ';font-weight:700">' + t + '</span>'; };
+    const l = st && st.last, e = st && st.lastError, tl = l ? parseVN(l.updatedAtText) : 0, te = e ? parseVN(e.at) : 0;
+    if (e && te > tl) { put(R, '✖ Đồng bộ lần cuối thất bại: ' + esc(e.at || '') + (e.error ? ' — ' + esc(String(e.error).slice(0, 120)) : '')); return; }
+    if (l && (!l.month || l.month === k)) { put(G, '✔ Đồng bộ lần cuối thành công (' + monthLabel(k) + '): ' + esc(l.updatedAtText || '')); return; }
     let last = '';
     if (reg) { const r = (reg.table.rows || []).map(x => x.c || []).find(c => cellText(c[0]) === k); if (r) last = cellText(r[2]) || (r[2] && r[2].f) || ''; }
-    const txt = c => String(c ? (c.f != null ? c.f : (c.v == null ? '' : c.v)) : '').trim();
-    const ents = log ? (log.table.rows || []).map(x => x.c || []).map(c => ({ t: txt(c[0]), fail: c.some(z => /lỗi|không đúng|thất bại|error|fail/i.test(txt(z))) })).filter(e => e.t) : [];
-    const mm = k.slice(5) + '/' + k.slice(0, 4);
-    const mine = ents.filter(e => e.t.indexOf('/' + mm + ' ') > 0 || e.t.indexOf('/' + mm) === 5).slice(0, 5);
-    const G = 'color:#0d8a62', R = 'color:#c5302a', fail = ents.length ? ents[0].fail : false;
-    const chip = e => '<span style="' + (e.fail ? R : G) + ';font-weight:700">' + (e.fail ? '✖ ' : '✔ ') + esc(e.t) + (e.fail ? ' (thất bại)' : '') + '</span>';
-    box.innerHTML = (last ? '<span style="' + (fail ? R : G) + ';font-weight:700">' + (fail ? '✖ Đồng bộ lần cuối thất bại' : '✔ Đồng bộ lần cuối thành công') + ' (' + monthLabel(k) + '): ' + esc(last) + '</span>' : 'Chưa có thời gian đồng bộ cho ' + monthLabel(k));
+    if (last) put(G, '✔ Đồng bộ lần cuối thành công (' + monthLabel(k) + '): ' + esc(last));
+    else box.textContent = 'Chưa có thời gian đồng bộ cho ' + monthLabel(k);
   }
   async function refresh() {
     const dm = root.DuesMonth, k = ui.month || (dm && dm.state && dm.state.month) || keyOf(new Date().getFullYear(), new Date().getMonth() + 1), my = ++ui.seq;
