@@ -223,9 +223,11 @@
     const c = m.procs.filter(x => x.delta && x.p.kind === 'case'), S = k => c.reduce((s, x) => s + x.delta[k], 0), du = m.procs.reduce((s, x) => s + (x.delta && x.delta.doneUnits != null && (!P.monthTab || x.p.kind === 'case') ? x.delta.doneUnits : 0), 0);
     if (P.monthTab) {
       const cmp = P.baseAvg != null && P.endAvg != null;
-      return ['Trong ' + P.label + ' (' + P.range + '), ' + fmt(c.length) + ' thủ tục về hồ sơ ghi nhận ' + fmt(S('received')) + ' hồ sơ tiếp nhận, trong đó đã xử lý ' + fmt(S('processed')) + ' hồ sơ và hoàn thành ' + fmt(S('done')) + ' hồ sơ (theo số liệu của chính tháng, lấy từ bảng theo dõi 03 thủ tục).' +
-        (cmp ? ' So với ' + P.prevLabel + ', số lượt đơn vị – thủ tục hoàn thành thay đổi ' + signed(du) + '; tiến độ bình quân chung của ba thủ tục hồ sơ từ ' + rptPct(P.baseAvg) + ' ' + (P.endAvg < P.baseAvg ? 'xuống ' : 'lên ') + rptPct(P.endAvg) + ' (' + pts(P.endAvg - P.baseAvg) + ').'
-          : ' Chưa có số liệu ' + P.prevLabel + ' trên bảng theo dõi nên chưa so sánh được với tháng trước.')];
+      const rc = S('received'), dn = S('done'), same = cmp && Math.abs(P.endAvg - P.baseAvg) < 0.0005;
+      const cmpTxt = !cmp ? ' Chưa có số liệu ' + P.prevLabel + ' trên bảng theo dõi nên chưa so sánh được với tháng trước.'
+        : same ? ' So với ' + P.prevLabel + ', tiến độ bình quân chung của ba thủ tục hồ sơ giữ nguyên ở mức ' + rptPct(P.endAvg) + (du === 0 ? ' và số lượt đơn vị – thủ tục hoàn thành không thay đổi.' : '; số lượt đơn vị – thủ tục hoàn thành ' + (du > 0 ? 'tăng ' : 'giảm ') + fmt(Math.abs(du)) + '.')
+        : ' So với ' + P.prevLabel + ', tiến độ bình quân chung của ba thủ tục hồ sơ ' + (P.endAvg < P.baseAvg ? 'giảm từ ' : 'tăng từ ') + rptPct(P.baseAvg) + (P.endAvg < P.baseAvg ? ' xuống ' : ' lên ') + rptPct(P.endAvg) + ' (' + pts(P.endAvg - P.baseAvg) + ')' + (du === 0 ? '; số lượt đơn vị – thủ tục hoàn thành không thay đổi.' : '; số lượt đơn vị – thủ tục hoàn thành ' + (du > 0 ? 'tăng ' : 'giảm ') + fmt(Math.abs(du)) + '.');
+      return ['Trong ' + P.label + ' (' + P.range + '), ba thủ tục về hồ sơ ghi nhận ' + fmt(rc) + ' hồ sơ tiếp nhận; đã xử lý xong ' + fmt(dn) + ' hồ sơ' + (rc > 0 ? ', đạt ' + rptPct(dn / rc) + ' số hồ sơ tiếp nhận' : '') + ' (theo số liệu của chính tháng, lấy từ bảng theo dõi 03 thủ tục).' + cmpTxt];
     }
     return ['Trong ' + P.label + ' (' + P.range + (P.partial ? '; số liệu đầu kỳ tính từ ngày lưu đầu tiên ' + dmy(P.baseDate) : '') + '), ' + fmt(c.length) + ' thủ tục về hồ sơ tiếp nhận mới ' + signed(S('received')) + ' hồ sơ, xử lý ' + signed(S('processed')) + ' hồ sơ, hoàn thành ' + signed(S('done')) + ' hồ sơ; số lượt đơn vị – thủ tục hoàn thành thay đổi ' + signed(du) + '. Tiến độ bình quân chung từ ' + rptPct(P.baseAvg) + ' đầu kỳ ' + (P.endAvg < P.baseAvg ? 'xuống ' : 'lên ') + rptPct(P.endAvg) + ' cuối kỳ (' + pts(P.endAvg - P.baseAvg) + ').'];
   }
