@@ -6753,13 +6753,16 @@ html.is-admin #adminBtn{display:inline-flex!important}
 <button type="button" class="btn x" id="admClose">Đóng</button>
 <h3 id="admTtl">🛡 Quản trị hệ thống</h3>
 <p class="hint">Các chức năng quản trị nằm trong cửa sổ này. Quyền do máy chủ Google Apps Script kiểm tra.</p>
-<div class="admtabs" role="tablist"><button type="button" role="tab" data-g="tq">📊 Tổng quan</button><button type="button" role="tab" data-g="cn">⚙ Chức năng</button><button type="button" role="tab" data-g="dl">🗂 Dữ liệu</button><button type="button" role="tab" data-g="pq">🔐 Phân quyền</button><button type="button" role="tab" data-g="nk">📜 Nhật ký</button></div>
+<div class="admtabs" role="tablist"><button type="button" role="tab" data-g="tq">📊 Tổng quan</button><button type="button" role="tab" data-g="cn">⚙ Chức năng</button><button type="button" role="tab" data-g="dl">🗂 Dữ liệu</button><button type="button" role="tab" data-g="pq">🔐 Phân quyền</button><button type="button" role="tab" data-g="nk">📜 Nhật ký</button><button type="button" role="tab" data-g="ls">🔄 Lịch sử ĐB</button></div>
 <div class="admpane" data-grp="tq"><div class="admstat"><div><small>Đang online</small><b id="admOn">–</b></div><div><small>Tổng lượt truy cập</small><b id="admTot">–</b></div></div><p class="hint">Số liệu lấy từ bộ đếm truy cập của trang.</p></div>
 <div class="admpane" data-grp="cn"><div id="admTools"></div><p class="hint">Nhập Excel/JSON, sửa thông báo, Đảng phí và Trang web đơn vị chỉ mở được khi đã đăng nhập quản trị.</p></div>
 <div class="admpane" data-grp="dl"><div id="admSheetHost"></div><p class="hint">Bảng dữ liệu Google Sheets và nút đồng bộ (đã chuyển từ trang chính vào Quản trị hệ thống). Trang vẫn tự đồng bộ khi mở và mỗi phút.</p></div>
 <div class="admpane" data-grp="nk"><div class="row"><select id="nkUser" title="Chọn tài khoản"><option value="">Tất cả tài khoản</option></select><input id="nkFilter" type="search" placeholder="Lọc theo Gmail hoặc thao tác…" autocomplete="off"><button type="button" class="btn" id="nkReload">Tải lại</button><button type="button" class="btn" id="nkExport" title="Tải nhật ký về máy dạng file .txt">⬇ Xuất .txt</button></div>
 <div id="nkInfo" class="hint">Nhật ký thao tác của tài khoản quản trị trên trang (đăng nhập, mở chức năng, gửi dữ liệu…). Chỉ Toàn quyền xem được.</div>
 <div id="nkWrap"><table><thead><tr><th>Thời gian</th><th>Tài khoản</th><th>Thao tác</th><th>Chi tiết</th></tr></thead><tbody id="nkBody"><tr><td colspan="4">Chưa tải.</td></tr></tbody></table></div></div>
+<div class="admpane" data-grp="ls"><div class="row"><select id="lsSrc" title="Chọn nguồn"><option value="dp">Đồng bộ đảng phí</option><option value="03">Đồng bộ 03 thủ tục</option></select><button type="button" class="btn" id="lsReload">Tải lại</button></div>
+<div id="lsInfo" class="hint">Lịch sử các lần đồng bộ dữ liệu lên Google Sheets (mới nhất ở trên).</div>
+<div id="lsWrap" style="overflow:auto"><table><thead id="lsHead"></thead><tbody id="lsBody"><tr><td>Chưa tải.</td></tr></tbody></table></div></div>
 <div class="admpane" data-grp="pq"><table><thead><tr><th>Gmail</th><th>Quyền</th><th></th></tr></thead><tbody id="admBody"><tr><td colspan="3">Đang tải…</td></tr></tbody></table>
 <div class="row"><input id="admEmail" type="email" placeholder="Thêm Gmail quản trị" autocomplete="off"><button type="button" class="btn" id="admAdd">Thêm</button><button type="button" class="btn" id="admReload">Tải lại</button></div>
 <div id="admNewPerm" class="pgrow"><span>Quyền khi thêm:</span><label class="pg"><input type="checkbox" data-nk="bc" checked>Báo cáo</label><label class="pg"><input type="checkbox" data-nk="dp" checked>Thu đảng phí</label><label class="pg"><input type="checkbox" data-nk="dl">Dữ liệu</label><label class="pg"><input type="checkbox" data-nk="nd" checked>Nội dung & đơn vị</label><label class="pg full"><input type="checkbox" data-nk="all">Toàn quyền</label></div>
@@ -6800,7 +6803,7 @@ window.AUTH=(function(){
     b.title=role==='admin'?'Đã đăng nhập: '+((user&&user.email)||'')+'. Bấm để đăng xuất':'Đăng nhập quản trị bằng Gmail'}
   function paintPerms(){const q=(s)=>document.querySelectorAll(s);
     q('#admTools [data-pg]').forEach(el=>{el.hidden=!can(el.dataset.pg)});
-    const vis={tq:role==='admin',cn:PG.some(x=>can(x[0])),dl:can('dl'),pq:isFull(),nk:isFull()};
+    const vis={tq:role==='admin',cn:PG.some(x=>can(x[0])),dl:can('dl'),pq:isFull(),nk:isFull(),ls:role==='admin'};
     q('.admtabs button').forEach(b=>{b.hidden=!vis[b.dataset.g]});
     const cur=document.querySelector('.admtabs [aria-selected=true]');if(cur&&cur.hidden&&window.__admShowTab)window.__admShowTab('tq')}
   function setRole(r){role=r;if(r!=='admin')perms=[];H.classList.toggle('is-admin',r==='admin');paint();try{paintPerms()}catch(_){}
@@ -6854,6 +6857,22 @@ window.AUTH=(function(){
         else if(p.action){a='Gửi yêu cầu: '+String(p.action).slice(0,30);d='Gửi tới máy chủ Apps Script'}
         logAct(a,d+(page()?' · tại: '+page():''))}}}catch(_){}
     return window.__nkRawFetch(u,o)};
+  /* ---- Lịch sử đồng bộ: đọc trực tiếp tab nhật ký trong Google Sheet (không cần cập nhật Apps Script) ---- */
+  function lsLoad(){const head=g('lsHead'),body=g('lsBody'),info=g('lsInfo');if(!body)return;
+    const src=g('lsSrc').value,id=src==='03'?'1zWKZy2rMCsahX-f96bk9tMJuLcDp13OfKNcQq3T5oXA':'1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-M1AGkWO4g',tab=src==='03'?'NHAT KY':'Nhật ký đồng bộ';
+    head.innerHTML='';body.innerHTML='<tr><td>Đang tải…</td></tr>';
+    const cb='__ls_'+Date.now(),sc=document.createElement('script');let done=false;
+    const fin=p=>{if(done)return;done=true;clearTimeout(tm);delete window[cb];sc.remove();
+      if(!p||!p.table){body.innerHTML='<tr><td>Không tải được (kiểm tra mạng hoặc quyền xem Sheet).</td></tr>';return}
+      const cols=(p.table.cols||[]).map(c=>c.label||''),rows=(p.table.rows||[]).map(r=>(r.c||[]).map(c=>c?(c.f!=null?c.f:(c.v==null?'':c.v)):'')).filter(r=>r.some(x=>String(x).trim()));
+      if(!rows.length){body.innerHTML='<tr><td>Chưa có lịch sử.</td></tr>';return}
+      const show=rows.slice(0,100);
+      head.innerHTML='<tr>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr>';
+      body.innerHTML=show.map(r=>'<tr>'+cols.map((_,i)=>{const v=String(r[i]==null?'':r[i]);return '<td'+(/THẤT BẠI|lỗi/i.test(v)?' style="color:#b3261e;font-weight:700"':'')+'>'+esc(v)+'</td>'}).join('')+'</tr>').join('');
+      info.textContent='Hiển thị '+show.length+' lần đồng bộ gần nhất (tổng '+rows.length+'). Tab "'+tab+'" trong Google Sheet.'};
+    const tm=setTimeout(()=>fin(null),20000);window[cb]=fin;sc.onerror=()=>fin(null);
+    sc.src='https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:json;responseHandler:'+cb+'&sheet='+encodeURIComponent(tab)+'&headers=1&_='+Date.now();
+    sc.async=true;document.head.appendChild(sc)}
   async function nkLoad(){const box=g('nkBody'),info=g('nkInfo');if(!box||!isFull())return;
     box.innerHTML='<tr><td colspan="4">Đang tải…</td></tr>';
     try{const d=await jp('action=logs&n=300&idToken='+encodeURIComponent(await fresh()),15000);
@@ -6915,11 +6934,11 @@ window.AUTH=(function(){
     function showTab(id){tabs.forEach(b=>b.setAttribute('aria-selected',b.dataset.g===id?'true':'false'));
       document.querySelectorAll('.admpane').forEach(el=>el.classList.toggle('admhide',el.dataset.grp!==id));
       if(id==='tq'){const o=document.getElementById('firebaseOnlineCount'),t=document.getElementById('firebaseTotalVisits');g('admOn').textContent=o?o.textContent:'–';g('admTot').textContent=t?t.textContent:'–'}
-      if(id==='pq')admLoad();if(id==='nk')nkLoad();try{localStorage.setItem('tt_admtab',id)}catch(_){}}
+      if(id==='pq')admLoad();if(id==='nk')nkLoad();if(id==='ls')lsLoad();try{localStorage.setItem('tt_admtab',id)}catch(_){}}
     tabs.forEach(b=>b.onclick=()=>showTab(b.dataset.g));
     let st='tq';try{st=localStorage.getItem('tt_admtab')||'tq'}catch(_){}showTab(['tq','cn','pq'].includes(st)?st:'tq');
     window.__admShowTab=showTab;
-    g('admReload').onclick=admLoad;g('nkReload').onclick=nkLoad;g('nkExport').onclick=nkExport;g('nkFilter').oninput=nkPaint;g('nkUser').onchange=nkPaint;
+    g('admReload').onclick=admLoad;g('lsReload').onclick=lsLoad;g('lsSrc').onchange=lsLoad;g('nkReload').onclick=nkLoad;g('nkExport').onclick=nkExport;g('nkFilter').oninput=nkPaint;g('nkUser').onchange=nkPaint;
     g('admAdd').onclick=()=>{const i=g('admEmail'),e=i.value.trim().toLowerCase();
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){g('admMsg').textContent='Gmail chưa đúng định dạng.';return}
       const ck=[...document.querySelectorAll('#admNewPerm [data-nk]:checked')].map(x=>x.dataset.nk),pl=ck.indexOf('all')>=0?['all']:['bc','dp','dl','nd'].filter(k=>ck.indexOf(k)>=0);
