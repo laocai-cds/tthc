@@ -271,7 +271,8 @@
   root.rptHTML = function (m) {
     let h = orig.html(m);
     h = h.replace('</style>', PICKER_CSS + '</style>').replace('<span class="sp"></span>', PICKER + '<span class="sp"></span>');
-    const P = m.period; if (!P) return h;
+    const P = m.period;
+    if (!P) return h.replace('môi trường điện tử</p><p class="t2">-----</p>', 'môi trường điện tử (Lũy kế đến thời điểm hiện tại)</p><p class="t2">-----</p>');
     h = h.replace('môi trường điện tử</p><p class="t2">-----</p>', 'môi trường điện tử ' + esc(P.label) + '</p><p class="meta" style="margin:0 0 1pt;font-size:12pt;color:#000">(' + esc(P.range) + ')</p><p class="t2">-----</p>');
     h = h.replace('Bảng 1. Tổng hợp tiến độ theo thủ tục', 'Bảng 1. Tổng hợp tiến độ theo thủ tục (' + (P.monthTab ? 'số liệu hồ sơ ' + esc(P.label) : 'lũy kế đến ' + esc(m.asOf)) + ')');
     if (P.hasBase) h = h.replace('<h2>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC</h2>', '<p class="cap">' + esc(capOf(m)) + '</p>' + htmlTable(headOf(m), periodRows(m), WID) + '<h2>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC</h2>');
@@ -301,9 +302,9 @@
     return doc;
   }
   root.exportReportDocx = function (m, w) {
-    if (!m || !m.period) return orig.docx(m, w);
+    if (!m) return orig.docx(m, w);
     const zip = root.rptZip;
-    root.rptZip = function (files) { if (files && files['word/document.xml']) files['word/document.xml'] = patchDocXml(files['word/document.xml'], m); return zip.apply(this, arguments); };
+    root.rptZip = function (files) { if (files && files['word/document.xml']) files['word/document.xml'] = m.period ? patchDocXml(files['word/document.xml'], m) : files['word/document.xml'].replace('>tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử</w:t>', '>tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử (Lũy kế đến thời điểm hiện tại)</w:t>'); return zip.apply(this, arguments); };
     try { return orig.docx(m, w); } finally { root.rptZip = zip; }
   };
 
