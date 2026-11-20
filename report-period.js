@@ -417,12 +417,13 @@
     const hd = base.slice(base.indexOf('<div class="hd">'), base.indexOf('<div class="gap">'));
     const widths = [1900, 800, 1000, 1000, 1000, 1700, 800, 1100];
     const num = n => String(n);
-    return '<section class="page">\n' + hd + '<div class="gap"></div>\n<p class="t1">BÁO CÁO</p><p class="t2">tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử</p><p class="t2"><b>' + esc(c.name) + '</b></p><p class="t2">' + esc(c.when) + '</p>' + (P && P.range ? '<p class="meta" style="margin:0 0 1pt;font-size:12pt;color:#000">(' + esc(P.range) + ')</p>' : '') + '<p class="t2">-----</p>' +
+    return '<section class="page">\n' + hd + '<div class="gap"></div>\n<p class="t1">BÁO CÁO</p><p class="t2">tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử</p><p class="t2"><b>' + esc(c.name) + '</b></p><p class="t2">' + esc(c.when) + '</p>' + (P && P.range ? '<p class="meta" style="margin:0 0 1pt;font-size:12pt;color:#000">(' + esc(P.range) + ')</p>' : '') + '<p class="t2">-----</p>' + '<p class="meta" style="text-align:center">Xuất báo cáo lúc <span id="rptStamp">' + nowStamp() + '</span></p>' +
       '<h2>I. TÌNH HÌNH CHUNG</h2>' + c.paras.map(t => '<p class="i">' + esc(t) + '</p>').join('') +
       '<p class="cap">Bảng 1. Kết quả thực hiện 04 thủ tục hành chính của ' + esc(c.name) + '</p>' + htmlTable(c.head, c.rows, widths) +
       '<h2>II. ĐỀ XUẤT, KIẾN NGHỊ</h2>' + c.rec.map(t => '<p class="i">- ' + esc(t) + '</p>').join('') +
       '<div class="sign"><div class="l"><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- ' + esc(c.name) + ';<br>- Lưu.</span></div><div class="r"><b>NGƯỜI LẬP BÁO CÁO</b></div></div></section>';
   }
+  const nowStamp = () => { const d = new Date(), z = n => String(n).padStart(2, '0'); return z(d.getHours()) + ':' + z(d.getMinutes()) + ' ' + z(d.getDate()) + '/' + z(d.getMonth() + 1) + '/' + d.getFullYear(); };
   function unitSlug(name) { return fold(name).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
   function unitPage(m, name) {
     const c = unitContent(m, name); if (!c) return null;
@@ -436,7 +437,7 @@
   }
   function unitXlsx(m, c, win) {
     const T = v => ({ v, s: 4 }), H = v => ({ v, s: 3 }), L = String.fromCharCode(64 + c.head.length);
-    const rows = [[{ v: 'BÁO CÁO TÌNH HÌNH THỰC HIỆN 04 THỦ TỤC HÀNH CHÍNH — ' + c.name.toUpperCase(), s: 1 }], [{ v: c.when + (m.period && m.period.range ? ' (' + m.period.range + ')' : ''), s: 2 }], [{ v: 'Nguồn số liệu: ' + m.source, s: 8 }], [], c.head.map(H), ...c.rows.map(r => r.map(T)), [], ...c.paras.map(t => [{ v: t, s: 8 }]), [], [{ v: 'Đề xuất, kiến nghị', s: 7 }], ...c.rec.map(t => [{ v: '- ' + t, s: 8 }])];
+    const rows = [[{ v: 'BÁO CÁO TÌNH HÌNH THỰC HIỆN 04 THỦ TỤC HÀNH CHÍNH — ' + c.name.toUpperCase(), s: 1 }], [{ v: c.when + (m.period && m.period.range ? ' (' + m.period.range + ')' : ''), s: 2 }], [{ v: 'Nguồn số liệu: ' + m.source + ' · Xuất báo cáo lúc ' + nowStamp(), s: 8 }], [], c.head.map(H), ...c.rows.map(r => r.map(T)), [], ...c.paras.map(t => [{ v: t, s: 8 }]), [], [{ v: 'Đề xuất, kiến nghị', s: 7 }], ...c.rec.map(t => [{ v: '- ' + t, s: 8 }])];
     const sheet = { name: 'Báo cáo đơn vị', rows, cols: [30, 12, 16, 16, 16, 26, 14, 18], freeze: 5, filter: 'A5:' + L + (5 + c.rows.length), merges: ['A1:' + L + '1', 'A2:' + L + '2', 'A3:' + L + '3'], heights: { 0: 30, 4: 36 } };
     root.rptDownload(root.rptXlsxBlob([sheet]), 'bao-cao-' + unitSlug(c.name) + '_' + m.fileStamp + '.xlsx', win);
   }
@@ -482,7 +483,7 @@
       const up = unitPage(m, unit);
       if (up) {
         write(up.page); const dd = win.document;
-        dd.getElementById('rptPrint').onclick = () => win.print();
+        dd.getElementById('rptPrint').onclick = () => { const e = dd.getElementById('rptStamp'); if (e) e.textContent = nowStamp(); win.print(); };
         dd.getElementById('rptXlsx').onclick = () => { try { unitXlsx(m, up.c, win); } catch (e) { console.error(e); win.alert('Không xuất được Excel: ' + ((e && e.message) || e)); } };
         dd.getElementById('rptDocx').onclick = () => { try { unitWord(m, up.c, win); } catch (e) { console.error(e); win.alert('Không xuất được Word: ' + ((e && e.message) || e)); } };
         bindPicker(win, per, unit); return;
