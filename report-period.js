@@ -225,7 +225,7 @@
       const cmp = P.baseAvg != null && P.endAvg != null;
       const nm = c.map(x => '“' + x.p.short + '”'), nmTxt = nm.length > 1 ? nm.slice(0, -1).join(', ') + ' và ' + nm[nm.length - 1] : nm.join(''), rc = S('received'), dn = S('done'), same = cmp && Math.abs(P.endAvg - P.baseAvg) < 0.0005;
       const cmpTxt = !cmp ? ' Chưa có số liệu ' + P.prevLabel + ' trên bảng theo dõi nên chưa so sánh được với tháng trước.'
-        : same ? ' So với ' + P.prevLabel + ', tiến độ bình quân chung của ba thủ tục hồ sơ nêu trên giữ nguyên ở mức ' + rptPct(P.endAvg) + '.'
+        : same ? ''
         : ' So với ' + P.prevLabel + ', tiến độ bình quân chung của ba thủ tục hồ sơ nêu trên ' + (P.endAvg < P.baseAvg ? 'giảm từ ' : 'tăng từ ') + rptPct(P.baseAvg) + (P.endAvg < P.baseAvg ? ' xuống ' : ' lên ') + rptPct(P.endAvg) + ' (' + pts(P.endAvg - P.baseAvg) + ').';
       return ['Trong ' + P.label + ' (' + P.range + '), ba thủ tục về hồ sơ (' + nmTxt + ') ghi nhận ' + fmt(rc) + ' hồ sơ tiếp nhận; đã xử lý xong ' + fmt(dn) + ' hồ sơ' + (rc > 0 ? ', đạt ' + rptPct(dn / rc) + ' số hồ sơ tiếp nhận' : '') + ' (theo số liệu của chính tháng, lấy từ bảng theo dõi 03 thủ tục).' + cmpTxt];
     }
