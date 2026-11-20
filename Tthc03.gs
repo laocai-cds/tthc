@@ -79,14 +79,8 @@ function tthc03Write_(b) {
 function tthc03Pct_(owner, guided, received, processed, need, done, cap) {
   const E = Math.max(0, Number(received) || 0), G = Math.max(0, Number(processed) || 0), H = Math.max(0, Number(need) || 0), I = Math.max(0, Number(done) || 0);
   let p = (String(owner || '').trim() !== '' ? 0.05 : 0) + (String(guided) === 'Có' ? 0.05 : 0);
-  if (Number(cap) > 0) {
-    /* nhận xét nơi cư trú: 40% hoàn thành/phải xử lý + 50% điểm khối lượng (mốc cap) */
-    if (H > 0) p += 0.40 * Math.min(1, I / H);
-    p += 0.50 * Math.min(1, I / Number(cap));
-  } else {
-    /* chuyển sinh hoạt chính thức/tạm thời: 90% hoàn thành/phải xử lý, không có điểm khối lượng */
-    if (H > 0) p += 0.90 * Math.min(1, I / H);
-  }
+  /* cả ba thủ tục (chuyển SH chính thức, tạm thời, nhận xét nơi cư trú): 5% + 5% + 90% hoàn thành/phải xử lý, không có điểm khối lượng (tham số cap giữ lại cho tương thích, không dùng) */
+  if (H > 0) p += 0.90 * Math.min(1, I / H);
   return Math.round(Math.min(1, Math.max(0, p)) * 1e6) / 1e6;
 }
 function tthc03Recalc_(sheet) {
@@ -96,7 +90,7 @@ function tthc03Recalc_(sheet) {
   const n = last - 3;
   const v = sheet.getRange(4, 1, n, 9).getValues();
   const rows = [];
-  v.forEach((r, i) => { if (validId_([r[0]])) rows.push({ i: i, id: Number(r[0]), pct: tthc03Pct_(r[2], r[3], r[4], r[6], r[7], r[8], /NHẬN XÉT|NHAN XET/i.test(sheet.getName()) ? 100 : 0) }); });
+  v.forEach((r, i) => { if (validId_([r[0]])) rows.push({ i: i, id: Number(r[0]), pct: tthc03Pct_(r[2], r[3], r[4], r[6], r[7], r[8], 0) }); });
   if (!rows.length) return;
   const order = rows.slice().sort((a, b) => b.pct - a.pct || a.id - b.id), rank = {};
   order.forEach((o, k) => { rank[o.i] = k + 1; });
