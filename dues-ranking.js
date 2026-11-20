@@ -190,15 +190,19 @@
     const box = $('drSyncs'); if (!box) return;
     box.textContent = 'Đang tải thời gian đồng bộ…';
     let api = ''; try { api = (localStorage.getItem('dangphi.api') || localStorage.getItem('dp.api') || '').trim(); } catch (_) {}
-    const [st, reg] = await Promise.all([api ? fetchStatus(api) : Promise.resolve(null), fetchSheet('DANH MUC THANG', 1)]);
+    const [st, reg, log] = await Promise.all([api ? fetchStatus(api) : Promise.resolve(null), fetchSheet('DANH MUC THANG', 1), fetchSheet('Nhật ký đồng bộ', 1)]);
     if (ui.month && k !== ui.month) return;
     const G = 'color:#0d8a62', R = 'color:#c5302a', put = (c, t) => { box.innerHTML = '<span style="' + c + ';font-weight:700">' + t + '</span>'; };
-    const l = st && st.last, e = st && st.lastError, tl = l ? parseVN(l.updatedAtText) : 0, te = e ? parseVN(e.at) : 0;
-    if (e && te > tl) { put(R, '✖ Đồng bộ lần cuối thất bại: ' + esc(e.at || '') + (e.error ? ' — ' + esc(String(e.error).slice(0, 120)) : '')); return; }
-    if (l && (!l.month || l.month === k)) { put(G, '✔ Đồng bộ lần cuối thành công (' + monthLabel(k) + '): ' + esc(l.updatedAtText || '')); return; }
-    let last = '';
-    if (reg) { const r = (reg.table.rows || []).map(x => x.c || []).find(c => cellText(c[0]) === k); if (r) last = cellText(r[2]) || (r[2] && r[2].f) || ''; }
-    if (last) put(G, '✔ Đồng bộ lần cuối thành công (' + monthLabel(k) + '): ' + esc(last));
+    const txt = c => String(c ? (c.f != null ? c.f : (c.v == null ? '' : c.v)) : '').trim();
+    const cands = [];
+    const l = st && st.last, e = st && st.lastError;
+    if (l && l.updatedAtText && (!l.month || l.month === k)) cands.push(l.updatedAtText);
+    if (reg) { const r = (reg.table.rows || []).map(x => x.c || []).find(c => cellText(c[0]) === k); if (r) cands.push(txt(r[2])); }
+    if (log && k === keyOf(new Date().getFullYear(), new Date().getMonth() + 1)) { const r0 = (log.table.rows || [])[0]; if (r0 && r0.c) cands.push(txt(r0.c[0])); }
+    const best = cands.filter(t => parseVN(t)).sort((x, y) => parseVN(y) - parseVN(x))[0] || '';
+    const te = e ? parseVN(e.at) : 0;
+    if (e && te > parseVN(best)) { put(R, '✖ Đồng bộ lần cuối thất bại: ' + esc(e.at || '') + (e.error ? ' — ' + esc(String(e.error).slice(0, 120)) : '')); return; }
+    if (best) put(G, '✔ Đồng bộ mới nhất thành công (' + monthLabel(k) + '): ' + esc(best));
     else box.textContent = 'Chưa có thời gian đồng bộ cho ' + monthLabel(k);
   }
   async function refresh() {
