@@ -292,8 +292,8 @@
   };
 
   /* ---------- Xem trước HTML ---------- */
-  const PICKER = '<span class="per"><label for="rptType">Kỳ báo cáo</label><select id="rptType"><option value="all">Lũy kế đến nay</option><option value="month">Theo tháng</option><option value="quarter">Theo quý</option><option value="year">Theo năm</option></select><select id="rptNum"></select><select id="rptYear"></select><select id="rptUnit" title="Lập báo cáo riêng cho một đơn vị"></select><button id="rptApply" type="button">Lập báo cáo</button></span>';
-  const PICKER_CSS = '.per{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;border-radius:10px;background:rgba(255,255,255,.14)}.per label{font-weight:700;font-size:12px}.per select{height:30px;border:0;border-radius:7px;padding:0 8px;font:600 12.5px "Segoe UI",Arial,sans-serif;color:#1f2f45;background:#fff;cursor:pointer}.bar .per button,.per button{height:30px;padding:0 15px;border:0;border-radius:9px;font:700 12.5px "Segoe UI",Arial,sans-serif;background:#ffd76a;color:#5a3a00;cursor:pointer}@media print{.per{display:none}}';
+  const PICKER = '<span class="per"><label for="rptType">Kỳ báo cáo</label><select id="rptType"><option value="all">Lũy kế đến nay</option><option value="month">Theo tháng</option><option value="quarter">Theo quý</option><option value="year">Theo năm</option></select><select id="rptNum"></select><select id="rptYear"></select><input id="rptUnitQ" type="search" placeholder="🔍 Tìm đơn vị…" autocomplete="off" title="Gõ tên đơn vị (không cần dấu), Enter để lập báo cáo"><select id="rptUnit" title="Lập báo cáo riêng cho một đơn vị"></select><button id="rptApply" type="button">Lập báo cáo</button></span>';
+  const PICKER_CSS = '.per{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;border-radius:10px;background:rgba(255,255,255,.14)}.per label{font-weight:700;font-size:12px}.per input{height:30px;width:150px;border:0;border-radius:7px;padding:0 8px;font:600 12.5px "Segoe UI",Arial,sans-serif;color:#1f2f45;background:#fff}.per select{height:30px;border:0;border-radius:7px;padding:0 8px;font:600 12.5px "Segoe UI",Arial,sans-serif;color:#1f2f45;background:#fff;cursor:pointer}.bar .per button,.per button{height:30px;padding:0 15px;border:0;border-radius:9px;font:700 12.5px "Segoe UI",Arial,sans-serif;background:#ffd76a;color:#5a3a00;cursor:pointer}@media print{.per{display:none}}';
   function htmlTable(head, rows, widths) {
     const tw = widths.reduce((a, c) => a + c, 0);
     return '<table class="tb"><colgroup>' + widths.map(w => '<col style="width:' + (w / tw * 100).toFixed(2) + '%">').join('') + '</colgroup><thead><tr>' + head.map(h => '<th>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' +
@@ -456,7 +456,15 @@
       n.innerHTML = ty === 'quarter' ? [1, 2, 3, 4].map(q => '<option value="' + q + '">Quý ' + ROMAN[q - 1] + '</option>').join('') : Array.from({ length: 12 }, (_, i) => '<option value="' + (i + 1) + '">Tháng ' + (i + 1) + '</option>').join('');
     };
     t.value = per.type; fill(); y.value = String(per.y || Y); n.value = String(per.n || cur(t.value));
-    if (un) { un.innerHTML = '<option value="">Toàn tỉnh (tất cả đơn vị)</option>' + unitNames().map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join(''); un.value = unit || ''; un.onchange = () => apply(); }
+    if (un) {
+      const names = unitNames(), uq = d.getElementById('rptUnitQ');
+      const fill = (q, keep) => { const k = fold(q).trim(), list = k ? names.filter(v => fold(v).includes(k)) : names; un.innerHTML = '<option value="">Toàn tỉnh (tất cả đơn vị)</option>' + list.map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join(''); if (keep != null) un.value = keep; return list; };
+      fill('', unit || ''); un.onchange = () => apply();
+      if (uq) {
+        uq.oninput = () => { const list = fill(uq.value, ''); if (uq.value && list.length) un.selectedIndex = 1; };
+        uq.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); const list = fill(uq.value, ''); if (list.length) { un.value = list[0]; apply(); } } };
+      }
+    }
     const apply = () => render(win, period(t.value, y.value, n.value), un ? un.value : '');   // đổi lựa chọn là lập lại ngay
     t.onchange = () => { fill(); n.value = String(cur(t.value)); apply(); };
     n.onchange = y.onchange = go.onclick = apply;
