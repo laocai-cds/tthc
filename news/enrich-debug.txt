@@ -1,47 +1,46 @@
-Lấy được 115/219 bài
+Lấy được 85/200 bài
 == THỐNG KÊ THEO BÁO ==
-  100  vov.vn  lỗi HTTP Error 403: Forbidden
-   41  www.vietnamplus.vn  có ảnh
-   27  baophapluat.vn  có ảnh
-   23  baolaocai.vn  có ảnh
-   12  nhandan.vn  có ảnh
-    6  vov.vn  có ảnh
-    3  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
-    2  dantocmiennui.baotintuc.vn  có ảnh
-    2  cand.vn  có ảnh
-    1  vov1.vov.vn  không có ảnh
-    1  www.qdnd.vn  có ảnh
-    1  vtcnews.vn  có ảnh
+  111  vov.vn  lỗi HTTP Error 403: Forbidden
+   24  baolaocai.vn  có ảnh
+   23  www.vietnamplus.vn  có ảnh
+   10  baophapluat.vn  có ảnh
+   10  vov.vn  có ảnh
+    8  nhandan.vn  có ảnh
+    4  nongnghiepmoitruong.vn  lỗi HTTP Error 403: Forbidden
+    3  dantocmiennui.baotintuc.vn  có ảnh
+    3  www.qdnd.vn  có ảnh
+    2  thanhtra.com.vn  có ảnh
+    1  congly.vn  có ảnh
+    1  baovanhoa.vn  có ảnh
 == MẪU THẺ META (mỗi báo một mẫu) ==
-vov1.vov.vn: <link rel="shortcut icon" href="/themes/custom/vov_1/favicon.ico" type="image/vnd.microsoft.icon" />
 == VÍ DỤ LỖI ==
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/ong-trump-danh-gia-cao-thuong-dinh-my-nga-trung-thua-nhan-kho-dat-thoa-thuan-post1351725.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/co-giao-cua-nhung-ban-tay-quen-cam-cuoc-post1351640.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/khong-khi-lanh-tang-cuong-bac-bo-ret-vung-nui-co-noi-duoi-9degc-post1351731.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/iran-len-an-my-va-chau-au-tieu-chuan-kep-trong-van-de-hat-nhan-post1351723.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/du-doan-ket-qua-va-doi-hinh-xuat-phat-tran-the-cong-viettel-vs-slna-post1351666.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/thuong-dinh-nga-my-trung-dau-moc-trong-lich-su-ngoai-giao-post1351721.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/my-cong-bo-hon-17-ty-usd-thoa-thuan-kinh-te-va-dau-tu-tai-dong-nam-a-post1351719.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/mai-truong-yeu-thuong-chap-canh-uoc-mo-cho-tre-em-khiem-khuyet-post1351263.vov
+LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/cap-can-cuoc-cho-chanh-vang-viet-hong-d842291.html
+LỖI HTTP Error 403: Forbidden https://vov.vn/thi-truong/quan-ly-tai-chinh-tu-som-bi-quyet-de-tien-nho-sinh-tai-san-lon-post1351624.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/ho-so/ben-trong-quy-trinh-lua-chon-bo-may-lanh-dao-ha-vien-my-post1351576.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/thuong-vien-my-bac-nghi-quyet-yeu-cau-tong-thong-cham-dut-chien-tranh-voi-iran-post1351718.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/nhan-dinh-u17-viet-nam-vs-u17-bi-tai-u17-world-cup-2026-post1351664.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/quan-sat/vi-sao-ukraine-lien-tiep-tap-kich-lon-vao-cau-crimea-do-nga-kiem-soat-post1351661.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/israel-tiep-tuc-giuc-my-danh-iran-post1351714.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/bang-xep-hang-cup-c1-dong-nam-a-moi-nhat-clb-cahn-bang-diem-dai-dien-campuchia-post1351708.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/viet-nam-chinh-thuc-tiep-nhan-vai-tro-chu-nha-apec-2027-post1351712.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/nong-the-gioi-hom-nay-2011-hop-my-nga-trung-ban-viec-xoa-bo-vu-khi-hat-nhan-post1351689.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/thi-truong/gia-vang-hom-nay-2011-vang-sjc-o-muc-1332-1362-trieu-dongluong-post1351602.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/thi-truong/ty-gia-usd-hom-nay-2011-ty-gia-trung-tam-o-muc-25646-dongusd-post1351608.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/ket-qua-u17-world-cup-2026-u17-argentina-thua-soc-u17-australia-post1351588.vov
 LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/truc-tiep-u17-argentina-0-0-u17-australia-becvinovski-bo-lo-co-hoi-muoi-muoi-post1351588.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/tong-thong-cong-hoa-azerbaijan-den-ha-noi-bat-dau-tham-chinh-thuc-viet-nam-post1351707.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/truc-tiep-u17-argentina-0-0-u17-australia-dai-dien-chau-a-bo-lo-co-hoi-kho-tin-post1351588.vov
-LỖI HTTP Error 403: Forbidden http://vov.vn/the-thao/truc-tiep-u17-argentina-0-2-u17-australia-the-do-o-phut-bu-gio-post1351588.vov
 LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/truc-tiep-u17-argentina-0-0-u17-australia-co-hoi-lien-tiep-cuu-thua-xuat-than-post1351588.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/nha-trang-cong-bo-tuyen-bo-chung-my-nga-trung-quoc-ve-hoa-binh-va-an-ninh-quoc-te-post1351706.vov
+LỖI HTTP Error 403: Forbidden http://vov.vn/the-thao/truc-tiep-u17-argentina-0-2-u17-australia-the-do-o-phut-bu-gio-post1351588.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/truc-tiep-u17-argentina-0-0-u17-australia-dai-dien-chau-a-bo-lo-co-hoi-kho-tin-post1351588.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/doi-thoai-giua-luc-luong-cong-an-voi-cong-dong-doanh-nghiep-tinh-son-la-post1351657.vov
 LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/u17-viet-nam-chuan-bi-san-sang-cho-tran-ra-quan-tai-u17-world-cup-2026-post1351703.vov
+LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/tong-thong-cong-hoa-azerbaijan-den-ha-noi-bat-dau-tham-chinh-thuc-viet-nam-post1351707.vov
 LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/4-tinh-dak-lak-lam-dong-khanh-hoa-va-gia-lai-phoi-hop-quan-ly-bao-ve-rung-post1351667.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/hop-tac-trao-doi-ly-luan-giua-dang-cong-san-viet-nam-va-dang-canh-ta-duc-post1351562.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/truc-tiep-u17-han-quoc-2-0-u17-uganda-the-tran-hap-dan-post1351497.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/truc-tiep-u17-argentina-0-0-u17-australia-dan-em-messi-gap-dai-dien-chau-a-post1351588.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/ket-qua-bong-da-hom-nay-19-11-ba-lan-bi-cot-doc-tu-choi-cahn-guc-nga-truoc-johor-post1351484.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/truc-tiep-u17-han-quoc-1-0-u17-uganda-doi-cong-hap-dan-post1351497.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/truc-tiep-clb-cahn-1-2-johor-the-co-lat-nguoc-post1351484.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/thoi-tiet-ngay-2011-ha-noi-ret-16-do-nam-bo-nang-nong-post1351626.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/tphcm-xem-xet-bo-sung-them-toa-va-tang-tan-suat-chay-tau-metro-so-1-post1351683.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/truc-tiep-u17-han-quoc-1-0-u17-uganda-kim-jiho-ghi-ban-dep-mat-post1351497.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/truc-tiep-u17-han-quoc-0-0-u17-uganda-quyet-tam-gianh-chien-thang-post1351497.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/the-thao/truc-tiep-clb-cahn-1-0-johor-mua-ban-thang-trong-hiep-hai-post1351484.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/tong-bi-thu-chu-tich-nuoc-to-lam-tham-noi-o-cua-chu-tich-ho-chi-minh-tai-con-minh-post1351669.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/toan-van-tuyen-bo-chung-cua-nguyen-thu-trung-quoc-nga-my-huong-toi-hoa-binh-post1351662.vov
-LỖI HTTP Error 403: Forbidden https://nongnghiepmoitruong.vn/vien-ngoc-xanh-tu-le--diem-den-hap-dan-bac-nhat-tay-bac-d842275.html
-LỖI HTTP Error 403: Forbidden https://vov.vn/kinh-te/tphcm-phe-duyet-du-an-trung-tam-hanh-chinh-cao-30-tang-o-thu-thiem-post1351627.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/du-lich/da-nang-tang-cuong-bao-dam-an-ninh-trat-tu-hoat-dong-du-lich-post1351638.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/so-xay-dung-ha-noi-thong-tin-tien-do-cai-tao-khu-tap-the-thanh-xuan-bac-post1351615.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/the-gioi/nong-hoi-dam-my-nga-trung-xoa-bo-vu-khi-hat-nhan-cung-co-luat-phap-quoc-te-post1351633.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/to-chuc-nhan-su/dai-ta-tran-huu-ich-tham-gia-ban-thuong-vu-tinh-uy-quang-ngai-post1351561.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/xu-ly-chat-thai-y-te-vi-moi-truong-benh-vien-xanh-post1351604.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/xa-hoi/nhung-nguoi-gieo-chu-noi-dau-song-truong-sa-post1351572.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/kinh-te/mo-rong-the-tin-dung-noi-dia-tao-them-co-hoi-tiep-can-von-cho-nguoi-lao-dong-post1351584.vov
-LỖI HTTP Error 403: Forbidden https://vov.vn/chinh-tri/phe-duyet-de-an-tong-the-ve-nen-tang-so-quoc-gia-ve-luu-tru-giai-doan-2026-2030-post1351593.vov
