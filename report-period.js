@@ -292,7 +292,7 @@
   };
 
   /* ---------- Xem trước HTML ---------- */
-  const PICKER = '<span class="per"><label for="rptType">Kỳ báo cáo</label><select id="rptType"><option value="all">Lũy kế đến nay</option><option value="month">Theo tháng</option><option value="quarter">Theo quý</option><option value="year">Theo năm</option></select><select id="rptNum"></select><select id="rptYear"></select><button id="rptApply" type="button">Lập báo cáo</button></span>';
+  const PICKER = '<span class="per"><label for="rptType">Kỳ báo cáo</label><select id="rptType"><option value="all">Lũy kế đến nay</option><option value="month">Theo tháng</option><option value="quarter">Theo quý</option><option value="year">Theo năm</option></select><select id="rptNum"></select><select id="rptYear"></select><select id="rptUnit" title="Lập báo cáo riêng cho một đơn vị"></select><button id="rptApply" type="button">Lập báo cáo</button></span>';
   const PICKER_CSS = '.per{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;border-radius:10px;background:rgba(255,255,255,.14)}.per label{font-weight:700;font-size:12px}.per select{height:30px;border:0;border-radius:7px;padding:0 8px;font:600 12.5px "Segoe UI",Arial,sans-serif;color:#1f2f45;background:#fff;cursor:pointer}.bar .per button,.per button{height:30px;padding:0 15px;border:0;border-radius:9px;font:700 12.5px "Segoe UI",Arial,sans-serif;background:#ffd76a;color:#5a3a00;cursor:pointer}@media print{.per{display:none}}';
   function htmlTable(head, rows, widths) {
     const tw = widths.reduce((a, c) => a + c, 0);
@@ -373,13 +373,81 @@
   };
   root.buildReportModel = function (ctx) { return buildModel(ctx || null); };
 
+  /* ---------- Báo cáo riêng từng đơn vị (gọn một trang) ---------- */
+  const fold = t => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+  function unitNames() {
+    const set = new Set(); let dd = null; try { dd = typeof data !== 'undefined' ? data : null; } catch (e) { dd = null; }
+    ((dd && dd.procedures) || []).forEach(p => (p.units || []).forEach(u => { if (u.unit) set.add(u.unit); }));
+    return [...set].sort((a, b) => a.localeCompare(b, 'vi'));
+  }
+  function unitFacts(m, name) {
+    const ri = m.ranking.findIndex(r => r.unit === name); if (ri < 0) return null;
+    const rk = m.ranking[ri];
+    const procs = m.procs.map((x, i) => ({ x, r: (x.rows || []).find(q => q.u.unit === name), v: rk.values[i] }));
+    const D = m.dues, dr = D && D.rows.find(q => q.name === name);
+    return { ri, rk, procs, D, dr };
+  }
+  function unitContent(m, name) {
+    const f = unitFacts(m, name); if (!f) return null;
+    const N = m.ranking.length, avg = f.rk.average, diff = avg - m.avg, P = m.period;
+    const when = P ? P.label : 'lũy kế đến thời điểm hiện tại', pc = v => rptPct(v);
+    const cs = f.procs.filter(q => q.x.p.kind === 'case'), fee = f.procs.find(q => q.x.p.kind === 'fee');
+    const sorted = [...f.procs].sort((a, b) => (b.v || 0) - (a.v || 0));
+    const paras = [];
+    paras.push(name + ' đạt tiến độ tổng ' + pc(avg) + ' trên 04 thủ tục hành chính, xếp hạng ' + fmt(f.ri + 1) + '/' + fmt(N) + ' đơn vị; ' + (diff >= 0 ? 'cao hơn' : 'thấp hơn') + ' bình quân chung (' + pc(m.avg) + ') ' + pc(Math.abs(diff)).replace('%', '') + ' điểm %.');
+    paras.push('Tiến độ từng thủ tục: ' + sorted.map(q => '“' + q.x.p.short + '” ' + pc(q.v)).join('; ') + '. Cao nhất là “' + sorted[0].x.p.short + '” (' + pc(sorted[0].v) + '); thấp nhất là “' + sorted[sorted.length - 1].x.p.short + '” (' + pc(sorted[sorted.length - 1].v) + ').');
+    const rc = cs.reduce((a, q) => a + Number(q.r ? q.r.u.received || 0 : 0), 0), dn = cs.reduce((a, q) => a + Number(q.r ? q.r.u.done || 0 : 0), 0), pend = cs.reduce((a, q) => a + Math.max(0, Number(q.r ? q.r.u.need || 0 : 0) - Number(q.r ? q.r.u.done || 0 : 0)), 0);
+    if (cs.length) paras.push('Ba thủ tục về hồ sơ ghi nhận ' + fmt(rc) + ' hồ sơ tiếp nhận; đã xử lý xong ' + fmt(dn) + ' hồ sơ' + (rc > 0 ? ', đạt ' + pc(dn / rc) + ' số hồ sơ tiếp nhận' : '') + '; còn ' + fmt(pend) + ' hồ sơ phải xử lý chưa hoàn thành.');
+    if (f.dr) paras.push('Thu nộp đảng phí ' + f.D.month + ': ' + fmt(f.dr.need) + ' đảng viên thuộc diện phải nộp, ' + fmt(f.dr.dn) + ' đảng viên đã nộp (' + rptPctD(f.dr.r) + '); số tiền đã nộp ' + fmt(f.dr.nop) + ' đồng/' + fmt(f.dr.kb) + ' đồng theo hồ sơ đã khai báo; còn ' + fmt(f.dr.chua) + ' đảng viên chưa có hồ sơ.' + (fee && fee.r && fee.r.u.dvctotal != null ? ' Tài khoản dịch vụ công ' + fmt(fee.r.u.dvccreated || 0) + '/' + fmt(fee.r.u.dvctotal || 0) + ', tài khoản ngân hàng ' + fmt(fee.r.u.bankcreated || 0) + '/' + fmt(fee.r.u.banktotal || 0) + '.' : ''));
+    const head = ['Thủ tục', 'Tiến độ', 'Hồ sơ tiếp nhận', 'Hồ sơ phải xử lý', 'Hồ sơ xử lý xong', 'Cán bộ phụ trách', 'Đã hướng dẫn', 'Trạng thái'];
+    const rows = f.procs.map(q => { const u = q.r ? q.r.u : {}, isC = q.x.p.kind === 'case'; return [q.x.p.short, pc(q.v), isC ? fmt(u.received || 0) : '—', isC ? fmt(u.need || 0) : '—', isC ? fmt(u.done || 0) : '—', String(u.owner || '').trim() || 'Chưa phân công', u.guided || 'Chưa', q.r ? q.r.st : '—']; });
+    const rec = [];
+    const noOwn = f.procs.filter(q => !(q.r && String(q.r.u.owner || '').trim())).map(q => '“' + q.x.p.short + '”'), noGd = f.procs.filter(q => !(q.r && /^(có|co|x|1|true|☑)/i.test(String(q.r.u.guided || '').trim()))).map(q => '“' + q.x.p.short + '”');
+    if (noOwn.length) rec.push('Phân công cán bộ phụ trách đối với thủ tục: ' + noOwn.join(', ') + '.');
+    if (noGd.length) rec.push('Hướng dẫn quy trình thực hiện tới chi bộ, đảng viên đối với thủ tục: ' + noGd.join(', ') + '.');
+    cs.filter(q => q.r && Number(q.r.u.need || 0) > Number(q.r.u.done || 0)).forEach(q => rec.push('Thủ tục “' + q.x.p.short + '”: xử lý dứt điểm ' + fmt(Number(q.r.u.need || 0) - Number(q.r.u.done || 0)) + '/' + fmt(q.r.u.need || 0) + ' hồ sơ phải xử lý còn tồn, không để quá thời hạn quy định.'));
+    if (f.dr && f.dr.r < 0.95) rec.push('Thu nộp đảng phí: đôn đốc ' + fmt(f.dr.need - f.dr.dn) + ' đảng viên chưa nộp (tỷ lệ đã nộp ' + rptPctD(f.dr.r) + '), hướng dẫn kê khai, duyệt hồ sơ và nộp đảng phí trên môi trường điện tử ngay trong ' + f.D.month + '.');
+    if (fee && fee.r && Number(fee.r.u.dvccreated || 0) < Number(fee.r.u.dvctotal || 0)) rec.push('Hoàn tất tạo tài khoản dịch vụ công cho ' + fmt(Number(fee.r.u.dvctotal) - Number(fee.r.u.dvccreated || 0)) + ' đảng viên còn thiếu.');
+    if (fee && fee.r && Number(fee.r.u.bankcreated || 0) < Number(fee.r.u.banktotal || 0)) rec.push('Hoàn tất tạo tài khoản ngân hàng cho ' + fmt(Number(fee.r.u.banktotal) - Number(fee.r.u.bankcreated || 0)) + ' đảng viên còn thiếu.');
+    if (!rec.length) rec.push('Tiếp tục duy trì kết quả đã đạt, theo dõi và cập nhật đầy đủ số liệu trên hệ thống theo dõi.');
+    return { name, when, paras, head, rows, rec, f };
+  }
+  function unitSection(m, c, forDoc) {
+    const P = m.period, base = orig.html(m);
+    const hd = base.slice(base.indexOf('<div class="hd">'), base.indexOf('<div class="gap">'));
+    const widths = [1900, 800, 1000, 1000, 1000, 1700, 800, 1100];
+    const num = n => String(n);
+    return '<section class="page">\n' + hd + '<div class="gap"></div>\n<p class="t1">BÁO CÁO</p><p class="t2">tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử</p><p class="t2"><b>' + esc(c.name) + '</b></p><p class="t2">' + esc(c.when) + '</p>' + (P && P.range ? '<p class="meta" style="margin:0 0 1pt;font-size:12pt;color:#000">(' + esc(P.range) + ')</p>' : '') + '<p class="t2">-----</p>' +
+      '<h2>I. TÌNH HÌNH CHUNG</h2>' + c.paras.map(t => '<p class="i">' + esc(t) + '</p>').join('') +
+      '<p class="cap">Bảng 1. Kết quả thực hiện 04 thủ tục hành chính của ' + esc(c.name) + '</p>' + htmlTable(c.head, c.rows, widths) +
+      '<h2>II. ĐỀ XUẤT, KIẾN NGHỊ</h2>' + c.rec.map(t => '<p class="i">- ' + esc(t) + '</p>').join('') +
+      '<div class="sign"><div class="l"><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- ' + esc(c.name) + ';<br>- Lưu.</span></div><div class="r"><b>NGƯỜI LẬP BÁO CÁO</b></div></div></section>';
+  }
+  function unitSlug(name) { return fold(name).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+  function unitPage(m, name) {
+    const c = unitContent(m, name); if (!c) return null;
+    const base = root.rptHTML(m), pre = base.slice(0, base.indexOf('<section class="page">'));
+    return { c, page: pre + unitSection(m, c) + '\n</body></html>' };
+  }
+  function unitWord(m, c, win) {
+    const base = orig.html(m), style = (base.match(/<style>[\s\S]*?<\/style>/) || [''])[0].replace('</style>', '.page{width:auto!important;margin:0!important;padding:0!important;box-shadow:none!important}.bar{display:none}@page{size:A4;margin:2cm 2cm 2cm 3cm}</style>');
+    const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Báo cáo ' + esc(c.name) + '</title>' + style + '</head><body>' + unitSection(m, c, true) + '</body></html>';
+    root.rptDownload(new Blob(['﻿', html], { type: 'application/msword' }), 'bao-cao-' + unitSlug(c.name) + '_' + m.fileStamp + '.doc', win);
+  }
+  function unitXlsx(m, c, win) {
+    const T = v => ({ v, s: 4 }), H = v => ({ v, s: 3 }), L = String.fromCharCode(64 + c.head.length);
+    const rows = [[{ v: 'BÁO CÁO TÌNH HÌNH THỰC HIỆN 04 THỦ TỤC HÀNH CHÍNH — ' + c.name.toUpperCase(), s: 1 }], [{ v: c.when + (m.period && m.period.range ? ' (' + m.period.range + ')' : ''), s: 2 }], [{ v: 'Nguồn số liệu: ' + m.source, s: 8 }], [], c.head.map(H), ...c.rows.map(r => r.map(T)), [], ...c.paras.map(t => [{ v: t, s: 8 }]), [], [{ v: 'Đề xuất, kiến nghị', s: 7 }], ...c.rec.map(t => [{ v: '- ' + t, s: 8 }])];
+    const sheet = { name: 'Báo cáo đơn vị', rows, cols: [30, 12, 16, 16, 16, 26, 14, 18], freeze: 5, filter: 'A5:' + L + (5 + c.rows.length), merges: ['A1:' + L + '1', 'A2:' + L + '2', 'A3:' + L + '3'], heights: { 0: 30, 4: 36 } };
+    root.rptDownload(root.rptXlsxBlob([sheet]), 'bao-cao-' + unitSlug(c.name) + '_' + m.fileStamp + '.xlsx', win);
+  }
+
   /* ---------- Cửa sổ báo cáo + bộ chọn kỳ ---------- */
   function msgPage(title, msg) {
     return '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>' + esc(title) + '</title><style>body{margin:0;background:#e9edf3;font:14px "Segoe UI",Arial,sans-serif;color:#1f2f45}.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 18px;background:linear-gradient(110deg,#7d0c13,#b3111b 55%,#d0412b);color:#fff}' + PICKER_CSS +
       '.box{max-width:640px;margin:60px auto;padding:28px 32px;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(20,30,50,.15);line-height:1.6}</style></head><body><div class="bar"><b>📄 Báo cáo tiến độ 04 thủ tục hành chính</b>' + PICKER + '</div><div class="box"><b>' + esc(title) + '</b><p>' + esc(msg) + '</p></div></body></html>';
   }
-  function bindPicker(win, per) {
-    const d = win.document, t = d.getElementById('rptType'), n = d.getElementById('rptNum'), y = d.getElementById('rptYear'), go = d.getElementById('rptApply');
+  function bindPicker(win, per, unit) {
+    const d = win.document, t = d.getElementById('rptType'), n = d.getElementById('rptNum'), y = d.getElementById('rptYear'), go = d.getElementById('rptApply'), un = d.getElementById('rptUnit');
     if (!t) return;
     const now = new Date(), Y = now.getFullYear(), cur = ty => ty === 'quarter' ? Math.floor(now.getMonth() / 3) + 1 : now.getMonth() + 1;
     y.innerHTML = [Y, Y - 1].map(v => '<option value="' + v + '">Năm ' + v + '</option>').join('');
@@ -388,25 +456,36 @@
       n.innerHTML = ty === 'quarter' ? [1, 2, 3, 4].map(q => '<option value="' + q + '">Quý ' + ROMAN[q - 1] + '</option>').join('') : Array.from({ length: 12 }, (_, i) => '<option value="' + (i + 1) + '">Tháng ' + (i + 1) + '</option>').join('');
     };
     t.value = per.type; fill(); y.value = String(per.y || Y); n.value = String(per.n || cur(t.value));
-    const apply = () => render(win, period(t.value, y.value, n.value));   // đổi lựa chọn là lập lại ngay
+    if (un) { un.innerHTML = '<option value="">Toàn tỉnh (tất cả đơn vị)</option>' + unitNames().map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join(''); un.value = unit || ''; un.onchange = () => apply(); }
+    const apply = () => render(win, period(t.value, y.value, n.value), un ? un.value : '');   // đổi lựa chọn là lập lại ngay
     t.onchange = () => { fill(); n.value = String(cur(t.value)); apply(); };
     n.onchange = y.onchange = go.onclick = apply;
   }
-  async function render(win, per) {
+  async function render(win, per, unit) {
     let ctx = null;
     const write = html => { win.document.open(); win.document.write(html); win.document.close(); };
     {
-      write(msgPage('Đang lập báo cáo ' + per.label + '…', 'Đang đọc số liệu lưu trữ đầu kỳ, cuối kỳ và số liệu đảng phí từ Google Sheets.')); bindPicker(win, per);
-      try { await loadFirstDone().catch(() => { root.__firstDone = null; }); ctx = await context(per); } catch (e) { console.error(e); if (win.closed) return; write(msgPage('Không lập được báo cáo ' + per.label, (e && e.message) || String(e))); bindPicker(win, per); return; }
+      write(msgPage('Đang lập báo cáo ' + per.label + '…', 'Đang đọc số liệu lưu trữ đầu kỳ, cuối kỳ và số liệu đảng phí từ Google Sheets.')); bindPicker(win, per, unit);
+      try { await loadFirstDone().catch(() => { root.__firstDone = null; }); ctx = await context(per); } catch (e) { console.error(e); if (win.closed) return; write(msgPage('Không lập được báo cáo ' + per.label, (e && e.message) || String(e))); bindPicker(win, per, unit); return; }
       if (win.closed) return;
     }
     const m = root.buildReportModel(ctx);
+    if (unit) {
+      const up = unitPage(m, unit);
+      if (up) {
+        write(up.page); const dd = win.document;
+        dd.getElementById('rptPrint').onclick = () => win.print();
+        dd.getElementById('rptXlsx').onclick = () => { try { unitXlsx(m, up.c, win); } catch (e) { console.error(e); win.alert('Không xuất được Excel: ' + ((e && e.message) || e)); } };
+        dd.getElementById('rptDocx').onclick = () => { try { unitWord(m, up.c, win); } catch (e) { console.error(e); win.alert('Không xuất được Word: ' + ((e && e.message) || e)); } };
+        bindPicker(win, per, unit); return;
+      }
+    }
     write(root.rptHTML(m));
     const d = win.document;
     d.getElementById('rptPrint').onclick = () => win.print();
     d.getElementById('rptXlsx').onclick = () => { try { root.exportReportXlsx(m, win); } catch (e) { console.error(e); win.alert('Không xuất được Excel: ' + ((e && e.message) || e)); } };
     d.getElementById('rptDocx').onclick = () => { try { root.exportReportDocx(m, win); } catch (e) { console.error(e); win.alert('Không xuất được Word: ' + ((e && e.message) || e)); } };
-    bindPicker(win, per);
+    bindPicker(win, per, unit);
   }
   async function buildReport() {
     const win = window.open('', '_blank'); if (!win) { alert('Trình duyệt đang chặn cửa sổ báo cáo. Hãy cho phép cửa sổ bật lên rồi thử lại.'); return; }
