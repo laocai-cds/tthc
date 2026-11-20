@@ -5869,7 +5869,7 @@ const UNITS_API_URL='https://script.google.com/macros/s/AKfycbzbbPi7NVH9Ks9zhiyM
 const API=UNITS_API_URL;
 const LS='dvc-unit-sites';
 const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const clean=l=>(Array.isArray(l)?l:[]).map(u=>({name:String(u&&u.name||'').trim(),url:String(u&&u.url||'').trim()})).filter(u=>u.name&&/^https?:\/\//i.test(u.url)&&!/xuanquang\.laocai\.gov\.vn/i.test(u.url)); /* không hiển thị Cổng TTĐT xã Xuân Quang trên tthc */
+const clean=l=>(Array.isArray(l)?l:[]).map(u=>({name:String(u&&u.name||'').trim(),url:String(u&&u.url||'').trim()})).filter(u=>u.name&&/^https?:\/\//i.test(u.url)&&!/(xuanquang|baoyen)\.laocai\.gov\.vn/i.test(u.url)); /* không hiển thị Cổng TTĐT xã Xuân Quang và xã Bảo Yên trên tthc */
 let units=DEFAULT_UNITS.slice(),draft=[],editIdx=-1;
 window.__unitSites=()=>units;
 try{const c=JSON.parse(localStorage.getItem(LS)||'null');if(Array.isArray(c))units=clean(c)}catch(_){}
