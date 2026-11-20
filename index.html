@@ -678,7 +678,8 @@ function rptCauses(m){
  const cs=m.procs.filter(x=>x.p.kind==='case'),fee=m.procs.find(x=>x.p.kind==='fee'),N=m.units,pc=(a,b)=>rptPct(rptRatio(a,b));
  const low=[...m.procs].filter(x=>x.t.average<.5).sort((a,b)=>a.t.average-b.t.average);
  const names=low.map(x=>'“'+x.p.short+'” ('+rptPct(x.t.average)+')').join(', ');
- const intro=low.length?`Các thủ tục có tiến độ bình quân dưới 50%: ${names}. Qua số liệu hệ thống và thực tiễn triển khai, nguyên nhân được nhận định như sau.`:`Qua số liệu hệ thống và thực tiễn triển khai, các hạn chế còn tồn tại được nhận định như sau.`;
+ const hi=[...m.procs].filter(x=>x.t.average>=.5).sort((a,b)=>b.t.average-a.t.average),q=x=>'“'+x.p.short+'” ('+rptPct(x.t.average)+')';
+ const intro=low.length?`Tính đến ${m.stamp}, tiến độ bình quân chung đạt ${rptPct(m.avg)}; trong ${fmt(m.procs.length)} thủ tục có ${fmt(low.length)} thủ tục dưới 50%: ${low.map(q).join(', ')}${hi.length?`, trong khi ${hi.map(q).join(', ')} đạt từ 50% trở lên`:''}. Trên cơ sở số liệu hệ thống và tình hình triển khai thực tế, những tồn tại, hạn chế và nguyên nhân được nhận định như sau.`:`Tính đến ${m.stamp}, tiến độ bình quân chung đạt ${rptPct(m.avg)}, các thủ tục đều đạt từ 50% trở lên. Trên cơ sở số liệu hệ thống và tình hình triển khai thực tế, những tồn tại, hạn chế và nguyên nhân được nhận định như sau.`;
  const L=(f)=>cs.map(x=>`“${x.p.short}” ${f(x)}`).join('; ');
  const sub=[],obj=[],nmz=u=>String(u.unit).replace(/^Đảng bộ (xã |phường )?/,'').trim(),LN=(x,f)=>x.p.units.filter(f).map(u=>'«'+nmz(u)+'»').join(', ');
  if(cs.length){
