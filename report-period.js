@@ -280,7 +280,6 @@
       return out.concat(['Lũy kế đến nay, ba thủ tục về hồ sơ (' + nmT + ') ghi nhận ' + fmt(rc) + ' hồ sơ tiếp nhận; đã xử lý xong ' + fmt(dn) + ' hồ sơ' + (rc > 0 ? ', đạt ' + rptPct(dn / rc) + ' số hồ sơ tiếp nhận' : '') + '.']);
     }
     if (!m || !m.period) return out;
-    if (out.length) out[0] = out[0].replace('Tính đến ' + m.stamp, 'Tính đến ' + m.asOf);
     return out.concat(periodText(m));
   };
   root.rptProcText = function (x) {
