@@ -181,7 +181,7 @@
     const [endDues, baseDues] = await Promise.all([duesAt(endDate), base ? duesAt(base.date) : null]);
     let endProcs = live || !h.end ? liveProcs(endDues) : procsFrom(h.end, endDues), baseProcs = base ? procsFrom(base, baseDues) : null;
     let monthly = null;
-    if (!isM && curS && curS.list.length > 1 && per.type !== 'all') monthly = curS.list.map(x => ({ m: x.m, y: x.y, procs: applyMonth03(endProcs.filter(p => p.kind !== 'fee'), x.mp).map(p => ({ id: p.id, short: p.short, t: procedureTotals(p) })) }));
+    if (!isM && curS && curS.list.length > 1 && per.type !== 'all') { const keep = window.__m03cur; try { monthly = curS.list.map(x => { window.__m03cur = x.mp; return { m: x.m, y: x.y, procs: applyMonth03(endProcs.filter(p => p.kind !== 'fee'), x.mp).map(p => ({ id: p.id, short: p.short, t: procedureTotals(p) })) }; }); } finally { window.__m03cur = keep; } }
     if (cur) {   // tháng có tab "03 THANG": hồ sơ lấy theo tab; đảng phí vẫn theo ảnh chụp đầu kỳ (nếu có)
       const caseBase = prev ? applyMonth03(endProcs.filter(p => p.kind !== 'fee'), prev) : [], feeBase = base && prevDues ? procsFrom(base, prevDues).filter(p => p.kind === 'fee') : [];   // đảng phí: tỷ lệ thu so với tab tháng trước
       endProcs = applyMonth03(endProcs, cur); baseProcs = caseBase.concat(feeBase); if (!baseProcs.length) baseProcs = null;
