@@ -30,6 +30,7 @@
     y = Number(y); n = Number(n);
     if (type === 'month') return { type, y, n, from: ymd(new Date(y, n - 1, 1)), to: ymd(new Date(y, n, 0)), months: [n], label: 'tháng ' + n + ' năm ' + y, tag: y + '-T' + String(n).padStart(2, '0') };
     if (type === 'quarter') return { type, y, n, from: ymd(new Date(y, (n - 1) * 3, 1)), to: ymd(new Date(y, n * 3, 0)), months: [n * 3 - 2, n * 3 - 1, n * 3], label: 'quý ' + ROMAN[n - 1] + ' năm ' + y, tag: y + '-Q' + n };
+    if (type === 'year') return { type, y, n: 1, from: ymd(new Date(y, 0, 1)), to: ymd(new Date(y, 12, 0)), months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], label: 'năm ' + y, tag: y + '-N' };
     return { type: 'all', label: 'lũy kế', tag: '' };
   }
 
@@ -229,7 +230,8 @@
         : ' So với ' + P.prevLabel + ', tiến độ bình quân chung của ba thủ tục hồ sơ nêu trên ' + (P.endAvg < P.baseAvg ? 'giảm từ ' : 'tăng từ ') + rptPct(P.baseAvg) + (P.endAvg < P.baseAvg ? ' xuống ' : ' lên ') + rptPct(P.endAvg) + ' (' + pts(P.endAvg - P.baseAvg) + ').';
       return ['Trong ' + P.label + ' (' + P.range + '), ba thủ tục về hồ sơ (' + nmTxt + ') ghi nhận ' + fmt(rc) + ' hồ sơ tiếp nhận; đã xử lý xong ' + fmt(dn) + ' hồ sơ' + (rc > 0 ? ', đạt ' + rptPct(dn / rc) + ' số hồ sơ tiếp nhận' : '') + ' (theo số liệu của chính tháng, lấy từ bảng theo dõi 03 thủ tục).' + cmpTxt];
     }
-    return ['Trong ' + P.label + ' (' + P.range + (P.partial ? '; số liệu đầu kỳ tính từ ngày lưu đầu tiên ' + dmy(P.baseDate) : '') + '), ' + fmt(c.length) + ' thủ tục về hồ sơ tiếp nhận mới ' + signed(S('received')) + ' hồ sơ, xử lý ' + signed(S('processed')) + ' hồ sơ, hoàn thành ' + signed(S('done')) + ' hồ sơ; số lượt đơn vị – thủ tục hoàn thành thay đổi ' + signed(du) + '. Tiến độ bình quân chung từ ' + rptPct(P.baseAvg) + ' đầu kỳ ' + (P.endAvg < P.baseAvg ? 'xuống ' : 'lên ') + rptPct(P.endAvg) + ' cuối kỳ (' + pts(P.endAvg - P.baseAvg) + ').'];
+    const nmP = c.map(x => '“' + x.p.short + '”'), nmQ = nmP.length > 1 ? nmP.slice(0, -1).join(', ') + ' và ' + nmP[nmP.length - 1] : nmP.join('');
+    return ['Trong ' + P.label + ' (' + P.range + (P.partial ? '; số liệu đầu kỳ tính từ ngày lưu đầu tiên ' + dmy(P.baseDate) : '') + '), ba thủ tục về hồ sơ (' + nmQ + ') tiếp nhận mới ' + signed(S('received')) + ' hồ sơ, xử lý xong ' + signed(S('done')) + ' hồ sơ. Tiến độ bình quân chung của ba thủ tục hồ sơ nêu trên ' + (Math.abs(P.endAvg - P.baseAvg) < 0.0005 ? 'giữ nguyên ở mức ' + rptPct(P.endAvg) : (P.endAvg < P.baseAvg ? 'giảm từ ' : 'tăng từ ') + rptPct(P.baseAvg) + (P.endAvg < P.baseAvg ? ' xuống ' : ' lên ') + rptPct(P.endAvg) + ' (' + pts(P.endAvg - P.baseAvg) + ')') + ' trong kỳ.'];
   }
   const HEAD = ['TT', 'Thủ tục', 'Tiến độ đầu kỳ', 'Tiến độ cuối kỳ', 'Tăng/giảm (điểm %)', 'Tiếp nhận mới', 'Hoàn thành mới', 'ĐV hoàn thành thay đổi'];
   const HEAD_M = ['TT', 'Thủ tục', 'Tiến độ tháng trước', 'Tiến độ trong tháng', 'Tăng/giảm (điểm %)', 'Hồ sơ tiếp nhận', 'Hồ sơ hoàn thành', 'ĐV hoàn thành thay đổi'];
@@ -241,6 +243,11 @@
 
   root.rptNarrative = function (m) {
     const out = orig.narrative(m);
+    if (m && !m.period) {   // lũy kế: bổ sung tình hình hồ sơ như báo cáo tháng
+      const cs = (m.procs || []).filter(x => x.p.kind === 'case'); if (!cs.length) return out;
+      const nm = cs.map(x => '“' + x.p.short + '”'), nmT = nm.length > 1 ? nm.slice(0, -1).join(', ') + ' và ' + nm[nm.length - 1] : nm.join(''), rc = cs.reduce((a, x) => a + x.t.received, 0), dn = cs.reduce((a, x) => a + x.t.done, 0);
+      return out.concat(['Lũy kế đến nay, ba thủ tục về hồ sơ (' + nmT + ') ghi nhận ' + fmt(rc) + ' hồ sơ tiếp nhận; đã xử lý xong ' + fmt(dn) + ' hồ sơ' + (rc > 0 ? ', đạt ' + rptPct(dn / rc) + ' số hồ sơ tiếp nhận' : '') + '.']);
+    }
     if (!m || !m.period) return out;
     if (out.length) out[0] = out[0].replace('Tính đến ' + m.stamp, 'Tính đến ' + m.asOf);
     return out.concat(periodText(m));
@@ -254,7 +261,7 @@
   };
 
   /* ---------- Xem trước HTML ---------- */
-  const PICKER = '<span class="per"><label for="rptType">Kỳ báo cáo</label><select id="rptType"><option value="all">Lũy kế đến nay</option><option value="month">Theo tháng</option><option value="quarter">Theo quý</option></select><select id="rptNum"></select><select id="rptYear"></select><button id="rptApply" type="button">Lập báo cáo</button></span>';
+  const PICKER = '<span class="per"><label for="rptType">Kỳ báo cáo</label><select id="rptType"><option value="all">Lũy kế đến nay</option><option value="month">Theo tháng</option><option value="quarter">Theo quý</option><option value="year">Theo năm</option></select><select id="rptNum"></select><select id="rptYear"></select><button id="rptApply" type="button">Lập báo cáo</button></span>';
   const PICKER_CSS = '.per{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;border-radius:10px;background:rgba(255,255,255,.14)}.per label{font-weight:700;font-size:12px}.per select{height:30px;border:0;border-radius:7px;padding:0 8px;font:600 12.5px "Segoe UI",Arial,sans-serif;color:#1f2f45;background:#fff;cursor:pointer}.bar .per button,.per button{height:30px;padding:0 15px;border:0;border-radius:9px;font:700 12.5px "Segoe UI",Arial,sans-serif;background:#ffd76a;color:#5a3a00;cursor:pointer}@media print{.per{display:none}}';
   function htmlTable(head, rows, widths) {
     const tw = widths.reduce((a, c) => a + c, 0);
@@ -342,7 +349,7 @@
     const now = new Date(), Y = now.getFullYear(), cur = ty => ty === 'quarter' ? Math.floor(now.getMonth() / 3) + 1 : now.getMonth() + 1;
     y.innerHTML = [Y, Y - 1].map(v => '<option value="' + v + '">Năm ' + v + '</option>').join('');
     const fill = () => {
-      const ty = t.value; n.style.display = y.style.display = ty === 'all' ? 'none' : '';
+      const ty = t.value; y.style.display = ty === 'all' ? 'none' : ''; n.style.display = ty === 'all' || ty === 'year' ? 'none' : '';
       n.innerHTML = ty === 'quarter' ? [1, 2, 3, 4].map(q => '<option value="' + q + '">Quý ' + ROMAN[q - 1] + '</option>').join('') : Array.from({ length: 12 }, (_, i) => '<option value="' + (i + 1) + '">Tháng ' + (i + 1) + '</option>').join('');
     };
     t.value = per.type; fill(); y.value = String(per.y || Y); n.value = String(per.n || cur(t.value));
