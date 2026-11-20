@@ -674,6 +674,27 @@ function rptNarrative(m){return[
  `Tính đến ${m.stamp}, hệ thống theo dõi tiến độ triển khai 04 thủ tục hành chính của Đảng trên môi trường điện tử tại ${fmt(m.units)} đảng bộ, chi bộ trực thuộc. Tiến độ bình quân chung đạt ${rptPct(m.avg)}.`,
  `Thủ tục có tiến độ cao nhất là “${m.best.p.short}” (${rptPct(m.best.t.average)}); thấp nhất là “${m.worst.p.short}” (${rptPct(m.worst.t.average)}). Trên tổng số ${fmt(m.all.records)} lượt đơn vị – thủ tục: ${fmt(m.all.done)} lượt hoàn thành, ${fmt(m.all.active)} lượt đang triển khai, ${fmt(m.all.none)} lượt chưa triển khai.`,
  `Tài khoản quản trị dịch vụ công: ${fmt(m.admin.activated)}/${fmt(m.admin.accounts)} tài khoản đã kích hoạt (${rptPct(rptRatio(m.admin.activated,m.admin.accounts))}).`]}
+function rptCauses(m){
+ const cs=m.procs.filter(x=>x.p.kind==='case'),fee=m.procs.find(x=>x.p.kind==='fee');
+ const low=[...m.procs].filter(x=>x.t.average<.5).sort((a,b)=>a.t.average-b.t.average);
+ const names=low.map(x=>'“'+x.p.short+'” ('+rptPct(x.t.average)+')').join(', ');
+ const intro=low.length?`Các thủ tục có tiến độ bình quân dưới 50%: ${names}. Qua số liệu hệ thống và thực tiễn triển khai, nguyên nhân được nhận định sơ bộ như sau.`:`Qua số liệu hệ thống và thực tiễn triển khai, các hạn chế còn tồn tại được nhận định sơ bộ như sau.`;
+ const noOwn=cs.map(x=>`“${x.p.short}” ${fmt(x.t.count-x.owners)}/${fmt(x.t.count)}`).join('; ');
+ const noGd=cs.map(x=>`“${x.p.short}” ${fmt(x.t.count-x.guided)}/${fmt(x.t.count)}`).join('; ');
+ const sub=[];
+ if(cs.length){sub.push(`Một số đơn vị chưa phân công cán bộ phụ trách thủ tục trên hệ thống (số đơn vị chưa phân công: ${noOwn}), nên hồ sơ phát sinh chưa có người theo dõi, đôn đốc xử lý.`);
+  sub.push(`Một số đơn vị chưa hướng dẫn quy trình thực hiện tới các chi bộ, đảng viên (số đơn vị chưa hướng dẫn: ${noGd}); công tác tuyên truyền, quán triệt chưa sâu rộng, đảng viên chưa chủ động sử dụng dịch vụ công trực tuyến.`);
+  const w=[...cs].sort((a,b)=>(b.t.need-b.t.done)-(a.t.need-a.t.done))[0];
+  if(w&&w.t.need>w.t.done)sub.push(`Việc xử lý hồ sơ chưa kịp thời: thủ tục “${w.p.short}” còn ${fmt(w.t.need-w.t.done)}/${fmt(w.t.need)} hồ sơ phải xử lý chưa hoàn thành${m.zeroUnits.length?`; ${fmt(m.zeroUnits.length)} đơn vị chưa phát sinh tiến độ ở bất kỳ thủ tục nào`:''}.`)}
+ if(fee)sub.push(`Thu nộp đảng phí: còn ${fmt(Math.max(0,fee.t.dvcNeed-fee.t.dvc))} tài khoản dịch vụ công và ${fmt(Math.max(0,fee.t.bankNeed-fee.t.bank))} tài khoản ngân hàng chưa được tạo; một số đơn vị chưa chủ động hướng dẫn đảng viên nộp trực tuyến, chưa cập nhật số liệu kịp thời lên hệ thống.`);
+ sub.push(`Một số cấp ủy chưa quan tâm đúng mức, thiếu kiểm tra, đôn đốc thường xuyên; chưa chủ động báo cáo khó khăn, vướng mắc để được hỗ trợ.`);
+ const obj=[];
+ const few=cs.map(x=>`“${x.p.short}” ${fmt(x.withData)}/${fmt(x.t.count)}`).join('; ');
+ obj.push(`Số hồ sơ phát sinh phụ thuộc nhu cầu thực tế của đảng viên (chuyển sinh hoạt đảng, xin nhận xét nơi cư trú) nên không đồng đều giữa các đơn vị. Số đơn vị đã phát sinh hồ sơ: ${few}. Nhiều đơn vị chưa có hồ sơ nên chưa thể đạt tiến độ cao.`);
+ obj.push(`Thủ tục thực hiện trên môi trường điện tử còn mới, thời gian vận hành chưa dài; kỳ báo cáo tính đến ${m.stamp}, chưa hết thời hạn của kỳ.`);
+ obj.push(`Hạ tầng công nghệ thông tin, đường truyền ở vùng sâu, vùng xa chưa ổn định; trình độ ứng dụng công nghệ của một bộ phận cán bộ, đảng viên (nhất là đảng viên cao tuổi, vùng cao) còn hạn chế, chưa quen với tài khoản, định danh điện tử.`);
+ obj.push(`Tài khoản quản trị dịch vụ công mới kích hoạt ${fmt(m.admin.activated)}/${fmt(m.admin.accounts)} tài khoản; hồ sơ liên thông nhiều cấp phải chờ đơn vị khác xử lý, số liệu đồng bộ từ hệ thống có độ trễ nhất định.`);
+ return{intro,sub,obj,note:'Các nguyên nhân trên là đánh giá sơ bộ dựa trên số liệu hệ thống; đề nghị các đơn vị bổ sung, làm rõ theo tình hình thực tế qua bảng “Khó khăn, đề xuất” trên Google Sheets.'}}
 function rptZeroShort(zero,i){return zero.length<=10?rptZeroList(zero,i):'xem danh sách tại Phụ lục 01 (cột Trạng thái).'}
 function rptZeroList(zero,i){const n=zero.map(r=>String(r.u.unit).replace(/^Đảng bộ (xã |phường )/,''));return n.join(', ')+'.'}
 function rptDownload(blob,name,w){w=w&&!w.closed?w:window;const d=w.document,U=w.URL||URL;
@@ -765,14 +786,15 @@ function rptHTML(m){
   body+=P(`<b>Đơn vị dẫn đầu (đạt từ 50% tiến độ): </b>${esc(top.length?top.map(r=>r.u.unit+' ('+rptPct(r.v)+')').join('; ')+'.':'chưa có đơn vị đạt từ 50% tiến độ trở lên.')}`);
   if(zero.length)body+=P(`<b class="w"><i>Chưa triển khai (${zero.length}): </i></b>${esc(rptZeroShort(zero,i))}`)});
  body+=P(`<b class="g">Biểu dương: </b>${esc(rptPraise50(m))}`);
- const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
+ const D=m.dues,R=D?['IV','V','VI']:['III','IV','V'],BN=D?[3,4]:[2,3];
  if(D){body+=H(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>P(esc(t))).join('');
   body+=P(`<b class="g">Biểu dương: </b><b class="g">Đơn vị hoàn thành 100% đầu tiên: </b>${esc(rptDuesFirstVal(D))} ${esc(rptDuesPraise(D).replace(/^Biểu dương /,''))}`);
   body+=cap('Bảng 2. Phân nhóm đơn vị theo tỷ lệ đảng viên đã nộp đảng phí')+T(['Nhóm','Số đơn vị','Danh sách đơn vị (tỷ lệ đảng viên đã nộp)'],rptBands(D),[2400,1100,5571],[1],{bc:[1]})}
  const rkH=['Hạng','Đơn vị','Tiến độ tổng',...m.procs.map(x=>x.p.short)],rkW=[650,2621,1000,1200,1200,1200,1200],rkR=(rows,o)=>rows.map((r,i)=>[o+i+1,r.unit,rptPct(r.average),...r.values.map(v=>v===null?'—':rptPct(v))]);
- body+=H(R[0]+'. XẾP HẠNG TIẾN ĐỘ TỔNG HỢP')+P('Tiến độ tổng của mỗi đơn vị là bình quân tiến độ các thủ tục có dữ liệu tại đơn vị đó. Bảng dưới đây nêu 10 đơn vị dẫn đầu và 10 đơn vị thấp nhất; danh sách đầy đủ, kèm số liệu chi tiết từng thủ tục, tại Phụ lục 01.');
+ {const c=rptCauses(m);body+=H(R[0]+'. NGUYÊN NHÂN TIẾN ĐỘ CHƯA CAO')+P(esc(c.intro))+`<h3>1. Nguyên nhân chủ quan</h3>`+c.sub.map(t=>P(esc('- '+t))).join('')+`<h3>2. Nguyên nhân khách quan</h3>`+c.obj.map(t=>P(esc('- '+t))).join('')+P(`<i>${esc(c.note)}</i>`)}
+ body+=H(R[1]+'. XẾP HẠNG TIẾN ĐỘ TỔNG HỢP')+P('Tiến độ tổng của mỗi đơn vị là bình quân tiến độ các thủ tục có dữ liệu tại đơn vị đó. Bảng dưới đây nêu 10 đơn vị dẫn đầu và 10 đơn vị thấp nhất; danh sách đầy đủ, kèm số liệu chi tiết từng thủ tục, tại Phụ lục 01.');
  body+=cap(`Bảng ${BN[0]}. Xếp hạng tiến độ tổng hợp (10 đơn vị đầu và 10 đơn vị cuối)`)+T(rkH,rptRankMix(m),rkW,[0,2,3,4,5,6],{bc:[2]});
- body+=H(R[1]+'. ĐỀ XUẤT, KIẾN NGHỊ')+P(esc(`Đề nghị các đảng bộ, chi bộ trực thuộc ${m.zeroUnits.length?`(trong đó có ${fmt(m.zeroUnits.length)} đơn vị chưa phát sinh tiến độ ở tất cả các thủ tục) `:''}khẩn trương phân công cán bộ phụ trách, hướng dẫn quy trình tới đơn vị trực thuộc và cập nhật đầy đủ số liệu trên hệ thống theo dõi.`))
+ body+=H(R[2]+'. ĐỀ XUẤT, KIẾN NGHỊ')+P(esc(`Đề nghị các đảng bộ, chi bộ trực thuộc ${m.zeroUnits.length?`(trong đó có ${fmt(m.zeroUnits.length)} đơn vị chưa phát sinh tiến độ ở tất cả các thủ tục) `:''}khẩn trương phân công cán bộ phụ trách, hướng dẫn quy trình tới đơn vị trực thuộc và cập nhật đầy đủ số liệu trên hệ thống theo dõi.`))
   +P(esc(`Đối với thủ tục “${m.worst.p.short}” có tiến độ thấp nhất (${rptPct(m.worst.t.average)}), đề nghị tăng cường tiếp nhận, xử lý hồ sơ trên môi trường điện tử, phấn đấu hoàn thành toàn bộ hồ sơ phải xử lý.`))
   +(D&&rptDuesAsk(D)?P(esc(rptDuesAsk(D))):'');
  body=body.replace(/<p class="i">([\s\S]*?)<\/p>/g,(q,c)=>'<p class="i">'+rptEmHtml(c)+'</p>');
@@ -1093,14 +1115,15 @@ function exportReportDocx(m,w){
   body+=para([run('Đơn vị dẫn đầu (đạt từ 50% tiến độ): ',{b:true}),run(top.length?top.map(r=>r.u.unit+' ('+rptPct(r.v)+')').join('; ')+'.':'chưa có đơn vị đạt từ 50% tiến độ trở lên.')],{ind:true});
   if(zero.length)body+=para([run(`Chưa triển khai (${zero.length}): `,{b:true,i:true,color:'8A3B12'}),run(rptZeroShort(zero,i))],{ind:true})});
  body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run(rptPraise50(m))],{ind:true});
- const D=m.dues,R=D?['IV','V']:['III','IV'],BN=D?[3,4]:[2,3];
+ const D=m.dues,R=D?['IV','V','VI']:['III','IV','V'],BN=D?[3,4]:[2,3];
  if(D){body+=h(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>para(t,{ind:true})).join('');
   body+=para([run('Biểu dương: ',{b:true,color:'8A5A00'}),run('Đơn vị hoàn thành 100% đầu tiên: ',{b:true,color:'8A5A00'}),run(rptDuesFirstVal(D)+' '+rptDuesPraise(D).replace(/^Biểu dương /,''))],{ind:true});
   body+=para([run('Bảng 2. Phân nhóm đơn vị theo tỷ lệ đảng viên đã nộp đảng phí',{b:true,sz:24})],{keep:true,jc:'left'})+table(['Nhóm','Số đơn vị','Danh sách đơn vị (tỷ lệ đảng viên đã nộp)'],rptBands(D),[2000,900,6171],[1],{bc:[1]})}
  const rkH=['Hạng','Đơn vị','Tiến độ tổng',...m.procs.map(x=>x.p.short)],rkW=[650,2621,1000,1200,1200,1200,1200],rkR=(rows,o)=>rows.map((r,i)=>[o+i+1,r.unit,rptPct(r.average),...r.values.map(v=>v===null?'—':rptPct(v))]);
- body+=h(R[0]+'. XẾP HẠNG TIẾN ĐỘ TỔNG HỢP')+para('Tiến độ tổng của mỗi đơn vị là bình quân tiến độ các thủ tục có dữ liệu tại đơn vị đó. Bảng dưới đây nêu 10 đơn vị dẫn đầu và 10 đơn vị thấp nhất; danh sách đầy đủ, kèm số liệu chi tiết từng thủ tục, tại Phụ lục 01.',{ind:true});
+ {const c=rptCauses(m);body+=h(R[0]+'. NGUYÊN NHÂN TIẾN ĐỘ CHƯA CAO')+para(c.intro,{ind:true})+para([run('1. Nguyên nhân chủ quan',{b:true})],{keep:true,before:80,jc:'left'})+c.sub.map(t=>para('- '+t,{ind:true})).join('')+para([run('2. Nguyên nhân khách quan',{b:true})],{keep:true,before:80,jc:'left'})+c.obj.map(t=>para('- '+t,{ind:true})).join('')+para([run(c.note,{i:true})],{ind:true})}
+ body+=h(R[1]+'. XẾP HẠNG TIẾN ĐỘ TỔNG HỢP')+para('Tiến độ tổng của mỗi đơn vị là bình quân tiến độ các thủ tục có dữ liệu tại đơn vị đó. Bảng dưới đây nêu 10 đơn vị dẫn đầu và 10 đơn vị thấp nhất; danh sách đầy đủ, kèm số liệu chi tiết từng thủ tục, tại Phụ lục 01.',{ind:true});
  body+=para([run(`Bảng ${BN[0]}. Xếp hạng tiến độ tổng hợp (10 đơn vị đầu và 10 đơn vị cuối)`,{b:true,sz:24})],{keep:true,jc:'left'})+table(rkH,rptRankMix(m),rkW,[0,2,3,4,5,6],{bc:[2]});
- body+=h(R[1]+'. ĐỀ XUẤT, KIẾN NGHỊ')+para(`Đề nghị các đảng bộ, chi bộ trực thuộc ${m.zeroUnits.length?`(trong đó có ${fmt(m.zeroUnits.length)} đơn vị chưa phát sinh tiến độ ở tất cả các thủ tục) `:''}khẩn trương phân công cán bộ phụ trách, hướng dẫn quy trình tới đơn vị trực thuộc và cập nhật đầy đủ số liệu trên hệ thống theo dõi.`,{ind:true})
+ body+=h(R[2]+'. ĐỀ XUẤT, KIẾN NGHỊ')+para(`Đề nghị các đảng bộ, chi bộ trực thuộc ${m.zeroUnits.length?`(trong đó có ${fmt(m.zeroUnits.length)} đơn vị chưa phát sinh tiến độ ở tất cả các thủ tục) `:''}khẩn trương phân công cán bộ phụ trách, hướng dẫn quy trình tới đơn vị trực thuộc và cập nhật đầy đủ số liệu trên hệ thống theo dõi.`,{ind:true})
   +para(`Đối với thủ tục “${m.worst.p.short}” có tiến độ thấp nhất (${rptPct(m.worst.t.average)}), đề nghị tăng cường tiếp nhận, xử lý hồ sơ trên môi trường điện tử, phấn đấu hoàn thành toàn bộ hồ sơ phải xử lý.`,{ind:true})
   +(D&&rptDuesAsk(D)?para(rptDuesAsk(D),{ind:true}):'')
   +para('',{before:60});
