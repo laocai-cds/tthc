@@ -185,8 +185,7 @@
     const mine = ents.filter(e => e.t.indexOf('/' + mm + ' ') > 0 || e.t.indexOf('/' + mm) === 5).slice(0, 5);
     const G = 'color:#0d8a62', R = 'color:#c5302a', fail = ents.length ? ents[0].fail : false;
     const chip = e => '<span style="' + (e.fail ? R : G) + ';font-weight:700">' + (e.fail ? '✖ ' : '✔ ') + esc(e.t) + (e.fail ? ' (thất bại)' : '') + '</span>';
-    box.innerHTML = (last ? '<span style="' + (fail ? R : G) + ';font-weight:700">' + (fail ? '✖ Đồng bộ lần cuối thất bại' : '✔ Đồng bộ lần cuối thành công') + ' (' + monthLabel(k) + '): ' + esc(last) + '</span>' : 'Chưa có thời gian đồng bộ cho ' + monthLabel(k)) +
-      (mine.length ? '<br><span style="font-weight:400">Các lần đồng bộ gần nhất: ' + mine.map(chip).join(' · ') + '</span>' : '');
+    box.innerHTML = (last ? '<span style="' + (fail ? R : G) + ';font-weight:700">' + (fail ? '✖ Đồng bộ lần cuối thất bại' : '✔ Đồng bộ lần cuối thành công') + ' (' + monthLabel(k) + '): ' + esc(last) + '</span>' : 'Chưa có thời gian đồng bộ cho ' + monthLabel(k));
   }
   async function refresh() {
     const dm = root.DuesMonth, k = ui.month || (dm && dm.state && dm.state.month) || keyOf(new Date().getFullYear(), new Date().getMonth() + 1), my = ++ui.seq;
