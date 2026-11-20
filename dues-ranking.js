@@ -122,7 +122,7 @@
     '<header class="dr-head"><div><h2 id="drTitle">🏆 ' + TITLE + ' <span id="drPeriod"></span></h2><div class="dr-sub" id="drSub">Đang tải dữ liệu…</div></div><span class="sp"></span><button type="button" class="dr-x" id="drClose" aria-label="Đóng">✕</button></header>' +
     '<div class="dr-tools"><select class="dr-search" id="drMonth" aria-label="Chọn tháng" style="flex:0 0 auto;width:auto;min-width:130px"></select><input class="dr-search" id="drSearch" type="search" placeholder="Tìm đơn vị…" aria-label="Tìm đơn vị"><div class="dr-chips" id="drChips" role="group" aria-label="Lọc theo nhóm tỷ lệ nộp"></div></div>' +
     '<div class="dr-body"><table class="dr-tb"><thead><tr><th class="c">Hạng</th><th>Đơn vị</th><th class="r dr-hide-sm">ĐV đã nộp / phải nộp</th><th>Tỷ lệ nộp</th><th class="r" id="drPrevHead">So với kỳ trước</th></tr></thead><tbody id="drRows"><tr><td colspan="5" class="dr-empty">Đang tải…</td></tr></tbody></table></div>' +
-    '<footer class="dr-foot">Tỷ lệ nộp = số đảng viên đã duyệt, đã nộp (8) ÷ số đảng viên phải nộp ((2)+(3)−(4)−(5)). "So với kỳ trước" là chênh lệch điểm % so với tháng liền trước; đơn vị bằng tỷ lệ được xếp theo số tiền đã nộp, rồi theo số đảng viên đã nộp.</footer></section>';
+    '<footer class="dr-foot">Tỷ lệ nộp = số đảng viên đã duyệt, đã nộp (8) ÷ số đảng viên phải nộp ((2)+(3)−(4)−(5)). "So với kỳ trước" là chênh lệch điểm % so với tháng liền trước; đơn vị bằng tỷ lệ được xếp theo số tiền đã nộp, rồi theo số đảng viên đã nộp.<div id="drSyncs" style="margin-top:6px;font-weight:600;color:#3d4c63"></div></footer></section>';
   document.body.appendChild(ov);
 
   const $ = id => document.getElementById(id);
@@ -160,9 +160,35 @@
     });
     sel.innerHTML = h;
   }
+  function fetchSheet(tab, hdr) {
+    return new Promise(resolve => {
+      const cb = '__duesSync_' + Date.now() + '_' + Math.random().toString(36).slice(2), sc = document.createElement('script');
+      let ended = false;
+      const finish = v => { if (ended) return; ended = true; clearTimeout(timer); delete root[cb]; sc.remove(); resolve(v); };
+      const timer = setTimeout(() => finish(null), 15000);
+      root[cb] = p => finish(p && p.table ? p : null);
+      sc.onerror = () => finish(null);
+      sc.src = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json;responseHandler:' + cb + '&sheet=' + encodeURIComponent(tab) + '&headers=' + hdr + '&_=' + Date.now();
+      sc.async = true; document.head.appendChild(sc);
+    });
+  }
+  async function loadSyncs(k) {
+    const box = $('drSyncs'); if (!box) return;
+    box.textContent = 'Đang tải thời gian đồng bộ…';
+    const [reg, log] = await Promise.all([fetchSheet('DANH MUC THANG', 1), fetchSheet('Nhật ký đồng bộ', 1)]);
+    if (k !== (ui.month || k) && ui.month) return;
+    let last = '';
+    if (reg) { const r = (reg.table.rows || []).map(x => x.c || []).find(c => cellText(c[0]) === k); if (r) last = cellText(r[2]) || (r[2] && r[2].f) || ''; }
+    const times = log ? (log.table.rows || []).map(x => x.c || []).map(c => String(c[0] ? (c[0].f != null ? c[0].f : (c[0].v || '')) : '').trim()).filter(Boolean) : [];
+    const mm = k.slice(5) + '/' + k.slice(0, 4);
+    const mine = times.filter(t => t.indexOf('/' + mm + ' ') > 0 || t.indexOf('/' + mm) === 5).slice(0, 5);
+    box.innerHTML = (last ? 'Đồng bộ lần cuối (' + monthLabel(k) + '): ' + esc(last) : 'Chưa có thời gian đồng bộ cho ' + monthLabel(k)) +
+      (mine.length ? '<br><span style="font-weight:400">Các lần đồng bộ gần nhất: ' + mine.map(esc).join(' · ') + '</span>' : '');
+  }
   async function refresh() {
     const dm = root.DuesMonth, k = ui.month || (dm && dm.state && dm.state.month) || keyOf(new Date().getFullYear(), new Date().getMonth() + 1), my = ++ui.seq;
     fillMonths(k);
+    loadSyncs(k);
     $('drPeriod').textContent = '– ' + monthLabel(k).replace(/^t/, 'T');
     $('drSub').textContent = 'Đang tải số liệu ' + monthLabel(k) + ' và ' + monthLabel(prevKey(k)) + ' từ Google Sheets…';
     try {
