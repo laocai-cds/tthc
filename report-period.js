@@ -157,7 +157,7 @@
   async function loadSum03(y, months) {
     const now = new Date(), ms = months.filter(m => y < now.getFullYear() || (y === now.getFullYear() && m <= now.getMonth() + 1));
     const r = await Promise.all(ms.map(m => loadMonth03(y, m).catch(() => null)));
-    return { sum: sumMaps(r.filter(Boolean)), tabs: ms.filter((m, i) => r[i]).map(m => String(m).padStart(2, '0') + '-' + y) };
+    return { sum: sumMaps(r.filter(Boolean)), tabs: ms.filter((m, i) => r[i]).map(m => String(m).padStart(2, '0') + '-' + y), list: ms.map((m, i) => ({ m, y, mp: r[i] })).filter(x => x.mp) };
   }
   const WD = { month: 'tháng', quarter: 'quý', year: 'năm', all: 'kỳ' };
   async function context(per) {
@@ -180,11 +180,13 @@
     const endDate = live ? today : (h.end ? h.end.date : per.to);
     const [endDues, baseDues] = await Promise.all([duesAt(endDate), base ? duesAt(base.date) : null]);
     let endProcs = live || !h.end ? liveProcs(endDues) : procsFrom(h.end, endDues), baseProcs = base ? procsFrom(base, baseDues) : null;
+    let monthly = null;
+    if (!isM && curS && curS.list.length > 1 && per.type !== 'all') monthly = curS.list.map(x => ({ m: x.m, y: x.y, procs: applyMonth03(endProcs.filter(p => p.kind !== 'fee'), x.mp).map(p => ({ id: p.id, short: p.short, t: procedureTotals(p) })) }));
     if (cur) {   // tháng có tab "03 THANG": hồ sơ lấy theo tab; đảng phí vẫn theo ảnh chụp đầu kỳ (nếu có)
       const caseBase = prev ? applyMonth03(endProcs.filter(p => p.kind !== 'fee'), prev) : [], feeBase = base && prevDues ? procsFrom(base, prevDues).filter(p => p.kind === 'fee') : [];   // đảng phí: tỷ lệ thu so với tab tháng trước
       endProcs = applyMonth03(endProcs, cur); baseProcs = caseBase.concat(feeBase); if (!baseProcs.length) baseProcs = null;
     }
-    return { per, live, endDate, endProcs, base, baseProcs, first: h.first || null, dues, monthTab: cur ? { y: per.y, n: per.n } : null, prevTab: cur && prev ? { y: pY, n: pM } : null, prevLabel: isM ? '' : prevLabelS, tabs: isM ? [String(per.n).padStart(2, '0') + '-' + per.y] : (curS ? curS.tabs : []), prevTabs: isM ? (prev ? [String(pM).padStart(2, '0') + '-' + pY] : []) : (prevS ? prevS.tabs : []) };
+    return { per, live, endDate, endProcs, base, baseProcs, first: h.first || null, dues, monthTab: cur ? { y: per.y, n: per.n } : null, prevTab: cur && prev ? { y: pY, n: pM } : null, monthly, prevLabel: isM ? '' : prevLabelS, tabs: isM ? [String(per.n).padStart(2, '0') + '-' + per.y] : (curS ? curS.tabs : []), prevTabs: isM ? (prev ? [String(pM).padStart(2, '0') + '-' + pY] : []) : (prevS ? prevS.tabs : []) };
   }
 
   /* ---------- Mô hình báo cáo theo kỳ ---------- */
@@ -219,7 +221,7 @@
     const hasBase = m.procs.some(x => x.delta), cmp = m.procs.filter(x => x.delta && x.base && (!MT || x.p.kind === 'case')), mean = a => a.reduce((s, v) => s + v, 0) / Math.max(1, a.length);
     m.period = Object.assign({}, per, {
       range: 'từ ngày ' + dmy(per.from) + ' đến ngày ' + dmy(per.to), live: ctx.live, endDate: ctx.endDate, first: ctx.first,
-      baseDate: ctx.base ? ctx.base.date : null, partial: !MT && !!(ctx.base && ctx.base.date >= per.from), hasBase: per.type === 'all' ? false : hasBase, wd: WD[per.type] || 'kỳ', tabs: ctx.tabs || [], prevTabs: ctx.prevTabs || [],
+      baseDate: ctx.base ? ctx.base.date : null, partial: !MT && !!(ctx.base && ctx.base.date >= per.from), hasBase: per.type === 'all' ? false : hasBase, wd: WD[per.type] || 'kỳ', monthly: ctx.monthly || null, tabs: ctx.tabs || [], prevTabs: ctx.prevTabs || [],
       monthTab: MT, prevTab: ctx.prevTab, prevLabel: ctx.prevLabel ? ctx.prevLabel : ctx.prevTab ? 'tháng ' + ctx.prevTab.n + ' năm ' + ctx.prevTab.y : (MT ? 'tháng ' + (per.n === 1 ? 12 : per.n - 1) + ' năm ' + (per.n === 1 ? per.y - 1 : per.y) : ''),
       baseAvg: cmp.length ? mean(cmp.map(x => x.base.average)) : null, endAvg: cmp.length ? mean(cmp.map(x => x.t.average)) : null
     });
@@ -256,6 +258,12 @@
     return ['Trong ' + P.label + ' (' + P.range + (P.partial ? '; số liệu đầu kỳ tính từ ngày lưu đầu tiên ' + dmy(P.baseDate) : '') + '), ba thủ tục về hồ sơ (' + nmQ + ') tiếp nhận mới ' + signed(S('received')) + ' hồ sơ, xử lý xong ' + signed(S('done')) + ' hồ sơ. Tiến độ bình quân chung của ba thủ tục hồ sơ nêu trên ' + (Math.abs(P.endAvg - P.baseAvg) < 0.0005 ? 'giữ nguyên ở mức ' + rptPct(P.endAvg) : (P.endAvg < P.baseAvg ? 'giảm từ ' : 'tăng từ ') + rptPct(P.baseAvg) + (P.endAvg < P.baseAvg ? ' xuống ' : ' lên ') + rptPct(P.endAvg) + ' (' + pts(P.endAvg - P.baseAvg) + ')') + ' trong kỳ.'];
   }
   const HEAD = ['TT', 'Thủ tục', 'Tiến độ đầu kỳ', 'Tiến độ cuối kỳ', 'Tăng/giảm (điểm %)', 'Tiếp nhận mới', 'Hoàn thành mới', 'ĐV hoàn thành thay đổi'];
+  const monthlyTable = m => {
+    const L = m.period.monthly; if (!L || !L.length) return null;
+    const head = ['Tháng', 'Hồ sơ tiếp nhận', 'Hồ sơ xử lý xong', 'Tỷ lệ xử lý xong', ...L[0].procs.map(p => 'Tiến độ ' + p.short)];
+    const rows = L.map(x => { const rc = x.procs.reduce((a, p) => a + p.t.received, 0), dn = x.procs.reduce((a, p) => a + p.t.done, 0); return ['Tháng ' + x.m, fmt(rc), fmt(dn), rc > 0 ? rptPct(dn / rc) : '—', ...x.procs.map(p => rptPct(p.t.average))]; });
+    return { cap: 'Bảng 1b. Số liệu hồ sơ theo từng tháng trong ' + m.period.label, head, rows, w: [900, 1300, 1300, 1100, 1500, 1500, 1500].slice(0, head.length) };
+  };
   const HEAD_M_F = w => ['TT', 'Thủ tục', 'Tiến độ ' + w + ' trước', 'Tiến độ trong ' + w, 'Tăng/giảm (điểm %)', 'Hồ sơ tiếp nhận', 'Hồ sơ hoàn thành', 'ĐV hoàn thành thay đổi'];
   const HEAD_M = HEAD_M_F('tháng');
   const headOf = m => m.period && m.period.monthTab ? HEAD_M_F(m.period.wd) : HEAD;
@@ -300,6 +308,7 @@
     if (!P) return h;
     h = h.replace('môi trường điện tử</p><p class="t2">-----</p>', 'môi trường điện tử ' + esc(P.label) + '</p><p class="meta" style="margin:0 0 1pt;font-size:12pt;color:#000">(' + esc(P.range) + ')</p><p class="t2">-----</p>');
     h = h.replace('Bảng 1. Tổng hợp tiến độ theo thủ tục', 'Bảng 1. Tổng hợp tiến độ theo thủ tục (' + (P.monthTab ? 'số liệu hồ sơ ' + esc(P.label) : 'lũy kế đến ' + esc(m.asOf)) + ')');
+    { const mt = monthlyTable(m); if (mt) h = h.replace('<h2>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC</h2>', '<p class="cap">' + esc(mt.cap) + '</p>' + htmlTable(mt.head, mt.rows, mt.w) + '<h2>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC</h2>'); }
     if (P.hasBase) h = h.replace('<h2>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC</h2>', '<p class="cap">' + esc(capOf(m)) + '</p>' + htmlTable(headOf(m), periodRows(m), WID) + '<h2>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC</h2>');
     return h;
   };
@@ -320,6 +329,7 @@
     const title = '>tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử</w:t></w:r></w:p>';
     doc = doc.replace(title, P.type === 'all' ? '>tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử (Lũy kế đến thời điểm hiện tại)</w:t></w:r></w:p>' : '>tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử ' + X(P.label) + '</w:t></w:r></w:p>' + wPara('(' + P.range + ')', { i: true, sz: 24, jc: 'center', after: 20 }));
     doc = doc.replace('>Bảng 1. Tổng hợp tiến độ theo thủ tục<', '>Bảng 1. Tổng hợp tiến độ theo thủ tục (' + (P.monthTab ? 'số liệu hồ sơ ' + X(P.label) : 'lũy kế đến ' + X(m.asOf)) + ')<');
+    { const mt = monthlyTable(m); if (mt) { const at = doc.indexOf('>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC<'), p0 = at < 0 ? -1 : doc.lastIndexOf('<w:p>', at); if (p0 >= 0) doc = doc.slice(0, p0) + wPara(mt.cap, { b: true, sz: 24, keep: true, before: 80 }) + wTable(mt.head, mt.rows, mt.w) + doc.slice(p0); } }
     if (P.hasBase) {
       const at = doc.indexOf('>II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC<'), p0 = at < 0 ? -1 : doc.lastIndexOf('<w:p>', at);
       if (p0 >= 0) doc = doc.slice(0, p0) + wPara(capOf(m), { b: true, sz: 24, keep: true, before: 80 }) + wTable(headOf(m), periodRows(m), WID) + doc.slice(p0);
