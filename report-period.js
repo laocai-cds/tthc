@@ -354,7 +354,7 @@
     });
     return {
       name: MT ? 'Hồ sơ trong tháng' : 'Phát sinh trong kỳ', cols: [6, 28, 40, 13, 13, 13, 18, 18, 14], freeze: 5, filter: 'A5:I' + (5 + rows.length), merges: ['A1:I1', 'A2:I2', 'A3:I3'], heights: { 0: 30, 4: 36 },
-      rows: [[{ v: (MT ? 'KẾT QUẢ HỒ SƠ TRONG ' : 'KẾT QUẢ PHÁT SINH TRONG ') + P.label.toUpperCase(), s: 1 }], [{ v: P.range + (MT ? ' — số hồ sơ của chính tháng; tiến độ so với ' + (P.prevTab ? P.prevLabel : 'tháng trước (chưa có số liệu)') : ' — số cuối kỳ trừ số đầu kỳ'), s: 2 }], [{ v: 'Lập lúc: ' + m.stamp + ' · Nguồn số liệu: ' + m.source, s: 8 }], [], head.map(H), ...rows]
+      rows: [[{ v: (MT ? 'KẾT QUẢ HỒ SƠ TRONG ' : 'KẾT QUẢ PHÁT SINH TRONG ') + P.label.toUpperCase(), s: 1 }], [{ v: P.range + (MT ? ' — số hồ sơ của chính tháng; tiến độ so với ' + (P.prevTab ? P.prevLabel : 'tháng trước (chưa có số liệu)') : ' — số cuối kỳ trừ số đầu kỳ'), s: 2 }], [{ v: 'Nguồn số liệu: ' + m.source, s: 8 }], [], head.map(H), ...rows]
     };
   }
   root.exportReportXlsx = function (m, w) {
