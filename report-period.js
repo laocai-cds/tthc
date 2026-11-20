@@ -257,14 +257,14 @@
     const nmP = c.map(x => '“' + x.p.short + '”'), nmQ = nmP.length > 1 ? nmP.slice(0, -1).join(', ') + ' và ' + nmP[nmP.length - 1] : nmP.join('');
     return ['Trong ' + P.label + ' (' + P.range + (P.partial ? '; số liệu đầu kỳ tính từ ngày lưu đầu tiên ' + dmy(P.baseDate) : '') + '), ba thủ tục về hồ sơ (' + nmQ + ') tiếp nhận mới ' + signed(S('received')) + ' hồ sơ, xử lý xong ' + signed(S('done')) + ' hồ sơ. Tiến độ bình quân chung của ba thủ tục hồ sơ nêu trên ' + (Math.abs(P.endAvg - P.baseAvg) < 0.0005 ? 'giữ nguyên ở mức ' + rptPct(P.endAvg) : (P.endAvg < P.baseAvg ? 'giảm từ ' : 'tăng từ ') + rptPct(P.baseAvg) + (P.endAvg < P.baseAvg ? ' xuống ' : ' lên ') + rptPct(P.endAvg) + ' (' + pts(P.endAvg - P.baseAvg) + ')') + ' trong kỳ.'];
   }
-  const HEAD = ['TT', 'Thủ tục', 'Tiến độ đầu kỳ', 'Tiến độ cuối kỳ', 'Tăng/giảm (điểm %)', 'Tiếp nhận mới', 'Hoàn thành mới', 'ĐV hoàn thành thay đổi'];
+  const HEAD = ['Thứ tự', 'Thủ tục', 'Tiến độ đầu kỳ', 'Tiến độ cuối kỳ', 'Tăng/giảm (điểm %)', 'Tiếp nhận mới', 'Hoàn thành mới', 'ĐV hoàn thành thay đổi'];
   const monthlyTable = m => {
     const L = m.period.monthly; if (!L || !L.length) return null;
     const head = ['Tháng', 'Hồ sơ tiếp nhận', 'Hồ sơ xử lý xong', 'Tỷ lệ xử lý xong', ...L[0].procs.map(p => 'Tiến độ ' + p.short)];
     const rows = L.map(x => { const rc = x.procs.reduce((a, p) => a + p.t.received, 0), dn = x.procs.reduce((a, p) => a + p.t.done, 0); return ['Tháng ' + x.m, fmt(rc), fmt(dn), rc > 0 ? rptPct(dn / rc) : '—', ...x.procs.map(p => rptPct(p.t.average))]; });
     return { cap: 'Bảng 1b. Số liệu hồ sơ theo từng tháng trong ' + m.period.label, head, rows, w: [900, 1300, 1300, 1100, 1500, 1500, 1500].slice(0, head.length) };
   };
-  const HEAD_M_F = w => ['TT', 'Thủ tục', 'Tiến độ ' + w + ' trước', 'Tiến độ trong ' + w, 'Tăng/giảm (điểm %)', 'Hồ sơ tiếp nhận', 'Hồ sơ hoàn thành', 'ĐV hoàn thành thay đổi'];
+  const HEAD_M_F = w => ['Thứ tự', 'Thủ tục', 'Tiến độ ' + w + ' trước', 'Tiến độ trong ' + w, 'Tăng/giảm (điểm %)', 'Hồ sơ tiếp nhận', 'Hồ sơ hoàn thành', 'ĐV hoàn thành thay đổi'];
   const HEAD_M = HEAD_M_F('tháng');
   const headOf = m => m.period && m.period.monthTab ? HEAD_M_F(m.period.wd) : HEAD;
   const capOf = m => 'Bảng 1a. ' + (m.period.monthTab ? 'Kết quả hồ sơ trong ' + m.period.label + (m.period.prevTab ? ' (so với ' + m.period.prevLabel + ')' : ' (chưa có số liệu ' + m.period.wd + ' trước để so sánh)') : 'Kết quả phát sinh trong ' + m.period.label);
@@ -345,7 +345,7 @@
   /* ---------- Excel: tiêu đề có kỳ + thêm trang "Phát sinh trong kỳ" ---------- */
   function periodSheet(m) {
     const P = m.period, T = v => ({ v, s: 4 }), N = v => ({ v: Number(v) || 0, s: 5 }), PC = v => ({ v: Number(v) || 0, s: 6 }), B = v => ({ v, s: 7 }), H = v => ({ v, s: 3 });
-    const MT = P.monthTab, head = MT ? ['TT', 'Thủ tục', 'Đơn vị', 'Tiến độ tháng trước', 'Tiến độ trong tháng', 'Tăng/giảm tiến độ', 'HS tiếp nhận / TK DVC tạo mới', 'HS xử lý / TK ngân hàng tạo mới', 'HS hoàn thành'] : ['TT', 'Thủ tục', 'Đơn vị', 'Tiến độ đầu kỳ', 'Tiến độ cuối kỳ', 'Tăng/giảm tiến độ', 'HS tiếp nhận mới / TK DVC tạo mới', 'HS xử lý mới / TK ngân hàng tạo mới', 'HS hoàn thành mới'], NA = T('—');
+    const MT = P.monthTab, head = MT ? ['Thứ tự', 'Thủ tục', 'Đơn vị', 'Tiến độ tháng trước', 'Tiến độ trong tháng', 'Tăng/giảm tiến độ', 'HS tiếp nhận / TK DVC tạo mới', 'HS xử lý / TK ngân hàng tạo mới', 'HS hoàn thành'] : ['Thứ tự', 'Thủ tục', 'Đơn vị', 'Tiến độ đầu kỳ', 'Tiến độ cuối kỳ', 'Tăng/giảm tiến độ', 'HS tiếp nhận mới / TK DVC tạo mới', 'HS xử lý mới / TK ngân hàng tạo mới', 'HS hoàn thành mới'], NA = T('—');
     const rows = [];
     m.procs.filter(x => x.delta).forEach(x => {
       const fee = x.p.kind === 'fee';
