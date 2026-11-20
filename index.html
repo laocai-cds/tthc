@@ -672,7 +672,7 @@ function rptProcText(x){const t=x.t;return x.p.kind==='fee'
  :`Đã tiếp nhận ${fmt(t.received)}/${fmt(t.total)} hồ sơ, xử lý ${fmt(t.processed)}/${fmt(t.need)} hồ sơ, hoàn thành ${fmt(t.done)} hồ sơ; ${fmt(x.withData)} đơn vị đã phát sinh hồ sơ.`}
 function rptNarrative(m){return[
  `Tính đến ${m.stamp}, hệ thống theo dõi tiến độ triển khai 04 thủ tục hành chính của Đảng trên môi trường điện tử tại ${fmt(m.units)} đảng bộ, chi bộ trực thuộc. Tiến độ bình quân chung đạt ${rptPct(m.avg)}.`,
- `Thủ tục có tiến độ cao nhất là “${m.best.p.short}” (${rptPct(m.best.t.average)}); thấp nhất là “${m.worst.p.short}” (${rptPct(m.worst.t.average)}).`,
+ `Tiến độ của các thủ tục: ${[...m.procs].sort((a,b)=>b.t.average-a.t.average).map(x=>`“${x.p.short}” ${rptPct(x.t.average)}`).join('; ')}. Cao nhất là “${m.best.p.short}” (${rptPct(m.best.t.average)}); thấp nhất là “${m.worst.p.short}” (${rptPct(m.worst.t.average)}).`,
  `Tài khoản quản trị dịch vụ công: ${fmt(m.admin.activated)}/${fmt(m.admin.accounts)} tài khoản đã kích hoạt (${rptPct(rptRatio(m.admin.activated,m.admin.accounts))}).`]}
 function rptCauses(m){
  const cs=m.procs.filter(x=>x.p.kind==='case'),fee=m.procs.find(x=>x.p.kind==='fee'),N=m.units,pc=(a,b)=>rptPct(rptRatio(a,b));
