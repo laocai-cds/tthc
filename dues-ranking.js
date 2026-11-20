@@ -179,11 +179,14 @@
     if (k !== (ui.month || k) && ui.month) return;
     let last = '';
     if (reg) { const r = (reg.table.rows || []).map(x => x.c || []).find(c => cellText(c[0]) === k); if (r) last = cellText(r[2]) || (r[2] && r[2].f) || ''; }
-    const times = log ? (log.table.rows || []).map(x => x.c || []).map(c => String(c[0] ? (c[0].f != null ? c[0].f : (c[0].v || '')) : '').trim()).filter(Boolean) : [];
+    const txt = c => String(c ? (c.f != null ? c.f : (c.v == null ? '' : c.v)) : '').trim();
+    const ents = log ? (log.table.rows || []).map(x => x.c || []).map(c => ({ t: txt(c[0]), fail: c.some(z => /lỗi|không đúng|thất bại|error|fail/i.test(txt(z))) })).filter(e => e.t) : [];
     const mm = k.slice(5) + '/' + k.slice(0, 4);
-    const mine = times.filter(t => t.indexOf('/' + mm + ' ') > 0 || t.indexOf('/' + mm) === 5).slice(0, 5);
-    box.innerHTML = (last ? 'Đồng bộ lần cuối (' + monthLabel(k) + '): ' + esc(last) : 'Chưa có thời gian đồng bộ cho ' + monthLabel(k)) +
-      (mine.length ? '<br><span style="font-weight:400">Các lần đồng bộ gần nhất: ' + mine.map(esc).join(' · ') + '</span>' : '');
+    const mine = ents.filter(e => e.t.indexOf('/' + mm + ' ') > 0 || e.t.indexOf('/' + mm) === 5).slice(0, 5);
+    const G = 'color:#0d8a62', R = 'color:#c5302a', fail = ents.length ? ents[0].fail : false;
+    const chip = e => '<span style="' + (e.fail ? R : G) + ';font-weight:700">' + (e.fail ? '✖ ' : '✔ ') + esc(e.t) + (e.fail ? ' (thất bại)' : '') + '</span>';
+    box.innerHTML = (last ? '<span style="' + (fail ? R : G) + ';font-weight:700">' + (fail ? '✖ Đồng bộ lần cuối thất bại' : '✔ Đồng bộ lần cuối thành công') + ' (' + monthLabel(k) + '): ' + esc(last) + '</span>' : 'Chưa có thời gian đồng bộ cho ' + monthLabel(k)) +
+      (mine.length ? '<br><span style="font-weight:400">Các lần đồng bộ gần nhất: ' + mine.map(chip).join(' · ') + '</span>' : '');
   }
   async function refresh() {
     const dm = root.DuesMonth, k = ui.month || (dm && dm.state && dm.state.month) || keyOf(new Date().getFullYear(), new Date().getMonth() + 1), my = ++ui.seq;
