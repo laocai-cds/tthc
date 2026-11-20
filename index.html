@@ -675,26 +675,30 @@ function rptNarrative(m){return[
  `Thủ tục có tiến độ cao nhất là “${m.best.p.short}” (${rptPct(m.best.t.average)}); thấp nhất là “${m.worst.p.short}” (${rptPct(m.worst.t.average)}). Trên tổng số ${fmt(m.all.records)} lượt đơn vị – thủ tục: ${fmt(m.all.done)} lượt hoàn thành, ${fmt(m.all.active)} lượt đang triển khai, ${fmt(m.all.none)} lượt chưa triển khai.`,
  `Tài khoản quản trị dịch vụ công: ${fmt(m.admin.activated)}/${fmt(m.admin.accounts)} tài khoản đã kích hoạt (${rptPct(rptRatio(m.admin.activated,m.admin.accounts))}).`]}
 function rptCauses(m){
- const cs=m.procs.filter(x=>x.p.kind==='case'),fee=m.procs.find(x=>x.p.kind==='fee');
+ const cs=m.procs.filter(x=>x.p.kind==='case'),fee=m.procs.find(x=>x.p.kind==='fee'),N=m.units,pc=(a,b)=>rptPct(rptRatio(a,b));
  const low=[...m.procs].filter(x=>x.t.average<.5).sort((a,b)=>a.t.average-b.t.average);
  const names=low.map(x=>'“'+x.p.short+'” ('+rptPct(x.t.average)+')').join(', ');
- const intro=low.length?`Các thủ tục có tiến độ bình quân dưới 50%: ${names}. Qua số liệu hệ thống và thực tiễn triển khai, nguyên nhân được nhận định sơ bộ như sau.`:`Qua số liệu hệ thống và thực tiễn triển khai, các hạn chế còn tồn tại được nhận định sơ bộ như sau.`;
- const noOwn=cs.map(x=>`“${x.p.short}” ${fmt(x.t.count-x.owners)}/${fmt(x.t.count)}`).join('; ');
- const noGd=cs.map(x=>`“${x.p.short}” ${fmt(x.t.count-x.guided)}/${fmt(x.t.count)}`).join('; ');
- const sub=[];
- if(cs.length){sub.push(`Một số đơn vị chưa phân công cán bộ phụ trách thủ tục trên hệ thống (số đơn vị chưa phân công: ${noOwn}), nên hồ sơ phát sinh chưa có người theo dõi, đôn đốc xử lý.`);
-  sub.push(`Một số đơn vị chưa hướng dẫn quy trình thực hiện tới các chi bộ, đảng viên (số đơn vị chưa hướng dẫn: ${noGd}); công tác tuyên truyền, quán triệt chưa sâu rộng, đảng viên chưa chủ động sử dụng dịch vụ công trực tuyến.`);
-  const w=[...cs].sort((a,b)=>(b.t.need-b.t.done)-(a.t.need-a.t.done))[0];
-  if(w&&w.t.need>w.t.done)sub.push(`Việc xử lý hồ sơ chưa kịp thời: thủ tục “${w.p.short}” còn ${fmt(w.t.need-w.t.done)}/${fmt(w.t.need)} hồ sơ phải xử lý chưa hoàn thành${m.zeroUnits.length?`; ${fmt(m.zeroUnits.length)} đơn vị chưa phát sinh tiến độ ở bất kỳ thủ tục nào`:''}.`)}
- if(fee)sub.push(`Thu nộp đảng phí: còn ${fmt(Math.max(0,fee.t.dvcNeed-fee.t.dvc))} tài khoản dịch vụ công và ${fmt(Math.max(0,fee.t.bankNeed-fee.t.bank))} tài khoản ngân hàng chưa được tạo; một số đơn vị chưa chủ động hướng dẫn đảng viên nộp trực tuyến, chưa cập nhật số liệu kịp thời lên hệ thống.`);
- sub.push(`Một số cấp ủy chưa quan tâm đúng mức, thiếu kiểm tra, đôn đốc thường xuyên; chưa chủ động báo cáo khó khăn, vướng mắc để được hỗ trợ.`);
- const obj=[];
- const few=cs.map(x=>`“${x.p.short}” ${fmt(x.withData)}/${fmt(x.t.count)}`).join('; ');
- obj.push(`Số hồ sơ phát sinh phụ thuộc nhu cầu thực tế của đảng viên (chuyển sinh hoạt đảng, xin nhận xét nơi cư trú) nên không đồng đều giữa các đơn vị. Số đơn vị đã phát sinh hồ sơ: ${few}. Nhiều đơn vị chưa có hồ sơ nên chưa thể đạt tiến độ cao.`);
- obj.push(`Thủ tục thực hiện trên môi trường điện tử còn mới, thời gian vận hành chưa dài; kỳ báo cáo tính đến ${m.stamp}, chưa hết thời hạn của kỳ.`);
- obj.push(`Hạ tầng công nghệ thông tin, đường truyền ở vùng sâu, vùng xa chưa ổn định; trình độ ứng dụng công nghệ của một bộ phận cán bộ, đảng viên (nhất là đảng viên cao tuổi, vùng cao) còn hạn chế, chưa quen với tài khoản, định danh điện tử.`);
- obj.push(`Tài khoản quản trị dịch vụ công mới kích hoạt ${fmt(m.admin.activated)}/${fmt(m.admin.accounts)} tài khoản; hồ sơ liên thông nhiều cấp phải chờ đơn vị khác xử lý, số liệu đồng bộ từ hệ thống có độ trễ nhất định.`);
- return{intro,sub,obj,note:'Các nguyên nhân trên là đánh giá sơ bộ dựa trên số liệu hệ thống; đề nghị các đơn vị bổ sung, làm rõ theo tình hình thực tế qua bảng “Khó khăn, đề xuất” trên Google Sheets.'}}
+ const intro=low.length?`Các thủ tục có tiến độ bình quân dưới 50%: ${names}. Qua số liệu hệ thống và thực tiễn triển khai, nguyên nhân được nhận định như sau.`:`Qua số liệu hệ thống và thực tiễn triển khai, các hạn chế còn tồn tại được nhận định như sau.`;
+ const L=(f)=>cs.map(x=>`“${x.p.short}” ${f(x)}`).join('; ');
+ const sub=[],obj=[];
+ if(cs.length){
+  sub.push(`Chưa phân công cán bộ phụ trách thủ tục trên hệ thống: ${L(x=>`${fmt(x.t.count-x.owners)}/${fmt(x.t.count)} đơn vị (${pc(x.t.count-x.owners,x.t.count)})`)}. Hồ sơ phát sinh chưa có người theo dõi, đôn đốc xử lý.`);
+  sub.push(`Chưa hướng dẫn quy trình thực hiện tới chi bộ, đảng viên: ${L(x=>`${fmt(x.t.count-x.guided)}/${fmt(x.t.count)} đơn vị (${pc(x.t.count-x.guided,x.t.count)})`)}; công tác tuyên truyền, quán triệt chưa sâu rộng.`);
+  const pend=x=>x.rows.filter(r=>Number(r.u.need||0)>Number(r.u.done||0)).length;
+  sub.push(`Xử lý hồ sơ chưa kịp thời: ${L(x=>`còn ${fmt(Math.max(0,x.t.need-x.t.done))}/${fmt(x.t.need)} hồ sơ phải xử lý chưa hoàn thành (${pc(Math.max(0,x.t.need-x.t.done),x.t.need)}), tồn ở ${fmt(pend(x))} đơn vị`)}.`);
+  const nm=new Map();cs.forEach(x=>x.p.units.forEach(u=>{const k=String(u.unit),o=nm.get(k)||{o:0,n:0};o.n++;if(String(u.owner||'').trim())o.o++;nm.set(k,o)}));
+  let none=0;nm.forEach(o=>{if(!o.o)none++});
+  sub.push(`Cấp ủy chưa quan tâm đúng mức, thiếu đôn đốc thường xuyên: ${fmt(none)}/${fmt(nm.size)} đơn vị (${pc(none,nm.size)}) chưa phân công cán bộ phụ trách ở cả ${cs.length}/${cs.length} thủ tục hồ sơ; ${fmt(m.zeroUnits.length)}/${fmt(N)} đơn vị (${pc(m.zeroUnits.length,N)}) chưa phát sinh tiến độ ở bất kỳ thủ tục nào.`)}
+ if(fee){const dn=fee.p.units.filter(u=>Number(u.dvccreated||0)<Number(u.dvctotal||0)).length,bn=fee.p.units.filter(u=>Number(u.bankcreated||0)<Number(u.banktotal||0)).length;
+  sub.push(`Thu nộp đảng phí: còn ${fmt(Math.max(0,fee.t.dvcNeed-fee.t.dvc))}/${fmt(fee.t.dvcNeed)} tài khoản dịch vụ công (${pc(Math.max(0,fee.t.dvcNeed-fee.t.dvc),fee.t.dvcNeed)}) và ${fmt(Math.max(0,fee.t.bankNeed-fee.t.bank))}/${fmt(fee.t.bankNeed)} tài khoản ngân hàng (${pc(Math.max(0,fee.t.bankNeed-fee.t.bank),fee.t.bankNeed)}) chưa được tạo; ${fmt(dn)} đơn vị chưa tạo đủ tài khoản DVC, ${fmt(bn)} đơn vị chưa tạo đủ tài khoản ngân hàng; ${fmt(fee.t.count-(fee.t.collected||0))}/${fmt(fee.t.count)} đơn vị chưa hoàn thành thu trong kỳ.`)}
+ if(cs.length){obj.push(`Số hồ sơ phát sinh phụ thuộc nhu cầu thực tế của đảng viên (chuyển sinh hoạt đảng, xin nhận xét nơi cư trú) nên không đồng đều: ${L(x=>`${fmt(x.withData)}/${fmt(x.t.count)} đơn vị đã phát sinh hồ sơ, ${fmt(x.t.count-x.withData)} đơn vị (${pc(x.t.count-x.withData,x.t.count)}) chưa có hồ sơ nào, tổng ${fmt(x.t.received)} hồ sơ tiếp nhận`)}.`);
+  const rj=L(x=>`${fmt(Math.max(0,x.t.received-x.t.need))} hồ sơ bị từ chối/${fmt(x.t.received)} tiếp nhận`);
+  obj.push(`Một bộ phận hồ sơ không đủ điều kiện xử lý nên bị từ chối, không tính vào số phải xử lý: ${rj}.`)}
+ const now=new Date(),dm=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+ obj.push(`Thủ tục thực hiện trên môi trường điện tử còn mới, thời gian vận hành chưa dài; số liệu tính đến ${m.stamp}, kỳ báo cáo mới qua ${now.getDate()}/${dm} ngày của tháng (${rptPct(now.getDate()/dm)}).`);
+ if(fee)obj.push(`Hạ tầng công nghệ, đường truyền ở vùng sâu, vùng xa chưa ổn định; một bộ phận đảng viên (nhất là cao tuổi, vùng cao) chưa quen tài khoản, định danh điện tử: mới có ${fmt(fee.t.dvc)}/${fmt(fee.t.dvcNeed)} tài khoản dịch vụ công (${pc(fee.t.dvc,fee.t.dvcNeed)}) và ${fmt(fee.t.bank)}/${fmt(fee.t.bankNeed)} tài khoản ngân hàng (${pc(fee.t.bank,fee.t.bankNeed)}) được tạo.`);
+ obj.push(`Tài khoản quản trị dịch vụ công mới kích hoạt ${fmt(m.admin.activated)}/${fmt(m.admin.accounts)} (${pc(m.admin.activated,m.admin.accounts)}), còn ${fmt(Math.max(0,m.admin.accounts-m.admin.activated))} tài khoản chưa kích hoạt; hồ sơ liên thông nhiều cấp phải chờ đơn vị khác xử lý, số liệu đồng bộ từ hệ thống có độ trễ (cập nhật lúc ${m.stamp}).`);
+ return{intro,sub,obj,note:'Các số liệu trên lấy từ hệ thống theo dõi tại thời điểm lập báo cáo; phần nhận định nguyên nhân là đánh giá sơ bộ, đề nghị các đơn vị bổ sung, làm rõ theo thực tế qua bảng “Khó khăn, đề xuất” trên Google Sheets.'}}
 function rptZeroShort(zero,i){return zero.length<=10?rptZeroList(zero,i):'xem danh sách tại Phụ lục 01 (cột Trạng thái).'}
 function rptZeroList(zero,i){const n=zero.map(r=>String(r.u.unit).replace(/^Đảng bộ (xã |phường )/,''));return n.join(', ')+'.'}
 function rptDownload(blob,name,w){w=w&&!w.closed?w:window;const d=w.document,U=w.URL||URL;
