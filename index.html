@@ -796,10 +796,10 @@ function rptHTML(m){
  body+=H('I. TÌNH HÌNH CHUNG')+rptNarrative(m).map(t=>P(esc(t))).join('');
  {const t1=rptT1(m);body+=cap('Bảng 1. Tổng hợp tiến độ theo thủ tục')+T(t1.head,t1.rows,t1.w,t1.c,{bc:[3],bl:1})}
  body+=H('II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC');
- m.procs.forEach((x,i)=>{const isD=/đảng phí/i.test(x.p.short),isC=/cư trú/i.test(x.p.short),top=isD?x.rows.filter(r=>r.v>=.9999):isC?x.rows.filter(r=>r.v>=.9):x.rows.filter(r=>r.v>=.5).slice(0,5),zero=x.rows.filter(r=>r.v<=0);
+ m.procs.forEach((x,i)=>{const isD=/đảng phí/i.test(x.p.short),isC=/cư trú/i.test(x.p.short),top=isD?x.rows.filter(r=>collectedRatio(r.u.collected)>=1):isC?x.rows.filter(r=>r.v>=.9):x.rows.filter(r=>r.v>=.5).slice(0,5),zero=x.rows.filter(r=>r.v<=0);
   body+=`<h3>${i+1}. ${esc(x.p.short)} — tiến độ bình quân ${rptPct(x.t.average)}</h3>`;
   body+=P(esc(`${rptProcText(x)} Có ${fmt(x.owners)}/${fmt(x.t.count)} đơn vị đã phân công cán bộ phụ trách, ${fmt(x.guided)} đơn vị đã hướng dẫn quy trình.`));
-  body+=P(`<b>${isD?`Đơn vị dẫn đầu (đạt 100% tiến độ${top.length?': '+fmt(top.length)+' đơn vị':''}): `:isC?`Đơn vị dẫn đầu (đạt từ 90% tiến độ${top.length?': '+fmt(top.length)+' đơn vị':''}): `:'Đơn vị dẫn đầu (đạt từ 50% tiến độ): '}</b>${esc(top.length?top.map(r=>r.u.unit+(isD?'':' ('+rptPct(r.v)+')')).join('; ')+'.':isD?'chưa có đơn vị đạt 100% tiến độ.':isC?'chưa có đơn vị đạt từ 90% tiến độ trở lên.':'chưa có đơn vị đạt từ 50% tiến độ trở lên.')}`);
+  body+=P(`<b>${isD?`Đơn vị dẫn đầu (đạt 100% thu trong kỳ${top.length?': '+fmt(top.length)+' đơn vị':''}): `:isC?`Đơn vị dẫn đầu (đạt từ 90% tiến độ${top.length?': '+fmt(top.length)+' đơn vị':''}): `:'Đơn vị dẫn đầu (đạt từ 50% tiến độ): '}</b>${esc(top.length?top.map(r=>r.u.unit+(isD?'':' ('+rptPct(r.v)+')')).join('; ')+'.':isD?'chưa có đơn vị đạt 100% thu trong kỳ.':isC?'chưa có đơn vị đạt từ 90% tiến độ trở lên.':'chưa có đơn vị đạt từ 50% tiến độ trở lên.')}`);
   if(zero.length)body+=P(`<b class="w"><i>Chưa triển khai (${zero.length}): </i></b>${esc(rptZeroShort(zero,i))}`)});
  const D=m.dues,R=D?['IV','V','VI']:['III','IV','V'],BN=D?[3,4]:[2,3];
  if(D){body+=H(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>P(esc(t))).join('');
@@ -1123,10 +1123,10 @@ function exportReportDocx(m,w){
  body+=para([run('Bảng 1. Tổng hợp tiến độ theo thủ tục',{b:true,sz:24})],{keep:true,before:80,jc:'left'});
  {const t1=rptT1(m);body+=table(t1.head,t1.rows,t1.w,t1.c,{bc:[3],bl:1})}
  body+=h('II. KẾT QUẢ TRIỂN KHAI TỪNG THỦ TỤC');
- m.procs.forEach((x,i)=>{const isD=/đảng phí/i.test(x.p.short),isC=/cư trú/i.test(x.p.short),top=isD?x.rows.filter(r=>r.v>=.9999):isC?x.rows.filter(r=>r.v>=.9):x.rows.filter(r=>r.v>=.5).slice(0,5),zero=x.rows.filter(r=>r.v<=0);
+ m.procs.forEach((x,i)=>{const isD=/đảng phí/i.test(x.p.short),isC=/cư trú/i.test(x.p.short),top=isD?x.rows.filter(r=>collectedRatio(r.u.collected)>=1):isC?x.rows.filter(r=>r.v>=.9):x.rows.filter(r=>r.v>=.5).slice(0,5),zero=x.rows.filter(r=>r.v<=0);
   body+=para([run(`${i+1}. ${x.p.short} — tiến độ bình quân ${rptPct(x.t.average)}`,{b:true})],{keep:true,before:80,jc:'left'});
   body+=para(`${rptProcText(x)} Có ${fmt(x.owners)}/${fmt(x.t.count)} đơn vị đã phân công cán bộ phụ trách, ${fmt(x.guided)} đơn vị đã hướng dẫn quy trình.`,{ind:true});
-  body+=para([run(isD?`Đơn vị dẫn đầu (đạt 100% tiến độ${top.length?': '+fmt(top.length)+' đơn vị':''}): `:isC?`Đơn vị dẫn đầu (đạt từ 90% tiến độ${top.length?': '+fmt(top.length)+' đơn vị':''}): `:'Đơn vị dẫn đầu (đạt từ 50% tiến độ): ',{b:true}),run(top.length?top.map(r=>r.u.unit+(isD?'':' ('+rptPct(r.v)+')')).join('; ')+'.':isD?'chưa có đơn vị đạt 100% tiến độ.':isC?'chưa có đơn vị đạt từ 90% tiến độ trở lên.':'chưa có đơn vị đạt từ 50% tiến độ trở lên.')],{ind:true});
+  body+=para([run(isD?`Đơn vị dẫn đầu (đạt 100% thu trong kỳ${top.length?': '+fmt(top.length)+' đơn vị':''}): `:isC?`Đơn vị dẫn đầu (đạt từ 90% tiến độ${top.length?': '+fmt(top.length)+' đơn vị':''}): `:'Đơn vị dẫn đầu (đạt từ 50% tiến độ): ',{b:true}),run(top.length?top.map(r=>r.u.unit+(isD?'':' ('+rptPct(r.v)+')')).join('; ')+'.':isD?'chưa có đơn vị đạt 100% thu trong kỳ.':isC?'chưa có đơn vị đạt từ 90% tiến độ trở lên.':'chưa có đơn vị đạt từ 50% tiến độ trở lên.')],{ind:true});
   if(zero.length)body+=para([run(`Chưa triển khai (${zero.length}): `,{b:true,i:true,color:'8A3B12'}),run(rptZeroShort(zero,i))],{ind:true})});
  const D=m.dues,R=D?['IV','V','VI']:['III','IV','V'],BN=D?[3,4]:[2,3];
  if(D){body+=h(`III. KẾT QUẢ THU NỘP ĐẢNG PHÍ TRONG KỲ ${D.month.toUpperCase()}`)+rptDuesText(D).map(t=>para(t,{ind:true})).join('');
