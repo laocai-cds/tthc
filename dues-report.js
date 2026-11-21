@@ -84,7 +84,7 @@
       '</style></head><body>' +
       '<div class="hd"><div><p class="b14">TỈNH ỦY LÀO CAI</p><p>HỆ THỐNG THEO DÕI TTHC</p><p>*</p></div><div><p class="b15">ĐẢNG CỘNG SẢN VIỆT NAM</p><div class="ln"></div><p><i>' + esc(dateLine) + '</i></p></div></div>' +
       '<p class="t1">BÁO CÁO</p><p class="t2">' + esc(title) + '</p><p class="t2">-----</p><p class="meta">' + esc(meta) + '</p>' + body +
-      '<div class="sign"><div><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- Các đảng bộ, chi bộ trực thuộc;<br>- Lưu.</span></div><div class="r"><b>NGƯỜI LẬP BÁO CÁO</b></div></div></body></html>';
+      '<div class="sign"><div><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- Các đảng bộ, chi bộ trực thuộc;<br>- Lưu.</span></div><div class="r"><b>HỆ THỐNG TỰ ĐỘNG</b></div></div></body></html>';
   }
   const tbl = (head, rows, cls, small) => '<table' + (small ? ' class="sm"' : '') + '><thead><tr>' + head.map(h => '<th>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' +
     rows.map(r => '<tr' + (r.tot ? ' class="tot"' : '') + '>' + r.map((v, i) => '<td' + (cls[i] ? ' class="' + cls[i] + '"' : '') + '>' + esc(v) + '</td>').join('') + '</tr>').join('') + '</tbody></table>';

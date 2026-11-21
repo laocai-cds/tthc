@@ -421,7 +421,7 @@
       '<h2>I. TÌNH HÌNH CHUNG</h2>' + c.paras.map(t => '<p class="i">' + esc(t) + '</p>').join('') +
       '<p class="cap">Bảng 1. Kết quả thực hiện 04 thủ tục hành chính của ' + esc(c.name) + '</p>' + htmlTable(c.head, c.rows, widths) +
       '<h2>II. ĐỀ XUẤT, KIẾN NGHỊ</h2>' + c.rec.map(t => '<p class="i">- ' + esc(t) + '</p>').join('') +
-      '<div class="sign"><div class="l"><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- ' + esc(c.name) + ';<br>- Lưu.</span></div><div class="r"><b>NGƯỜI LẬP BÁO CÁO</b></div></div></section>';
+      '<div class="sign"><div class="l"><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- ' + esc(c.name) + ';<br>- Lưu.</span></div><div class="r"><b>HỆ THỐNG TỰ ĐỘNG</b></div></div></section>';
   }
   const nowStamp = () => { const d = new Date(), z = n => String(n).padStart(2, '0'); return z(d.getHours()) + ':' + z(d.getMinutes()) + ' ' + z(d.getDate()) + '/' + z(d.getMonth() + 1) + '/' + d.getFullYear(); };
   function unitSlug(name) { return fold(name).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
