@@ -71,6 +71,7 @@
     if (!document.querySelector('#unitDetailOverlay.open')) document.body.style.overflow = '';
     if (last && last.focus) try { last.focus({ preventScroll: true }); } catch (x) {}
   }
+  window.openPanelPopup = open;
   box.addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-pt]');
     if (b) open(Number(b.dataset.pt));
