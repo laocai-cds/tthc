@@ -1,0 +1,32 @@
+/* Hai nút màu "Tiến độ theo thủ tục" và "Tình hình tổng hợp" (thay cho hai khối cũ), cùng kiểu với các thẻ thống kê */
+section.middle{display:none!important}
+#panelTiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px}
+#panelTiles .card{--g1:#0f766e;--g2:#2dd4bf;--glow:15,118,110;position:relative;overflow:hidden;isolation:isolate;min-height:96px;padding:14px 16px;border:0;border-radius:16px;color:#fff;text-align:left;font:inherit;cursor:pointer;
+ background:linear-gradient(135deg,var(--g1) 0%,var(--g2) 100%);box-shadow:0 10px 26px rgba(var(--glow),.32),inset 0 1px 0 rgba(255,255,255,.28);display:flex;flex-direction:column;gap:6px;
+ transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s,filter .25s;-webkit-tap-highlight-color:transparent}
+#panelTiles .card:nth-child(2){--g1:#a21caf;--g2:#e879f9;--glow:162,28,175}
+#panelTiles .card::before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(120px 120px at 100% 0%,rgba(255,255,255,.28),transparent 70%),radial-gradient(90px 90px at 0% 110%,rgba(255,255,255,.16),transparent 70%),repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0 2px,transparent 2px 12px);pointer-events:none}
+#panelTiles .card::after{content:"";position:absolute;z-index:-1;width:130px;height:130px;right:-42px;bottom:-60px;border-radius:50%;background:rgba(255,255,255,.14);transition:transform .5s}
+#panelTiles .card:hover{transform:translateY(-4px);filter:saturate(1.15) brightness(1.04);box-shadow:0 18px 38px rgba(var(--glow),.45),0 0 0 1px rgba(255,255,255,.35) inset}
+#panelTiles .card:hover::after{transform:scale(1.25)}
+#panelTiles .card:active{transform:translateY(-1px)}
+#panelTiles .card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;color:rgba(255,255,255,.95);font-size:12px;font-weight:800;letter-spacing:.35px;text-transform:uppercase;line-height:1.25}
+#panelTiles .card-symbol{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.2);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 10px rgba(0,0,0,.12)}
+#panelTiles .card-symbol svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#panelTiles .card-foot{margin-top:auto;color:rgba(255,255,255,.9);font-size:10.5px;font-weight:600;line-height:1.35}
+#panelTiles .kpi-go{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,.22);color:#fff;font-size:9.5px;font-weight:800;white-space:nowrap}
+@media(max-width:760px){#panelTiles{gap:10px}#panelTiles .card{min-height:104px;padding:12px}}
+@media(prefers-reduced-motion:reduce){#panelTiles .card,#panelTiles .card::after{transition:none}#panelTiles .card:hover{transform:none}}
+
+/* Popup chứa nội dung của khối cũ */
+#panelPopup .pt-body{flex:1;min-height:140px;overflow:auto;padding:12px 14px 16px;background:#f6f8fc}
+#panelPopup .pt-body>.panel{margin:0!important;border:0!important;box-shadow:none!important;background:transparent!important;transform:none!important;padding:0!important}
+#panelPopup .pt-body>.panel>.panel-head{display:none!important}
+#panelPopup .pt-body .panel-body{display:grid!important}
+#panelPopup .pt-body .panel-toggle{display:none!important}
+#panelPopup .pt-body .bar-name{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;max-width:none!important}
+@media(max-width:640px){
+ #panelPopup{align-items:flex-end}
+ #panelPopup .pu-dlg{height:auto!important;max-height:88vh!important;max-height:88dvh!important;border-radius:20px 20px 0 0}
+ #panelPopup .pu-head{flex-wrap:nowrap}
+}
