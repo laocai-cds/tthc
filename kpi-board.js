@@ -91,7 +91,7 @@
       tile('done', 'complete', 'Thủ tục hoàn thành', nf(s.done), pc(sh.g) + ' số lượt đã đạt 100%') +
       tile('prog', 'in-progress', 'Đang triển khai', nf(s.started), pc(sh.o) + ' số lượt đã phát sinh tiến độ') +
       tile('none', 'not-started', 'Chưa triển khai', nf(s.none), pc(sh.r) + ' số lượt chưa phát sinh') +
-      tile('sum', 'sum', 'Tình hình tổng hợp', nf(s.dvc) + '<small>/' + nf(s.dvct) + '</small>', 'Tài khoản DVC đã tạo · hồ sơ · ngân hàng', true) +
+      tile('sum', 'sum', 'Tổng hợp', nf(s.dvc) + '<small>/' + nf(s.dvct) + '</small>', 'Tài khoản DVC đã tạo · hồ sơ · ngân hàng', true) +
       tile('todo', 'need', 'Cần đôn đốc', nf(s.need.length), 'Chưa có cán bộ phụ trách, chưa hướng dẫn quy trình hoặc chỉ số thấp (&lt;20%)') +
       '</div>';
     document.documentElement.classList.add('kb-on');
