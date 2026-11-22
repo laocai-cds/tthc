@@ -4,7 +4,7 @@
   var cardsEl = document.getElementById('cards');
   if (!cardsEl || document.getElementById('kpiBoard')) return;
   var link = document.createElement('link');
-  link.rel = 'stylesheet'; link.href = 'kpi-board.css?v=1';
+  link.rel = 'stylesheet'; link.href = 'kpi-board.css?v=2';
   document.body.appendChild(link);
 
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };

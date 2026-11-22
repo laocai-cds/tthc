@@ -55,3 +55,9 @@ html.kb-on #cards,html.kb-on #panelTiles{display:none!important}
 #needListOverlay .nd-tag.o{background:#fff1f2;color:#be123c}
 #needListOverlay .nd-tag.g{background:#fff7e6;color:#a8620b}
 #needListOverlay .pu-chips{flex-wrap:wrap}
+
+/* Hai nút "Bảng xếp hạng" dưới các thẻ Top 03: mỗi nút một màu riêng */
+html body #leaderboard .lb-more,html body button.lb-more{background:linear-gradient(135deg,#1e3a8a,#3b82f6)!important;border:1px solid #1e3a8a!important;color:#fff!important;-webkit-text-fill-color:#fff!important;box-shadow:0 6px 16px rgba(30,58,138,.28)!important;text-shadow:none!important}
+html body #duesRankOpen{background:linear-gradient(135deg,#7a0c22,#e11d48)!important;border:1px solid #7a0c22!important;color:#fff!important;-webkit-text-fill-color:#fff!important;box-shadow:0 6px 16px rgba(122,12,34,.28)!important;text-shadow:none!important}
+html body #leaderboard .lb-more *,html body #duesRankOpen *{color:#fff!important;-webkit-text-fill-color:#fff!important}
+html body #leaderboard .lb-more:hover,html body #duesRankOpen:hover{filter:brightness(1.08)}
