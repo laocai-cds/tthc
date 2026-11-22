@@ -4,7 +4,7 @@
   var cardsEl = document.getElementById('cards');
   if (!cardsEl || document.getElementById('kpiBoard')) return;
   var link = document.createElement('link');
-  link.rel = 'stylesheet'; link.href = 'kpi-board.css?v=2';
+  link.rel = 'stylesheet'; link.href = 'kpi-board.css?v=3';
   document.body.appendChild(link);
 
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
@@ -26,22 +26,25 @@
   cardsEl.before(board);
 
   /* ---------- tính số liệu ---------- */
+  var LOW = 0.2; /* chỉ số thấp: tiến độ một thủ tục dưới 20% */
   function need() {
     var map = new Map();
     data.procedures.forEach(function (p) {
       p.units.forEach(function (u) {
         var name = String(u.unit || '').trim(); if (!name) return;
         var noOwner = !u.owner, noGuide = u.guided !== 'Có';
-        if (!noOwner && !noGuide) return;
-        var it = map.get(name) || { name: name, owner: [], guide: [] };
+        var pv = progressM(p, u), isLow = pv < LOW;
+        if (!noOwner && !noGuide && !isLow) return;
+        var it = map.get(name) || { name: name, owner: [], guide: [], low: [] };
         var label = p.short || p.name || '';
+        if (isLow) it.low.push(label + ' ' + nf(pv * 100, 0) + '%');
         if (noOwner) it.owner.push(label);
         if (noGuide) it.guide.push(label);
         map.set(name, it);
       });
     });
     return Array.from(map.values()).sort(function (a, b) {
-      return (b.owner.length + b.guide.length) - (a.owner.length + a.guide.length) || a.name.localeCompare(b.name, 'vi');
+      return (b.owner.length + b.guide.length + b.low.length) - (a.owner.length + a.guide.length + a.low.length) || a.name.localeCompare(b.name, 'vi');
     });
   }
   function stats() {
@@ -89,7 +92,7 @@
       tile('prog', 'in-progress', 'Đang triển khai', nf(s.started), pc(sh.o) + ' số lượt đã phát sinh tiến độ') +
       tile('none', 'not-started', 'Chưa triển khai', nf(s.none), pc(sh.r) + ' số lượt chưa phát sinh') +
       tile('sum', 'sum', 'Tình hình tổng hợp', nf(s.dvc) + '<small>/' + nf(s.dvct) + '</small>', 'Tài khoản DVC đã tạo · hồ sơ · ngân hàng', true) +
-      tile('todo', 'need', 'Cần đôn đốc', nf(s.need.length), 'Đơn vị chưa có cán bộ phụ trách hoặc chưa hướng dẫn quy trình') +
+      tile('todo', 'need', 'Cần đôn đốc', nf(s.need.length), 'Chưa có cán bộ phụ trách, chưa hướng dẫn quy trình hoặc chỉ số thấp (&lt;20%)') +
       '</div>';
     document.documentElement.classList.add('kb-on');
   }
@@ -140,21 +143,22 @@
   function paintList() {
     var all = need(), nq = norm(q);
     var list = all.filter(function (r) {
-      var okF = filt === 'all' || (filt === 'owner' && r.owner.length) || (filt === 'guide' && r.guide.length);
+      var okF = filt === 'all' || (filt === 'owner' && r.owner.length) || (filt === 'guide' && r.guide.length) || (filt === 'low' && r.low.length);
       return okF && (!nq || norm(r.name).indexOf(nq) >= 0);
     });
     ov.querySelector('#ndList').innerHTML = list.length ? list.map(function (r, i) {
       var tags = '';
       if (r.owner.length) tags += '<span class="nd-tag o">Chưa có cán bộ phụ trách: ' + esc(r.owner.join(', ')) + '</span>';
       if (r.guide.length) tags += '<span class="nd-tag g">Chưa hướng dẫn quy trình: ' + esc(r.guide.join(', ')) + '</span>';
-      return '<button type="button" class="nd-row" data-nd-unit="' + esc(r.name) + '"><div class="nd-top"><span class="nd-no">' + (i + 1) + '</span><span class="nd-name">' + esc(r.name) + '</span><span class="nd-cnt">' + (r.owner.length + r.guide.length) + ' việc</span></div><div class="nd-tags">' + tags + '</div></button>';
+      if (r.low.length) tags += '<span class="nd-tag l">Chỉ số thấp: ' + esc(r.low.join(', ')) + '</span>';
+      return '<button type="button" class="nd-row" data-nd-unit="' + esc(r.name) + '"><div class="nd-top"><span class="nd-no">' + (i + 1) + '</span><span class="nd-name">' + esc(r.name) + '</span><span class="nd-cnt">' + (r.owner.length + r.guide.length + r.low.length) + ' việc</span></div><div class="nd-tags">' + tags + '</div></button>';
     }).join('') : '<div class="pu-empty">Không có đơn vị cần đôn đốc.</div>';
     ov.querySelector('#ndCount').textContent = 'Hiển thị ' + list.length + ' / ' + all.length + ' đơn vị · bấm một đơn vị để xem chi tiết';
   }
   function paint() {
-    var all = need(), nO = all.filter(function (r) { return r.owner.length; }).length, nG = all.filter(function (r) { return r.guide.length; }).length;
+    var all = need(), nO = all.filter(function (r) { return r.owner.length; }).length, nG = all.filter(function (r) { return r.guide.length; }).length, nL = all.filter(function (r) { return r.low.length; }).length;
     ov.querySelector('#ndNum').textContent = all.length;
-    var C = [['all', 'Tất cả', all.length], ['owner', 'Chưa có cán bộ phụ trách', nO], ['guide', 'Chưa hướng dẫn quy trình', nG]];
+    var C = [['all', 'Tất cả', all.length], ['owner', 'Chưa có cán bộ phụ trách', nO], ['guide', 'Chưa hướng dẫn quy trình', nG], ['low', 'Chỉ số thấp', nL]];
     ov.querySelector('#ndChips').innerHTML = C.map(function (c) {
       return '<button type="button" class="pu-chip' + (filt === c[0] ? ' on' : '') + '" data-nd-f="' + c[0] + '">' + c[1] + '<b>' + c[2] + '</b></button>';
     }).join('');
