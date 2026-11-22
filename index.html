@@ -5094,7 +5094,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.mainLabel();d=d|
 .mkb-tip .r{display:flex;justify-content:space-between;gap:10px;color:#c9c3e6}.mkb-tip .r em{font-style:normal;font-weight:800;color:#fff}
 .mkb-legend{position:absolute;right:16px;bottom:32px;z-index:2;display:flex;gap:12px;font-size:10.5px;color:#cfc8ea;pointer-events:none}
 .mkb-legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
-@media(max-width:640px){.mkb canvas{height:320px}.mkb-tabs button{padding:5px 7px}.mkb-ttl b{font-size:15px}.mkb-idx strong{font-size:24px}.mkb-legend{display:none}}
+@media(max-width:640px){.mkb canvas{height:320px}.mkb-tabs{width:100%;box-sizing:border-box}.mkb-tabs button{flex:1 1 0;min-width:0;padding:6px 1px;font-size:9.5px;letter-spacing:-.2px;white-space:nowrap}.mkb-tabs{gap:1px}.mkb-ttl b{font-size:15px}.mkb-idx strong{font-size:24px}.mkb-legend{display:none}}
 
 </style>
 <script id="mkb-script">
@@ -5119,7 +5119,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.mainLabel();d=d|
   const key='mkb.last.'+mode;let prev=null;try{prev=JSON.parse(localStorage.getItem(key)||'null')}catch(e){}
   const idx=avg*100;document.getElementById('mkbIdx').textContent=idx.toLocaleString('vi-VN',{minimumFractionDigits:2,maximumFractionDigits:2});
   const chg=document.getElementById('mkbChg');
-  if(prev&&Math.abs(prev.v-idx)>=0.005){const d=idx-prev.v;chg.textContent=(d>=0?'▲ +':'▼ ')+d.toLocaleString('vi-VN',{maximumFractionDigits:2})+' so với '+new Date(prev.t).toLocaleDateString('vi-VN');chg.className=d>=0?'':'dn'}
+  if(prev&&Math.abs(prev.v-idx)>=0.005){const d=idx-prev.v;const pd=new Date(prev.t),same=pd.toDateString()===new Date().toDateString();chg.textContent=(d>=0?'▲ +':'▼ ')+d.toLocaleString('vi-VN',{maximumFractionDigits:2})+' so với '+(same?'lúc '+pd.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):pd.toLocaleDateString('vi-VN'));chg.className=d>=0?'':'dn'}
   else chg.textContent=units.length+' đơn vị';
   try{if(!prev||Date.now()-prev.t>6*3600e3)localStorage.setItem(key,JSON.stringify({v:idx,t:Date.now()}))}catch(e){}
   document.getElementById('mkbTabs').innerHTML=[['all','Tổng hợp'],...data.procedures.map((p,i)=>[String(i),SHORT[p.id]||p.short])].map(t=>`<button type="button" data-mkb="${t[0]}" class="${mode===t[0]?'on':''}">${t[1]}</button>`).join('');
@@ -5148,7 +5148,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.mainLabel();d=d|
   {const C=Math.max(2,Math.floor(W/(W<700?135:190))),colW=W/C,rowH=26,SPD=reduce?0:(H/4.6); // ~4,6 giây đi hết chiều cao
    if(bgLanes.length!==C)bgLanes=Array.from({length:C},(_,k)=>({sp:.85+((k*37)%7)/20,off:(k*53)%97}));
    ctx.textAlign='center';
-   bg.forEach(b=>{const c=b.i%C,slot=Math.floor(b.i/C),ln=bgLanes[c],n=Math.ceil(bg.length/C),Lp=Math.max(H+rowH*2,n*rowH);
+   (W<700?[]:bg).forEach(b=>{const c=b.i%C,slot=Math.floor(b.i/C),ln=bgLanes[c],n=Math.ceil(bg.length/C),Lp=Math.max(H+rowH*2,n*rowH);
     const pos=((slot*rowH+ln.off+t*SPD*ln.sp)%Lp+Lp)%Lp,y=H+rowH-pos; // tăng dần → chạy lên
     if(y<-rowH||y>H+rowH)return;
     const ph=Math.min(1,Math.max(0,y/H)),depth=Math.sin(ph*Math.PI); // cong như mặt trống: giữa rõ, hai đầu mờ và nhỏ
@@ -5191,7 +5191,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.mainLabel();d=d|
    // chỉ số tổng trên đỉnh cột
    const lab=(u.v*100).toLocaleString('vi-VN',{maximumFractionDigits:u.v>=.995?0:1})+'%',ly=Math.max(T-14,Math.min(yh,top)-9);
    ctx.fillStyle=hv||fa>.4?'#fff':(up?'#7dffc8':mid?'#ffe7a3':'#ffc2cd');ctx.lineWidth=3;ctx.strokeStyle='rgba(10,8,30,.6)';
-   const every=Math.max(1,Math.ceil(10/cw)),showLab=cw>=10||p.j%every===0||p.j===units.length-1||hv;
+   const every=Math.max(1,Math.ceil((W<700?30:10)/cw)),showLab=cw>=10||p.j%every===0||p.j===units.length-1||hv;
    if(!showLab){}else if(cw<26){const lb=(u.v*100).toFixed(u.v>=.995?0:1).replace('.',',');ctx.save();ctx.translate(p.x+3.5,Math.min(yh,top)-4);ctx.rotate(-Math.PI/2);ctx.font=`800 ${cw<9?8:9.5}px "Segoe UI",Arial`;ctx.textAlign='left';ctx.strokeText(lb,0,0);ctx.fillText(lb,0,0);ctx.restore()}
    else{ctx.font=`800 ${cw>46?12:10.5}px "Segoe UI",Arial`;ctx.textAlign='center';ctx.strokeText(lab,p.x,ly);ctx.fillText(lab,p.x,ly)}
    if(cw>=34){ctx.textAlign='center';ctx.font=`600 ${cw>46?10:9}px "Segoe UI",Arial`;ctx.fillStyle='rgba(255,255,255,.55)';const nm=SH(u.name);ctx.fillText(nm.length>9?nm.slice(0,8)+'…':nm,p.x,ly-12)}
