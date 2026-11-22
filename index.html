@@ -1781,7 +1781,9 @@ function build(){
  overlay.addEventListener('click',function(e){
   if(e.target===overlay||e.target.closest('.ud-close')||e.target.closest('[data-ud-close]'))return close();
   var go=e.target.closest('[data-ud-table]');
-  if(go){var name=go.dataset.udTable,input=document.getElementById('search');if(input)input.value=name;query=name;page=1;renderTable();close();var tp=document.querySelector('.table-panel');if(tp)tp.scrollIntoView({behavior:'smooth',block:'start'})}
+  if(go){var name=go.dataset.udTable;close();
+   if(window.openProgressTable){window.openProgressTable();setTimeout(function(){var q=document.getElementById('tpQ');if(!q)return;q.value=name;q.dispatchEvent(new Event('input',{bubbles:true}));var tr=document.querySelector('#tpBody tr[data-u="'+(window.CSS&&CSS.escape?CSS.escape(name):name)+'"]');if(tr){tr.scrollIntoView({block:'center'});tr.classList.add('tp-flash');setTimeout(function(){tr.classList.remove('tp-flash')},2400)}},80)}
+   else{var input=document.getElementById('search');if(input)input.value=name;query=name;page=1;renderTable();var tp=document.querySelector('.table-panel');if(tp)tp.scrollIntoView({behavior:'smooth',block:'start'})}}
  });
 }
 function open(name){
@@ -1789,7 +1791,7 @@ function open(name){
  var rows=getOverallRankingRows(),idx=rows.findIndex(function(r){return r.unit===name}),avg=idx>=0?rows[idx].average:0,found=data.procedures.map(function(p){return p.units.find(function(u){return String(u.unit||'').trim()===name})});
  var done=0,run=0,none=0;data.procedures.forEach(function(p,i){var u=found[i];if(!u)return;var v=progressM(p,u);if(v>=.999)done++;else if(v>0)run++;else none++});
  var rank=idx+1,cls=rank===1?'gold':rank===2?'silver':rank===3?'bronze':'';
- body.innerHTML='<div class="ud-hero"><span class="ud-medal '+cls+'">'+(idx>=0?String(rank).padStart(2,'0'):'—')+'</span><div class="ud-title"><small>Chỉ số các thủ tục hành chính</small><h2 id="udTitle">'+esc(name)+'</h2><div class="ud-chips"><span class="ud-chip">Hạng <b>'+(idx>=0?rank:'—')+'</b> / '+fmt(rows.length)+' đơn vị</span><span class="ud-chip"><b>'+done+'</b> hoàn thành</span><span class="ud-chip"><b>'+run+'</b> đang triển khai</span><span class="ud-chip"><b>'+none+'</b> chưa triển khai</span></div></div><div class="ud-total ud-total-ring" style="--a:#f2ca63;--a2:#ffb347"><div class="ud-tr">'+udRing(avg,92,9)+'<div class="ud-tr-in"><strong>'+pct(avg)+'</strong></div></div><span>Tiến độ tổng</span></div></div><div class="ud-grid">'+data.procedures.map(function(p,i){return card(p,i,found[i])}).join('')+'</div><div class="ud-foot"><button class="ud-btn" type="button" data-ud-table="'+esc(name)+'">Xem trong bảng theo dõi</button><button class="ud-btn primary" type="button" data-ud-close>Đóng</button></div>';
+ body.innerHTML='<div class="ud-hero"><span class="ud-medal '+cls+'">'+(idx>=0?String(rank).padStart(2,'0'):'—')+'</span><div class="ud-title"><small>Chỉ số các thủ tục hành chính</small><h2 id="udTitle">'+esc(name)+'</h2><div class="ud-chips"><span class="ud-chip">Hạng <b>'+(idx>=0?rank:'—')+'</b> / '+fmt(rows.length)+' đơn vị</span><span class="ud-chip"><b>'+done+'</b> hoàn thành</span><span class="ud-chip"><b>'+run+'</b> đang triển khai</span><span class="ud-chip"><b>'+none+'</b> chưa triển khai</span></div></div><div class="ud-total ud-total-ring" style="--a:#f2ca63;--a2:#ffb347"><div class="ud-tr">'+udRing(avg,92,9)+'<div class="ud-tr-in"><strong>'+pct(avg)+'</strong></div></div><span>Tiến độ tổng</span></div></div><div class="ud-grid">'+data.procedures.map(function(p,i){return card(p,i,found[i])}).join('')+'</div><div class="ud-foot"><button class="ud-btn" type="button" data-ud-table="'+esc(name)+'">Cập nhật tiến độ</button><button class="ud-btn primary" type="button" data-ud-close>Đóng</button></div>';
  lastFocus=document.activeElement;overlay.classList.add('open');document.body.style.overflow='hidden';
  var c=overlay.querySelector('.ud-close');if(c)c.focus({preventScroll:true});overlay.querySelector('.ud-dialog').scrollTop=0;
 }
@@ -4194,7 +4196,7 @@ html body .dd-tools{padding:0 10px 8px!important}
  document.addEventListener('keydown',e=>{if(!isOpen())return;const ud=document.getElementById('unitDetailOverlay');if(ud&&ud.classList.contains('open'))return;if(e.key==='Escape')close();else if(e.key==='/'&&document.activeElement!==$('tpQ')){e.preventDefault();$('tpQ').focus()}},true);
  /* Tự làm mới khi dữ liệu đồng bộ lại */
  if(typeof window.render==='function'){const orig=window.render;window.render=function(...a){const r=orig.apply(this,a);if(isOpen())try{refresh()}catch(e){}return r}}
- document.addEventListener('click',e=>{if(isOpen()&&e.target.closest('[data-ud-table]'))close()});
+ 
  window.openProgressTable=open;
 })();
 </script>
@@ -5648,6 +5650,7 @@ function periodText(d){if(!d&&window.DuesMonth)return DuesMonth.mainLabel();d=d|
 .app .content>.heading.hero .hm-tabs button{font-size:8.5px}
 }
 </style>
+<style id="tp-flash-css">#tpBody tr.tp-flash td{animation:tpFlash 2.4s ease}@keyframes tpFlash{0%,60%{background:#fff3c4}100%{background:transparent}}</style>
 <style id="hero-align">
 /* Căn đều 3 khối đầu trang: cùng chiều cao, tiêu đề 'Đơn vị thấp nhất' 1 dòng */
 #heroLow .hv-head{min-width:0}
