@@ -1,0 +1,56 @@
+/* Chế độ app: chỉ áp dụng khi mở từ icon đã cài (html.app-mode) và màn hình điện thoại/máy tính bảng nhỏ. */
+#appBar,#appTabs,#appSheet{display:none}
+@media (max-width:900px){
+html.app-mode body{padding-top:calc(54px + env(safe-area-inset-top))!important;background:#f3f6fb!important}
+html.app-mode .sidebar,html.app-mode .sidebar-collapse-toggle,html.app-mode .xa-slide,html.app-mode .ad-strip,
+html.app-mode #heroVideo,html.app-mode .mkb,html.app-mode .page-footer{display:none!important}
+html.app-mode .main{margin-left:0!important;width:100%!important;max-width:100%!important}
+html.app-mode .app{padding-bottom:calc(74px + env(safe-area-inset-bottom))!important}
+
+/* Thanh trên: chỉ giữ dòng thông báo chạy; các nút chuyển xuống mục "Thêm" */
+html.app-mode .topbar{position:static!important;height:auto!important;min-height:0!important;padding:8px 12px 2px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+html.app-mode .topbar .crumb{display:none!important}
+html.app-mode .topbar .top-actions{display:none!important}
+html.app-mode .topbar .ticker{margin:0!important;flex:1 1 100%!important;width:100%!important}
+html.app-mode .content{padding:10px 12px 18px!important}
+html.app-mode .hero{gap:12px!important}
+
+/* Thanh tiêu đề app */
+html.app-mode #appBar{display:flex;position:fixed;z-index:12;left:0;right:0;top:0;align-items:center;gap:10px;
+ padding:calc(7px + env(safe-area-inset-top)) 12px 7px;color:#fff;
+ background:radial-gradient(120% 220% at 0% 0%,rgba(235,50,80,.42),transparent 62%),linear-gradient(180deg,#7a0c22,#4a0a22);
+ box-shadow:0 2px 14px rgba(40,4,16,.35)}
+html.app-mode #appBar img{width:40px;height:30px;object-fit:contain;border-radius:7px;background:#fff;padding:2px}
+html.app-mode #appBar .ab-t{min-width:0;flex:1;line-height:1.15}
+html.app-mode #appBar .ab-t b{display:block;font-size:15px;letter-spacing:.03em;white-space:nowrap}
+html.app-mode #appBar .ab-t small{display:block;font-size:10.5px;color:#ffd9de;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html.app-mode #abClock{font:700 13px/1 "Segoe UI",Arial,sans-serif;padding:6px 9px;border-radius:10px;background:rgba(255,255,255,.16);font-variant-numeric:tabular-nums}
+html.app-mode #appBar button{width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:11px;background:rgba(255,255,255,.16);color:#fff}
+html.app-mode #appBar button svg,html.app-mode #appTabs svg,html.app-mode #appSheet svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Thanh điều hướng dưới */
+html.app-mode #appTabs{display:flex;position:fixed;z-index:12;left:0;right:0;bottom:0;
+ padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #e5eaf2;box-shadow:0 -6px 22px rgba(24,43,68,.1)}
+html.app-mode #appTabs button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border:0;border-radius:12px;
+ background:transparent;color:#728198;font:600 10.5px/1.1 "Segoe UI",Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+html.app-mode #appTabs button.on{color:#7a0c22;background:#fdecee}
+html.app-mode #appTabs button span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Bảng chọn trượt từ dưới lên */
+html.app-mode #appSheet{position:fixed;z-index:12;inset:0;display:none}
+html.app-mode #appSheet.open{display:block}
+html.app-mode #appSheet .as-back{position:absolute;inset:0;background:rgba(20,8,16,.5)}
+html.app-mode #appSheet .as-panel{position:absolute;left:0;right:0;bottom:0;max-height:78vh;max-height:78dvh;overflow:auto;background:#fff;border-radius:20px 20px 0 0;
+ padding:8px 14px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.3);animation:asUp .22s ease-out}
+@keyframes asUp{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+html.app-mode #appSheet .as-grab{width:42px;height:4px;border-radius:4px;background:#d5dbe6;margin:2px auto 10px}
+html.app-mode #appSheet h3{margin:0 2px 8px;font-size:15px;color:#182b44}
+html.app-mode #appSheet .as-row{display:flex;align-items:center;gap:12px;width:100%;padding:11px 8px;border:0;border-bottom:1px solid #eef1f6;background:transparent;text-align:left;color:#182b44;font:inherit}
+html.app-mode #appSheet .as-row:last-child{border-bottom:0}
+html.app-mode #appSheet .as-ico{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#fdecee;color:#7a0c22}
+html.app-mode #appSheet .as-tx{flex:1;min-width:0}
+html.app-mode #appSheet .as-tx b{display:block;font-size:14px;font-weight:650}
+html.app-mode #appSheet .as-tx small{display:block;color:#728198;font-size:12px}
+html.app-mode #appSheet .as-pct{flex:none;font-weight:800;font-size:14px;color:#7a0c22}
+html.app-mode #appSheet .as-row.back{color:#7a0c22;font-weight:700}
+}
