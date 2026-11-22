@@ -245,12 +245,12 @@ body{background:radial-gradient(ellipse at 92% 2%,#e2eaff 0,transparent 34%),lin
 <div class="hl-list" id="hlList"></div>
 </section>
 <style id="hero-video-style">
-.hl-list{flex:1;overflow:auto;max-height:300px}
-.hl-t{width:100%;border-collapse:collapse;font-size:12px}
-.hl-t th{position:sticky;top:0;background:#fff6ef;color:#8f0b12;font-size:10.5px;text-align:left;padding:5px 4px}
-.hl-t td{padding:5px 4px;border-top:1px solid #f3e6e1}
+.hl-list{flex:1;overflow-x:hidden;overflow-y:auto;max-height:260px}
+.hl-t{width:100%;table-layout:fixed;border-collapse:collapse;font-size:11px}.hl-t th:first-child,.hl-t td:first-child{width:22px}.hl-t th:last-child,.hl-t td:last-child{width:56px;text-align:right}
+.hl-t th{position:sticky;top:0;background:#fff6ef;color:#8f0b12;font-size:10px;text-align:left;padding:3px 4px}
+.hl-t td{padding:2px 4px;border-top:1px solid #f3e6e1}
 .hl-t tbody tr{cursor:pointer}.hl-t tbody tr:hover{background:#fff2ee}
-.hl-n{font-weight:650;color:#172c4a}
+.hl-n{font-weight:650;color:#172c4a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hero:has(#heroLow) .hero-main{flex:1 1 190px}
 .hv{position:relative;flex:1 1 280px;width:auto;max-width:340px;min-width:0;display:flex;flex-direction:column;gap:6px;padding:9px 12px;border:1px solid #f0dfd9;border-radius:14px;background:linear-gradient(135deg,#fff 55%,#fff6ef);box-shadow:0 4px 12px rgba(23,44,74,.06)}
 .hv-head{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;font-weight:800;color:#8f0b12;letter-spacing:.3px;text-transform:uppercase}
@@ -299,14 +299,14 @@ body{background:radial-gradient(ellipse at 92% 2%,#e2eaff 0,transparent 34%),lin
  function draw(){
   if(typeof getOverallRankingRows!=='function'||typeof data==='undefined'||!data||!data.procedures||!data.procedures.length)return;
   var rows=getOverallRankingRows().slice().sort(function(a,b){return a.average-b.average||a.unit.localeCompare(b.unit,'vi')}).slice(0,10);
-  el.innerHTML='<table class="hl-t"><thead><tr><th>#</th><th>Đơn vị</th><th>Tiến độ bình quân</th></tr></thead><tbody>'+rows.map(function(r,i){
+  el.innerHTML='<table class="hl-t"><thead><tr><th>#</th><th>Đơn vị</th><th>Tiến độ</th></tr></thead><tbody>'+rows.map(function(r,i){
    var v=Math.round(r.average*1000)/10,c=v<20?'#be123c':v<50?'#a8620b':'#0f766e';
    return '<tr data-unit-detail="'+esc(r.unit)+'" title="Bấm để xem chi tiết"><td>'+(i+1)+'</td><td class="hl-n">'+esc(r.unit)+'</td><td><b style="color:'+c+'">'+v.toLocaleString('vi-VN',{minimumFractionDigits:1})+'%</b></td></tr>';
   }).join('')+'</tbody></table>';
  }
  var p=false;function sch(){if(p)return;p=true;requestAnimationFrame(function(){p=false;try{draw()}catch(e){console.error('hero-low',e)}})}
  if(cards)new MutationObserver(sch).observe(cards,{childList:true});
- sch();
+ sch();setInterval(sch,3000);
  el.addEventListener('click',function(ev){var r=ev.target.closest('[data-unit-detail]');if(r&&window.openUnitDetail)window.openUnitDetail(r.dataset.unitDetail)});
 })();
 </script>
