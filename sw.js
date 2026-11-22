@@ -1,7 +1,7 @@
 /* Service worker của DVC Lào Cai: ưu tiên mạng (luôn lấy bản mới nhất), chỉ dùng bản lưu khi mất mạng.
    Không bao giờ lưu yêu cầu tới Google Sheets / Apps Script / Firebase / gqtthc (khác nguồn gốc). */
-const CACHE = 'tthc-shell-v2';
-const SHELL = ['./app-mode.css', './app-mode.js', './', './manifest.webmanifest', './logo.png', './app-icons/icon-192.png', './app-icons/icon-512.png'];
+const CACHE = 'tthc-shell-v3';
+const SHELL = ['./app-mode.css', './app-mode.js', './status-popup.js', './', './manifest.webmanifest', './logo.png', './app-icons/icon-192.png', './app-icons/icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
