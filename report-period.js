@@ -393,34 +393,75 @@
     const when = P ? P.label : 'lũy kế đến thời điểm hiện tại', pc = v => rptPct(v);
     const cs = f.procs.filter(q => q.x.p.kind === 'case'), fee = f.procs.find(q => q.x.p.kind === 'fee');
     const sorted = [...f.procs].sort((a, b) => (b.v || 0) - (a.v || 0));
+    const bd = t => '«' + t + '»', num = v => Number(v || 0), own = q => String(q.r && q.r.u.owner || '').trim(), gdd = q => !!(q.r && /^(có|co|x|1|true|☑)/i.test(String(q.r.u.guided || '').trim()));
+    const half = f.ri + 1 <= Math.ceil(N / 2), gap = 0.5 - avg;
     const paras = [];
-    paras.push(name + ' đạt tiến độ tổng ' + pc(avg) + ' trên 04 thủ tục hành chính, xếp hạng ' + fmt(f.ri + 1) + '/' + fmt(N) + ' đơn vị; ' + (diff >= 0 ? 'cao hơn' : 'thấp hơn') + ' bình quân chung (' + pc(m.avg) + ') ' + pc(Math.abs(diff)).replace('%', '') + ' điểm %.');
-    paras.push('Tiến độ từng thủ tục: ' + sorted.map(q => '“' + q.x.p.short + '” ' + pc(q.v)).join('; ') + '. Cao nhất là “' + sorted[0].x.p.short + '” (' + pc(sorted[0].v) + '); thấp nhất là “' + sorted[sorted.length - 1].x.p.short + '” (' + pc(sorted[sorted.length - 1].v) + ').');
-    const rc = cs.reduce((a, q) => a + Number(q.r ? q.r.u.received || 0 : 0), 0), dn = cs.reduce((a, q) => a + Number(q.r ? q.r.u.done || 0 : 0), 0), pend = cs.reduce((a, q) => a + Math.max(0, Number(q.r ? q.r.u.need || 0 : 0) - Number(q.r ? q.r.u.done || 0 : 0)), 0);
-    if (cs.length) paras.push('Ba thủ tục về hồ sơ ghi nhận ' + fmt(rc) + ' hồ sơ tiếp nhận; đã xử lý xong ' + fmt(dn) + ' hồ sơ' + (rc > 0 ? ', đạt ' + pc(dn / rc) + ' số hồ sơ tiếp nhận' : '') + '; còn ' + fmt(pend) + ' hồ sơ phải xử lý chưa hoàn thành.');
-    if (f.dr) paras.push('Thu nộp đảng phí ' + f.D.month + ': ' + fmt(f.dr.need) + ' đảng viên thuộc diện phải nộp, ' + fmt(f.dr.dn) + ' đảng viên đã nộp (' + rptPctD(f.dr.r) + '); số tiền đã nộp ' + fmt(f.dr.nop) + ' đồng/' + fmt(f.dr.kb) + ' đồng theo hồ sơ đã khai báo; còn ' + fmt(f.dr.chua) + ' đảng viên chưa có hồ sơ.' + (fee && fee.r && fee.r.u.dvctotal != null ? ' Tài khoản dịch vụ công ' + fmt(fee.r.u.dvccreated || 0) + '/' + fmt(fee.r.u.dvctotal || 0) + ', tài khoản ngân hàng ' + fmt(fee.r.u.bankcreated || 0) + '/' + fmt(fee.r.u.banktotal || 0) + '.' : ''));
-    const head = ['Thủ tục', 'Tiến độ', 'Hồ sơ tiếp nhận', 'Hồ sơ phải xử lý', 'Hồ sơ xử lý xong', 'Cán bộ phụ trách', 'Đã hướng dẫn', 'Trạng thái'];
+    paras.push((P ? 'Trong ' + when : 'Tính đến thời điểm lập báo cáo') + ', ' + name + ' triển khai thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử, gồm: ' + f.procs.map(q => q.x.p.short).join('; ') + '. Qua số liệu tổng hợp từ hệ thống, đơn vị đạt tiến độ bình quân ' + bd(pc(avg)) + ', xếp hạng ' + bd(fmt(f.ri + 1) + '/' + fmt(N)) + ' đơn vị trực thuộc Tỉnh ủy (thuộc nhóm ' + (half ? 'nửa trên' : 'nửa dưới') + ' của bảng xếp hạng); ' + (diff >= 0 ? 'cao hơn' : 'thấp hơn') + ' mức bình quân chung (' + pc(m.avg) + ') là ' + bd(pc(Math.abs(diff)).replace('%', '') + ' điểm phần trăm') + (gap > 0.0005 ? ', và còn cách ngưỡng 50% là ' + pc(gap).replace('%', '') + ' điểm phần trăm.' : ', đã vượt ngưỡng 50%.'));
+    const hi = sorted[0], lo = sorted[sorted.length - 1];
+    paras.push('Kết quả giữa các thủ tục ' + (num(hi.v) - num(lo.v) >= 0.2 ? 'chênh lệch rõ rệt' : 'tương đối đồng đều') + ': cao nhất là “' + hi.x.p.short + '” đạt ' + bd(pc(hi.v)) + '; thấp nhất là “' + lo.x.p.short + '” đạt ' + bd(pc(lo.v)) + '. Chi tiết từng thủ tục: ' + sorted.map(q => '“' + q.x.p.short + '” ' + pc(q.v)).join('; ') + '.');
+    const rc = cs.reduce((a, q) => a + num(q.r ? q.r.u.received : 0), 0), dn = cs.reduce((a, q) => a + num(q.r ? q.r.u.done : 0), 0), nd = cs.reduce((a, q) => a + num(q.r ? q.r.u.need : 0), 0), pend = cs.reduce((a, q) => a + Math.max(0, num(q.r ? q.r.u.need : 0) - num(q.r ? q.r.u.done : 0)), 0);
+    if (cs.length) paras.push('Về hồ sơ, ba thủ tục ghi nhận ' + bd(fmt(rc) + ' hồ sơ') + ' tiếp nhận, trong đó có ' + bd(fmt(nd) + ' hồ sơ') + ' phải xử lý; đã xử lý xong ' + bd(fmt(dn) + ' hồ sơ') + (nd > 0 ? ', đạt ' + bd(pc(dn / nd)) + ' số hồ sơ phải xử lý' : '') + '; còn ' + bd(fmt(pend) + ' hồ sơ') + ' chưa hoàn thành.');
+    if (f.dr) paras.push('Về thu nộp đảng phí ' + f.D.month + ', có ' + bd(fmt(f.dr.need)) + ' đảng viên thuộc diện phải nộp; đã nộp ' + bd(fmt(f.dr.dn)) + ' đảng viên (' + bd(rptPctD(f.dr.r)) + '); số tiền đã nộp ' + bd(fmt(f.dr.nop) + ' đồng') + '/' + fmt(f.dr.kb) + ' đồng theo hồ sơ đã khai báo; còn ' + fmt(f.dr.chua) + ' đảng viên chưa có hồ sơ.' + (fee && fee.r && fee.r.u.dvctotal != null ? ' Tài khoản dịch vụ công ' + fmt(fee.r.u.dvccreated || 0) + '/' + fmt(fee.r.u.dvctotal || 0) + ', tài khoản ngân hàng ' + fmt(fee.r.u.bankcreated || 0) + '/' + fmt(fee.r.u.banktotal || 0) + '.' : ''));
+    /* II. Kết quả từng thủ tục */
+    const secs = f.procs.map(q => {
+      const u = q.r ? q.r.u : {}, ps = [], sn = q.x.p.short;
+      if (q.x.p.kind === 'fee') {
+        if (f.dr) {
+          const chua = Math.max(0, num(f.dr.need) - num(f.dr.dn)), tien = num(f.dr.kb) - num(f.dr.nop);
+          ps.push('Có ' + bd(fmt(f.dr.need)) + ' đảng viên thuộc diện phải nộp; đã nộp ' + bd(fmt(f.dr.dn)) + ' đảng viên, đạt ' + bd(rptPctD(f.dr.r)) + '. Về số tiền, đã nộp ' + bd(fmt(f.dr.nop) + ' đồng') + '/' + bd(fmt(f.dr.kb) + ' đồng') + ' theo hồ sơ đã khai báo' + (tien > 0 ? '; còn ' + bd(fmt(tien) + ' đồng') + ' chưa nộp' : '') + '. ' + (chua > 0 ? 'Hiện còn ' + bd(fmt(chua)) + ' đảng viên chưa nộp' : 'Toàn bộ đảng viên thuộc diện phải nộp đã hoàn thành nghĩa vụ') + (num(f.dr.chua) === 0 ? '; không còn đảng viên nào chưa có hồ sơ.' : '; trong đó ' + fmt(f.dr.chua) + ' đảng viên chưa có hồ sơ.'));
+        }
+        if (u.dvctotal != null) { const dv = num(u.dvctotal) - num(u.dvccreated), bk = num(u.banktotal) - num(u.bankcreated); ps.push('Điều kiện thực hiện: tài khoản dịch vụ công ' + fmt(u.dvccreated || 0) + '/' + fmt(u.dvctotal || 0) + (dv > 0 ? ' (còn thiếu ' + fmt(dv) + ')' : ' (đầy đủ)') + '; tài khoản ngân hàng ' + fmt(u.bankcreated || 0) + '/' + fmt(u.banktotal || 0) + (bk > 0 ? ' (còn thiếu ' + fmt(bk) + ')' : ' (đầy đủ)') + '. ' + (dv > 0 || bk > 0 ? 'Việc chưa hoàn tất tài khoản là một trong những yếu tố cần ưu tiên tháo gỡ để đảng viên có thể nộp đảng phí trực tuyến.' : 'Điều kiện nền tảng đã đầy đủ; phần còn lại là đôn đốc đảng viên hoàn tất nghĩa vụ nộp.')); }
+      } else {
+        const rcv = num(u.received), nd1 = num(u.need), dn1 = num(u.done), pd = Math.max(0, nd1 - dn1);
+        if (!rcv && !nd1) ps.push('Trong kỳ báo cáo chưa phát sinh hồ sơ ở thủ tục này; tiến độ phản ánh việc chuẩn bị điều kiện thực hiện (phân công cán bộ, hướng dẫn quy trình).');
+        else ps.push('Tiếp nhận ' + bd(fmt(rcv) + ' hồ sơ') + ', phải xử lý ' + bd(fmt(nd1) + ' hồ sơ') + ', đã xử lý xong ' + bd(fmt(dn1) + ' hồ sơ') + (nd1 > 0 ? ' (' + bd(pc(dn1 / nd1)) + ')' : '') + (pd > 0 ? '; còn ' + bd(fmt(pd) + ' hồ sơ') + ' chưa hoàn thành, cần xử lý dứt điểm, không để quá thời hạn quy định.' : '; không còn hồ sơ tồn đọng.'));
+      }
+      ps.push('Cán bộ phụ trách: ' + (own(q) || 'chưa phân công') + '; ' + (gdd(q) ? 'đã hướng dẫn quy trình thực hiện.' : 'chưa hướng dẫn quy trình thực hiện.'));
+      return { title: sn + ' – tiến độ ' + pc(q.v), paras: ps };
+    });
+    /* III. Đánh giá chung */
+    const good = [], weak = [];
+    if (diff >= 0) good.push('Tiến độ bình quân (' + pc(avg) + ') cao hơn bình quân chung ' + pc(Math.abs(diff)).replace('%', '') + ' điểm phần trăm; xếp hạng ' + fmt(f.ri + 1) + '/' + fmt(N) + '.'); else if (half) good.push('Xếp hạng ' + fmt(f.ri + 1) + '/' + fmt(N) + ', thuộc nhóm nửa trên của bảng xếp hạng.');
+    f.procs.filter(q => num(q.v) >= 0.9).forEach(q => good.push('Thủ tục “' + q.x.p.short + '” đạt ' + pc(q.v) + '.'));
+    if (f.procs.every(q => own(q) && gdd(q))) good.push('Cả 04 thủ tục đều đã có cán bộ phụ trách và đã hướng dẫn quy trình thực hiện.');
+    if (f.dr && f.dr.r >= 0.8) good.push('Thu nộp đảng phí đạt ' + rptPctD(f.dr.r) + ' số đảng viên thuộc diện phải nộp.');
+    cs.filter(q => q.r && num(q.r.u.need) > 0 && num(q.r.u.done) >= num(q.r.u.need)).forEach(q => good.push('Đã xử lý xong toàn bộ ' + fmt(q.r.u.need) + ' hồ sơ thủ tục “' + q.x.p.short + '”.'));
+    if (!good.length) good.push('Đơn vị đã bước đầu triển khai các thủ tục trên hệ thống theo dõi.');
+    if (gap > 0.0005) weak.push('Tiến độ bình quân ' + pc(avg) + ' chưa đạt ngưỡng 50%.');
+    f.procs.filter(q => num(q.v) < 0.5 && !(q.x.p.kind === 'case' && q.r && num(q.r.u.need) > num(q.r.u.done))).forEach(q => weak.push('Thủ tục “' + q.x.p.short + '” mới đạt ' + pc(q.v) + '.'));
+    cs.filter(q => q.r && num(q.r.u.need) > num(q.r.u.done)).forEach(q => weak.push('Thủ tục “' + q.x.p.short + '” còn ' + fmt(num(q.r.u.need) - num(q.r.u.done)) + '/' + fmt(q.r.u.need) + ' hồ sơ phải xử lý chưa hoàn thành.'));
+    if (f.dr && f.dr.r < 0.95) weak.push('Còn ' + fmt(num(f.dr.need) - num(f.dr.dn)) + ' đảng viên chưa nộp đảng phí (tỷ lệ đã nộp ' + rptPctD(f.dr.r) + ').');
+    const noOw = f.procs.filter(q => !own(q)).map(q => '“' + q.x.p.short + '”'), noGu = f.procs.filter(q => !gdd(q)).map(q => '“' + q.x.p.short + '”');
+    if (noOw.length) weak.push('Chưa phân công cán bộ phụ trách thủ tục: ' + noOw.join(', ') + '.');
+    if (noGu.length) weak.push('Chưa hướng dẫn quy trình thực hiện thủ tục: ' + noGu.join(', ') + '.');
+    const owners = [...new Set(cs.map(own).filter(Boolean))];
+    if (cs.length > 1 && owners.length === 1 && pend > 0) weak.push('Cả ba thủ tục về hồ sơ do một cán bộ phụ trách (' + owners[0] + ') trong khi còn ' + fmt(pend) + ' hồ sơ tồn; cần xem xét tải công việc và cơ chế phối hợp.');
+    if (!weak.length) weak.push('Chưa ghi nhận tồn tại, hạn chế đáng kể trên hệ thống trong kỳ báo cáo.');
+    const head = ['Thủ tục', 'Tiến độ bình quân', 'Hồ sơ tiếp nhận', 'Hồ sơ phải xử lý', 'Hồ sơ xử lý xong', 'Cán bộ phụ trách', 'Đã hướng dẫn', 'Trạng thái'];
     const rows = f.procs.map(q => { const u = q.r ? q.r.u : {}, isC = q.x.p.kind === 'case'; return [q.x.p.short, pc(q.v), isC ? fmt(u.received || 0) : '—', isC ? fmt(u.need || 0) : '—', isC ? fmt(u.done || 0) : '—', String(u.owner || '').trim() || 'Chưa phân công', u.guided || 'Chưa', q.r ? q.r.st : '—']; });
     const rec = [];
-    const noOwn = f.procs.filter(q => !(q.r && String(q.r.u.owner || '').trim())).map(q => '“' + q.x.p.short + '”'), noGd = f.procs.filter(q => !(q.r && /^(có|co|x|1|true|☑)/i.test(String(q.r.u.guided || '').trim()))).map(q => '“' + q.x.p.short + '”');
-    if (noOwn.length) rec.push('Phân công cán bộ phụ trách đối với thủ tục: ' + noOwn.join(', ') + '.');
-    if (noGd.length) rec.push('Hướng dẫn quy trình thực hiện tới chi bộ, đảng viên đối với thủ tục: ' + noGd.join(', ') + '.');
-    cs.filter(q => q.r && Number(q.r.u.need || 0) > Number(q.r.u.done || 0)).forEach(q => rec.push('Thủ tục “' + q.x.p.short + '”: xử lý dứt điểm ' + fmt(Number(q.r.u.need || 0) - Number(q.r.u.done || 0)) + '/' + fmt(q.r.u.need || 0) + ' hồ sơ phải xử lý còn tồn, không để quá thời hạn quy định.'));
-    if (f.dr && f.dr.r < 0.95) rec.push('Thu nộp đảng phí: đôn đốc ' + fmt(f.dr.need - f.dr.dn) + ' đảng viên chưa nộp (tỷ lệ đã nộp ' + rptPctD(f.dr.r) + '), hướng dẫn kê khai, duyệt hồ sơ và nộp đảng phí trên môi trường điện tử ngay trong ' + f.D.month + '.');
-    if (fee && fee.r && Number(fee.r.u.dvccreated || 0) < Number(fee.r.u.dvctotal || 0)) rec.push('Hoàn tất tạo tài khoản dịch vụ công cho ' + fmt(Number(fee.r.u.dvctotal) - Number(fee.r.u.dvccreated || 0)) + ' đảng viên còn thiếu.');
-    if (fee && fee.r && Number(fee.r.u.bankcreated || 0) < Number(fee.r.u.banktotal || 0)) rec.push('Hoàn tất tạo tài khoản ngân hàng cho ' + fmt(Number(fee.r.u.banktotal) - Number(fee.r.u.bankcreated || 0)) + ' đảng viên còn thiếu.');
-    if (!rec.length) rec.push('Tiếp tục duy trì kết quả đã đạt, theo dõi và cập nhật đầy đủ số liệu trên hệ thống theo dõi.');
-    return { name, when, paras, head, rows, rec, f };
+    if (noOw.length) rec.push('«Phân công cán bộ phụ trách» đối với thủ tục: ' + noOw.join(', ') + '.');
+    if (noGu.length) rec.push('«Hướng dẫn quy trình» thực hiện tới chi bộ, đảng viên đối với thủ tục: ' + noGu.join(', ') + '.');
+    cs.filter(q => q.r && num(q.r.u.need) > num(q.r.u.done)).forEach(q => rec.push('Thủ tục «“' + q.x.p.short + '”»: xử lý dứt điểm ' + fmt(num(q.r.u.need) - num(q.r.u.done)) + '/' + fmt(q.r.u.need) + ' hồ sơ phải xử lý còn tồn; lập danh sách, phân loại theo thời hạn, ưu tiên hồ sơ sắp và đã quá hạn, không để quá thời hạn quy định.'));
+    if (f.dr && f.dr.r < 0.95) rec.push('Thu nộp đảng phí: đôn đốc ' + fmt(num(f.dr.need) - num(f.dr.dn)) + ' đảng viên chưa nộp (tỷ lệ đã nộp ' + rptPctD(f.dr.r) + '); giao các chi bộ rà soát, hướng dẫn kê khai, duyệt hồ sơ và nộp đảng phí trên môi trường điện tử ngay trong ' + f.D.month + '.');
+    if (fee && fee.r && num(fee.r.u.dvccreated) < num(fee.r.u.dvctotal)) rec.push('Hoàn tất tạo tài khoản dịch vụ công cho ' + fmt(num(fee.r.u.dvctotal) - num(fee.r.u.dvccreated)) + ' đảng viên còn thiếu.');
+    if (fee && fee.r && num(fee.r.u.bankcreated) < num(fee.r.u.banktotal)) rec.push('Hoàn tất tạo tài khoản ngân hàng cho ' + fmt(num(fee.r.u.banktotal) - num(fee.r.u.bankcreated)) + ' đảng viên còn thiếu.');
+    if (rec.length) rec.push('Cán bộ phụ trách thường xuyên theo dõi, cập nhật số liệu trên hệ thống; báo cáo kịp thời những vướng mắc để được chỉ đạo, tháo gỡ.');
+    else rec.push('Tiếp tục duy trì kết quả đã đạt, theo dõi và cập nhật đầy đủ số liệu trên hệ thống theo dõi.');
+    return { name, when, paras, secs, good, weak, head, rows, rec, f };
   }
+  const bdh = t => esc(t).replace(/«/g, '<b>').replace(/»/g, '</b>'), nb = t => String(t).replace(/[«»]/g, '');
   function unitSection(m, c, forDoc) {
     const P = m.period, base = orig.html(m);
     const hd = base.slice(base.indexOf('<div class="hd">'), base.indexOf('<div class="gap">'));
     const widths = [1900, 800, 1000, 1000, 1000, 1700, 800, 1100];
     const num = n => String(n);
     return '<section class="page">\n' + hd + '<div class="gap"></div>\n<p class="t1">BÁO CÁO</p><p class="t2">tình hình thực hiện 04 thủ tục hành chính của Đảng trên môi trường điện tử</p><p class="t2"><b>' + esc(c.name) + '</b></p><p class="t2">' + esc(c.when) + '</p>' + (P && P.range ? '<p class="meta" style="margin:0 0 1pt;font-size:12pt;color:#000">(' + esc(P.range) + ')</p>' : '') + '<p class="t2">-----</p>' + '<p class="meta" style="text-align:center">Xuất báo cáo lúc <span id="rptStamp">' + nowStamp() + '</span></p>' +
-      '<h2>I. TÌNH HÌNH CHUNG</h2>' + c.paras.map(t => '<p class="i">' + esc(t) + '</p>').join('') +
+      '<h2>I. TÌNH HÌNH CHUNG</h2>' + c.paras.map(t => '<p class="i">' + bdh(t) + '</p>').join('') +
       '<p class="cap">Bảng 1. Kết quả thực hiện 04 thủ tục hành chính của ' + esc(c.name) + '</p>' + htmlTable(c.head, c.rows, widths) +
-      '<h2>II. ĐỀ XUẤT, KIẾN NGHỊ</h2>' + c.rec.map(t => '<p class="i">- ' + esc(t) + '</p>').join('') +
+      '<h2>II. KẾT QUẢ THỰC HIỆN TỪNG THỦ TỤC</h2>' + c.secs.map((x, i) => '<h3>' + (i + 1) + '. ' + esc(x.title) + '</h3>' + x.paras.map(t => '<p class="i">' + bdh(t) + '</p>').join('')).join('') +
+      '<h2>III. ĐÁNH GIÁ CHUNG</h2><h3>1. Ưu điểm</h3>' + c.good.map(t => '<p class="i">- ' + bdh(t) + '</p>').join('') + '<h3>2. Tồn tại, hạn chế</h3>' + c.weak.map(t => '<p class="i">- ' + bdh(t) + '</p>').join('') +
+      '<h2>IV. ĐỀ XUẤT, KIẾN NGHỊ</h2>' + c.rec.map(t => '<p class="i">- ' + bdh(t) + '</p>').join('') +
       '<div class="sign"><div class="l"><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- ' + esc(c.name) + ';<br>- Lưu.</span></div><div class="r"><b>HỆ THỐNG TỰ ĐỘNG</b></div></div></section>';
   }
   const nowStamp = () => { const d = new Date(), z = n => String(n).padStart(2, '0'); return z(d.getHours()) + ':' + z(d.getMinutes()) + ' ' + z(d.getDate()) + '/' + z(d.getMonth() + 1) + '/' + d.getFullYear(); };
@@ -437,7 +478,7 @@
   }
   function unitXlsx(m, c, win) {
     const T = v => ({ v, s: 4 }), H = v => ({ v, s: 3 }), L = String.fromCharCode(64 + c.head.length);
-    const rows = [[{ v: 'BÁO CÁO TÌNH HÌNH THỰC HIỆN 04 THỦ TỤC HÀNH CHÍNH — ' + c.name.toUpperCase(), s: 1 }], [{ v: c.when + (m.period && m.period.range ? ' (' + m.period.range + ')' : ''), s: 2 }], [{ v: 'Nguồn số liệu: ' + m.source + ' · Xuất báo cáo lúc ' + nowStamp(), s: 8 }], [], c.head.map(H), ...c.rows.map(r => r.map(T)), [], ...c.paras.map(t => [{ v: t, s: 8 }]), [], [{ v: 'Đề xuất, kiến nghị', s: 7 }], ...c.rec.map(t => [{ v: '- ' + t, s: 8 }])];
+    const rows = [[{ v: 'BÁO CÁO TÌNH HÌNH THỰC HIỆN 04 THỦ TỤC HÀNH CHÍNH — ' + c.name.toUpperCase(), s: 1 }], [{ v: c.when + (m.period && m.period.range ? ' (' + m.period.range + ')' : ''), s: 2 }], [{ v: 'Nguồn số liệu: ' + m.source + ' · Xuất báo cáo lúc ' + nowStamp(), s: 8 }], [], c.head.map(H), ...c.rows.map(r => r.map(T)), [], ...c.paras.map(t => [{ v: nb(t), s: 8 }]), [], [{ v: 'Kết quả từng thủ tục', s: 7 }], ...[].concat(...c.secs.map(x => [[{ v: x.title, s: 7 }], ...x.paras.map(t => [{ v: nb(t), s: 8 }])])), [], [{ v: 'Ưu điểm', s: 7 }], ...c.good.map(t => [{ v: '- ' + nb(t), s: 8 }]), [{ v: 'Tồn tại, hạn chế', s: 7 }], ...c.weak.map(t => [{ v: '- ' + nb(t), s: 8 }]), [], [{ v: 'Đề xuất, kiến nghị', s: 7 }], ...c.rec.map(t => [{ v: '- ' + nb(t), s: 8 }])];
     const sheet = { name: 'Báo cáo đơn vị', rows, cols: [30, 12, 16, 16, 16, 26, 14, 18], freeze: 5, filter: 'A5:' + L + (5 + c.rows.length), merges: ['A1:' + L + '1', 'A2:' + L + '2', 'A3:' + L + '3'], heights: { 0: 30, 4: 36 } };
     root.rptDownload(root.rptXlsxBlob([sheet]), 'bao-cao-' + unitSlug(c.name) + '_' + m.fileStamp + '.xlsx', win);
   }
