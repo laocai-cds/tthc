@@ -124,10 +124,7 @@
      (applyFeeRates); ảnh chụp chỉ có giá trị thô trên Sheet nên áp lại theo bảng đảng phí của tháng chứa ngày ảnh chụp. */
   const normName = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().replace(/\s+/g, ' ').trim().replace(/ tinh lao cai$/, ' tinh');
   function feeRate(d) { const den = d.ct + d.tt - d.chuyen - d.mien; return (Math.round((den > 0 ? Math.min(100, d.dn / den * 100) : 0) * 100) / 100) + '%'; }
-  /* Tháng trước (mốc so sánh): số đảng viên đã nộp của tab tháng trước không đồng đều giữa các đơn vị (cột (6)+(7)+(8)+(9) không khớp số phải nộp),
-     nên mốc tháng trước lấy theo tiền đã nộp ÷ tiền theo hồ sơ khai báo (cột "Số tiền" của tab) — đã chọn ngày 23/11/2026. */
-  function feeRateMoney(d) { return (Math.round((d.kb > 0 ? Math.min(100, d.nop / d.kb * 100) : 0) * 100) / 100) + '%'; }
-  function procsFrom(snap, duesList, moneyBasis) {
+  function procsFrom(snap, duesList) {
     const dues = duesList ? new Map(duesList.map(d => [normName(d.name), d])) : null;
     return data.procedures.map(p => {
       const rows = p.kind === 'fee' ? snap.fee : (snap.procedures || {})[p.id], by = new Map((rows || []).map(r => [Number(r.id), r]));
@@ -136,7 +133,7 @@
       return Object.assign({}, p, {
         units: p.units.map(u => {
           const x = Object.assign({}, u, by.get(Number(u.id)) || blank, { raw: null });
-          if (p.kind === 'fee') { const d = dues && dues.get(normName(u.unit)); x.collected = d ? (moneyBasis ? feeRateMoney(d) : feeRate(d)) : u.collected; }
+          if (p.kind === 'fee') { const d = dues && dues.get(normName(u.unit)); x.collected = d ? feeRate(d) : u.collected; }
           return x;
         })
       });
@@ -186,7 +183,7 @@
     let monthly = null;
     if (!isM && curS && curS.list.length > 1 && per.type !== 'all') { const keep = window.__m03cur; try { monthly = curS.list.map(x => { window.__m03cur = x.mp; return { m: x.m, y: x.y, procs: applyMonth03(endProcs.filter(p => p.kind !== 'fee'), x.mp).map(p => ({ id: p.id, short: p.short, t: procedureTotals(p) })) }; }); } finally { window.__m03cur = keep; } }
     if (cur) {   // tháng có tab "03 THANG": hồ sơ lấy theo tab; đảng phí vẫn theo ảnh chụp đầu kỳ (nếu có)
-      const caseBase = prev ? applyMonth03(endProcs.filter(p => p.kind !== 'fee'), prev) : [], feeBase = base && prevDues ? procsFrom(base, prevDues, true).filter(p => p.kind === 'fee') : [];   // đảng phí: tỷ lệ thu so với tab tháng trước
+      const caseBase = prev ? applyMonth03(endProcs.filter(p => p.kind !== 'fee'), prev) : [], feeBase = base && prevDues ? procsFrom(base, prevDues).filter(p => p.kind === 'fee') : [];   // đảng phí: tỷ lệ thu so với tab tháng trước
       endProcs = applyMonth03(endProcs, cur); baseProcs = caseBase.concat(feeBase); if (!baseProcs.length) baseProcs = null;
     }
     return { per, live, endDate, endProcs, base, baseProcs, first: h.first || null, dues, monthTab: cur ? { y: per.y, n: per.n } : null, prevTab: cur && prev ? { y: pY, n: pM } : null, monthly, prevLabel: isM ? '' : prevLabelS, tabs: isM ? [String(per.n).padStart(2, '0') + '-' + per.y] : (curS ? curS.tabs : []), prevTabs: isM ? (prev ? [String(pM).padStart(2, '0') + '-' + pY] : []) : (prevS ? prevS.tabs : []) };
