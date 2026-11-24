@@ -470,7 +470,7 @@
       '<h2>II. KẾT QUẢ THỰC HIỆN TỪNG THỦ TỤC</h2>' + c.secs.map((x, i) => '<h3>' + (i + 1) + '. ' + esc(x.title) + '</h3>' + x.paras.map(t => '<p class="i">' + bdh(t) + '</p>').join('')).join('') +
       '<h2>III. ĐÁNH GIÁ CHUNG</h2><h3>1. Ưu điểm</h3>' + c.good.map(t => '<p class="i">- ' + bdh(t) + '</p>').join('') + '<h3>2. Tồn tại, hạn chế</h3>' + c.weak.map(t => '<p class="i">- ' + bdh(t) + '</p>').join('') +
       '<h2>IV. ĐỀ XUẤT, KIẾN NGHỊ</h2>' + c.rec.map(t => '<p class="i">- ' + bdh(t) + '</p>').join('') +
-      '<div class="sign"><div class="l"><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- ' + esc(c.name) + ';<br>- Lưu.</span></div><div class="r"><div class="stamp"><svg xmlns="http://www.w3.org/2000/svg" width="92" height="92" viewBox="0 0 92 92" style="display:block;margin:0 auto 2px"><circle cx="46" cy="46" r="43" fill="#eaf7ee" stroke="#1e8e3e" stroke-width="3"/><circle cx="46" cy="46" r="37" fill="none" stroke="#1e8e3e" stroke-width="1" stroke-dasharray="2 3"/><path d="M26 47l14 14 27-30" fill="none" stroke="#1e8e3e" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg><b style="color:#1e8e3e;font-size:11pt;letter-spacing:.5pt">HỆ THỐNG TỰ ĐỘNG</b><div style="font-size:9pt;color:#1e8e3e;margin-top:2px">Đóng dấu lúc ' + rptStampTime() + '</div></div></div></div></section>';
+      '<div class="sign"><div class="l"><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- ' + esc(c.name) + ';<br>- Lưu.</span></div><div class="r"><div class="stamp">' + rptStampSvg() + '</div></div></div></section>';
   }
   const nowStamp = () => { const d = new Date(), z = n => String(n).padStart(2, '0'); return z(d.getHours()) + ':' + z(d.getMinutes()) + ' ' + z(d.getDate()) + '/' + z(d.getMonth() + 1) + '/' + d.getFullYear(); };
   function unitSlug(name) { return fold(name).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
@@ -482,7 +482,7 @@
   function unitWord(m, c, win) {
     const base = orig.html(m), style = (base.match(/<style>[\s\S]*?<\/style>/) || [''])[0].replace('</style>', '.page{width:auto!important;margin:0!important;padding:0!important;box-shadow:none!important}.bar{display:none}@page{size:A4;margin:2cm 2cm 2cm 3cm}</style>');
     const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Báo cáo ' + esc(c.name) + '</title>' + style + '</head><body>' + unitSection(m, c, true) + '</body></html>';
-    root.rptDownload(new Blob(['﻿', html.replace(/<svg[\s\S]*?<\/svg>/g, '<div style="font:bold 40pt \'Segoe UI Symbol\';color:#1e8e3e;text-align:center">✔</div>')], { type: 'application/msword' }), 'bao-cao-' + unitSlug(c.name) + '_' + m.fileStamp + '.doc', win);
+    root.rptDownload(new Blob(['﻿', html.replace(/<svg[\s\S]*?<\/svg>/g, () => "<div style=\"font:bold 40pt 'Segoe UI Symbol';color:#1e8e3e;text-align:center\">✔</div><div style=\"font-size:9pt;color:#1e8e3e;text-align:center\">Đóng dấu lúc " + rptStampTime() + "</div>")], { type: 'application/msword' }), 'bao-cao-' + unitSlug(c.name) + '_' + m.fileStamp + '.doc', win);
   }
   function unitXlsx(m, c, win) {
     const T = v => ({ v, s: 4 }), H = v => ({ v, s: 3 }), L = String.fromCharCode(64 + c.head.length);
