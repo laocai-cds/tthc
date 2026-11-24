@@ -482,7 +482,7 @@
   function unitWord(m, c, win) {
     const base = orig.html(m), style = (base.match(/<style>[\s\S]*?<\/style>/) || [''])[0].replace('</style>', '.page{width:auto!important;margin:0!important;padding:0!important;box-shadow:none!important}.bar{display:none}@page{size:A4;margin:2cm 2cm 2cm 3cm}</style>');
     const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Báo cáo ' + esc(c.name) + '</title>' + style + '</head><body>' + unitSection(m, c, true) + '</body></html>';
-    root.rptDownload(new Blob(['﻿', html.replace(/<svg[\s\S]*?<\/svg>/g, () => "<div style=\"font:bold 40pt 'Segoe UI Symbol';color:#1e8e3e;text-align:center\">✔</div><div style=\"font-size:9pt;color:#1e8e3e;text-align:center\">Đóng dấu lúc " + rptStampTime() + "</div>")], { type: 'application/msword' }), 'bao-cao-' + unitSlug(c.name) + '_' + m.fileStamp + '.doc', win);
+    root.rptDownload(new Blob(['﻿', html.replace(/<svg[\s\S]*?<\/svg>/g, () => "<div style=\"font:bold 14pt Arial;color:#1e8e3e;text-align:center\">✔ Signature Valid</div><div style=\"font-size:10pt;text-align:center\">Ký bởi: <b>HỆ THỐNG TỰ ĐỘNG</b></div><div style=\"font-size:10pt;text-align:center\">Ngày ký: " + rptStampTime() + "</div>")], { type: 'application/msword' }), 'bao-cao-' + unitSlug(c.name) + '_' + m.fileStamp + '.doc', win);
   }
   function unitXlsx(m, c, win) {
     const T = v => ({ v, s: 4 }), H = v => ({ v, s: 3 }), L = String.fromCharCode(64 + c.head.length);
