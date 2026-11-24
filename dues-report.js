@@ -80,7 +80,7 @@
       '.cap{margin:6pt 0 3pt;font-weight:700;font-size:12pt;break-after:avoid;page-break-after:avoid}b.g{color:#8a5a00}b.w{color:#8a3b12}' +
       'table{border-collapse:collapse;width:100%;font-size:10pt;line-height:1.25;margin-bottom:8pt}th{background:#8f0b12;color:#fff;padding:2pt 3pt;border:.5pt solid #b8c0cc;font-size:9.5pt}' +
       'td{padding:1.5pt 3pt;border:.5pt solid #b8c0cc}tbody tr:nth-child(even) td{background:#f4f6fa}td.c{text-align:center}td.n{text-align:right}tr.tot td{font-weight:700;background:#fff4d6}tr{page-break-inside:avoid}thead{display:table-header-group}table.sm{font-size:8pt}table.sm th{font-size:7.5pt}table.sm td{padding:1.5pt 2pt}' +
-      '.sign{display:grid;grid-template-columns:1fr 1fr;margin-top:10pt;page-break-inside:avoid}.sign u{font-size:14pt}.sign span{font-size:11pt}.sign .r{text-align:center}' +
+      '.sign{display:grid;grid-template-columns:1fr 1fr;margin-top:10pt;page-break-inside:avoid}.sign u{font-size:14pt}.sign span{font-size:11pt}.sign .r{text-align:center}@media(max-width:700px){.sign{grid-template-columns:1fr;row-gap:14px}}' +
       '</style></head><body>' +
       '<div class="hd"><div><p class="b14">TỈNH ỦY LÀO CAI</p><p>HỆ THỐNG THEO DÕI TTHC</p><p>*</p></div><div><p class="b15">ĐẢNG CỘNG SẢN VIỆT NAM</p><div class="ln"></div><p><i>' + esc(dateLine) + '</i></p></div></div>' +
       '<p class="t1">BÁO CÁO</p><p class="t2">' + esc(title) + '</p><p class="t2">-----</p><p class="meta">' + esc(meta) + '</p>' + body +
