@@ -84,7 +84,7 @@
       '</style></head><body>' +
       '<div class="hd"><div><p class="b14">TỈNH ỦY LÀO CAI</p><p>HỆ THỐNG THEO DÕI TTHC</p><p>*</p></div><div><p class="b15">ĐẢNG CỘNG SẢN VIỆT NAM</p><div class="ln"></div><p><i>' + esc(dateLine) + '</i></p></div></div>' +
       '<p class="t1">BÁO CÁO</p><p class="t2">' + esc(title) + '</p><p class="t2">-----</p><p class="meta">' + esc(meta) + '</p>' + body +
-      '<div class="sign"><div><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- Các đảng bộ, chi bộ trực thuộc;<br>- Lưu.</span></div><div class="r"><b>HỆ THỐNG TỰ ĐỘNG</b></div></div></body></html>';
+      '<div class="sign"><div><u>Nơi nhận:</u><br><span>- Thường trực Tỉnh ủy (b/c);<br>- Văn phòng Tỉnh ủy;<br>- Các đảng bộ, chi bộ trực thuộc;<br>- Lưu.</span></div><div class="r"><div class="stamp"><svg xmlns="http://www.w3.org/2000/svg" width="92" height="92" viewBox="0 0 92 92" style="display:block;margin:0 auto 2px"><circle cx="46" cy="46" r="43" fill="#eaf7ee" stroke="#1e8e3e" stroke-width="3"/><circle cx="46" cy="46" r="37" fill="none" stroke="#1e8e3e" stroke-width="1" stroke-dasharray="2 3"/><path d="M26 47l14 14 27-30" fill="none" stroke="#1e8e3e" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg><b style="color:#1e8e3e;font-size:11pt;letter-spacing:.5pt">HỆ THỐNG TỰ ĐỘNG</b></div></div></div></body></html>';
   }
   const tbl = (head, rows, cls, small) => '<table' + (small ? ' class="sm"' : '') + '><thead><tr>' + head.map(h => '<th>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' +
     rows.map(r => '<tr' + (r.tot ? ' class="tot"' : '') + '>' + r.map((v, i) => '<td' + (cls[i] ? ' class="' + cls[i] + '"' : '') + '>' + esc(v) + '</td>').join('') + '</tr>').join('') + '</tbody></table>';
@@ -164,6 +164,7 @@
   }
   /* Word không hiểu CSS grid/@page của bản in → đổi sang bảng + khai báo trang A4 để bản Word giống bản PDF */
   function toWord(html) {
+    html = String(html).replace(/<svg[\s\S]*?<\/svg>/g, '<div style="font:bold 40pt \'Segoe UI Symbol\';color:#1e8e3e;text-align:center">✔</div>');
     const NB = 'border:none;border-collapse:collapse;';
     let h = html;
     h = h.replace(/<div class="hd"><div>([\s\S]*?)<\/div><div>([\s\S]*?)<div class="ln"><\/div>([\s\S]*?)<\/div><\/div>/,
