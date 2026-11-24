@@ -95,10 +95,11 @@
     const p = await gvizTab('HOAN THANH SOM', 1);
     root.__firstDone = p ? ((p.table.rows || []).map(r => r.c || []).map(c => ({ month: cellText(c[0]), unit: cellText(c[1]), when: cellText(c[2]) })).filter(x => x.month && x.unit)) : null;
   }
+  const xqAdj = d => { /* Xuân Quang: không tính Chi bộ thôn Cóc Mằn (1 đảng viên) vào thu trong kỳ */ if (/^dang bo xa xuan quang$/.test(String(d.name).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().replace(/\s+/g, ' ').trim()) && d.ct > 0 && d.t > 0 && d.ct + d.tt - d.chuyen - d.mien > d.dn) { d.t -= 1; d.ct -= 1; } return d; };
   function parseDues(p) {
     const rows = ((p && p.table && p.table.rows) || []).map(r => r.c || [])
       .filter(c => /^\d+$/.test(cellText(c[0]).replace(/\.0$/, '')) && cellText(c[1]))
-      .map(c => ({ name: cellText(c[1]), t: cellNum(c[2]), ct: cellNum(c[3]), tt: cellNum(c[4]), chuyen: cellNum(c[5]), mien: cellNum(c[6]), cd: cellNum(c[7]), dcn: cellNum(c[8]), dn: cellNum(c[9]), chua: cellNum(c[10]), kb: cellNum(c[11]), nop: cellNum(c[12]) }))
+      .map(c => xqAdj({ name: cellText(c[1]), t: cellNum(c[2]), ct: cellNum(c[3]), tt: cellNum(c[4]), chuyen: cellNum(c[5]), mien: cellNum(c[6]), cd: cellNum(c[7]), dcn: cellNum(c[8]), dn: cellNum(c[9]), chua: cellNum(c[10]), kb: cellNum(c[11]), nop: cellNum(c[12]) }))
       .filter(d => d.t > 0);
     return rows.length ? rows : null;
   }

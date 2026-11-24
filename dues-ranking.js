@@ -50,11 +50,13 @@
       sc.async = true; document.head.appendChild(sc);
     });
   }
+const xqAdj = d => { /* Xuân Quang: không tính Chi bộ thôn Cóc Mằn (1 đảng viên) vào thu trong kỳ */ if (/^dang bo xa xuan quang$/.test(String(d.name).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().replace(/\s+/g, ' ').trim()) && d.ct > 0 && d.t > 0 && d.ct + d.tt - d.chuyen - d.mien > d.dn) { d.t -= 1; d.ct -= 1; } return d; };
   function parse(p) {
     const rows = ((p && p.table && p.table.rows) || []).map(r => r.c || [])
       .filter(c => /^\d+$/.test(cellText(c[0]).replace(/\.0$/, '')) && cellText(c[1]))
       .map(c => {
         const d = { name: cellText(c[1]), t: cellNum(c[2]), ct: cellNum(c[3]), tt: cellNum(c[4]), chuyen: cellNum(c[5]), mien: cellNum(c[6]), dn: cellNum(c[9]), nop: cellNum(c[12]) };
+        xqAdj(d);
         d.need = Math.max(0, d.ct + d.tt - d.chuyen - d.mien);
         d.rate = d.need > 0 ? Math.min(100, d.dn / d.need * 100) : 0;
         return d;
