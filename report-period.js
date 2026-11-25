@@ -510,7 +510,7 @@
   }
   /* PDF toàn bộ đơn vị: gộp báo cáo của mọi đơn vị trong một tài liệu (mỗi đơn vị một trang mới), mở hộp thoại in để lưu thành một file PDF */
   function allUnitsPdf(m, win, btn) {
-    const names = m.ranking.map(r => r.unit).filter(Boolean), label = btn.textContent;
+    const names = m.ranking.map(r => r.unit).filter(Boolean).sort((a, b) => a.localeCompare(b, 'vi')), label = btn.textContent;
     const w2 = win.open('', '_blank'); if (!w2) { win.alert('Trình duyệt đang chặn cửa sổ mới. Hãy cho phép cửa sổ bật lên rồi thử lại.'); return; }
     try {
       btn.disabled = true; btn.textContent = 'Đang gộp ' + names.length + ' đơn vị…';
@@ -518,12 +518,38 @@
       const name = 'bao-cao-cac-don-vi_' + m.fileStamp;
       const head = (at < 0 ? pre : pre.slice(0, at)).replace(/<title>[\s\S]*?<\/title>/, '<title>' + name + '</title>');
       const bar = '<div class="bar"><b>📄 Báo cáo ' + names.length + ' đơn vị – ' + esc(m.period && m.period.label || '') + '</b><span class="sp"></span><button class="b-pdf" type="button" onclick="window.print()">🖨 In / Lưu PDF</button><div class="tip">Chọn “Lưu dưới dạng PDF”, khổ A4, tắt mục “Đầu trang và chân trang”. Mỗi đơn vị bắt đầu một trang mới.</div></div>';
-      let body = '', n = 0;
-      for (const nm of names) { const c = unitContent(m, nm); if (!c) continue; body += unitSection(m, c); n++; }
+      let body = '', n = 0; const toc = [];
+      for (const nm of names) { const c = unitContent(m, nm); if (!c) continue; n++; toc.push('<li><a href="#u-' + n + '">' + esc(c.name) + '</a></li>'); body += unitSection(m, c).replace('<section class="page">', '<section class="page" id="u-' + n + '">'); }
       if (!n) throw new Error('Không có báo cáo đơn vị nào.');
-      w2.document.open(); w2.document.write(head + bar + body + '\n</body></html>'); w2.document.close();
+      const tocHtml = '<section class="page" id="muc-luc"><p class="t1">MỤC LỤC</p><p class="t2">Báo cáo ' + n + ' đơn vị – ' + esc(m.period && m.period.label || '') + ' (xếp theo tên; bấm vào tên để tới báo cáo)</p><ol style="columns:2;column-gap:24px;font-size:11pt;line-height:1.5;margin-top:12px">' + toc.join('') + '</ol></section>';
+      w2.document.open(); w2.document.write(head + bar + tocHtml + body + '\n</body></html>'); w2.document.close();
       setTimeout(() => { try { w2.focus(); w2.print(); } catch (e) { /* người dùng bấm In thủ công */ } }, 800);
     } catch (e) { console.error(e); try { w2.close(); } catch (_) { /* đã đóng */ } win.alert('Không gộp được PDF: ' + ((e && e.message) || e)); }
+    finally { btn.disabled = false; btn.textContent = label; }
+  }
+  /* PDF từng đơn vị (pdfmake tự lưu trong vendor/pdfmake), gộp trong một file .zip */
+  const ASSET = (document.currentScript && document.currentScript.src) ? new URL('.', document.currentScript.src).href : location.href;
+  const loadJs = u => new Promise((ok, no) => { const e = document.createElement('script'); e.src = new URL(u, ASSET).href; e.onload = ok; e.onerror = () => no(new Error('Không tải được ' + u)); document.head.appendChild(e); });
+  let pdfLib = null;
+  const needPdfLib = () => pdfLib || (pdfLib = (async () => { if (!root.pdfMake) { await loadJs('vendor/pdfmake/pdfmake.min.js'); await loadJs('vendor/pdfmake/vfs_fonts.js'); } if (!root.rptUnitPdfDoc) await loadJs('report-pdf.js'); })().catch(e => { pdfLib = null; throw e; }));
+  const pdfBytes = def => new Promise((ok, no) => { try { root.pdfMake.createPdf(def).getBuffer(b => ok(b instanceof Uint8Array ? b : new Uint8Array(b))); } catch (e) { no(e); } });
+  async function allUnitsPdfZip(m, win, btn) {
+    const names = m.ranking.map(r => r.unit).filter(Boolean), entries = [], used = new Set(), label = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Đang tải bộ tạo PDF…';
+    try {
+      await needPdfLib();
+      const base = baseHtml(m), dl = (base.match(/<p><i>([^<]*)<\/i><\/p>/) || [])[1] || '', P = m.period;
+      const o = { dateLine: dl.replace(/&amp;/g, '&'), range: P && P.range || '', stamp: nowStamp(), signTime: rptStampTime() };
+      for (let i = 0; i < names.length; i++) {
+        if (win.closed) return;
+        const c = unitContent(m, names[i]); if (!c) continue;
+        let fn = 'bao-cao-' + (unitSlug(c.name) || 'don-vi-' + (i + 1)); while (used.has(fn)) fn += '-' + (i + 1); used.add(fn);
+        entries.push({ name: fn + '_' + m.fileStamp + '.pdf', data: await pdfBytes(root.rptUnitPdfDoc(c, o)) });
+        btn.textContent = 'Đang tạo PDF ' + (i + 1) + '/' + names.length + '…';
+      }
+      if (!entries.length) throw new Error('Không có báo cáo đơn vị nào để tải.');
+      root.rptDownload(root.rptZipBytes(entries), 'bao-cao-pdf-cac-don-vi_' + m.fileStamp + '.zip', win);
+    } catch (e) { console.error(e); win.alert('Không tạo được PDF: ' + ((e && e.message) || e)); }
     finally { btn.disabled = false; btn.textContent = label; }
   }
   function addZipBtn(win, m) {
@@ -534,6 +560,9 @@
     const p = d.createElement('button'); p.type = 'button'; p.id = 'rptPdfAll'; p.textContent = '🖨 PDF tất cả đơn vị';
     p.title = 'Gộp báo cáo của toàn bộ ' + m.ranking.length + ' đơn vị thành một file PDF (mỗi đơn vị một trang mới)'; p.style.cssText = 'background:#b3261e;color:#fff';
     bar.insertBefore(p, bar.querySelector('.tip')); p.onclick = () => allUnitsPdf(m, win, p);
+    const q = d.createElement('button'); q.type = 'button'; q.id = 'rptPdfZip'; q.textContent = '⬇ PDF từng đơn vị (.zip)';
+    q.title = 'Mỗi đơn vị một file PDF riêng, gộp trong một file nén; tên file theo tên đơn vị'; q.style.cssText = 'background:#c2410c;color:#fff';
+    bar.insertBefore(q, bar.querySelector('.tip')); q.onclick = () => allUnitsPdfZip(m, win, q);
   }
   function unitXlsx(m, c, win) {
     const T = v => ({ v, s: 4 }), H = v => ({ v, s: 3 }), L = String.fromCharCode(64 + c.head.length);
