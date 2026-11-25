@@ -436,7 +436,7 @@ function siteVisibleRow_(site, d) {
     for (let q = 0; q < 11; q++) v[q] += num(r[2 + q]);
   });
   if (!list.length) return null;
-  const need = Math.max(0, v[0] - v[3] - v[4]);
+  const need = Math.max(0, v[1] + v[2] - v[3] - v[4]);
   return [0, site.n].concat(v, [need ? Math.round(v[7] / need * 10000) / 100 : 0]);
 }
 
