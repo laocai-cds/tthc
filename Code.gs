@@ -19,6 +19,11 @@
  *  - O = Đảng phí phải nộp cấp trên (kỳ báo cáo), P = Đảng phí đã nộp cấp trên (kỳ báo cáo), Q = Còn nợ cấp trên cuối kỳ.
  *  - Mỗi dòng gửi lên có 17 phần tử (14 cột cũ + 3 cột S02). Gói cũ chỉ có 14 phần tử vẫn nhận được, khi đó không đụng tới cột O:Q.
  *
+ * Phiên bản 7: nút ĐP của từng xã gửi thêm đúng MỘT dòng đơn vị của xã đó (payload.unit, source 'unit-row'):
+ *  - cập nhật tại chỗ hàng của đơn vị trong tab tháng (không xóa các đơn vị khác); không thấy đơn vị thì báo lỗi, không thêm dòng;
+ *  - gói không có payload.unit thì chạy như cũ; bản cũ gặp gói này sẽ từ chối vì thiếu `rows` (không ghi gì);
+ *  - doGet ?action=unit&month=yyyy-MM&name=... đọc lại hàng đó để nút ĐP xác nhận.
+ *
  * Cài đặt:
  *  1. Dán toàn bộ file này vào Code.gs (thay thế code cũ).
  *  2. Thuộc tính tập lệnh SYNC_TOKEN (hoặc MAT_KHAU) giữ nguyên.
@@ -35,7 +40,7 @@ const HEADER_ROWS = 2;                       // 2 dòng tiêu đề giữ nguyê
 const COLS = 14;                             // STT, Tên đơn vị, (1)…(9), tiền khai báo, tiền đã nộp, tỷ lệ
 const COLS_S02 = 17;                         // 14 cột trên + 3 cột sổ S02 (O, P, Q)
 const S02_HEADERS = ['Phải nộp cấp trên (đ)', 'Đã nộp cấp trên (đ)', 'Còn nợ cấp trên cuối kỳ (đ)'];
-const VERSION = 6;
+const VERSION = 7;
 const TZ = 'Asia/Ho_Chi_Minh';
 
 /** Định dạng số chỉ để cho đẹp: nếu ô thuộc "bảng"/cột có kiểu dữ liệu cố định thì Sheets từ chối → bỏ qua, không làm hỏng đồng bộ. */
@@ -57,7 +62,8 @@ function doGet(e) {
   const p = (e && e.parameter) || {};
   let out;
   try {
-    if (p.action === 'chunk') out = saveChunk_(p);
+    if (p.action === 'unit') out = readUnit_(p);
+    else if (p.action === 'chunk') out = saveChunk_(p);
     else if (p.action === 'commit') out = commit_(p);
     else out = status_();
   } catch (err) {
@@ -131,13 +137,15 @@ function write_(payload) {
 
   const nowKey = monthKey_();
   let key = nowKey;                                // tháng sẽ ghi
-  if (payload.source === 'api-month') {            // nút API chọn tháng: nhận tháng hiện tại hoặc tháng trước
+  if (payload.source === 'api-month' || (payload.source === 'unit-row' && payload.unit)) {            // nút API chọn tháng: nhận tháng hiện tại hoặc tháng trước
     const pk = String(payload.month || '');
     if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(pk) || pk > nowKey) throw new Error('Tháng không hợp lệ: ' + pk + ' (chỉ nhận đến tháng hiện tại ' + nowKey + ').');
     key = pk;
   } else if (payload.month && String(payload.month) !== nowKey) {
     throw new Error('Chỉ được đồng bộ vào tháng hiện tại (' + nowKey + '), trang đang mở là tháng ' + String(payload.month) + '. Hãy tải lại trang rồi đồng bộ lại.');
   }
+
+  if (payload.source === 'unit-row' && payload.unit) return writeUnitRow_(payload.unit, key, nowKey);
 
   const rows = Array.isArray(payload.rows) ? payload.rows : [];
   if (!rows.length) throw new Error('Không có dòng dữ liệu.');
@@ -193,6 +201,60 @@ function write_(payload) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/* ---------- Cập nhật MỘT đơn vị (nút ĐP của xã) ---------- */
+function duesNameKey_(s) { return String(s == null ? '' : s).normalize('NFC').replace(/\s+/g, ' ').trim().toLowerCase(); }
+
+function findDuesUnitRow_(sh, name) {
+  const last = sh.getLastRow();
+  if (last <= HEADER_ROWS) return 0;
+  const want = duesNameKey_(name), names = sh.getRange(HEADER_ROWS + 1, 2, last - HEADER_ROWS, 1).getValues();
+  for (let i = 0; i < names.length; i++) if (duesNameKey_(names[i][0]) === want) return HEADER_ROWS + 1 + i;
+  return 0;
+}
+
+function writeUnitRow_(unit, key, nowKey) {
+  const r = unit && unit.row;
+  if (!Array.isArray(r) || r.length < COLS) throw new Error('Dòng đơn vị thiếu cột.');
+  const name = String(r[1]).trim();
+  if (!name) throw new Error('Thiếu tên đơn vị.');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sh = ss.getSheetByName(monthTab_(key));
+    if (!sh) throw new Error('Chưa có tab ' + monthTab_(key) + ' — hãy bấm ĐP Tỉnh Lào Cai một lần để tạo tab tháng.');
+    const row = findDuesUnitRow_(sh, name);
+    if (!row) throw new Error('Không thấy "' + name + '" trong tab ' + sh.getName() + ' — hãy bấm ĐP Tỉnh Lào Cai một lần.');
+    const vals = [];
+    for (let c = 2; c < 13; c++) vals.push(Number(r[c]) || 0);
+    vals.push((Number(r[13]) || 0) / 100);          // tỷ lệ % → phân số, giống đồng bộ cả tỉnh
+    sh.getRange(row, 3, 1, 12).setValues([vals]);
+    fmt_(sh.getRange(row, 3, 1, 11), '#,##0');
+    fmt_(sh.getRange(row, 14, 1, 1), '0.00%');
+    if (r.length >= COLS_S02) {
+      ensureCols_(sh);
+      sh.getRange(row, 15, 1, 3).setValues([[Number(r[14]) || 0, Number(r[15]) || 0, Number(r[16]) || 0]]);
+      fmt_(sh.getRange(row, 15, 1, 3), '#,##0');
+    }
+    const when = Utilities.formatDate(new Date(), TZ, 'dd/MM/yyyy HH:mm:ss');
+    if (key === nowKey) { try { recordFirstDone_(ss, key, sh.getRange(row, 1, 1, 10).getValues(), when); } catch (e) { Logger.log('recordFirstDone_: ' + e); } }
+    SpreadsheetApp.flush();
+    return { ok: true, unit: name, month: key, tab: sh.getName(), row: row, updatedAtText: when };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Đọc lại hàng một đơn vị (chỉ số liệu tổng hợp, công khai như bảng xếp hạng) để nút ĐP xác nhận. */
+function readUnit_(p) {
+  const key = /^\d{4}-(0[1-9]|1[0-2])$/.test(String(p.month || '')) ? String(p.month) : monthKey_();
+  const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(monthTab_(key));
+  if (!sh) return { ok: false, error: 'Chưa có tab tháng.' };
+  const row = findDuesUnitRow_(sh, p.name);
+  if (!row) return { ok: false, error: 'Không thấy đơn vị.' };
+  return { ok: true, month: key, row: sh.getRange(row, 1, 1, 14).getValues()[0] };
 }
 
 /* ---------- Ghi nhận đơn vị hoàn thành đảng phí (100% đảng viên phải nộp đã nộp) ---------- */
