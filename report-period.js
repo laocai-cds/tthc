@@ -508,11 +508,32 @@
     } catch (e) { console.error(e); win.alert('Không tải được: ' + ((e && e.message) || e)); }
     finally { btn.disabled = false; btn.textContent = label; }
   }
+  /* PDF toàn bộ đơn vị: gộp báo cáo của mọi đơn vị trong một tài liệu (mỗi đơn vị một trang mới), mở hộp thoại in để lưu thành một file PDF */
+  function allUnitsPdf(m, win, btn) {
+    const names = m.ranking.map(r => r.unit).filter(Boolean), label = btn.textContent;
+    const w2 = win.open('', '_blank'); if (!w2) { win.alert('Trình duyệt đang chặn cửa sổ mới. Hãy cho phép cửa sổ bật lên rồi thử lại.'); return; }
+    try {
+      btn.disabled = true; btn.textContent = 'Đang gộp ' + names.length + ' đơn vị…';
+      const base = root.rptHTML(m), pre = base.slice(0, base.indexOf('<section class="page">')), at = pre.indexOf('<div class="bar">');
+      const name = 'bao-cao-cac-don-vi_' + m.fileStamp;
+      const head = (at < 0 ? pre : pre.slice(0, at)).replace(/<title>[\s\S]*?<\/title>/, '<title>' + name + '</title>');
+      const bar = '<div class="bar"><b>📄 Báo cáo ' + names.length + ' đơn vị – ' + esc(m.period && m.period.label || '') + '</b><span class="sp"></span><button class="b-pdf" type="button" onclick="window.print()">🖨 In / Lưu PDF</button><div class="tip">Chọn “Lưu dưới dạng PDF”, khổ A4, tắt mục “Đầu trang và chân trang”. Mỗi đơn vị bắt đầu một trang mới.</div></div>';
+      let body = '', n = 0;
+      for (const nm of names) { const c = unitContent(m, nm); if (!c) continue; body += unitSection(m, c); n++; }
+      if (!n) throw new Error('Không có báo cáo đơn vị nào.');
+      w2.document.open(); w2.document.write(head + bar + body + '\n</body></html>'); w2.document.close();
+      setTimeout(() => { try { w2.focus(); w2.print(); } catch (e) { /* người dùng bấm In thủ công */ } }, 800);
+    } catch (e) { console.error(e); try { w2.close(); } catch (_) { /* đã đóng */ } win.alert('Không gộp được PDF: ' + ((e && e.message) || e)); }
+    finally { btn.disabled = false; btn.textContent = label; }
+  }
   function addZipBtn(win, m) {
     const d = win.document, bar = d.querySelector('.bar'); if (!bar || d.getElementById('rptZipAll')) return;
     const b = d.createElement('button'); b.type = 'button'; b.id = 'rptZipAll'; b.textContent = '⬇ Tải tất cả đơn vị (.zip)';
     b.title = 'Tải báo cáo Word của toàn bộ ' + m.ranking.length + ' đơn vị trong tỉnh, gộp trong một file nén'; b.style.cssText = 'background:#7b3fb0;color:#fff';
     bar.insertBefore(b, bar.querySelector('.tip')); b.onclick = () => allUnitsZip(m, win, b);
+    const p = d.createElement('button'); p.type = 'button'; p.id = 'rptPdfAll'; p.textContent = '🖨 PDF tất cả đơn vị';
+    p.title = 'Gộp báo cáo của toàn bộ ' + m.ranking.length + ' đơn vị thành một file PDF (mỗi đơn vị một trang mới)'; p.style.cssText = 'background:#b3261e;color:#fff';
+    bar.insertBefore(p, bar.querySelector('.tip')); p.onclick = () => allUnitsPdf(m, win, p);
   }
   function unitXlsx(m, c, win) {
     const T = v => ({ v, s: 4 }), H = v => ({ v, s: 3 }), L = String.fromCharCode(64 + c.head.length);
