@@ -418,7 +418,7 @@ function siteVisibleRow_(site, d) {
   if (rows.length && rows.some(c => /\(1\)/.test(String(c)))) rows = rows.slice(1); // dòng phụ đề cột
   const num = v => Number(String(v == null ? '' : v).replace(/[^\d-]/g, '')) || 0;
   let list;
-  if (site.list) {                                  // site có danh sách đơn vị cố định
+  if (site.list && site.strict) {                   // (không dùng) danh sách cố định: Sheet xã mới là nguồn chuẩn, tên có thể khác danh sách dự phòng
     const want = {}; site.list.forEach(k => { want[k] = 1; });
     list = rows.filter(r => want[nkeyVi_(r[1])]);
   } else {
