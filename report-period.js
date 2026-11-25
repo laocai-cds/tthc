@@ -460,8 +460,10 @@
     return { name, when, paras, secs, good, weak, head, rows, rec, f };
   }
   const bdh = t => esc(t).replace(/«/g, '<b>').replace(/»/g, '</b>'), nb = t => String(t).replace(/[«»]/g, '');
+  const htmlCache = new WeakMap();
+  const baseHtml = m => { let h = htmlCache.get(m); if (h == null) { h = orig.html(m); htmlCache.set(m, h); } return h; };
   function unitSection(m, c, forDoc) {
-    const P = m.period, base = orig.html(m);
+    const P = m.period, base = baseHtml(m);
     const hd = base.slice(base.indexOf('<div class="hd">'), base.indexOf('<div class="gap">'));
     const widths = c.head.length > 8 ? [1700, 750, 800, 850, 850, 850, 850, 1400, 700, 1000] : [1900, 800, 1000, 1000, 1000, 1700, 800, 1100];
     const num = n => String(n);
@@ -480,10 +482,37 @@
     const base = root.rptHTML(m), pre = base.slice(0, base.indexOf('<section class="page">'));
     return { c, page: pre + unitSection(m, c) + '\n</body></html>' };
   }
-  function unitWord(m, c, win) {
-    const base = orig.html(m), style = (base.match(/<style>[\s\S]*?<\/style>/) || [''])[0].replace('</style>', '.page{width:auto!important;margin:0!important;padding:0!important;box-shadow:none!important}.bar{display:none}@page{size:A4;margin:2cm 2cm 2cm 3cm}</style>');
+  function wordHtml(m, c) {
+    const base = baseHtml(m), style = (base.match(/<style>[\s\S]*?<\/style>/) || [''])[0].replace('</style>', '.page{width:auto!important;margin:0!important;padding:0!important;box-shadow:none!important}.bar{display:none}@page{size:A4;margin:2cm 2cm 2cm 3cm}</style>');
     const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Báo cáo ' + esc(c.name) + '</title>' + style + '</head><body>' + unitSection(m, c, true) + '</body></html>';
-    root.rptDownload(new Blob(['﻿', html.replace(/<svg[\s\S]*?<\/svg>/g, () => "<div style=\"font:bold 14pt Arial;color:#1e8e3e;text-align:center\">✔ Signature Valid</div><div style=\"font-size:10pt;text-align:center\">Ký bởi: <b>HỆ THỐNG TỰ ĐỘNG</b></div><div style=\"font-size:10pt;text-align:center\">Ngày ký: " + rptStampTime() + "</div>")], { type: 'application/msword' }), 'bao-cao-' + unitSlug(c.name) + '_' + m.fileStamp + '.doc', win);
+    return '\uFEFF' + html.replace(/<svg[\s\S]*?<\/svg>/g, () => "<div style=\"font:bold 14pt Arial;color:#1e8e3e;text-align:center\">✔ Signature Valid</div><div style=\"font-size:10pt;text-align:center\">Ký bởi: <b>HỆ THỐNG TỰ ĐỘNG</b></div><div style=\"font-size:10pt;text-align:center\">Ngày ký: " + rptStampTime() + "</div>");
+  }
+  function unitWord(m, c, win) {
+    root.rptDownload(new Blob([wordHtml(m, c)], { type: 'application/msword' }), 'bao-cao-' + unitSlug(c.name) + '_' + m.fileStamp + '.doc', win);
+  }
+  /* Tải toàn bộ báo cáo đơn vị trong tỉnh: mỗi đơn vị một file Word (.doc), gộp trong một file .zip */
+  async function allUnitsZip(m, win, btn) {
+    const names = m.ranking.map(r => r.unit).filter(Boolean), files = {}, used = new Set(), label = btn.textContent;
+    btn.disabled = true;
+    try {
+      for (let i = 0; i < names.length; i++) {
+        if (win.closed) return;
+        const c = unitContent(m, names[i]); if (!c) continue;
+        let fn = 'bao-cao-' + (unitSlug(c.name) || 'don-vi-' + (i + 1)); while (used.has(fn)) fn += '-' + (i + 1); used.add(fn);
+        files[fn + '.doc'] = wordHtml(m, c);
+        btn.textContent = 'Đang tạo ' + (i + 1) + '/' + names.length + '…';
+        if (i % 3 === 2) await new Promise(r => setTimeout(r, 0));
+      }
+      if (!Object.keys(files).length) throw new Error('Không có báo cáo đơn vị nào để tải.');
+      root.rptDownload(root.rptZip(files, 'application/zip'), 'bao-cao-cac-don-vi_' + m.fileStamp + '.zip', win);
+    } catch (e) { console.error(e); win.alert('Không tải được: ' + ((e && e.message) || e)); }
+    finally { btn.disabled = false; btn.textContent = label; }
+  }
+  function addZipBtn(win, m) {
+    const d = win.document, bar = d.querySelector('.bar'); if (!bar || d.getElementById('rptZipAll')) return;
+    const b = d.createElement('button'); b.type = 'button'; b.id = 'rptZipAll'; b.textContent = '⬇ Tải tất cả đơn vị (.zip)';
+    b.title = 'Tải báo cáo Word của toàn bộ ' + m.ranking.length + ' đơn vị trong tỉnh, gộp trong một file nén'; b.style.cssText = 'background:#7b3fb0;color:#fff';
+    bar.insertBefore(b, bar.querySelector('.tip')); b.onclick = () => allUnitsZip(m, win, b);
   }
   function unitXlsx(m, c, win) {
     const T = v => ({ v, s: 4 }), H = v => ({ v, s: 3 }), L = String.fromCharCode(64 + c.head.length);
@@ -536,7 +565,7 @@
         dd.getElementById('rptPrint').onclick = () => { const e = dd.getElementById('rptStamp'); if (e) e.textContent = nowStamp(); win.print(); };
         dd.getElementById('rptXlsx').onclick = () => { try { unitXlsx(m, up.c, win); } catch (e) { console.error(e); win.alert('Không xuất được Excel: ' + ((e && e.message) || e)); } };
         dd.getElementById('rptDocx').onclick = () => { try { unitWord(m, up.c, win); } catch (e) { console.error(e); win.alert('Không xuất được Word: ' + ((e && e.message) || e)); } };
-        bindPicker(win, per, unit); return;
+        addZipBtn(win, m); bindPicker(win, per, unit); return;
       }
     }
     write(root.rptHTML(m));
@@ -544,7 +573,7 @@
     d.getElementById('rptPrint').onclick = () => win.print();
     d.getElementById('rptXlsx').onclick = () => { try { root.exportReportXlsx(m, win); } catch (e) { console.error(e); win.alert('Không xuất được Excel: ' + ((e && e.message) || e)); } };
     d.getElementById('rptDocx').onclick = () => { try { root.exportReportDocx(m, win); } catch (e) { console.error(e); win.alert('Không xuất được Word: ' + ((e && e.message) || e)); } };
-    bindPicker(win, per, unit);
+    addZipBtn(win, m); bindPicker(win, per, unit);
   }
   async function buildReport() {
     const win = window.open('', '_blank'); if (!win) { alert('Trình duyệt đang chặn cửa sổ báo cáo. Hãy cho phép cửa sổ bật lên rồi thử lại.'); return; }
