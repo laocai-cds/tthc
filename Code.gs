@@ -422,7 +422,8 @@ function siteVisibleRow_(site, d) {
     const want = {}; site.list.forEach(k => { want[k] = 1; });
     list = rows.filter(r => want[nkeyVi_(r[1])]);
   } else {
-    list = rows.filter(r => /^\d+$/.test(String(r[0] == null ? '' : r[0]).trim()));
+    list = rows.filter(r => /^\d+$/.test(String(r[0] == null ? '' : r[0]).trim()) && String(r[1]).indexOf('›') < 0);   // bỏ chi bộ con của Đảng bộ trường (dòng 'Đảng bộ › Chi bộ'): site không cộng vào tổng
+
     list.sort((a, b) => Number(a[0]) - Number(b[0]));
     if (site.f) list = list.filter(r => num(r[2]) > 0);          // site bỏ dòng 0 đảng viên
     if (site.max) list = list.slice(0, site.max);                // site chỉ lấy các đơn vị đầu theo STT
