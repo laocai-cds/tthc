@@ -40,7 +40,7 @@ const HEADER_ROWS = 2;                       // 2 dòng tiêu đề giữ nguyê
 const COLS = 14;                             // STT, Tên đơn vị, (1)…(9), tiền khai báo, tiền đã nộp, tỷ lệ
 const COLS_S02 = 17;                         // 14 cột trên + 3 cột sổ S02 (O, P, Q)
 const S02_HEADERS = ['Phải nộp cấp trên (đ)', 'Đã nộp cấp trên (đ)', 'Còn nợ cấp trên cuối kỳ (đ)'];
-const VERSION = 8; // v8: thêm cập nhật MỘT hàng đơn vị (nút ĐP của xã, source 'unit-row', payload.unit) + doGet?action=unit. v7: ghi nhanh hơn (bỏ xóa-rồi-ghi, định dạng 1 lần), báo LAST_SYNC trước phần nhật ký/danh mục
+const VERSION = 9; // v9: unit-row nhận thêm unit.delta (= số cấp tỉnh − tổng các đơn vị hiển thị trên site xã); đồng bộ cả tỉnh trừ delta này để hàng của xã luôn khớp site xã. v8: thêm cập nhật MỘT hàng đơn vị (nút ĐP của xã, source 'unit-row', payload.unit) + doGet?action=unit. v7: ghi nhanh hơn (bỏ xóa-rồi-ghi, định dạng 1 lần), báo LAST_SYNC trước phần nhật ký/danh mục
 const TZ = 'Asia/Ho_Chi_Minh';
 
 /** Định dạng số chỉ để cho đẹp: nếu ô thuộc "bảng"/cột có kiểu dữ liệu cố định thì Sheets từ chối → bỏ qua, không làm hỏng đồng bộ. */
@@ -160,6 +160,7 @@ function write_(payload) {
     if (hasS02) for (let c = 14; c < COLS_S02; c++) row.push(Number(r[c]) || 0);
     return row;
   });
+  applyDeltas_(data, key);                          // đơn vị đã có chênh lệch với site xã: trừ phần chênh để không bị đồng bộ cả tỉnh ghi đè
 
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
@@ -236,6 +237,7 @@ function writeUnitRow_(unit, key, nowKey) {
     for (let c = 2; c < 13; c++) vals.push(Number(r[c]) || 0);
     vals.push((Number(r[13]) || 0) / 100);          // tỷ lệ % → phân số, giống đồng bộ cả tỉnh
     sh.getRange(row, 3, 1, 12).setValues([vals]);
+    setDelta_(key, name, unit.delta);
     fmt_(sh.getRange(row, 3, 1, 11), '#,##0');
     fmt_(sh.getRange(row, 14, 1, 1), '0.00%');
     if (r.length >= COLS_S02) {
@@ -250,6 +252,24 @@ function writeUnitRow_(unit, key, nowKey) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/** Chênh lệch (số cấp tỉnh − số các đơn vị hiển thị trên site xã) của 11 cột (1)…(9), tiền khai báo, tiền đã nộp; lưu theo tháng + đơn vị. */
+function setDelta_(key, name, delta) {
+  const pr = PropertiesService.getScriptProperties(), pk = 'DELTA|' + key + '|' + duesNameKey_(name);
+  const a = Array.isArray(delta) ? delta.slice(0, 11).map(x => Number(x) || 0) : null;
+  if (!a) return;                                   // bản cũ của nút ĐP không gửi delta: giữ nguyên
+  if (a.every(x => x === 0)) pr.deleteProperty(pk); else pr.setProperty(pk, JSON.stringify(a));
+}
+
+function applyDeltas_(data, key) {
+  const all = PropertiesService.getScriptProperties().getProperties(), pre = 'DELTA|' + key + '|';
+  data.forEach(row => {
+    const d = all[pre + duesNameKey_(row[1])];
+    if (!d) return;
+    let a; try { a = JSON.parse(d); } catch (e) { return; }
+    for (let i = 0; i < 11 && i < a.length; i++) row[2 + i] = Math.max(0, (Number(row[2 + i]) || 0) - (Number(a[i]) || 0));
+  });
 }
 
 /** Đọc lại hàng một đơn vị (chỉ số liệu tổng hợp, công khai như bảng xếp hạng) để nút ĐP xác nhận. */
