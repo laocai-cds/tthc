@@ -19,7 +19,7 @@
  *  - O = Đảng phí phải nộp cấp trên (kỳ báo cáo), P = Đảng phí đã nộp cấp trên (kỳ báo cáo), Q = Còn nợ cấp trên cuối kỳ.
  *  - Mỗi dòng gửi lên có 17 phần tử (14 cột cũ + 3 cột S02). Gói cũ chỉ có 14 phần tử vẫn nhận được, khi đó không đụng tới cột O:Q.
  *
- * Phiên bản 7: nút ĐP của từng xã gửi thêm đúng MỘT dòng đơn vị của xã đó (payload.unit, source 'unit-row'):
+ * Phiên bản 8: nút ĐP của từng xã gửi thêm đúng MỘT dòng đơn vị của xã đó (payload.unit, source 'unit-row'):
  *  - cập nhật tại chỗ hàng của đơn vị trong tab tháng (không xóa các đơn vị khác); không thấy đơn vị thì báo lỗi, không thêm dòng;
  *  - gói không có payload.unit thì chạy như cũ; bản cũ gặp gói này sẽ từ chối vì thiếu `rows` (không ghi gì);
  *  - doGet ?action=unit&month=yyyy-MM&name=... đọc lại hàng đó để nút ĐP xác nhận.
@@ -40,7 +40,7 @@ const HEADER_ROWS = 2;                       // 2 dòng tiêu đề giữ nguyê
 const COLS = 14;                             // STT, Tên đơn vị, (1)…(9), tiền khai báo, tiền đã nộp, tỷ lệ
 const COLS_S02 = 17;                         // 14 cột trên + 3 cột sổ S02 (O, P, Q)
 const S02_HEADERS = ['Phải nộp cấp trên (đ)', 'Đã nộp cấp trên (đ)', 'Còn nợ cấp trên cuối kỳ (đ)'];
-const VERSION = 7;
+const VERSION = 8; // v8: thêm cập nhật MỘT hàng đơn vị (nút ĐP của xã, source 'unit-row', payload.unit) + doGet?action=unit. v7: ghi nhanh hơn (bỏ xóa-rồi-ghi, định dạng 1 lần), báo LAST_SYNC trước phần nhật ký/danh mục
 const TZ = 'Asia/Ho_Chi_Minh';
 
 /** Định dạng số chỉ để cho đẹp: nếu ô thuộc "bảng"/cột có kiểu dữ liệu cố định thì Sheets từ chối → bỏ qua, không làm hỏng đồng bộ. */
@@ -169,34 +169,39 @@ function write_(payload) {
 
     ensureCols_(sh);
     const last = sh.getLastRow();
-    if (last > HEADER_ROWS) sh.getRange(HEADER_ROWS + 1, 1, last - HEADER_ROWS, width).clearContent();
-    const rg = sh.getRange(HEADER_ROWS + 1, 1, data.length, width);
-    rg.setValues(data);
-    fmt_(sh.getRange(HEADER_ROWS + 1, 3, data.length, 11), '#,##0');
-    fmt_(sh.getRange(HEADER_ROWS + 1, 14, data.length, 1), '0.00%');
-    if (hasS02) {
-      fmt_(sh.getRange(HEADER_ROWS + 1, 15, data.length, 3), '#,##0');
-      s02Headers_(sh);
+    /* Một lệnh ghi cả bảng; chỉ xóa phần dòng thừa của lần trước (nhanh hơn xóa rồi ghi lại) */
+    sh.getRange(HEADER_ROWS + 1, 1, data.length, width).setValues(data);
+    if (last > HEADER_ROWS + data.length) sh.getRange(HEADER_ROWS + data.length + 1, 1, last - HEADER_ROWS - data.length, Math.max(width, COLS)).clearContent();
+    /* Định dạng số/tiêu đề chỉ làm 1 lần cho mỗi tab (định dạng được giữ nguyên giữa các lần đồng bộ) */
+    const fk = 'FMT_' + sh.getName() + (hasS02 ? '_17' : '_14'), pr = PropertiesService.getScriptProperties();
+    if (!pr.getProperty(fk)) {
+      fmt_(sh.getRange(HEADER_ROWS + 1, 3, 400, 11), '#,##0');
+      fmt_(sh.getRange(HEADER_ROWS + 1, 14, 400, 1), '0.00%');
+      if (hasS02) { fmt_(sh.getRange(HEADER_ROWS + 1, 15, 400, 3), '#,##0'); s02Headers_(sh); }
+      pr.setProperty(fk, '1');
     }
 
     const now = new Date();
     const when = Utilities.formatDate(now, TZ, 'dd/MM/yyyy HH:mm:ss');
-    const t = payload.totals || {};
-    let log = ss.getSheetByName(LOG_SHEET_NAME);
-    if (!log) {
-      log = ss.insertSheet(LOG_SHEET_NAME);
-      log.appendRow(['Thời gian', 'Tên file', 'Số đơn vị', 'Tổng ĐV', 'ĐV đã nộp (8)', 'Tổng tiền khai báo', 'Tổng tiền đã nộp', 'Tỷ lệ thực tế chung (%)', 'Mã đồng bộ']);
-      log.setFrozenRows(1);
-    }
-    log.insertRowAfter(1);
-    log.getRange(2, 1, 1, 9).setValues([[when, payload.fileName || '', data.length, t.members || 0, t.paidProfiles || 0, t.declared || 0, t.paid || 0, t.rate || 0, payload.syncId || '']]);
-
-    updateRegistry_(ss, key, when);
-    if (key === nowKey) { try { recordFirstDone_(ss, key, data, when); } catch (e) { /* ghi nhận phụ, không làm hỏng đồng bộ */ Logger.log('recordFirstDone_: ' + e); PropertiesService.getScriptProperties().setProperty('FIRST_DONE_ERROR', when + ' · ' + e); } }
     SpreadsheetApp.flush();
-
     const info = { syncId: String(payload.syncId || ''), updatedAtText: when, rowCount: data.length, fileName: payload.fileName || '', spreadsheetId: SPREADSHEET_ID, month: key, tab: sh.getName() };
     PropertiesService.getScriptProperties().setProperty('LAST_SYNC', JSON.stringify(info));
+    /* Các việc phụ (nhật ký, danh mục tháng, hoàn thành sớm) làm SAU khi đã báo LAST_SYNC để trang xác nhận ngay */
+    try {
+      const t = payload.totals || {};
+      let log = ss.getSheetByName(LOG_SHEET_NAME);
+      if (!log) {
+        log = ss.insertSheet(LOG_SHEET_NAME);
+        log.appendRow(['Thời gian', 'Tên file', 'Số đơn vị', 'Tổng ĐV', 'ĐV đã nộp (8)', 'Tổng tiền khai báo', 'Tổng tiền đã nộp', 'Tỷ lệ thực tế chung (%)', 'Mã đồng bộ']);
+        log.setFrozenRows(1);
+      }
+      log.insertRowAfter(1);
+      log.getRange(2, 1, 1, 9).setValues([[when, payload.fileName || '', data.length, t.members || 0, t.paidProfiles || 0, t.declared || 0, t.paid || 0, t.rate || 0, payload.syncId || '']]);
+
+      updateRegistry_(ss, key, when);
+      if (key === nowKey) { try { recordFirstDone_(ss, key, data, when); } catch (e) { /* ghi nhận phụ, không làm hỏng đồng bộ */ Logger.log('recordFirstDone_: ' + e); PropertiesService.getScriptProperties().setProperty('FIRST_DONE_ERROR', when + ' · ' + e); } }
+
+    } catch (e9) { Logger.log('phụ: ' + e9); PropertiesService.getScriptProperties().setProperty('AFTER_ERROR', when + ' · ' + e9); }
     return { ok: true, syncId: payload.syncId, rowCount: data.length, updatedAtText: when, spreadsheetId: SPREADSHEET_ID, month: key, tab: sh.getName() };
   } finally {
     lock.releaseLock();
