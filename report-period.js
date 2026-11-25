@@ -521,7 +521,7 @@
       let body = '', n = 0; const toc = [];
       for (const nm of names) { const c = unitContent(m, nm); if (!c) continue; n++; toc.push('<li><a href="#u-' + n + '">' + esc(c.name) + '</a></li>'); body += unitSection(m, c).replace('<section class="page">', '<section class="page" id="u-' + n + '">'); }
       if (!n) throw new Error('Không có báo cáo đơn vị nào.');
-      const tocHtml = '<section class="page" id="muc-luc"><p class="t1">MỤC LỤC</p><p class="t2">Báo cáo ' + n + ' đơn vị – ' + esc(m.period && m.period.label || '') + ' (xếp theo tên; bấm vào tên để tới báo cáo)</p><ol style="columns:2;column-gap:24px;font-size:11pt;line-height:1.5;margin-top:12px">' + toc.join('') + '</ol></section>';
+      const tocHtml = '<section class="page" id="muc-luc"><p class="t1">MỤC LỤC</p><p class="t2" style="white-space:nowrap"><b>Báo cáo ' + n + ' đơn vị – ' + esc(m.period && m.period.label || '') + '</b></p><p class="meta" style="text-align:center;white-space:nowrap;font-size:10pt;margin:0 0 4pt">(xếp theo tên; bấm vào tên đơn vị để tới báo cáo)</p><ol style="columns:2;column-gap:24px;font-size:11pt;line-height:1.5;margin-top:12px">' + toc.join('') + '</ol></section>';
       w2.document.open(); w2.document.write(head + bar + tocHtml + body + '\n</body></html>'); w2.document.close();
       setTimeout(() => { try { w2.focus(); w2.print(); } catch (e) { /* người dùng bấm In thủ công */ } }, 800);
     } catch (e) { console.error(e); try { w2.close(); } catch (_) { /* đã đóng */ } win.alert('Không gộp được PDF: ' + ((e && e.message) || e)); }
