@@ -40,7 +40,7 @@ const HEADER_ROWS = 2;                       // 2 dòng tiêu đề giữ nguyê
 const COLS = 14;                             // STT, Tên đơn vị, (1)…(9), tiền khai báo, tiền đã nộp, tỷ lệ
 const COLS_S02 = 17;                         // 14 cột trên + 3 cột sổ S02 (O, P, Q)
 const S02_HEADERS = ['Phải nộp cấp trên (đ)', 'Đã nộp cấp trên (đ)', 'Còn nợ cấp trên cuối kỳ (đ)'];
-const VERSION = 9; // v9: unit-row nhận thêm unit.delta (= số cấp tỉnh − tổng các đơn vị hiển thị trên site xã); đồng bộ cả tỉnh trừ delta này để hàng của xã luôn khớp site xã. v8: thêm cập nhật MỘT hàng đơn vị (nút ĐP của xã, source 'unit-row', payload.unit) + doGet?action=unit. v7: ghi nhanh hơn (bỏ xóa-rồi-ghi, định dạng 1 lần), báo LAST_SYNC trước phần nhật ký/danh mục
+const VERSION = 10; // v10: tự đọc Sheet các xã có site (SITES) và ghi hàng của xã đúng theo các đơn vị site xã hiển thị; sau mỗi lần đồng bộ cả tỉnh cũng chạy lại; hẹn giờ 10 phút (setupSiteSync). v9: unit-row nhận thêm unit.delta (= số cấp tỉnh − tổng các đơn vị hiển thị trên site xã); đồng bộ cả tỉnh trừ delta này để hàng của xã luôn khớp site xã. v8: thêm cập nhật MỘT hàng đơn vị (nút ĐP của xã, source 'unit-row', payload.unit) + doGet?action=unit. v7: ghi nhanh hơn (bỏ xóa-rồi-ghi, định dạng 1 lần), báo LAST_SYNC trước phần nhật ký/danh mục
 const TZ = 'Asia/Ho_Chi_Minh';
 
 /** Định dạng số chỉ để cho đẹp: nếu ô thuộc "bảng"/cột có kiểu dữ liệu cố định thì Sheets từ chối → bỏ qua, không làm hỏng đồng bộ. */
@@ -130,6 +130,15 @@ function commit_(p) {
 
 /* ---------- Ghi vào tab của tháng hiện tại ---------- */
 function write_(payload) {
+  const res = writeCore_(payload);
+  if (res && res.ok && !(payload.source === 'unit-row' && payload.unit)) {
+    try { syncFromSites_(res.month || monthKey_()); }   // đồng bộ cả tỉnh xong: đặt lại hàng các xã có site theo số site xã hiển thị
+    catch (e) { Logger.log('syncFromSites_: ' + e); PropertiesService.getScriptProperties().setProperty('SITES_ERROR', String(e)); }
+  }
+  return res;
+}
+
+function writeCore_(payload) {
   const props = PropertiesService.getScriptProperties();
   const token = props.getProperty('SYNC_TOKEN') || props.getProperty('MAT_KHAU');
   if (!token) throw new Error('Chưa đặt SYNC_TOKEN (hoặc MAT_KHAU) trong Thuộc tính tập lệnh.');
@@ -160,7 +169,6 @@ function write_(payload) {
     if (hasS02) for (let c = 14; c < COLS_S02; c++) row.push(Number(r[c]) || 0);
     return row;
   });
-  applyDeltas_(data, key);                          // đơn vị đã có chênh lệch với site xã: trừ phần chênh để không bị đồng bộ cả tỉnh ghi đè
 
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
@@ -237,7 +245,6 @@ function writeUnitRow_(unit, key, nowKey) {
     for (let c = 2; c < 13; c++) vals.push(Number(r[c]) || 0);
     vals.push((Number(r[13]) || 0) / 100);          // tỷ lệ % → phân số, giống đồng bộ cả tỉnh
     sh.getRange(row, 3, 1, 12).setValues([vals]);
-    setDelta_(key, name, unit.delta);
     fmt_(sh.getRange(row, 3, 1, 11), '#,##0');
     fmt_(sh.getRange(row, 14, 1, 1), '0.00%');
     if (r.length >= COLS_S02) {
@@ -252,24 +259,6 @@ function writeUnitRow_(unit, key, nowKey) {
   } finally {
     lock.releaseLock();
   }
-}
-
-/** Chênh lệch (số cấp tỉnh − số các đơn vị hiển thị trên site xã) của 11 cột (1)…(9), tiền khai báo, tiền đã nộp; lưu theo tháng + đơn vị. */
-function setDelta_(key, name, delta) {
-  const pr = PropertiesService.getScriptProperties(), pk = 'DELTA|' + key + '|' + duesNameKey_(name);
-  const a = Array.isArray(delta) ? delta.slice(0, 11).map(x => Number(x) || 0) : null;
-  if (!a) return;                                   // bản cũ của nút ĐP không gửi delta: giữ nguyên
-  if (a.every(x => x === 0)) pr.deleteProperty(pk); else pr.setProperty(pk, JSON.stringify(a));
-}
-
-function applyDeltas_(data, key) {
-  const all = PropertiesService.getScriptProperties().getProperties(), pre = 'DELTA|' + key + '|';
-  data.forEach(row => {
-    const d = all[pre + duesNameKey_(row[1])];
-    if (!d) return;
-    let a; try { a = JSON.parse(d); } catch (e) { return; }
-    for (let i = 0; i < 11 && i < a.length; i++) row[2 + i] = Math.max(0, (Number(row[2 + i]) || 0) - (Number(a[i]) || 0));
-  });
 }
 
 /** Đọc lại hàng một đơn vị (chỉ số liệu tổng hợp, công khai như bảng xếp hạng) để nút ĐP xác nhận. */
@@ -397,7 +386,7 @@ function status_() {
     let last = null, lastError = null;
     try { last = JSON.parse(rawLast); } catch (_) {}
     try { lastError = rawErr ? JSON.parse(rawErr) : null; } catch (_) {}
-    if (last) return { ok: true, last: last, lastError: lastError, spreadsheetId: SPREADSHEET_ID, currentMonth: cur, currentTab: curTab };
+    if (last) return { ok: true, last: last, lastError: lastError, spreadsheetId: SPREADSHEET_ID, currentMonth: cur, currentTab: curTab, sites: props.getProperty('SITES_LAST') || null, sitesError: props.getProperty('SITES_ERROR') || null };
   }
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const log = ss.getSheetByName(LOG_SHEET_NAME);
@@ -412,4 +401,68 @@ function status_() {
 function testAuthorize() {
   Logger.log(JSON.stringify(status_()));
   Logger.log('Tab tháng hiện tại: ' + monthTab_(monthKey_()));
+}
+
+/* ---------- Đọc số liệu từ Sheet của các xã có site (đúng các đơn vị site xã hiển thị) ---------- */
+const SITES = [{"id":"vanban","n":"Đảng bộ xã Văn Bàn","ep":"https://script.google.com/macros/s/AKfycbwA6gO_3VpRmqjs1qIPprnFzo-Ala4uBqsYK3620rzqv3bl_27N623RFnf9V9wXxV12/exec","max":0,"f":1},{"id":"xuanhoa","n":"Đảng bộ xã Xuân Hòa","ep":"https://script.google.com/macros/s/AKfycbxNpIwIdSufuR51f3iLL1eKILxo9Km3BjvhGiyeXVZ7d1_3SBXWexRBaSBbTY9LEbYu/exec","max":33},{"id":"pungluong","n":"Đảng bộ xã Púng Luông","ep":"https://script.google.com/macros/s/AKfycbzb0GE2RWwHftri7SGaW8uh4l8bt58e01bzWW1xgZiwVHBVUNkoAnd1mOePbSny16nh7Q/exec","max":34},{"id":"baothang","n":"Đảng bộ xã Bảo Thắng","ep":"https://script.google.com/macros/s/AKfycbxAaE46jDGIDki4cYGffdymtqMqJDfnutoP7QsVgLM8kyMu-3gpBxfdEZGn8HMsWrR1/exec","list":["chibộbanquảnlýrừngphònghộkhuvựcvănbàn","chibộbanxâydựngđảng","chibộbanquảnlýdựánđầutưxâydựng","chibộbưuđiện","chibộchinhánhvănphòngđăngkíđấtđaikhuvựcbảothắng","chibộcôngtycplâmnghiệp","chibộcôngtycpđườngbộ242","chibộdoanhnghiệptưnhânnguyễncôngchiểu","chibộhạtkiểmlâm","chibộngânhàngchínhsáchxãhội","chibộphòngkinhtế","chibộphòngvănhoáxãhội","chibộquảnlýthịtrường","chibộtrungtâmchínhtrịbảothắng","chibộtrungtâmdịchvụtổnghợp","chibộtrungtâmgdnngdtx","chibộtrungtâmphụcvụhànhchínhcông","chibộtrạmytế","chibộubktđảnguỷ","chibộuỷbanmttqviệtnamxã","chibộvnptbảothắng","chibộvănphònghđndubnd","chibộvănphòngđảnguỷ","chibộthônanthắng","chibộthônantrà","chibộthôncánhđịa","chibộthôncườngthịnh","chibộthônhảiniên","chibộthônkhemụ","chibộthônkheđền","chibộthônlàngchưng","chibộthônlànggiàng","chibộthônlượt","chibộthônmomđào","chibộthônmúc","chibộthônphúlong","chibộthônphúthành","chibộthônphúthịnh","chibộthônphốlu","chibộthônquyếttâm","chibộthônsơnhà","chibộthônsơnhải","chibộthôntháiniên","chibộthôntânthành","chibộthônđongoài","chibộthônđồngtâm","chibộđiệnlựcbảothắng","đảngbộtrungtâmytếkhuvựcbảothắng","đảngbộtrườngmầmnonhọami","đảngbộtrườngptdtntthcsthpt","đảngbộtrườngthcsphốlu","đảngbộtrườngthcstháiniên","đảngbộtrườngthptsố1","đảngbộtrườngtiểuhọcphốlu","đảngbộtrườngtiểuhọctháiniên","đảngbộtrườngmầmnonbìnhminh"]},{"id":"luongthinh","n":"Đảng bộ xã Lương Thịnh","ep":"https://script.google.com/macros/s/AKfycbw8NhU4T_iEjgoQebNAGVbjTs9rcaTIzkeDTtztpdFEkMwgNc1gRqk7jsmsBMgNxI6MKA/exec","list":["chibộbanxâydựngđảng","chibộcôngtytnhhmộtthànhviênlâmnghiệpviệthưng","chibộcơquanthườngtrựchộiđồngnhândân","chibộcơquanủybankiểmtrađảngủy","chibộcơquanủybanmttqviệtnamxã","chibộphòngkinhtế","chibộphòngvănhóaxãhội","chibộtrungtâmdịchvụtổnghợp","chibộtrungtâmphụcvụhànhchínhcông","chibộtrạmytếlươngthịnh","chibộvănphònghộiđồngnhândânvàủybannhândân","chibộvănphòngđảngủy","chibộthônkhangchính","chibộthônkhelụa","chibộthônliênthịnh","chibộthônlươngthiện","chibộthônphươngđạo","chibộthônquangvinh","chibộthônyênthành","chibộthônyênthịnh","chibộthônyênđịnh","chibộthônđồngbằng","chibộthônđồnghào","đảngbộtrườngmầmnonlươngthịnh","đảngbộtrườngtiểuhọclươngthịnh","đảngbộtrườngtrunghọccơsởlươngthịnh"]},{"id":"nghiado","n":"Đảng bộ xã Nghĩa Đô","ep":"https://script.google.com/macros/s/AKfycbyA58Z6sF1diN5q_xLTRW8Eb7z6RHBB6sODiluiw3dqWDDIORLV84BD4VMm07c2YHs6gg/exec","max":33},{"id":"phinhho","n":"Đảng bộ xã Phình Hồ","ep":"https://script.google.com/macros/s/AKfycbxVbYRtH1aYVo3gkA7lMPpfu7gCShvAvozkh71d7kJTkjXHltAvfVp8O2yW1CS31pc1UQ/exec","list":["chibộbanxâydựngđảng","chibộcơquanmặttrậntổquốc","chibộtrungtâmphụcvụhànhchínhcông","chibộtrạmytế","chibộvănphònghđndvàubnd","chibộvănphòngđảngủy","chibộphòngkinhtế","chibộphòngvănhoáxãhội","chibộthôncangdông","chibộthôngiaolâu","chibộthônhánggàng","chibộthônhángtầu","chibộthônkm1417","chibộthônlànglinh","chibộthônlàngtống","chibộthônmonhangkm21","chibộthônpate","chibộthônpáhu","chibộthônpákhoang","chibộthônpálau","chibộthôntàtầu","chibộthôntấudưới","chibộthôntấutrên","chibộủybankiểmtra","chibộtrungtâmdịchvụtổnghơp","đảngbộtrườngmầmnonbôngsen","đảngbộtrườngmầmnonhoaphượng","đảngbộtrườngphổthôngdântộcbántrútiểuhọcvàtrunghọccơsởtrạmtấu","đảngbộtrườngphổthôngdântộcbántrútiểuhọcvàtrunghọccơsởtúcđán","chibộtrườngptdtbtththcspálau","chibộthôngiaolâu","chibộthônhángtây","chibộthônpálau","chibộthôntàngghênh","chibộthôntốngngoài","chibộthôntốngtrong","chibộtrườngmầmnonbôngsen","chibộtrườngmầmnonhoaphượng","chibộtrườngmầmnonhoađào","chibộtrườngptdtbtththcstúcđán","chibộtrườngptdtbtththcspáhu","chibộtrườngptdtbtththcstrạmtấu","chibộtrườngmầmnonhoaban","đảngbộuỷbannhândân"]},{"id":"phuckhanh","n":"Đảng bộ xã Phúc Khánh","ep":"https://script.google.com/macros/s/AKfycbzmZKP2MNQ8Hgeh4Qc1QjZp98ddQLyjqrIohVUrbaRaHO0sJg4_KMxJLF9Znhem876dmQ/exec","max":33},{"id":"simacai","n":"Đảng bộ xã Si Ma Cai","ep":"https://script.google.com/macros/s/AKfycbyb0fvQHdmdDwKMOnF4qM-K5CniGORlNzRKjKaxKe6Whc19PLj8myU3yQ7aiYXPYlcylQ/exec","max":999},{"id":"tramtau","n":"Đảng bộ xã Trạm Tấu","ep":"https://script.google.com/macros/s/AKfycbyDJxQWv3T9ESqRZAPYhyP-HyKEIgJa3oxiYmG4qcs-RR-ha9gZb1374VxhAm3iWq_W/exec","list":["chibộbanxâydựngđảng","chibộcơquanmặttrậntổquốc","chibộtrungtâmphụcvụhànhchínhcông","chibộtrạmytế","chibộvănphònghđndvàubnd","chibộvănphòngđảngủy","chibộphòngkinhtế","chibộphòngvănhoáxãhội","chibộthôncangdông","chibộthôngiaolâu","chibộthônhánggàng","chibộthônhángtầu","chibộthônkm1417","chibộthônlànglinh","chibộthônlàngtống","chibộthônmonhangkm21","chibộthônpate","chibộthônpáhu","chibộthônpákhoang","chibộthônpálau","chibộthôntàtầu","chibộthôntấudưới","chibộthôntấutrên","chibộủybankiểmtra","chibộtrungtâmdịchvụtổnghơp","đảngbộtrườngmầmnonbôngsen","đảngbộtrườngmầmnonhoaphượng","đảngbộtrườngphổthôngdântộcbántrútiểuhọcvàtrunghọccơsởtrạmtấu","đảngbộtrườngphổthôngdântộcbántrútiểuhọcvàtrunghọccơsởtúcđán","chibộtrườngptdtbtththcspálau","chibộthôngiaolâu","chibộthônhángtây","chibộthônpálau","chibộthôntàngghênh","chibộthôntốngngoài","chibộthôntốngtrong","chibộtrườngmầmnonbôngsen","chibộtrườngmầmnonhoaphượng","chibộtrườngmầmnonhoađào","chibộtrườngptdtbtththcstúcđán","chibộtrườngptdtbtththcspáhu","chibộtrườngptdtbtththcstrạmtấu","chibộtrườngmầmnonhoaban","đảngbộuỷbannhândân"]},{"id":"volao","n":"Đảng bộ xã Võ Lao","ep":"https://script.google.com/macros/s/AKfycbyZuNu5E1HxfD7kAL195eZ2JpTaElgViDjGDHTauIhXpC7lnqjPixHd49VpuhsIbXmh/exec","max":0,"f":1},{"id":"densang","n":"Đảng bộ xã Dền Sáng","ep":"https://script.google.com/macros/s/AKfycbzABnJRJPBsEx0qQ5GtEK05nRHjsbUZQHKu23adXPwTAiVG_1CZ8pFnhZf1gS6gqDVpmw/exec","max":33},{"id":"xuanquang","n":"Đảng bộ xã Xuân Quang","ep":"https://script.google.com/macros/s/AKfycbyfW_GQckCdByg0recIU4Hgjjrv6l_UGjijxs-272FZrAI3ZPmtl1Oj0NR_XWg-pj9J/exec","max":120},{"id":"baoyen","n":"Đảng bộ xã Bảo Yên","ep":"https://script.google.com/macros/s/AKfycbx7DepxIeL4cMMPNnH_aHMpSf8n3FWwzodoXaHG6yBjlVOYzmInEX2UstUbHIN7T_ep/exec","max":120}];
+
+function siteTabName_(key) {
+  const y = Number(key.slice(0, 4)), m = Number(key.slice(5));
+  return 'Thang' + m + (y === 2026 ? '' : '-' + y);
+}
+function nkeyVi_(s) { return String(s == null ? '' : s).toLocaleLowerCase('vi').replace(/[^\p{L}\p{N}]+/gu, ''); }
+
+/** Cộng các đơn vị mà site xã hiển thị; trả về hàng 14 cột như bảng tthc (STT = 0), hoặc null nếu tab trống. */
+function siteVisibleRow_(site, d) {
+  let rows = (d && d.rows) || [];
+  if (rows.length && rows.some(c => /\(1\)/.test(String(c)))) rows = rows.slice(1); // dòng phụ đề cột
+  const num = v => Number(String(v == null ? '' : v).replace(/[^\d-]/g, '')) || 0;
+  let list;
+  if (site.list) {                                  // site có danh sách đơn vị cố định
+    const want = {}; site.list.forEach(k => { want[k] = 1; });
+    list = rows.filter(r => want[nkeyVi_(r[1])]);
+  } else {
+    list = rows.filter(r => /^\d+$/.test(String(r[0] == null ? '' : r[0]).trim()));
+    list.sort((a, b) => Number(a[0]) - Number(b[0]));
+    if (site.f) list = list.filter(r => num(r[2]) > 0);          // site bỏ dòng 0 đảng viên
+    if (site.max) list = list.slice(0, site.max);                // site chỉ lấy các đơn vị đầu theo STT
+  }
+  const seen = {}, v = new Array(11).fill(0);
+  list.forEach(r => {
+    const k = nkeyVi_(r[1]); if (!k || seen[k]) return; seen[k] = 1;
+    for (let q = 0; q < 11; q++) v[q] += num(r[2 + q]);
+  });
+  if (!list.length) return null;
+  const need = Math.max(0, v[1] + v[2] - v[3] - v[4]);
+  return [0, site.n].concat(v, [need ? Math.round(v[7] / need * 10000) / 100 : 0]);
+}
+
+/** Đọc Sheet các xã (song song) rồi ghi hàng của từng xã vào tab tháng của tthc. */
+function syncFromSites_(key) {
+  const tab = siteTabName_(key);
+  const reqs = SITES.map(s => ({ url: s.ep + '?action=read&tab=' + encodeURIComponent(tab), muteHttpExceptions: true, followRedirects: true }));
+  const res = UrlFetchApp.fetchAll(reqs), nowKey = monthKey_(), done = [], bad = [];
+  SITES.forEach((s, i) => {
+    try {
+      const d = JSON.parse(res[i].getContentText());
+      if (!d || !d.ok) { bad.push(s.id + ': không đọc được'); return; }
+      const row = siteVisibleRow_(s, d);
+      if (!row) { bad.push(s.id + ': tab trống'); return; }
+      writeUnitRow_({ row: row }, key, nowKey);
+      done.push(s.id);
+    } catch (e) { bad.push(s.id + ': ' + String(e && e.message || e).slice(0, 80)); }
+  });
+  const msg = Utilities.formatDate(new Date(), TZ, 'dd/MM/yyyy HH:mm:ss') + ' · ' + key + ' · ghi ' + done.length + '/' + SITES.length + (bad.length ? ' · lỗi: ' + bad.join('; ') : '');
+  PropertiesService.getScriptProperties().setProperty('SITES_LAST', msg);
+  return { ok: true, done: done, bad: bad, at: msg };
+}
+
+/** Chạy theo hẹn giờ: cập nhật tháng hiện tại. */
+function syncSitesTimer() { syncFromSites_(monthKey_()); }
+
+/** CHẠY MỘT LẦN trong trình chỉnh sửa: cấp quyền gọi ra ngoài, tạo hẹn giờ 10 phút/lần và chạy thử. */
+function setupSiteSync() {
+  ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'syncSitesTimer').forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('syncSitesTimer').timeBased().everyMinutes(10).create();
+  return syncFromSites_(monthKey_());
 }
