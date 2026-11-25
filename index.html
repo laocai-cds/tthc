@@ -1828,7 +1828,7 @@ window.openUnitDetail=open;
 .pu-chip{padding:6px 11px;border:1px solid #d6dde9;border-radius:99px;background:#fff;color:#4a5b75;font:700 12px "Segoe UI",Arial,sans-serif;cursor:pointer}
 .pu-chip b{margin-left:4px;color:#14284d}.pu-chip.on{background:#14284d;border-color:#14284d;color:#fff}.pu-chip.on b{color:#ffd666}
 .pu-list{flex:1;min-height:120px;overflow:auto;padding:10px 14px;display:grid;gap:6px;align-content:start}
-.pu-row{display:grid;grid-template-columns:34px minmax(0,1fr) minmax(70px,150px) 54px 108px;align-items:center;gap:10px;width:100%;padding:8px 12px;border:1px solid #e3e9f3;border-radius:12px;background:#fff;text-align:left;font:inherit;color:#14284d;cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s}
+.pu-row{display:grid;grid-template-columns:34px minmax(0,1fr) minmax(70px,150px) 74px 108px;align-items:center;gap:10px;width:100%;padding:8px 12px;border:1px solid #e3e9f3;border-radius:12px;background:#fff;text-align:left;font:inherit;color:#14284d;cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s}
 .pu-row:hover,.pu-row:focus-visible{transform:translateY(-1px);box-shadow:0 6px 16px rgba(20,40,77,.12);border-color:#e0a8a8;outline:0}
 .pu-no{font-weight:800;font-size:12px;color:#7a879a;text-align:center}
 .pu-name{font-weight:700;font-size:13.5px;line-height:1.3;overflow-wrap:anywhere}
@@ -1841,7 +1841,7 @@ window.openUnitDetail=open;
 .pu-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:10px 18px;border-top:1px solid #e6ebf3;background:#fff;color:#728198;font-size:12px}
 .pu-go{padding:7px 14px;border:0;border-radius:10px;background:#c51620;color:#fff;font:800 12.5px "Segoe UI",Arial,sans-serif;cursor:pointer}.pu-go:hover{background:#a5121f}
 @media(max-width:640px){.pu-ov{padding:0}.pu-dlg{max-height:100vh;max-height:100dvh;height:100vh;height:100dvh;max-height:100dvh;height:100dvh;border-radius:0}.pu-head{padding:14px 50px 12px 14px;flex-wrap:wrap}.pu-ttl h2{font-size:16px}
-.pu-row{grid-template-columns:28px minmax(0,1fr) 46px;grid-template-areas:"n name pc" "n trk st";row-gap:5px;gap:6px 8px}.pu-no{grid-area:n}.pu-name{grid-area:name}.pu-pc{grid-area:pc}.pu-trk{grid-area:trk}.pu-st{grid-area:st}}
+.pu-row{grid-template-columns:28px minmax(0,1fr) 66px;grid-template-areas:"n name pc" "n trk st";row-gap:5px;gap:6px 8px}.pu-no{grid-area:n}.pu-name{grid-area:name}.pu-pc{grid-area:pc}.pu-trk{grid-area:trk}.pu-st{grid-area:st}}
 </style>
 <script id="proc-units-script">
 /* Bấm vào một thủ tục ở menu trái: bật popup danh sách các đơn vị của thủ tục đó (tiến độ, trạng thái); bấm một đơn vị để xem chi tiết */
@@ -1867,13 +1867,13 @@ window.openUnitDetail=open;
  }
  function paintList(){
   var all=rows(cur),nq=norm(q),list=all.filter(function(r){return(filt==='all'||r.cls===filt)&&(!nq||norm(r.name).indexOf(nq)>=0)});
-  ov.querySelector('#puList').innerHTML=list.length?list.map(function(r,i){var pc=Math.round(r.v*100);return '<button type="button" class="pu-row '+r.cls+'" data-pu-unit="'+e(r.name)+'" title="Xem chi tiết '+e(r.name)+'"><span class="pu-no">'+(i+1)+'</span><span class="pu-name">'+e(r.name)+'</span><span class="pu-trk"><i style="width:'+Math.min(100,pc)+'%"></i></span><span class="pu-pc">'+pc+'%</span><span class="pu-st">'+e(r.st)+'</span></button>'}).join(''):'<div class="pu-empty">Không có đơn vị phù hợp.</div>';
+  ov.querySelector('#puList').innerHTML=list.length?list.map(function(r,i){var pc=Math.round(r.v*100),pc2=(r.v*100).toFixed(2).replace('.',',');return '<button type="button" class="pu-row '+r.cls+'" data-pu-unit="'+e(r.name)+'" title="Xem chi tiết '+e(r.name)+'"><span class="pu-no">'+(i+1)+'</span><span class="pu-name">'+e(r.name)+'</span><span class="pu-trk"><i style="width:'+Math.min(100,pc)+'%"></i></span><span class="pu-pc">'+pc2+'%</span><span class="pu-st">'+e(r.st)+'</span></button>'}).join(''):'<div class="pu-empty">Không có đơn vị phù hợp.</div>';
   ov.querySelector('#puCount').textContent='Hiển thị '+list.length+' / '+all.length+' đơn vị · bấm một đơn vị để xem chi tiết';
  }
  function paint(){
   var all=rows(cur),n={all:all.length,good:0,warn:0,gray:0};all.forEach(function(r){n[r.cls]=(n[r.cls]||0)+1});
   ov.querySelector('#puTitle').textContent=cur.short||cur.name||'';
-  ov.querySelector('#puAvg').textContent=Math.round(total(cur)*100)+'%';
+  ov.querySelector('#puAvg').textContent=(total(cur)*100).toFixed(2).replace('.',',')+'%';
   var C=[['all','Tất cả'],['good','Hoàn thành'],['warn','Đang triển khai'],['gray','Chưa triển khai']];
   ov.querySelector('#puChips').innerHTML=C.map(function(c){return '<button type="button" class="pu-chip'+(filt===c[0]?' on':'')+'" data-pu-f="'+c[0]+'">'+c[1]+'<b>'+(n[c[0]]||0)+'</b></button>'}).join('');
   paintList();
