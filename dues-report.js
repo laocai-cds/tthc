@@ -166,7 +166,7 @@
   }
   /* Word không hiểu CSS grid/@page của bản in → đổi sang bảng + khai báo trang A4 để bản Word giống bản PDF */
   function toWord(html) {
-    html = String(html).replace(/<svg[\s\S]*?<\/svg>/g, () => "<div style=\"font:bold 14pt Arial;color:#1e8e3e;text-align:center\">✔ Signature Valid</div><div style=\"font-size:10pt;text-align:center\">Ký bởi: <b>HỆ THỐNG TỰ ĐỘNG</b></div><div style=\"font-size:10pt;text-align:center\">Ngày ký: " + rptStampTime() + "</div>");
+    html = String(html).replace(/<svg[\s\S]*?<\/svg>/g, () => "<div style=\"font:bold 14pt Arial;color:#1e8e3e;text-align:center\">✔ Signature Valid</div><div style=\"font-size:10pt;text-align:center\">Ký bởi: <b style=\"color:#c00000\">HỆ THỐNG TỰ ĐỘNG</b></div><div style=\"font-size:10pt;text-align:center\">Ngày ký: " + rptStampTime() + "</div>");
     const NB = 'border:none;border-collapse:collapse;';
     let h = html;
     h = h.replace(/<div class="hd"><div>([\s\S]*?)<\/div><div>([\s\S]*?)<div class="ln"><\/div>([\s\S]*?)<\/div><\/div>/,

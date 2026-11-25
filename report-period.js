@@ -485,7 +485,7 @@
   function wordHtml(m, c) {
     const base = baseHtml(m), style = (base.match(/<style>[\s\S]*?<\/style>/) || [''])[0].replace('</style>', '.page{width:auto!important;margin:0!important;padding:0!important;box-shadow:none!important}.bar{display:none}@page{size:A4;margin:2cm 2cm 2cm 3cm}</style>');
     const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Báo cáo ' + esc(c.name) + '</title>' + style + '</head><body>' + unitSection(m, c, true) + '</body></html>';
-    return '\uFEFF' + html.replace(/<svg[\s\S]*?<\/svg>/g, () => "<div style=\"font:bold 14pt Arial;color:#1e8e3e;text-align:center\">✔ Signature Valid</div><div style=\"font-size:10pt;text-align:center\">Ký bởi: <b>HỆ THỐNG TỰ ĐỘNG</b></div><div style=\"font-size:10pt;text-align:center\">Ngày ký: " + rptStampTime() + "</div>");
+    return '\uFEFF' + html.replace(/<svg[\s\S]*?<\/svg>/g, () => "<div style=\"font:bold 14pt Arial;color:#1e8e3e;text-align:center\">✔ Signature Valid</div><div style=\"font-size:10pt;text-align:center\">Ký bởi: <b style=\"color:#c00000\">HỆ THỐNG TỰ ĐỘNG</b></div><div style=\"font-size:10pt;text-align:center\">Ngày ký: " + rptStampTime() + "</div>");
   }
   function unitWord(m, c, win) {
     root.rptDownload(new Blob([wordHtml(m, c)], { type: 'application/msword' }), 'bao-cao-' + unitSlug(c.name) + '_' + m.fileStamp + '.doc', win);
