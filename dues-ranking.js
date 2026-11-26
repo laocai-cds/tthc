@@ -24,7 +24,8 @@
 
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-  const pct = n => (Math.round(n * 100) / 100).toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + '%';
+  const num2 = n => { const r = Math.round(n * 100) / 100, d = Number.isInteger(r) ? 0 : 2; return r.toLocaleString('vi-VN', { minimumFractionDigits: d, maximumFractionDigits: d }); };
+  const pct = n => num2(n) + '%';
   const groupOf = r => GROUPS.slice(1).find(g => g.test(r));
   const cellText = c => String(c ? (c.v != null ? c.v : (c.f != null ? c.f : '')) : '').trim();
   const cellNum = c => { if (!c) return 0; if (typeof c.v === 'number') return c.v; const s = String(c.f != null ? c.f : (c.v != null ? c.v : '')).replace(/[^\d-]/g, ''); return s ? parseInt(s, 10) : 0; };
@@ -143,7 +144,7 @@ const xqAdj = d => { /* Xuân Quang: không tính Chi bộ thôn Cóc Mằn (1 �
     tb.innerHTML = list.map(r => {
       const gr = groupOf(r.rate), d = r.diff;
       const diff = d == null ? '<span class="dr-d eq">—<small>chưa có số liệu</small></span>'
-        : '<span class="dr-d ' + (d > 0.005 ? 'up' : d < -0.005 ? 'dn' : 'eq') + '">' + (d > 0.005 ? '▲ +' : d < -0.005 ? '▼ ' : '') + (Math.round(d * 100) / 100).toLocaleString('vi-VN', { maximumFractionDigits: 2 }) + ' điểm<small>kỳ trước ' + pct(r.prev) + '</small></span>';
+        : '<span class="dr-d ' + (d > 0.005 ? 'up' : d < -0.005 ? 'dn' : 'eq') + '">' + (d > 0.005 ? '▲ +' : d < -0.005 ? '▼ ' : '') + num2(d) + ' điểm<small>kỳ trước ' + pct(r.prev) + '</small></span>';
       return '<tr><td class="c"><span class="dr-rk' + (r.rank <= 3 ? ' g' + r.rank : '') + '">' + r.rank + '</span></td><td>' + esc(r.name) + '<small class="dr-sm-only">' + r.dn.toLocaleString('vi-VN') + ' / ' + r.need.toLocaleString('vi-VN') + ' đảng viên</small></td>' +
         '<td class="r dr-hide-sm">' + r.dn.toLocaleString('vi-VN') + ' / ' + r.need.toLocaleString('vi-VN') + '</td>' +
         '<td><div class="dr-rate ' + gr.cls + '"><b>' + pct(r.rate) + '</b><span class="dr-bar"><i style="width:' + Math.min(100, r.rate).toFixed(2) + '%"></i></span></div></td><td class="r">' + diff + '</td></tr>';
